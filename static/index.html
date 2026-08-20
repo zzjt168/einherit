@@ -14,7 +14,7 @@
   <meta name="description" content="电子继承 App E-Inherit · einherit.cn · 个人公司化生命资产盘点与交割手册"/>
   <title>电子继承 App · E-Inherit</title>
   <link rel="icon" href="favicon.svg"/>
-  <link rel="stylesheet" href="app.css?v=20260820k"/>
+  <link rel="stylesheet" href="app.css?v=20260820m"/>
   <link rel="manifest" href="manifest.webmanifest"/>
 </head>
 <body>
@@ -67,7 +67,11 @@
             <div class="folder-body">
               <button data-go="company" type="button">打开公司盘点</button>
               <div class="folder-chips">
-                <span>生产部</span><span>财务部</span><span>知识产权部</span><span>行政部</span><span>董事会</span>
+                <span>生产部/个人产出类</span>
+                <span>财务部/资金与负债类</span>
+                <span>知识产权部/精神文化类</span>
+                <span>行政部/实体钥匙类</span>
+                <span>董事会/决策触发类</span>
               </div>
             </div>
           </details>
@@ -186,11 +190,11 @@
       </label>
       <label class="field">归属部门
         <select id="lgDept">
-          <option value="admin">行政部</option>
-          <option value="finance">财务部</option>
-          <option value="ip">知识产权部</option>
-          <option value="production">生产部</option>
-          <option value="board">董事会</option>
+          <option value="admin">行政部/实体钥匙类(手机平板 证件 恢复码)</option>
+          <option value="finance">财务部/资金与负债类(银行卡 保险 贷款)</option>
+          <option value="ip">知识产权部/精神文化类(云盘 日记 游戏号)</option>
+          <option value="production">生产部/个人产出类(工资 兼职 股票)</option>
+          <option value="board">董事会/决策触发类(执行人 分配 报备)</option>
         </select>
       </label>
       <label class="field">处置方式
@@ -233,11 +237,11 @@
       <label class="field">资产概要<input id="asSummary" placeholder="勿写完整密码/私钥"/></label>
       <label class="field">部门
         <select id="asDept">
-          <option value="finance">财务部</option>
-          <option value="production">生产部</option>
-          <option value="ip">知识产权部</option>
-          <option value="admin">行政部</option>
-          <option value="board">董事会</option>
+          <option value="finance">财务部/资金与负债类(银行卡 保险 贷款)</option>
+          <option value="production">生产部/个人产出类(工资 兼职 股票)</option>
+          <option value="ip">知识产权部/精神文化类(云盘 日记 游戏号)</option>
+          <option value="admin">行政部/实体钥匙类(手机平板 证件 恢复码)</option>
+          <option value="board">董事会/决策触发类(执行人 分配 报备)</option>
         </select>
       </label>
       <label class="field">处理方法<textarea id="asNote" rows="2"></textarea></label>
@@ -400,6 +404,6 @@
 </nav>
 
 <div class="toast" id="toast"></div>
-<script src="app.js?v=20260820k"></script>
+<script src="app.js?v=20260820m"></script>
 </body>
 </html>

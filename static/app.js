@@ -2,6 +2,13 @@
 const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
 const DEPT_NAME = {
+  production: "生产部/个人产出类(工资 兼职 股票)",
+  finance: "财务部/资金与负债类(银行卡 保险 贷款)",
+  ip: "知识产权部/精神文化类(云盘 日记 游戏号)",
+  admin: "行政部/实体钥匙类(手机平板 证件 恢复码)",
+  board: "董事会/决策触发类(执行人 分配 报备)",
+};
+const DEPT_SHORT = {
   production: "生产部",
   finance: "财务部",
   ip: "知识产权部",
@@ -389,7 +396,7 @@ async function refreshLegacy() {
           .map((x) => `<span class="tag">${x}</span>`)
           .join("");
         return `<div class="item">
-      <span class="tag">${DEPT_NAME[it.dept] || it.dept || ""}</span>
+      <span class="tag">${DEPT_SHORT[it.dept] || DEPT_NAME[it.dept] || it.dept || ""}</span>
       <span class="tag">${it.category}</span>
       <span class="tag ${actionClass(it.action)}">${it.action}</span>
       ${flags}
@@ -421,7 +428,7 @@ async function refreshCompany() {
           <input data-dept="${d.id}" class="coTitle" placeholder="标题，如：工资卡尾号"/>
         </label>
         <label class="field"><textarea data-dept="${d.id}" class="coBody" rows="2" placeholder="内容"></textarea></label>
-        <button class="btn secondary coAdd" data-dept="${d.id}">写入${d.name}</button>
+        <button class="btn secondary coAdd" data-dept="${d.id}">写入${d.short || d.name}</button>
         <div class="list" style="margin-top:10px">${
           (d.notes || [])
             .map(
@@ -504,7 +511,7 @@ async function refreshHandover() {
               (t, i) => `
         <div class="item">
           <span class="tag">待办 ${i + 1}</span>
-          <span class="tag">${DEPT_NAME[t.dept] || t.dept || ""}</span>
+          <span class="tag">${DEPT_SHORT[t.dept] || DEPT_NAME[t.dept] || t.dept || ""}</span>
           <strong>${t.title}</strong>
           <div class="muted">${(t.ops || []).join(" · ")}</div>
           <div class="muted">${t.notes || ""}</div>
@@ -626,7 +633,7 @@ async function refreshAssets() {
       .map(
         (it) => `
     <div class="item">
-      <span class="tag">${DEPT_NAME[it.dept] || ""}</span>
+      <span class="tag">${DEPT_SHORT[it.dept] || DEPT_NAME[it.dept] || ""}</span>
       <span class="tag">${it.visibility}</span>
       <strong>${it.platform}</strong>
       <div class="muted">${it.account_hint || ""} · ${it.summary || ""}</div>

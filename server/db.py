@@ -14,11 +14,46 @@ ROOT = Path(__file__).resolve().parents[1]
 DB_PATH = ROOT / "data" / "legacy.db"
 
 DEPTS = [
-    {"id": "production", "name": "生产部", "blurb": "日常运营与现金流", "examples": "工资卡、公积金、欠款、自媒体与订阅"},
-    {"id": "finance", "name": "财务部", "blurb": "资金池与负债防火墙", "examples": "银行卡、投资、保险、贷款"},
-    {"id": "ip", "name": "知识产权部", "blurb": "精神财富与文化载体", "examples": "云盘、日记、游戏号、人脉、遗言"},
-    {"id": "admin", "name": "行政部", "blurb": "实体资产与数字钥匙", "examples": "手机平板、证件、2FA 恢复码"},
-    {"id": "board", "name": "董事会", "blurb": "最高决策与继承触发", "examples": "执行人、分配决议、报备、医疗意愿"},
+    {
+        "id": "production",
+        "name": "生产部/个人产出类(工资 兼职 股票)",
+        "short": "生产部",
+        "category": "个人产出类",
+        "blurb": "你靠什么产出与赚钱",
+        "examples": "工资、兼职、股票、自媒体、订阅分成",
+    },
+    {
+        "id": "finance",
+        "name": "财务部/资金与负债类(银行卡 保险 贷款)",
+        "short": "财务部",
+        "category": "资金与负债类",
+        "blurb": "钱放哪、欠多少、保什么",
+        "examples": "银行卡、支付宝、保险、贷款、公积金",
+    },
+    {
+        "id": "ip",
+        "name": "知识产权部/精神文化类(云盘 日记 游戏号)",
+        "short": "知识产权部",
+        "category": "精神文化类",
+        "blurb": "记忆、创作与情感载体",
+        "examples": "云盘、日记、游戏号、人脉、遗言视频",
+    },
+    {
+        "id": "admin",
+        "name": "行政部/实体钥匙类(手机平板 证件 恢复码)",
+        "short": "行政部",
+        "category": "实体钥匙类",
+        "blurb": "看得见的东西和数字钥匙",
+        "examples": "手机平板、证件、保险箱、2FA恢复码",
+    },
+    {
+        "id": "board",
+        "name": "董事会/决策触发类(执行人 分配 报备)",
+        "short": "董事会",
+        "category": "决策触发类",
+        "blurb": "谁来接盘、怎么分、何时启动",
+        "examples": "执行人、分配决议、生存报备、医疗意愿",
+    },
 ]
 
 # 七宗罪 · 按危害程度排序（产品钉死，勿调换）
