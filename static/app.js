@@ -9,8 +9,10 @@ const DEPT_NAME = {
   board: "董事会",
 };
 
+const API_BASE = (document.querySelector("base")?.href || "/").replace(/\/?$/, "/");
 async function api(path, opts = {}) {
-  const res = await fetch(path, {
+  const url = path.startsWith("http") ? path : (API_BASE.replace(/\/$/, "") + (path.startsWith("/") ? path : "/" + path));
+  const res = await fetch(url, {
     headers: { "Content-Type": "application/json", ...(opts.headers || {}) },
     ...opts,
   });

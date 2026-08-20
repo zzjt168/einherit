@@ -25,3 +25,10 @@ data/**/*.db
 tmp/
 logs/
 *.log
+
+# iOS build
+mobile/ios/build/
+mobile/ios/dist/
+mobile/ios/signing/*.mobileprovision
+*.ipa
+*.xcarchive
