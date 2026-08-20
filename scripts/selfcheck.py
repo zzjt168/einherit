@@ -53,6 +53,19 @@ def main() -> None:
     icu = call("/api/icu-pack", {"beneficiary": "自检接收人"})
     assert len(icu["items"]) == 4, icu
 
+    # 授权说明视频门槛（对标案例：问候+授权+处置思路）
+    av = call(
+        "/api/auth-video",
+        {
+            "demo": True,
+            "has_greeting": True,
+            "has_authorize": True,
+            "has_plan": True,
+            "note": "自检演示",
+        },
+    )
+    assert av["status"]["ready"] is True, av
+
     job = call(
         "/api/aftercare",
         {
@@ -111,7 +124,7 @@ def main() -> None:
     h = call("/api/health")
     assert h.get("domain") == "einherit.cn", h
     assert "继承" in h.get("app", ""), h
-    assert h.get("version") == "0.4.0", h
+    assert h.get("version") == "0.5.0", h
 
     mm = call("/api/mindmap")
     assert mm["map"]["center"]["label"] == "主人", mm

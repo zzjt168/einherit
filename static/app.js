@@ -40,6 +40,7 @@ function show(id) {
   const loaders = {
     home: refreshHome,
     brain: refreshBrain,
+    authvideo: refreshAuthVideo,
     checkin: refreshCheckin,
     legacy: refreshLegacy,
     assets: refreshAssets,
@@ -819,10 +820,23 @@ async function refreshIcu() {
 }
 
 async function refreshAftercare() {
-  const { items, playbook } = await api("/api/aftercare");
+  const [{ items, playbook }, av] = await Promise.all([
+    api("/api/aftercare"),
+    api("/api/auth-video"),
+  ]);
+  const gate = playbook.auth_video_gate || {};
+  const must = (gate.must_include || []).map((x) => `<li>${x}</li>`).join("");
   $("#aftercarePlaybook").innerHTML = `
     <h3>商业拆解（已钉进产品）</h3>
     <p class="muted">${playbook.story}</p>
+    <div class="alert" style="margin-top:10px">
+      <b>${gate.title || "授权说明视频"}</b>
+      <div class="muted">${gate.from_frames || ""}</div>
+      <ul class="muted" style="padding-left:1.1em;margin:0.4em 0">${must}</ul>
+      <div>${av.ready ? "✅ 授权视频已就绪，可提交工单" : "⚠ 尚未完成授权视频 — "}
+        <button class="btn ghost sm" data-go="authvideo" type="button">${av.ready ? "查看" : "去上传"}</button>
+      </div>
+    </div>
     <ul class="muted" style="padding-left:1.1em;margin:0.6em 0 0">
       ${playbook.frames.map((f) => `<li><b>${f.t}</b> → ${f.map}</li>`).join("")}
     </ul>`;
@@ -842,6 +856,54 @@ async function refreshAftercare() {
         .join("")
     : `<div class="empty">暂无善后工单</div>`;
 }
+
+async function refreshAuthVideo() {
+  const st = await api("/api/auth-video");
+  $("#authScript").innerHTML = (st.script || [])
+    .map((s) => `<li><b>${s.title}</b><div class="muted">${s.hint}</div></li>`)
+    .join("");
+  $("#avStatus").textContent = st.ready
+    ? "✅ 授权视频已通过门槛，可去提交善后工单"
+    : st.gate || "请上传含三段内容的视频";
+  $("#avList").innerHTML = (st.items || []).length
+    ? st.items
+        .map(
+          (it) => `<div class="item">
+      <span class="tag">${it.status}</span>
+      <strong>${it.original_name || it.filename}</strong>
+      <div class="muted">问候${it.has_greeting ? "✓" : "✗"} · 授权${it.has_authorize ? "✓" : "✗"} · 思路${it.has_plan ? "✓" : "✗"}
+        · ${fmtTime(it.created_at)}</div>
+      <div class="muted">${it.note || ""}</div>
+    </div>`
+        )
+        .join("")
+    : `<div class="empty">尚未上传授权视频</div>`;
+}
+
+$("#avUpload").onclick = async () => {
+  try {
+    const file = $("#avFile").files?.[0];
+    if (!file) throw new Error("请先选择视频文件");
+    if (!$("#avGreet").checked || !$("#avAuth").checked || !$("#avPlan").checked) {
+      throw new Error("请勾选确认：问候、对我司授权、处置思路均已录进视频");
+    }
+    const fd = new FormData();
+    fd.append("file", file);
+    fd.append("has_greeting", "1");
+    fd.append("has_authorize", "1");
+    fd.append("has_plan", "1");
+    fd.append("note", $("#avNote").value || "");
+    const url = API_BASE.replace(/\/$/, "") + "/api/auth-video";
+    const res = await fetch(url, { method: "POST", body: fd });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || res.statusText);
+    toast(data.message || "已上传");
+    $("#avFile").value = "";
+    refreshAuthVideo();
+  } catch (e) {
+    toast(e.message);
+  }
+};
 
 $("#icuApply").onclick = async () => {
   try {

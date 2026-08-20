@@ -32,3 +32,6 @@ mobile/ios/dist/
 mobile/ios/signing/*.mobileprovision
 *.ipa
 *.xcarchive
+
+# user uploads
+data/uploads/

@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import json
 import sys
+import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
@@ -26,7 +27,7 @@ def json_bytes(obj: object, code: int = 200) -> tuple[int, bytes, str]:
 
 
 class Handler(BaseHTTPRequestHandler):
-    server_version = "EInherit/0.4"
+    server_version = "EInherit/0.5"
 
     def log_message(self, fmt: str, *args) -> None:  # noqa: A003
         sys.stderr.write("[%s] %s\n" % (self.log_date_time_string(), fmt % args))
@@ -93,9 +94,12 @@ class Handler(BaseHTTPRequestHandler):
         if not path.startswith("/api/"):
             self._send(404, b"Not Found", "text/plain")
             return
-        payload = self._read_json()
         try:
-            result = self._api_post(path, payload)
+            if path == "/api/auth-video":
+                result = self._api_auth_video_upload()
+            else:
+                payload = self._read_json()
+                result = self._api_post(path, payload)
             code, body, ctype = json_bytes(result)
             self._send(code, body, ctype)
         except ValueError as e:
@@ -105,6 +109,77 @@ class Handler(BaseHTTPRequestHandler):
             code, body, ctype = json_bytes({"error": str(e)}, 500)
             self._send(code, body, ctype)
 
+    def _api_auth_video_upload(self) -> dict:
+        """multipart: file + has_greeting/has_authorize/has_plan/note；或 JSON 演示占位。"""
+        ctype = self.headers.get("Content-Type") or ""
+        if "multipart/form-data" in ctype:
+            try:
+                import cgi  # noqa: PLC0415
+
+                env = {
+                    "REQUEST_METHOD": "POST",
+                    "CONTENT_TYPE": ctype,
+                    "CONTENT_LENGTH": self.headers.get("Content-Length") or "0",
+                }
+                form = cgi.FieldStorage(fp=self.rfile, headers=self.headers, environ=env)
+            except Exception as e:  # noqa: BLE001
+                raise ValueError(f"无法解析上传表单：{e}") from e
+
+            def flag(name: str) -> bool:
+                v = form.getvalue(name, "")
+                return str(v).lower() in ("1", "true", "on", "yes")
+
+            note = str(form.getvalue("note") or "")
+            fileitem = form["file"] if "file" in form else None
+            if fileitem is None or not getattr(fileitem, "filename", None):
+                raise ValueError("请选择要上传的视频文件")
+            raw = fileitem.file.read()
+            if not raw:
+                raise ValueError("视频文件为空")
+            if len(raw) > 120 * 1024 * 1024:
+                raise ValueError("视频请控制在 120MB 以内")
+            orig = Path(str(fileitem.filename)).name
+            ext = Path(orig).suffix.lower() or ".mp4"
+            if ext not in (".mp4", ".mov", ".m4v", ".webm", ".avi"):
+                raise ValueError("仅支持 mp4 / mov / webm 等常见视频")
+            import uuid
+
+            fname = f"u1_{int(time.time())}_{uuid.uuid4().hex[:8]}{ext}"
+            dest = db.auth_video_dir() / fname
+            dest.write_bytes(raw)
+            item = db.save_auth_video(
+                1,
+                filename=fname,
+                original_name=orig,
+                has_greeting=flag("has_greeting"),
+                has_authorize=flag("has_authorize"),
+                has_plan=flag("has_plan"),
+                note=note,
+            )
+            return {"item": item, "status": db.auth_video_status(1), "message": "授权说明视频已提交"}
+
+        # JSON 路径：自检/演示可用 placeholder（不落真实文件）
+        payload = self._read_json()
+        if not payload.get("demo"):
+            raise ValueError("请使用表单上传视频文件（Content-Type: multipart/form-data）")
+        import uuid
+
+        fname = f"demo_{uuid.uuid4().hex[:8]}.txt"
+        (db.auth_video_dir() / fname).write_text(
+            "demo auth video placeholder\n" + json.dumps(payload, ensure_ascii=False),
+            encoding="utf-8",
+        )
+        item = db.save_auth_video(
+            1,
+            filename=fname,
+            original_name="demo-auth-video.txt",
+            has_greeting=bool(payload.get("has_greeting", True)),
+            has_authorize=bool(payload.get("has_authorize", True)),
+            has_plan=bool(payload.get("has_plan", True)),
+            note=str(payload.get("note") or "演示占位"),
+        )
+        return {"item": item, "status": db.auth_video_status(1), "message": "演示授权视频已登记"}
+
     def _api_get(self, path: str, qs: dict) -> None:
         try:
             if path == "/api/health":
@@ -113,7 +188,7 @@ class Handler(BaseHTTPRequestHandler):
                     "app": "电子继承 App",
                     "brand_en": "E-Inherit",
                     "domain": "einherit.cn",
-                    "version": "0.4.0",
+                    "version": "0.5.0",
                 }
             elif path == "/api/me":
                 out = {"user": db.get_user(1), "ledger": db.recent_ledger(1, 8)}
@@ -157,6 +232,8 @@ class Handler(BaseHTTPRequestHandler):
                 out = db.open_source_learnings()
             elif path == "/api/mindmap":
                 out = {"map": db.get_mindmap(1)}
+            elif path == "/api/auth-video":
+                out = db.auth_video_status(1)
             else:
                 code, body, ctype = json_bytes({"error": "not found"}, 404)
                 self._send(code, body, ctype)

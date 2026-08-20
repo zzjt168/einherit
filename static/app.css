@@ -465,6 +465,15 @@ label.field textarea {
   color: var(--ink-soft);
   margin-bottom: 2px;
 }
+.auth-script {
+  margin: 0 0 12px;
+  padding-left: 1.2em;
+  color: var(--ink-soft);
+  font-size: 13px;
+  line-height: 1.55;
+}
+.auth-script li { margin-bottom: 8px; }
+.auth-script b { color: var(--ink); }
 
 @media (min-width: 900px) {
   .app {

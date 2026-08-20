@@ -249,6 +249,19 @@ CREATE TABLE IF NOT EXISTS mindmap (
   payload TEXT NOT NULL,
   updated_at REAL NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS auth_videos (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id INTEGER NOT NULL,
+  filename TEXT NOT NULL,
+  original_name TEXT DEFAULT '',
+  has_greeting INTEGER DEFAULT 0,
+  has_authorize INTEGER DEFAULT 0,
+  has_plan INTEGER DEFAULT 0,
+  note TEXT DEFAULT '',
+  status TEXT DEFAULT 'submitted',
+  created_at REAL NOT NULL
+);
 """
 
 # 急症前清册（ICU / 入院前）——对标病友真实场景
@@ -804,6 +817,8 @@ def list_aftercare(user_id: int = 1) -> list[dict[str, Any]]:
 
 
 def add_aftercare(user_id: int, payload: dict[str, Any]) -> dict[str, Any]:
+    if not auth_video_ready(user_id):
+        raise ValueError("请先上传授权说明视频（须含：问候 + 对我司处置授权 + 处置思路）")
     now = time.time()
     title = str(payload.get("title") or "").strip() or "电子数据善后"
     service_type = str(payload.get("service_type") or "delete_data")
@@ -859,6 +874,16 @@ def aftercare_playbook() -> dict[str, Any]:
             "28岁病友在病友群发现需求：提供电子数据善后（删数据、变卖电子资产），"
             "上门涉及差旅；客户失联要有流程；撞法律问题后要长期法律顾问。"
         ),
+        "auth_video_gate": {
+            "title": "授权说明视频（善后前置门槛）",
+            "from_frames": "案例要求用户先提交一段说明视频，再启动处置",
+            "must_include": [
+                "对大家的问候（当面交代，不是冷冰冰表单）",
+                "对我司处置的明确授权（可执行、可留证）",
+                "处置思路（删/卖/转赠/出厂等怎么做）",
+            ],
+            "product": "模块「授权视频」→ 未通过则不可提交善后工单",
+        },
         "frames": [
             {"t": "创业项目", "map": "获客=病友群/医旅入口，不做冷推销"},
             {"t": "业务范围", "map": "删数据·变卖资产·转赠清册 → 交割条目+善后工单"},
@@ -868,6 +893,7 @@ def aftercare_playbook() -> dict[str, Any]:
             {"t": "电子资产价值", "map": "资产备忘+可变现动作"},
             {"t": "法律问题咨询", "map": "冷静期+书面授权+合规红线"},
             {"t": "法律顾问必要性", "map": "P2 律师/公证协作；App内常驻合规提示"},
+            {"t": "先交授权视频", "map": "问候+对我司授权+处置思路 → auth_videos 门槛"},
         ],
     }
 
@@ -1119,7 +1145,93 @@ def open_source_learnings() -> dict[str, Any]:
             "审计日志 audit_log",
             "可打印交割手册 /export/handover.html",
             "置顶大脑图谱 mindmap（主人放射+长子资产树）",
+            "授权说明视频门槛（问候+对我司授权+处置思路）",
         ],
+    }
+
+
+AUTH_VIDEO_SCRIPT = [
+    {"key": "greeting", "title": "对大家的问候", "hint": "面向家人/执行人/服务方，当面说清自己是谁、为何录这段视频"},
+    {"key": "authorize", "title": "对我司处置的授权", "hint": "明确授权海南润邦/电子继承团队按约定处置数字资产（删/卖/转赠/出厂等）"},
+    {"key": "plan", "title": "处置思路", "hint": "说清优先级：先清什么、交给谁、哪些必须销毁、哪些可变现"},
+]
+
+
+def auth_video_dir() -> Path:
+    d = ROOT / "data" / "uploads" / "auth_videos"
+    d.mkdir(parents=True, exist_ok=True)
+    return d
+
+
+def list_auth_videos(user_id: int = 1) -> list[dict[str, Any]]:
+    with connect() as conn:
+        rows = conn.execute(
+            "SELECT id, user_id, filename, original_name, has_greeting, has_authorize, has_plan, "
+            "note, status, created_at FROM auth_videos WHERE user_id=? ORDER BY id DESC",
+            (user_id,),
+        ).fetchall()
+    return [row_to_dict(r) for r in rows]  # type: ignore[misc]
+
+
+def auth_video_ready(user_id: int = 1) -> bool:
+    with connect() as conn:
+        row = conn.execute(
+            "SELECT id FROM auth_videos WHERE user_id=? AND has_greeting=1 AND has_authorize=1 "
+            "AND has_plan=1 AND status!='rejected' ORDER BY id DESC LIMIT 1",
+            (user_id,),
+        ).fetchone()
+    return bool(row)
+
+
+def save_auth_video(
+    user_id: int,
+    *,
+    filename: str,
+    original_name: str,
+    has_greeting: bool,
+    has_authorize: bool,
+    has_plan: bool,
+    note: str = "",
+) -> dict[str, Any]:
+    if not (has_greeting and has_authorize and has_plan):
+        raise ValueError("三段内容须全部勾选确认：问候、对我司授权、处置思路")
+    if not filename:
+        raise ValueError("请上传视频文件")
+    now = time.time()
+    with connect() as conn:
+        cur = conn.execute(
+            "INSERT INTO auth_videos (user_id, filename, original_name, has_greeting, has_authorize, "
+            "has_plan, note, status, created_at) VALUES (?,?,?,?,?,?,?,?,?)",
+            (
+                user_id,
+                filename,
+                original_name,
+                1 if has_greeting else 0,
+                1 if has_authorize else 0,
+                1 if has_plan else 0,
+                note,
+                "submitted",
+                now,
+            ),
+        )
+        rid = cur.lastrowid
+        row = conn.execute(
+            "SELECT id, user_id, filename, original_name, has_greeting, has_authorize, has_plan, "
+            "note, status, created_at FROM auth_videos WHERE id=?",
+            (rid,),
+        ).fetchone()
+    audit(user_id, "auth_video.upload", original_name or filename)
+    return row_to_dict(row)  # type: ignore[return-value]
+
+
+def auth_video_status(user_id: int = 1) -> dict[str, Any]:
+    items = list_auth_videos(user_id)
+    return {
+        "ready": auth_video_ready(user_id),
+        "script": AUTH_VIDEO_SCRIPT,
+        "items": items,
+        "latest": items[0] if items else None,
+        "gate": "未完成授权视频前，不可提交善后工单",
     }
 
 
@@ -1132,7 +1244,7 @@ DEFAULT_MINDMAP: dict[str, Any] = {
         {"id": "friend", "label": "朋友", "angle": 95, "go": "heirs"},
         {"id": "daughter", "label": "女", "angle": 145, "go": "heirs"},
         {"id": "brother", "label": "兄", "angle": -110, "go": "heirs"},
-        {"id": "affairs", "label": "事务", "angle": -155, "go": "aftercare"},
+        {"id": "affairs", "label": "事务", "angle": -155, "go": "authvideo"},
     ],
     "heir_bridge": {"id": "eldest", "label": "长子", "go": "heirs"},
     "trunk": [

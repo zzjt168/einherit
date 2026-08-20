@@ -14,7 +14,7 @@
   <meta name="description" content="电子继承 App E-Inherit · einherit.cn · 个人公司化生命资产盘点与交割手册"/>
   <title>电子继承 App · E-Inherit</title>
   <link rel="icon" href="favicon.svg"/>
-  <link rel="stylesheet" href="app.css?v=20260820i"/>
+  <link rel="stylesheet" href="app.css?v=20260820j"/>
   <link rel="manifest" href="manifest.webmanifest"/>
 </head>
 <body>
@@ -40,7 +40,8 @@
       <button class="tile gold" data-go="brain"><div class="ico">图</div><h3>大脑图谱</h3><p>总导航 · 点节点进模块</p></button>
       <button class="tile" data-go="checkin"><div class="ico">◎</div><h3>今日报备</h3><p>漏报先电话本人，再联系备用</p></button>
       <button class="tile gold" data-go="icu"><div class="ico">急</div><h3>急症前清册</h3><p>进ICU前清相册·聊天·出厂</p></button>
-      <button class="tile" data-go="aftercare"><div class="ico">善</div><h3>善后工单</h3><p>删数据·变卖·上门差旅</p></button>
+      <button class="tile gold" data-go="authvideo"><div class="ico">授</div><h3>授权视频</h3><p>问候·对我司授权·处置思路</p></button>
+      <button class="tile" data-go="aftercare"><div class="ico">善</div><h3>善后工单</h3><p>须先交授权视频再开单</p></button>
       <button class="tile" data-go="legacy"><div class="ico">交</div><h3>电子继承</h3><p>销毁·变现·转赠·出厂重置</p></button>
       <button class="tile" data-go="company"><div class="ico">司</div><h3>个人公司化</h3><p>五部门生命资产盘点</p></button>
       <button class="tile" data-go="guard"><div class="ico">防</div><h3>自保建议</h3><p>七宗罪危害序自保模板</p></button>
@@ -238,6 +239,27 @@
     <div class="list" id="icuPreview"></div>
   </section>
 
+  <section class="panel" id="authvideo">
+    <div class="panel-head"><button class="back" data-go="home">←</button><h2>授权说明视频</h2></div>
+    <div class="card">
+      <h3>善后前置门槛（对标案例逐帧要点）</h3>
+      <p class="muted">王洋律师案例：启动处置前，用户须先提交一段说明视频。视频须同时覆盖下面三段，作为对我司执行的留证。</p>
+      <ol class="auth-script" id="authScript"></ol>
+      <label class="field">选择视频文件
+        <input type="file" id="avFile" accept="video/*,.mp4,.mov,.webm"/>
+      </label>
+      <div class="checks" id="avChecks">
+        <label><input type="checkbox" id="avGreet"/> 我已在视频中问候大家</label>
+        <label><input type="checkbox" id="avAuth"/> 我已明确授权我司处置</label>
+        <label><input type="checkbox" id="avPlan"/> 我已说明处置思路</label>
+      </div>
+      <label class="field">补充说明（可选）<textarea id="avNote" rows="2" placeholder="例如：优先清相册，手机出厂后交给长子"></textarea></label>
+      <button class="btn block" id="avUpload">上传授权视频</button>
+      <p class="muted" id="avStatus">加载中…</p>
+    </div>
+    <div class="list" id="avList"></div>
+  </section>
+
   <section class="panel" id="aftercare">
     <div class="panel-head"><button class="back" data-go="home">←</button><h2>电子数据善后</h2></div>
     <div class="card" id="aftercarePlaybook"></div>
@@ -298,6 +320,6 @@
 </nav>
 
 <div class="toast" id="toast"></div>
-<script src="app.js?v=20260820i"></script>
+<script src="app.js?v=20260820j"></script>
 </body>
 </html>
