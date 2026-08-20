@@ -282,7 +282,7 @@ def main() -> None:
     db.init_db()
     httpd = ThreadingHTTPServer((HOST, PORT), Handler)
     print(f"电子继承 App · E-Inherit 已启动 → http://127.0.0.1:{PORT}")
-    print(f"正式域名（审核中）：https://einherit.cn")
+    print(f"正式网页入口：https://einherit.cn")
     print(f"手册：{ROOT / 'docs' / '电子继承-开发技术手册.md'}")
     try:
         httpd.serve_forever()

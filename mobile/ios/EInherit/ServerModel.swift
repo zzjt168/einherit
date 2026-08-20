@@ -6,7 +6,7 @@ final class ServerModel: ObservableObject {
         didSet { UserDefaults.standard.set(homeURL.absoluteString, forKey: "einherit.home") }
     }
 
-    static let defaultURL = URL(string: "https://zz.zzjt.net/einherit/")!
+    static let defaultURL = URL(string: "https://einherit.cn/")!
 
     init() {
         if let s = UserDefaults.standard.string(forKey: "einherit.home"),

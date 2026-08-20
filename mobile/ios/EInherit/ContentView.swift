@@ -37,8 +37,8 @@ struct AboutView: View {
                 Section("服务") {
                     Text("电子继承 App（E-Inherit）帮助您完成个人公司化盘点、生存报备与数字资产交割安排。")
                         .font(.footnote)
-                    Link("隐私政策", destination: URL(string: "https://zz.zzjt.net/einherit/privacy.html")!)
-                    Link("官网（审核中）", destination: URL(string: "https://einherit.cn")!)
+                    Link("隐私政策", destination: URL(string: "https://einherit.cn/privacy.html")!)
+                    Link("官网", destination: URL(string: "https://einherit.cn")!)
                 }
                 Section("服务地址") {
                     TextField("https://…", text: $draft)

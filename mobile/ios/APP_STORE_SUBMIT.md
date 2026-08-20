@@ -6,8 +6,9 @@
 |----|------|
 | Bundle ID `com.zzjt.einherit` | ✅ 已建（Developer） |
 | iOS 工程 `mobile/ios` | ✅ XcodeGen + WKWebView 壳 |
-| 线上服务 | ✅ `https://zz.zzjt.net/einherit/` |
-| 隐私政策 | ✅ `https://zz.zzjt.net/einherit/privacy.html` |
+| 线上服务（正式入口） | ✅ `https://einherit.cn/` |
+| 隐私政策 | ✅ `https://einherit.cn/privacy.html` |
+| 临时镜像（备用） | `https://zz.zzjt.net/einherit/`（DNS/证书未好时可先用） |
 | Release 归档 + IPA | ✅ `mobile/ios/dist/EInherit.ipa` |
 | 分发描述文件 | ✅ App Store Distribution |
 
