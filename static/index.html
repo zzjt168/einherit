@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+  <meta name="theme-color" content="#5B7F6E"/>
+  <meta name="mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-title" content="电子继承"/>
+  <meta name="description" content="电子继承 App E-Inherit · einherit.cn · 个人公司化生命资产盘点与交割手册"/>
+  <title>电子继承 App · E-Inherit</title>
+  <link rel="icon" href="/favicon.svg"/>
+  <link rel="stylesheet" href="/app.css?v=20260820d"/>
+  <link rel="manifest" href="/manifest.webmanifest"/>
+</head>
+<body>
+<div class="app" id="app">
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark">继</div>
+      <div class="brand-text">
+        <strong>电子继承</strong>
+        <span>E-Inherit · einherit.cn</span>
+      </div>
+    </div>
+    <div id="memberPill" class="pill guest">未开通会员</div>
+  </header>
+
+  <section class="panel active" id="home">
+    <div class="hero">
+      <h1>入口有温度，交割要冷静。</h1>
+      <p>把人生当成一家公司来盘点。Inherit：给执行人一份冷清晰的资产交割待办——销毁、变现、转赠、出厂重置、清除照片。</p>
+    </div>
+    <div class="hint" id="homeHint">加载中…</div>
+    <div class="grid">
+      <button class="tile" data-go="checkin"><div class="ico">◎</div><h3>今日报备</h3><p>漏报先电话本人，再联系备用</p></button>
+      <button class="tile gold" data-go="icu"><div class="ico">急</div><h3>急症前清册</h3><p>进ICU前清相册·聊天·出厂</p></button>
+      <button class="tile" data-go="aftercare"><div class="ico">善</div><h3>善后工单</h3><p>删数据·变卖·上门差旅</p></button>
+      <button class="tile" data-go="legacy"><div class="ico">交</div><h3>电子继承</h3><p>销毁·变现·转赠·出厂重置</p></button>
+      <button class="tile" data-go="company"><div class="ico">司</div><h3>个人公司化</h3><p>五部门生命资产盘点</p></button>
+      <button class="tile" data-go="guard"><div class="ico">防</div><h3>自保建议</h3><p>七宗罪危害序自保模板</p></button>
+      <button class="tile" data-go="assets"><div class="ico">記</div><h3>资产备忘</h3><p>账号与处理方法</p></button>
+      <button class="tile" data-go="med"><div class="ico">醫</div><h3>医旅医院</h3><p>国内外筛选推荐</p></button>
+      <button class="tile gold" data-go="member"><div class="ico">¥</div><h3>会员中心</h3><p>¥365/年 · 一天一块钱</p></button>
+      <button class="tile" data-go="travel"><div class="ico">旅</div><h3>差旅预存</h3><p>≥¥2000 · 断缴原路退</p></button>
+      <button class="tile" data-go="handover"><div class="ico">冊</div><h3>交割手册</h3><p>执行人冷待办清单</p></button>
+      <button class="tile" data-go="executor"><div class="ico">盟</div><h3>执行人加盟</h3><p>区域善后执行意向</p></button>
+    </div>
+  </section>
+
+  <section class="panel" id="checkin">
+    <div class="panel-head"><button class="back" data-go="home">←</button><h2>生存报备</h2></div>
+    <div id="checkinBox"></div>
+  </section>
+
+  <section class="panel" id="legacy">
+    <div class="panel-head"><button class="back" data-go="home">←</button><h2>电子继承 · 交割</h2></div>
+    <div class="card">
+      <h3>新增交割安排</h3>
+      <p class="muted">隐形电子财产销毁/销售变现/转赠；手机平板写清交给谁、是否出厂重置、照片与聊天是否消除。</p>
+      <label class="field">名称<input id="lgTitle" placeholder="例如：iPad / 某社交账号"/></label>
+      <label class="field">类别
+        <select id="lgCat">
+          <option>电子设备</option>
+          <option>社交账号</option>
+          <option>虚拟资产</option>
+          <option>云盘相册</option>
+          <option>密码与痕迹</option>
+          <option>其他</option>
+        </select>
+      </label>
+      <label class="field">归属部门
+        <select id="lgDept">
+          <option value="admin">行政部</option>
+          <option value="finance">财务部</option>
+          <option value="ip">知识产权部</option>
+          <option value="production">生产部</option>
+          <option value="board">董事会</option>
+        </select>
+      </label>
+      <label class="field">处置方式
+        <select id="lgAction">
+          <option>销毁</option>
+          <option>销售变现</option>
+          <option>销毁数据后转赠</option>
+          <option>清除密码/照片</option>
+        </select>
+      </label>
+      <label class="field">受益人 / 接收人<input id="lgBene" placeholder="转赠时填写家人"/></label>
+      <div class="checks">
+        <label><input type="checkbox" id="lgReset"/> 恢复出厂设置</label>
+        <label><input type="checkbox" id="lgPhotos"/> 消除照片</label>
+        <label><input type="checkbox" id="lgChats"/> 消除聊天记录</label>
+      </div>
+      <label class="field">执行备注<textarea id="lgNotes" rows="2" placeholder="给执行人的操作说明"></textarea></label>
+      <button class="btn block" id="lgAdd">写入交割手册</button>
+    </div>
+    <div class="list" id="lgList"></div>
+  </section>
+
+  <section class="panel" id="company">
+    <div class="panel-head"><button class="back" data-go="home">←</button><h2>个人公司化</h2></div>
+    <div id="companyBox"></div>
+  </section>
+
+  <section class="panel" id="guard">
+    <div class="panel-head"><button class="back" data-go="home">←</button><h2>自保建议</h2></div>
+    <div class="card"><p class="muted">七宗罪按危害程度排序：色欲 → 暴食 → 贪婪 → 懒惰 → 暴怒 → 嫉妒 → 傲慢。勾选表示已纳入个人自保动作。</p></div>
+    <div class="list" id="guardList"></div>
+  </section>
+
+  <section class="panel" id="assets">
+    <div class="panel-head"><button class="back" data-go="home">←</button><h2>电子资产备忘</h2></div>
+    <div class="card">
+      <h3>记一笔资产</h3>
+      <label class="field">平台<input id="asPlatform" placeholder="微信 / 网盘 / 交易所…"/></label>
+      <label class="field">账号提示（可脱敏）<input id="asHint" placeholder="尾号或昵称"/></label>
+      <label class="field">资产概要<input id="asSummary" placeholder="勿写完整密码/私钥"/></label>
+      <label class="field">部门
+        <select id="asDept">
+          <option value="finance">财务部</option>
+          <option value="production">生产部</option>
+          <option value="ip">知识产权部</option>
+          <option value="admin">行政部</option>
+          <option value="board">董事会</option>
+        </select>
+      </label>
+      <label class="field">处理方法<textarea id="asNote" rows="2"></textarea></label>
+      <button class="btn block" id="asAdd">保存备忘</button>
+    </div>
+    <div class="list" id="asList"></div>
+  </section>
+
+  <section class="panel" id="med">
+    <div class="panel-head"><button class="back" data-go="home">←</button><h2>医旅医院</h2></div>
+    <div class="card">
+      <p class="muted">国内外医院筛选（信息中介，不做疗效承诺）。</p>
+      <label class="field">关键词<input id="medQ" placeholder="城市 / 科室 / 医院名"/></label>
+      <label class="field">国家/地区
+        <select id="medCountry">
+          <option value="">全部</option>
+          <option>中国</option>
+          <option>美国</option>
+          <option>日本</option>
+          <option>新加坡</option>
+        </select>
+      </label>
+      <button class="btn block" id="medSearch">筛选医院</button>
+    </div>
+    <div class="list" id="medList"></div>
+  </section>
+
+  <section class="panel" id="member">
+    <div class="panel-head"><button class="back" data-go="home">←</button><h2>会员中心</h2></div>
+    <div id="memberBox"></div>
+  </section>
+
+  <section class="panel" id="travel">
+    <div class="panel-head"><button class="back" data-go="home">←</button><h2>差旅费预存</h2></div>
+    <div id="travelBox"></div>
+  </section>
+
+  <section class="panel" id="handover">
+    <div class="panel-head"><button class="back" data-go="home">←</button><h2>交割手册</h2></div>
+    <div id="handoverBox"></div>
+  </section>
+
+  <section class="panel" id="icu">
+    <div class="panel-head"><button class="back" data-go="home">←</button><h2>急症前清册</h2></div>
+    <div class="card">
+      <h3>进 ICU / 入院前一键写入</h3>
+      <p class="muted">对标真实病友场景：先清相册与聊天，再写设备出厂与虚拟资产处置。写入后可在「交割手册」查看。</p>
+      <label class="field">指定接收人（可选）<input id="icuBene" placeholder="家人 / 执行人"/></label>
+      <button class="btn block" id="icuApply">生成急症前清册（4条）</button>
+    </div>
+    <div class="list" id="icuPreview"></div>
+  </section>
+
+  <section class="panel" id="aftercare">
+    <div class="panel-head"><button class="back" data-go="home">←</button><h2>电子数据善后</h2></div>
+    <div class="card" id="aftercarePlaybook"></div>
+    <div class="card">
+      <h3>新建善后工单</h3>
+      <p class="muted">删数据 · 变卖电子资产 · 上门执行。差旅从预存扣（演示记账）。客户失联走报备升级，不擅自执行。</p>
+      <label class="field">服务类型
+        <select id="acType">
+          <option value="delete_data">删除电子数据</option>
+          <option value="sell_asset">变卖电子资产</option>
+          <option value="field_visit">上门执行（含差旅）</option>
+          <option value="legal_consult">合规/法律顾问协办</option>
+        </select>
+      </label>
+      <label class="field">工单标题<input id="acTitle" placeholder="例如：清理旧手机相册并出厂"/></label>
+      <label class="field">城市<input id="acCity" placeholder="上门城市"/></label>
+      <label class="field">上门偏好（匹配备注）
+        <select id="acPref">
+          <option value="">不限</option>
+          <option value="同性别优先">同性别优先</option>
+          <option value="仅远程指导">仅远程指导</option>
+          <option value="需家属在场">需家属在场</option>
+        </select>
+      </label>
+      <label class="field">差旅预算（元）<input id="acTravel" type="number" min="0" step="100" placeholder="建议≥2000"/></label>
+      <label class="field">客户配合
+        <select id="acCoop">
+          <option value="pending">待确认</option>
+          <option value="cooperative">客户配合中</option>
+          <option value="unreachable">客户失联→转报备升级</option>
+        </select>
+      </label>
+      <label class="field">备注<textarea id="acNotes" rows="2" placeholder="授权范围、冷静期、禁止事项"></textarea></label>
+      <button class="btn block" id="acAdd">提交善后工单</button>
+    </div>
+    <div class="list" id="acList"></div>
+  </section>
+
+  <section class="panel" id="executor">
+    <div class="panel-head"><button class="back" data-go="home">←</button><h2>执行人加盟</h2></div>
+    <div class="card">
+      <h3>区域善后执行意向</h3>
+      <p class="muted">评论区常见「本地需要人吗」——先收意向，再人工审核培训与合规。</p>
+      <label class="field">姓名<input id="exName" placeholder="真实姓名"/></label>
+      <label class="field">城市<input id="exCity" placeholder="可服务城市"/></label>
+      <label class="field">联系方式<input id="exPhone" placeholder="手机号"/></label>
+      <label class="field">说明<textarea id="exNote" rows="2" placeholder="从业背景 / 可服务时段"></textarea></label>
+      <button class="btn block" id="exAdd">提交加盟意向</button>
+    </div>
+  </section>
+</div>
+
+<nav class="tabbar">
+  <button class="active" data-go="home"><span>⌂</span>首页</button>
+  <button data-go="checkin"><span>◎</span>报备</button>
+  <button data-go="company"><span>司</span>盘点</button>
+  <button data-go="member"><span>¥</span>会员</button>
+</nav>
+
+<div class="toast" id="toast"></div>
+<script src="/app.js?v=20260820d"></script>
+</body>
+</html>

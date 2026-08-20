@@ -1,0 +1,27 @@
+# —— 运行时 / 虚拟环境 ——
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.DS_Store
+Thumbs.db
+
+# —— 数据与密钥（禁止进库）——
+.env
+.env.*
+!.env.example
+data/*.db
+data/**/*.db
+*.db-journal
+*.sqlite3
+*.local.json
+*.local.env
+
+# —— 临时 ——
+tmp/
+logs/
+*.log

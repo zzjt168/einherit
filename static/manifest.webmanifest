@@ -1,0 +1,10 @@
+{
+  "name": "电子继承 App",
+  "short_name": "电子继承",
+  "description": "E-Inherit · einherit.cn · 个人公司化生命资产盘点与交割手册",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F4F0E8",
+  "theme_color": "#5B7F6E",
+  "lang": "zh-CN"
+}
