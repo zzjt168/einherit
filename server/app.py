@@ -155,6 +155,8 @@ class Handler(BaseHTTPRequestHandler):
                 out = {"items": db.list_snapshots(1)}
             elif path == "/api/learnings":
                 out = db.open_source_learnings()
+            elif path == "/api/mindmap":
+                out = {"map": db.get_mindmap(1)}
             else:
                 code, body, ctype = json_bytes({"error": "not found"}, 404)
                 self._send(code, body, ctype)
@@ -266,6 +268,13 @@ class Handler(BaseHTTPRequestHandler):
 
         if path == "/api/handover/snapshot":
             return {"item": db.save_handover_snapshot(1, str(payload.get("label") or ""))}
+
+        if path == "/api/mindmap":
+            if payload.get("reset"):
+                return {"map": db.save_mindmap(1, dict(db.DEFAULT_MINDMAP))}
+            if "map" in payload and isinstance(payload["map"], dict):
+                return {"map": db.save_mindmap(1, payload["map"])}
+            return {"map": db.get_mindmap(1)}
 
         # 演示：把上次报备拨回到过去，制造逾期
         if path == "/api/checkin/force-overdue":

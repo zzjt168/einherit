@@ -14,7 +14,7 @@
   <meta name="description" content="电子继承 App E-Inherit · einherit.cn · 个人公司化生命资产盘点与交割手册"/>
   <title>电子继承 App · E-Inherit</title>
   <link rel="icon" href="favicon.svg"/>
-  <link rel="stylesheet" href="app.css?v=20260820g"/>
+  <link rel="stylesheet" href="app.css?v=20260820h"/>
   <link rel="manifest" href="manifest.webmanifest"/>
 </head>
 <body>
@@ -33,10 +33,21 @@
   <section class="panel active" id="home">
     <div class="hero">
       <h1>入口有温度，交割要冷静。</h1>
-      <p>把人生当成一家公司来盘点。Inherit：给执行人一份冷清晰的资产交割待办——销毁、变现、转赠、出厂重置、清除照片。</p>
+      <p>把人生当成一家公司来盘点。Inherit：给执行人一份冷清晰的资产交割待办。</p>
+    </div>
+    <div class="brain-pin" id="brainPin">
+      <div class="brain-pin-head">
+        <div>
+          <h2>大脑图谱</h2>
+          <p class="muted">主人居中 · 关系放射 · 长子承接密钥与公司</p>
+        </div>
+        <button class="btn ghost sm" data-go="brain">展开编辑</button>
+      </div>
+      <div id="brainMapHome" class="brain-canvas" aria-label="大脑图谱"></div>
     </div>
     <div class="hint" id="homeHint">加载中…</div>
     <div class="grid">
+      <button class="tile gold" data-go="brain"><div class="ico">图</div><h3>大脑图谱</h3><p>置顶总览 · 关系与资产树</p></button>
       <button class="tile" data-go="checkin"><div class="ico">◎</div><h3>今日报备</h3><p>漏报先电话本人，再联系备用</p></button>
       <button class="tile gold" data-go="icu"><div class="ico">急</div><h3>急症前清册</h3><p>进ICU前清相册·聊天·出厂</p></button>
       <button class="tile" data-go="aftercare"><div class="ico">善</div><h3>善后工单</h3><p>删数据·变卖·上门差旅</p></button>
@@ -50,6 +61,22 @@
       <button class="tile" data-go="handover"><div class="ico">冊</div><h3>交割手册</h3><p>执行人冷待办清单</p></button>
       <button class="tile" data-go="heirs"><div class="ico">益</div><h3>受益人与紧急取用</h3><p>等待期可拒绝 · 审计留痕</p></button>
       <button class="tile" data-go="executor"><div class="ico">盟</div><h3>执行人加盟</h3><p>区域善后执行意向</p></button>
+    </div>
+  </section>
+
+  <section class="panel" id="brain">
+    <div class="panel-head"><button class="back" data-go="home">←</button><h2>大脑图谱</h2></div>
+    <div class="card">
+      <p class="muted" id="brainNote">上圈看清关系与事务；下树看清密钥与公司交给谁。</p>
+      <div id="brainMapFull" class="brain-canvas brain-canvas-lg"></div>
+      <div class="row" style="margin-top:12px;gap:8px;flex-wrap:wrap">
+        <button class="btn ghost" id="brainReset">恢复手绘默认结构</button>
+      </div>
+    </div>
+    <div class="card">
+      <h3>改节点名称（对标手绘）</h3>
+      <div id="brainEditList" class="brain-edit-list"></div>
+      <button class="btn block" id="brainSave">保存图谱</button>
     </div>
   </section>
 
@@ -269,6 +296,6 @@
 </nav>
 
 <div class="toast" id="toast"></div>
-<script src="app.js?v=20260820g"></script>
+<script src="app.js?v=20260820h"></script>
 </body>
 </html>

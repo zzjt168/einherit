@@ -39,6 +39,7 @@ function show(id) {
   window.scrollTo({ top: 0, behavior: "smooth" });
   const loaders = {
     home: refreshHome,
+    brain: refreshBrain,
     checkin: refreshCheckin,
     legacy: refreshLegacy,
     assets: refreshAssets,
@@ -91,9 +92,192 @@ async function refreshHome() {
       : grace
         ? `⏳ 已过报备点，仍在冷静期（${user.grace_hours}h）。盘点进度 ${co.progress.pct}%。`
         : `einherit.cn · 盘点进度 ${co.progress.pct}%（${co.progress.filled}/5 部门）· 下次报备 ${fmtTime(user.checkin_due_at)}`;
+    await renderBrainMap("#brainMapHome", { compact: true });
   } catch (e) {
     $("#homeHint").textContent = "服务未就绪：" + e.message;
   }
+}
+
+let _mindmapCache = null;
+
+function esc(s) {
+  return String(s || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function polar(cx, cy, r, deg) {
+  const rad = ((deg - 90) * Math.PI) / 180;
+  return [cx + r * Math.cos(rad), cy + r * Math.sin(rad)];
+}
+
+function buildMindmapSvg(map, compact) {
+  const W = 420;
+  const H = compact ? 420 : 460;
+  const cx = W / 2;
+  const cy = compact ? 118 : 128;
+  const R = compact ? 78 : 88;
+  const lines = [];
+  const nodes = [];
+
+  const center = map.center || { label: "主人", go: "company" };
+  for (const n of map.radial || []) {
+    const [x, y] = polar(cx, cy, R, Number(n.angle) || 0);
+    lines.push(
+      `<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="#c9c2b6" stroke-width="1.6"/>`
+    );
+    nodes.push(
+      `<g class="brain-node" data-go="${esc(n.go || "heirs")}" transform="translate(${x},${y})">
+        <circle r="18" fill="#fffcf7" stroke="#5b7f6e" stroke-width="1.6"/>
+        <text text-anchor="middle" dy="4" font-size="12" fill="#1c2430" font-family="Songti SC, serif">${esc(n.label)}</text>
+      </g>`
+    );
+  }
+
+  // spine down through 长子 to trunk
+  const bridge = map.heir_bridge || { label: "长子", go: "heirs" };
+  const trunkY = cy + R + 36;
+  const barY = trunkY + 42;
+  lines.push(
+    `<line x1="${cx}" y1="${cy + 22}" x2="${cx}" y2="${barY}" stroke="#5b7f6e" stroke-width="2"/>`
+  );
+  nodes.push(
+    `<g class="brain-node" data-go="${esc(bridge.go || "heirs")}" transform="translate(${cx},${trunkY})">
+      <rect x="-28" y="-12" width="56" height="24" rx="8" fill="#e7efe9" stroke="#3f5e50" stroke-width="1.4"/>
+      <text text-anchor="middle" dy="4" font-size="12" fill="#3f5e50" font-family="Songti SC, serif">${esc(bridge.label)}</text>
+    </g>`
+  );
+
+  const trunk = map.trunk || [];
+  const n = Math.max(trunk.length, 1);
+  const left = 48;
+  const right = W - 48;
+  const span = right - left;
+  lines.push(
+    `<line x1="${left}" y1="${barY}" x2="${right}" y2="${barY}" stroke="#5b7f6e" stroke-width="2"/>`
+  );
+
+  trunk.forEach((item, i) => {
+    const x = left + (span * (i + 0.5)) / n;
+    const leafY = barY + 54;
+    lines.push(
+      `<line x1="${x}" y1="${barY}" x2="${x}" y2="${leafY - 18}" stroke="#c9c2b6" stroke-width="1.6"/>`
+    );
+    if (item.kind === "company" || (item.children && item.children.length)) {
+      nodes.push(
+        `<g class="brain-node" data-go="${esc(item.go || "company")}" transform="translate(${x},${leafY})">
+          <circle r="22" fill="#f3ead8" stroke="#b08d57" stroke-width="1.6"/>
+          <text text-anchor="middle" dy="4" font-size="11" fill="#7a5d2e" font-family="Songti SC, serif">${esc(item.label)}</text>
+        </g>`
+      );
+      const kids = item.children || [];
+      if (kids.length) {
+        const subY = leafY + 52;
+        const subW = Math.min(90, 36 * kids.length);
+        lines.push(
+          `<line x1="${x}" y1="${leafY + 22}" x2="${x}" y2="${subY - 18}" stroke="#c9c2b6" stroke-width="1.4"/>`,
+          `<line x1="${x - subW / 2}" y1="${subY - 18}" x2="${x + subW / 2}" y2="${subY - 18}" stroke="#c9c2b6" stroke-width="1.4"/>`
+        );
+        kids.forEach((ch, j) => {
+          const cx2 = x - subW / 2 + (subW * (j + 0.5)) / kids.length;
+          lines.push(
+            `<line x1="${cx2}" y1="${subY - 18}" x2="${cx2}" y2="${subY - 4}" stroke="#c9c2b6" stroke-width="1.4"/>`
+          );
+          nodes.push(
+            `<g class="brain-node" data-go="${esc(ch.go || "company")}" transform="translate(${cx2},${subY + 8})">
+              <rect x="-26" y="-11" width="52" height="22" rx="6" fill="#fffcf7" stroke="#5b7f6e" stroke-width="1.2"/>
+              <text text-anchor="middle" dy="4" font-size="10" fill="#1c2430">${esc(ch.label)}</text>
+            </g>`
+          );
+        });
+      }
+    } else if (item.kind === "slot") {
+      nodes.push(
+        `<g class="brain-node" data-go="${esc(item.go || "legacy")}" transform="translate(${x},${leafY})">
+          <line x1="0" y1="-8" x2="0" y2="14" stroke="#c9c2b6" stroke-width="1.6" stroke-dasharray="3 3"/>
+          <text text-anchor="middle" y="28" font-size="16" fill="#b0a89c">${esc(item.label || "…")}</text>
+        </g>`
+      );
+    } else {
+      nodes.push(
+        `<g class="brain-node" data-go="${esc(item.go || "assets")}" transform="translate(${x},${leafY})">
+          <rect x="-24" y="-12" width="48" height="24" rx="6" fill="#fffcf7" stroke="#5b7f6e" stroke-width="1.4"/>
+          <text text-anchor="middle" dy="4" font-size="11" fill="#1c2430">${esc(item.label)}</text>
+        </g>`
+      );
+    }
+  });
+
+  nodes.unshift(
+    `<g class="brain-node" data-go="${esc(center.go || "company")}" transform="translate(${cx},${cy})">
+      <circle r="26" fill="#5b7f6e" stroke="#3f5e50" stroke-width="2"/>
+      <text text-anchor="middle" dy="5" font-size="14" fill="#fff" font-family="Songti SC, serif" font-weight="700">${esc(center.label || "主人")}</text>
+    </g>`
+  );
+
+  return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" role="img">
+    ${lines.join("")}
+    ${nodes.join("")}
+  </svg>`;
+}
+
+async function renderBrainMap(sel, { compact = false } = {}) {
+  const el = $(sel);
+  if (!el) return;
+  if (!_mindmapCache) {
+    const { map } = await api("/api/mindmap");
+    _mindmapCache = map;
+  }
+  el.innerHTML = buildMindmapSvg(_mindmapCache, compact);
+}
+
+async function refreshBrain() {
+  const { map } = await api("/api/mindmap");
+  _mindmapCache = map;
+  if ($("#brainNote")) $("#brainNote").textContent = map.note || "";
+  await renderBrainMap("#brainMapFull", { compact: false });
+
+  const rows = [];
+  rows.push({ key: "center", label: "中心（主人）", value: map.center?.label || "主人" });
+  (map.radial || []).forEach((n, i) => {
+    rows.push({ key: `radial.${i}`, label: `放射 ${i + 1}`, value: n.label || "" });
+  });
+  rows.push({ key: "heir_bridge", label: "下承（长子）", value: map.heir_bridge?.label || "长子" });
+  (map.trunk || []).forEach((n, i) => {
+    rows.push({ key: `trunk.${i}`, label: `资产树 ${i + 1}`, value: n.label || "" });
+    (n.children || []).forEach((c, j) => {
+      rows.push({ key: `trunk.${i}.child.${j}`, label: `└ 子节点`, value: c.label || "" });
+    });
+  });
+  $("#brainEditList").innerHTML = rows
+    .map(
+      (r) => `<label class="field"><span class="row-label">${esc(r.label)}</span>
+      <input data-brain-key="${esc(r.key)}" value="${esc(r.value)}"/></label>`
+    )
+    .join("");
+}
+
+function applyBrainEdits(map) {
+  const next = JSON.parse(JSON.stringify(map));
+  $$("[data-brain-key]").forEach((inp) => {
+    const key = inp.dataset.brainKey;
+    const val = inp.value.trim();
+    if (key === "center") next.center.label = val || "主人";
+    else if (key === "heir_bridge") next.heir_bridge.label = val || "长子";
+    else if (key.startsWith("radial.")) {
+      const i = Number(key.split(".")[1]);
+      if (next.radial[i]) next.radial[i].label = val;
+    } else if (key.includes(".child.")) {
+      const m = key.match(/^trunk\.(\d+)\.child\.(\d+)$/);
+      if (m && next.trunk[m[1]]?.children?.[m[2]]) next.trunk[m[1]].children[m[2]].label = val;
+    } else if (key.startsWith("trunk.")) {
+      const i = Number(key.split(".")[1]);
+      if (next.trunk[i]) next.trunk[i].label = val;
+    }
+  });
+  return next;
 }
 
 async function refreshCheckin() {
@@ -744,6 +928,39 @@ $("#emReq").onclick = async () => {
     });
     toast("紧急取用已进入等待期");
     refreshHeirs();
+  } catch (e) {
+    toast(e.message);
+  }
+};
+
+$("#brainSave").onclick = async () => {
+  try {
+    if (!_mindmapCache) {
+      const { map } = await api("/api/mindmap");
+      _mindmapCache = map;
+    }
+    const next = applyBrainEdits(_mindmapCache);
+    const r = await api("/api/mindmap", {
+      method: "POST",
+      body: JSON.stringify({ map: next }),
+    });
+    _mindmapCache = r.map;
+    toast("图谱已保存");
+    refreshBrain();
+  } catch (e) {
+    toast(e.message);
+  }
+};
+
+$("#brainReset").onclick = async () => {
+  try {
+    const r = await api("/api/mindmap", {
+      method: "POST",
+      body: JSON.stringify({ reset: true }),
+    });
+    _mindmapCache = r.map;
+    toast("已恢复手绘默认结构");
+    refreshBrain();
   } catch (e) {
     toast(e.message);
   }

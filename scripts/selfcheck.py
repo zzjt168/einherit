@@ -113,6 +113,10 @@ def main() -> None:
     assert "继承" in h.get("app", ""), h
     assert h.get("version") == "0.4.0", h
 
+    mm = call("/api/mindmap")
+    assert mm["map"]["center"]["label"] == "主人", mm
+    assert any(n["label"] == "长子" for n in [mm["map"].get("heir_bridge", {})]), mm
+
     print("selfcheck OK")
 
 

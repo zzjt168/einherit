@@ -243,6 +243,12 @@ CREATE TABLE IF NOT EXISTS handover_snapshots (
   payload TEXT NOT NULL,
   created_at REAL NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS mindmap (
+  user_id INTEGER PRIMARY KEY,
+  payload TEXT NOT NULL,
+  updated_at REAL NOT NULL
+);
 """
 
 # 急症前清册（ICU / 入院前）——对标病友真实场景
@@ -1112,5 +1118,64 @@ def open_source_learnings() -> dict[str, Any]:
             "交割手册版本快照 handover_snapshots",
             "审计日志 audit_log",
             "可打印交割手册 /export/handover.html",
+            "置顶大脑图谱 mindmap（主人放射+长子资产树）",
         ],
     }
+
+
+DEFAULT_MINDMAP: dict[str, Any] = {
+    "title": "大脑图谱",
+    "center": {"id": "owner", "label": "主人", "go": "company"},
+    "radial": [
+        {"id": "father", "label": "父", "angle": -55, "go": "heirs"},
+        {"id": "mother", "label": "母", "angle": 55, "go": "heirs"},
+        {"id": "friend", "label": "朋友", "angle": 95, "go": "heirs"},
+        {"id": "daughter", "label": "女", "angle": 145, "go": "heirs"},
+        {"id": "brother", "label": "兄", "angle": -110, "go": "heirs"},
+        {"id": "affairs", "label": "事务", "angle": -155, "go": "aftercare"},
+    ],
+    "heir_bridge": {"id": "eldest", "label": "长子", "go": "heirs"},
+    "trunk": [
+        {"id": "keys", "label": "密钥", "go": "assets", "kind": "leaf"},
+        {
+            "id": "co1",
+            "label": "公司1",
+            "go": "company",
+            "kind": "company",
+            "children": [{"id": "dept1", "label": "部门一", "go": "company"}],
+        },
+        {"id": "co2", "label": "公司2", "go": "company", "kind": "company"},
+        {"id": "more1", "label": "…", "go": "legacy", "kind": "slot"},
+        {"id": "more2", "label": "…", "go": "legacy", "kind": "slot"},
+    ],
+    "note": "上圈：关系与事务；下树：交给长子的密钥与公司结构。点节点进入对应模块。",
+}
+
+
+def get_mindmap(user_id: int = 1) -> dict[str, Any]:
+    with connect() as conn:
+        row = conn.execute("SELECT payload FROM mindmap WHERE user_id=?", (user_id,)).fetchone()
+    if not row:
+        return dict(DEFAULT_MINDMAP)
+    try:
+        data = json.loads(row["payload"])
+    except json.JSONDecodeError:
+        return dict(DEFAULT_MINDMAP)
+    # soft-merge defaults for missing keys
+    out = dict(DEFAULT_MINDMAP)
+    out.update(data)
+    return out
+
+
+def save_mindmap(user_id: int, payload: dict[str, Any]) -> dict[str, Any]:
+    now = time.time()
+    body = json.dumps(payload, ensure_ascii=False)
+    with connect() as conn:
+        conn.execute(
+            "INSERT INTO mindmap (user_id, payload, updated_at) VALUES (?,?,?) "
+            "ON CONFLICT(user_id) DO UPDATE SET payload=excluded.payload, updated_at=excluded.updated_at",
+            (user_id, body, now),
+        )
+        conn.commit()
+    audit(user_id, "mindmap.save", "ok")
+    return get_mindmap(user_id)

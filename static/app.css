@@ -408,6 +408,62 @@ label.field textarea {
 #home.panel.active { display: block; }
 .hidden { display: none !important; }
 
+/* 大脑图谱 · 置顶 */
+.brain-pin {
+  margin: 8px 18px 14px;
+  padding: 14px 12px 10px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+.brain-pin-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 0 4px 8px;
+}
+.brain-pin-head h2 {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 18px;
+  letter-spacing: 0.04em;
+}
+.brain-pin-head .muted { margin: 4px 0 0; font-size: 12px; }
+.btn.sm { padding: 6px 10px; font-size: 12px; }
+.brain-canvas {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.brain-canvas svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-width: 320px;
+}
+.brain-canvas-lg svg { min-width: 360px; }
+.brain-node {
+  cursor: pointer;
+}
+.brain-node:hover circle,
+.brain-node:hover rect {
+  filter: brightness(0.97);
+  stroke-width: 2.2;
+}
+.brain-edit-list {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.brain-edit-list .field { margin: 0; }
+.brain-edit-list .row-label {
+  font-size: 11px;
+  color: var(--ink-soft);
+  margin-bottom: 2px;
+}
+
 @media (min-width: 900px) {
   .app {
     max-width: 980px;
@@ -421,4 +477,5 @@ label.field textarea {
     gap: 18px;
     padding: 0 18px 24px;
   }
+  .brain-canvas svg { min-width: 0; }
 }
