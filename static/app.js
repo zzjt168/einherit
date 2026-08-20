@@ -92,7 +92,6 @@ async function refreshHome() {
       : grace
         ? `⏳ 已过报备点，仍在冷静期（${user.grace_hours}h）。盘点进度 ${co.progress.pct}%。`
         : `einherit.cn · 盘点进度 ${co.progress.pct}%（${co.progress.filled}/5 部门）· 下次报备 ${fmtTime(user.checkin_due_at)}`;
-    await renderBrainMap("#brainMapHome", { compact: true });
   } catch (e) {
     $("#homeHint").textContent = "服务未就绪：" + e.message;
   }
@@ -755,7 +754,8 @@ document.addEventListener("click", (e) => {
   const go = e.target.closest("[data-go]");
   if (go) {
     e.preventDefault();
-    show(go.dataset.go);
+    const target = go.dataset.go;
+    if (target) show(target);
   }
 });
 

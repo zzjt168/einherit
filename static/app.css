@@ -408,23 +408,18 @@ label.field textarea {
 #home.panel.active { display: block; }
 .hidden { display: none !important; }
 
-/* 大脑图谱 · 置顶 */
-.brain-pin {
-  margin: 8px 18px 14px;
-  padding: 14px 12px 10px;
-  background: var(--card);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
+/* 大脑图谱 · 模块内总导航（不在首页展开） */
+.brain-hub {
+  margin-top: 0;
 }
 .brain-pin-head {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   gap: 10px;
-  padding: 0 4px 8px;
+  padding: 0 0 8px;
 }
-.brain-pin-head h2 {
+.brain-pin-head h3 {
   margin: 0;
   font-family: var(--font-serif);
   font-size: 18px;
@@ -451,6 +446,13 @@ label.field textarea {
 .brain-node:hover rect {
   filter: brightness(0.97);
   stroke-width: 2.2;
+}
+.brain-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  margin-top: 10px;
+  font-size: 11px;
 }
 .brain-edit-list {
   display: grid;

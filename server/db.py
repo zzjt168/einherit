@@ -1148,7 +1148,7 @@ DEFAULT_MINDMAP: dict[str, Any] = {
         {"id": "more1", "label": "…", "go": "legacy", "kind": "slot"},
         {"id": "more2", "label": "…", "go": "legacy", "kind": "slot"},
     ],
-    "note": "上圈：关系与事务；下树：交给长子的密钥与公司结构。点节点进入对应模块。",
+    "note": "本 App 总导航：点节点进入对应模块。上圈关系与事务，下树密钥与公司。",
 }
 
 
