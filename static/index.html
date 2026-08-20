@@ -45,6 +45,7 @@
       <button class="tile gold" data-go="member"><div class="ico">¥</div><h3>会员中心</h3><p>¥365/年 · 一天一块钱</p></button>
       <button class="tile" data-go="travel"><div class="ico">旅</div><h3>差旅预存</h3><p>≥¥2000 · 断缴原路退</p></button>
       <button class="tile" data-go="handover"><div class="ico">冊</div><h3>交割手册</h3><p>执行人冷待办清单</p></button>
+      <button class="tile" data-go="heirs"><div class="ico">益</div><h3>受益人与紧急取用</h3><p>等待期可拒绝 · 审计留痕</p></button>
       <button class="tile" data-go="executor"><div class="ico">盟</div><h3>执行人加盟</h3><p>区域善后执行意向</p></button>
     </div>
   </section>
@@ -166,6 +167,34 @@
     <div id="handoverBox"></div>
   </section>
 
+  <section class="panel" id="heirs">
+    <div class="panel-head"><button class="back" data-go="home">←</button><h2>受益人 · 紧急取用</h2></div>
+    <div class="card">
+      <h3>添加受益人 / 受托人</h3>
+      <p class="muted">对标 Morrígan：受益人单独建档。紧急取用对标 Legacy Vault：申请后进入等待期，期间本人可拒绝。</p>
+      <label class="field">姓名<input id="bnName" placeholder="受益人姓名"/></label>
+      <label class="field">角色
+        <select id="bnRole">
+          <option value="heir">继承人</option>
+          <option value="trustee">受托人</option>
+          <option value="executor">执行人</option>
+          <option value="family">家属</option>
+        </select>
+      </label>
+      <label class="field">联系方式<input id="bnContact" placeholder="手机 / 微信"/></label>
+      <label class="field">备注<input id="bnNote" placeholder="可选"/></label>
+      <button class="btn block" id="bnAdd">保存受益人</button>
+    </div>
+    <div class="card">
+      <h3>发起紧急取用申请</h3>
+      <label class="field">受益人<select id="emBene"></select></label>
+      <label class="field">等待天数<input id="emWait" type="number" min="1" max="90" value="7"/></label>
+      <label class="field">事由<input id="emReason" placeholder="例如：主人失联需查阅交割手册"/></label>
+      <button class="btn block" id="emReq">提交申请（进入等待期）</button>
+    </div>
+    <div id="heirsBox"></div>
+  </section>
+
   <section class="panel" id="icu">
     <div class="panel-head"><button class="back" data-go="home">←</button><h2>急症前清册</h2></div>
     <div class="card">
@@ -237,6 +266,6 @@
 </nav>
 
 <div class="toast" id="toast"></div>
-<script src="app.js?v=20260820e"></script>
+<script src="app.js?v=20260820f"></script>
 </body>
 </html>

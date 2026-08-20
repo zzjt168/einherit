@@ -204,6 +204,45 @@ CREATE TABLE IF NOT EXISTS executor_leads (
   note TEXT DEFAULT '',
   created_at REAL NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS beneficiaries (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id INTEGER NOT NULL,
+  name TEXT NOT NULL,
+  role TEXT DEFAULT 'heir',
+  contact TEXT DEFAULT '',
+  note TEXT DEFAULT '',
+  created_at REAL NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS emergency_access (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id INTEGER NOT NULL,
+  beneficiary_id INTEGER NOT NULL,
+  wait_days INTEGER DEFAULT 7,
+  status TEXT DEFAULT 'pending',
+  reason TEXT DEFAULT '',
+  requested_at REAL NOT NULL,
+  decide_by REAL NOT NULL,
+  decided_at REAL DEFAULT 0,
+  note TEXT DEFAULT ''
+);
+
+CREATE TABLE IF NOT EXISTS audit_log (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id INTEGER NOT NULL,
+  action TEXT NOT NULL,
+  detail TEXT DEFAULT '',
+  created_at REAL NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS handover_snapshots (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id INTEGER NOT NULL,
+  label TEXT DEFAULT '',
+  payload TEXT NOT NULL,
+  created_at REAL NOT NULL
+);
 """
 
 # 急症前清册（ICU / 入院前）——对标病友真实场景
@@ -279,7 +318,10 @@ def _ensure_columns(conn: sqlite3.Connection) -> None:
             ("clear_chats", "INTEGER DEFAULT 0"),
         ],
         "assets": [("dept", "TEXT DEFAULT 'finance'")],
-        "users": [("executor_name", "TEXT DEFAULT ''")],
+        "users": [
+            ("executor_name", "TEXT DEFAULT ''"),
+            ("grace_hours", "REAL DEFAULT 72"),
+        ],
     }
     for table, cols in specs.items():
         existing = {r[1] for r in conn.execute(f"PRAGMA table_info({table})").fetchall()}
@@ -363,9 +405,16 @@ def get_user(user_id: int = 1) -> dict[str, Any]:
         time.strftime("%Y-%m-%d", time.localtime(u["member_until"])) if u["member_until"] else None
     )
     interval = float(u["checkin_interval_hours"] or 24) * 3600
+    grace = float(u.get("grace_hours") or 72) * 3600
     due = float(u["last_checkin_at"] or 0) + interval
+    hard_due = due + grace
+    now = time.time()
     u["checkin_due_at"] = due
-    u["checkin_overdue"] = time.time() > due
+    u["checkin_hard_due_at"] = hard_due
+    u["grace_hours"] = float(u.get("grace_hours") or 72)
+    u["checkin_in_grace"] = due < now <= hard_due
+    u["checkin_overdue"] = now > hard_due  # 仅冷静期结束后才升级外呼
+    u["checkin_soft_overdue"] = now > due
     u["domain"] = "einherit.cn"
     u["brand"] = "电子继承 App"
     u["brand_en"] = "E-Inherit"
@@ -604,6 +653,16 @@ def do_checkin(user_id: int = 1) -> dict[str, Any]:
 
 def evaluate_escalation(user_id: int = 1, simulate_unreachable: bool = False) -> dict[str, Any]:
     u = get_user(user_id)
+    if u.get("checkin_in_grace"):
+        return {
+            "state": "grace",
+            "user": u,
+            "calls": [],
+            "message": (
+                f"已过报备点，仍在冷静期（{u.get('grace_hours')} 小时内）。"
+                "暂不外呼升级，请尽快打卡；过冷静期后才会联系本人/备用联系人。"
+            ),
+        }
     if not u["checkin_overdue"]:
         return {"state": "ok", "user": u, "calls": [], "message": "报备正常，无需呼叫"}
 
@@ -803,5 +862,255 @@ def aftercare_playbook() -> dict[str, Any]:
             {"t": "电子资产价值", "map": "资产备忘+可变现动作"},
             {"t": "法律问题咨询", "map": "冷静期+书面授权+合规红线"},
             {"t": "法律顾问必要性", "map": "P2 律师/公证协作；App内常驻合规提示"},
+        ],
+    }
+
+
+def audit(user_id: int, action: str, detail: str = "") -> None:
+    with connect() as conn:
+        conn.execute(
+            "INSERT INTO audit_log (user_id, action, detail, created_at) VALUES (?,?,?,?)",
+            (user_id, action, detail, time.time()),
+        )
+        conn.commit()
+
+
+def recent_audit(user_id: int = 1, limit: int = 30) -> list[dict[str, Any]]:
+    with connect() as conn:
+        rows = conn.execute(
+            "SELECT * FROM audit_log WHERE user_id=? ORDER BY id DESC LIMIT ?",
+            (user_id, limit),
+        ).fetchall()
+    return [row_to_dict(r) for r in rows]  # type: ignore[misc]
+
+
+def list_beneficiaries(user_id: int = 1) -> list[dict[str, Any]]:
+    with connect() as conn:
+        rows = conn.execute(
+            "SELECT * FROM beneficiaries WHERE user_id=? ORDER BY id DESC", (user_id,)
+        ).fetchall()
+    return [row_to_dict(r) for r in rows]  # type: ignore[misc]
+
+
+def add_beneficiary(user_id: int, payload: dict[str, Any]) -> dict[str, Any]:
+    name = str(payload.get("name") or "").strip()
+    if not name:
+        raise ValueError("请填写受益人姓名")
+    now = time.time()
+    with connect() as conn:
+        cur = conn.execute(
+            "INSERT INTO beneficiaries (user_id, name, role, contact, note, created_at) "
+            "VALUES (?,?,?,?,?,?)",
+            (
+                user_id,
+                name,
+                str(payload.get("role") or "heir"),
+                str(payload.get("contact") or ""),
+                str(payload.get("note") or ""),
+                now,
+            ),
+        )
+        rid = cur.lastrowid
+        row = conn.execute("SELECT * FROM beneficiaries WHERE id=?", (rid,)).fetchone()
+    audit(user_id, "beneficiary.add", name)
+    return row_to_dict(row)  # type: ignore[return-value]
+
+
+def list_emergency(user_id: int = 1) -> list[dict[str, Any]]:
+    tick_emergency(user_id)
+    with connect() as conn:
+        rows = conn.execute(
+            "SELECT e.*, b.name AS beneficiary_name, b.role AS beneficiary_role "
+            "FROM emergency_access e "
+            "LEFT JOIN beneficiaries b ON b.id=e.beneficiary_id "
+            "WHERE e.user_id=? ORDER BY e.id DESC",
+            (user_id,),
+        ).fetchall()
+    return [row_to_dict(r) for r in rows]  # type: ignore[misc]
+
+
+def request_emergency(user_id: int, payload: dict[str, Any]) -> dict[str, Any]:
+    """对标 Legacy Vault：紧急取用申请 + 等待期（主人可拒绝）。"""
+    bid = int(payload.get("beneficiary_id") or 0)
+    wait_days = max(1, min(90, int(payload.get("wait_days") or 7)))
+    if bid <= 0:
+        raise ValueError("请选择受益人")
+    with connect() as conn:
+        b = conn.execute(
+            "SELECT id FROM beneficiaries WHERE id=? AND user_id=?", (bid, user_id)
+        ).fetchone()
+        if not b:
+            raise ValueError("受益人不存在")
+    now = time.time()
+    decide_by = now + wait_days * 86400
+    with connect() as conn:
+        cur = conn.execute(
+            "INSERT INTO emergency_access (user_id, beneficiary_id, wait_days, status, reason, "
+            "requested_at, decide_by, note) VALUES (?,?,?,?,?,?,?,?)",
+            (
+                user_id,
+                bid,
+                wait_days,
+                "pending",
+                str(payload.get("reason") or "紧急取用交割手册"),
+                now,
+                decide_by,
+                str(payload.get("note") or ""),
+            ),
+        )
+        rid = cur.lastrowid
+        row = conn.execute("SELECT * FROM emergency_access WHERE id=?", (rid,)).fetchone()
+    audit(user_id, "emergency.request", f"beneficiary={bid} wait={wait_days}d")
+    return row_to_dict(row)  # type: ignore[return-value]
+
+
+def decide_emergency(user_id: int, req_id: int, approve: bool, note: str = "") -> dict[str, Any]:
+    status = "approved" if approve else "denied"
+    now = time.time()
+    with connect() as conn:
+        row = conn.execute(
+            "SELECT * FROM emergency_access WHERE id=? AND user_id=?", (req_id, user_id)
+        ).fetchone()
+        if not row:
+            raise ValueError("申请不存在")
+        if row["status"] not in ("pending",):
+            raise ValueError("该申请已处理")
+        conn.execute(
+            "UPDATE emergency_access SET status=?, decided_at=?, note=? WHERE id=?",
+            (status, now, note or row["note"], req_id),
+        )
+        conn.commit()
+        row = conn.execute("SELECT * FROM emergency_access WHERE id=?", (req_id,)).fetchone()
+    audit(user_id, f"emergency.{status}", f"id={req_id}")
+    return row_to_dict(row)  # type: ignore[return-value]
+
+
+def tick_emergency(user_id: int = 1) -> int:
+    """等待期满且主人未拒绝 → 自动放行（仍不宣布身故，只开放交割只读）。"""
+    now = time.time()
+    granted: list[int] = []
+    with connect() as conn:
+        rows = conn.execute(
+            "SELECT id FROM emergency_access WHERE user_id=? AND status='pending' AND decide_by<=?",
+            (user_id, now),
+        ).fetchall()
+        for r in rows:
+            conn.execute(
+                "UPDATE emergency_access SET status='auto_granted', decided_at=? WHERE id=?",
+                (now, r["id"]),
+            )
+            granted.append(int(r["id"]))
+        conn.commit()
+    for rid in granted:
+        audit(user_id, "emergency.auto_granted", f"id={rid}")
+    return len(granted)
+
+
+def save_handover_snapshot(user_id: int = 1, label: str = "") -> dict[str, Any]:
+    hand = handover_checklist(user_id)
+    now = time.time()
+    label = label.strip() or time.strftime("快照 %Y-%m-%d %H:%M", time.localtime(now))
+    payload = json.dumps(hand, ensure_ascii=False)
+    with connect() as conn:
+        cur = conn.execute(
+            "INSERT INTO handover_snapshots (user_id, label, payload, created_at) VALUES (?,?,?,?)",
+            (user_id, label, payload, now),
+        )
+        rid = cur.lastrowid
+        row = conn.execute(
+            "SELECT id, user_id, label, created_at FROM handover_snapshots WHERE id=?", (rid,)
+        ).fetchone()
+    audit(user_id, "handover.snapshot", label)
+    return row_to_dict(row)  # type: ignore[return-value]
+
+
+def list_snapshots(user_id: int = 1) -> list[dict[str, Any]]:
+    with connect() as conn:
+        rows = conn.execute(
+            "SELECT id, user_id, label, created_at FROM handover_snapshots WHERE user_id=? ORDER BY id DESC",
+            (user_id,),
+        ).fetchall()
+    return [row_to_dict(r) for r in rows]  # type: ignore[misc]
+
+
+def handover_export_html(user_id: int = 1) -> str:
+    """可打印交割手册（浏览器打印→PDF）。"""
+    hand = handover_checklist(user_id)
+    u = get_user(user_id)
+    items = hand.get("todos") or []
+    rows = "".join(
+        f"<tr><td>{_esc(i.get('title'))}</td><td>{_esc(' · '.join(i.get('ops') or []))}</td>"
+        f"<td>{_esc(i.get('dept'))}</td><td>{_esc(i.get('notes'))}</td></tr>"
+        for i in items
+    )
+    when = time.strftime("%Y-%m-%d %H:%M", time.localtime())
+    return f"""<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="utf-8"/>
+<title>交割手册 · { _esc(u.get('name') or '主人') }</title>
+<style>
+body{{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;margin:24px;color:#1a1a1a}}
+h1{{font-size:22px;margin:0 0 8px}} .meta{{color:#666;font-size:13px;margin-bottom:20px}}
+table{{border-collapse:collapse;width:100%;font-size:13px}}
+th,td{{border:1px solid #ccc;padding:8px;text-align:left}} th{{background:#f5f5f5}}
+.disclaimer{{margin-top:24px;font-size:12px;color:#888;line-height:1.5}}
+@media print{{button{{display:none}}}}
+</style></head><body>
+<button onclick="window.print()">打印 / 另存 PDF</button>
+<h1>电子继承 · 交割手册</h1>
+<div class="meta">主人：{_esc(u.get('name'))} · 执行人：{_esc(u.get('executor_name') or '未指定')} · 导出：{when}</div>
+<table><thead><tr><th>事项</th><th>动作</th><th>部门</th><th>备注</th></tr></thead>
+<tbody>{rows or '<tr><td colspan="4">暂无条目</td></tr>'}</tbody></table>
+<p class="disclaimer">本手册仅供授权执行人善后参考，不构成法律文件；紧急取用须经等待期或主人确认。
+对标开源：Legacy Vault 紧急等待期 · Morrígan 版本快照 · 打印交付。</p>
+</body></html>"""
+
+
+def _esc(s: Any) -> str:
+    return (
+        str(s or "")
+        .replace("&", "&amp;")
+        .replace("<", "&lt;")
+        .replace(">", "&gt;")
+        .replace('"', "&quot;")
+    )
+
+
+def open_source_learnings() -> dict[str, Any]:
+    return {
+        "note": "GitHub 开源对标（非 activeadmin/inherited_resources——那是 Rails REST 库）",
+        "sources": [
+            {
+                "name": "Morrígan",
+                "url": "https://github.com/paulfxyz/morrigan",
+                "take": "零知识金库·受益人粒度·Dead Man Switch·版本快照",
+            },
+            {
+                "name": "Wasiyya",
+                "url": "https://github.com/Ghalwash0x/wasiyya",
+                "take": "失活触发后向受托人发限时链接",
+            },
+            {
+                "name": "Legacy Vault",
+                "url": "https://github.com/slavhate/legacy-vault",
+                "take": "紧急取用申请+等待期可拒绝",
+            },
+            {
+                "name": "Legacy Vault Offline",
+                "url": "https://github.com/Ronald-PH/legacy-vault",
+                "take": "离线加密·紧急QR·PDF打印",
+            },
+            {
+                "name": "afterkey",
+                "url": "https://github.com/bonkai/afterkey",
+                "take": "Shamir 分片·加密交付",
+            },
+        ],
+        "adopted_now": [
+            "报备冷静期 grace_hours（默认72h）后再外呼升级",
+            "受益人档案 beneficiaries",
+            "紧急取用申请+等待期 emergency_access",
+            "交割手册版本快照 handover_snapshots",
+            "审计日志 audit_log",
+            "可打印交割手册 /export/handover.html",
         ],
     }

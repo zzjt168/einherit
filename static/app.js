@@ -48,6 +48,7 @@ function show(id) {
     company: refreshCompany,
     guard: refreshGuard,
     handover: refreshHandover,
+    heirs: refreshHeirs,
     icu: refreshIcu,
     aftercare: refreshAftercare,
     executor: () => {},
@@ -84,9 +85,12 @@ async function refreshHome() {
       pill.textContent = "未开通会员";
     }
     const overdue = user.checkin_overdue;
+    const grace = user.checkin_in_grace;
     $("#homeHint").innerHTML = overdue
-      ? `⚠ 报备已逾期。将先电话联系您，再联系备用联系人。盘点进度 ${co.progress.pct}%。`
-      : `einherit.cn · 盘点进度 ${co.progress.pct}%（${co.progress.filled}/5 部门）· 下次报备 ${fmtTime(user.checkin_due_at)}`;
+      ? `⚠ 报备已过冷静期。将先电话联系您，再联系备用联系人。盘点进度 ${co.progress.pct}%。`
+      : grace
+        ? `⏳ 已过报备点，仍在冷静期（${user.grace_hours}h）。盘点进度 ${co.progress.pct}%。`
+        : `einherit.cn · 盘点进度 ${co.progress.pct}%（${co.progress.filled}/5 部门）· 下次报备 ${fmtTime(user.checkin_due_at)}`;
   } catch (e) {
     $("#homeHint").textContent = "服务未就绪：" + e.message;
   }
@@ -97,8 +101,10 @@ async function refreshCheckin() {
   box.innerHTML = "<div class='card muted'>加载中…</div>";
   const { user, calls } = await api("/api/checkin/status");
   const statusHtml = user.checkin_overdue
-    ? `<div class="alert">报备已逾期。状态机：calling_self → calling_backup → manual_review（不直接宣布身故）。</div>`
-    : `<div class="ok">报备正常。最近一次：${fmtTime(user.last_checkin_at)}</div>`;
+    ? `<div class="alert">已过冷静期。状态机：calling_self → calling_backup → manual_review（不直接宣布身故）。</div>`
+    : user.checkin_in_grace
+      ? `<div class="alert">已过报备点，仍在冷静期（${user.grace_hours} 小时）。暂不外呼，请尽快打卡。</div>`
+      : `<div class="ok">报备正常。最近一次：${fmtTime(user.last_checkin_at)}</div>`;
   const contacts = (user.backup_contacts || [])
     .map((c) => `<li>${c.name}（${c.relation}）· ${c.phone}</li>`)
     .join("");
@@ -107,7 +113,7 @@ async function refreshCheckin() {
     ${statusHtml}
     <div class="card">
       <h3>一键报备</h3>
-      <p class="muted">确认「我还安全」。漏报自动 AI 语音外呼本人，再按序通知备用联系人。</p>
+      <p class="muted">确认「我还安全」。漏报先进入冷静期，过期后才 AI 外呼本人，再按序通知备用联系人。</p>
       <div class="row">
         <button class="btn" id="doCheckin">我已安全 · 完成报备</button>
         <button class="btn ghost" id="forceOverdue">演示：制造逾期</button>
@@ -118,8 +124,9 @@ async function refreshCheckin() {
       </div>
     </div>
     <div class="card">
-      <h3>报备频率 / 执行人</h3>
+      <h3>报备频率 / 冷静期 / 执行人</h3>
       <label class="field">间隔（小时）<input type="number" id="intervalHours" value="${user.checkin_interval_hours}" min="1"/></label>
+      <label class="field">冷静期（小时）<input type="number" id="graceHours" value="${user.grace_hours || 72}" min="0"/></label>
       <label class="field">遗产执行人<input id="executorName" value="${user.executor_name || ""}" placeholder="董事会指定 CEO"/></label>
       <button class="btn ghost" id="saveInterval">保存</button>
       <h3 style="margin-top:16px">备用联系人</h3>
@@ -150,7 +157,7 @@ async function refreshCheckin() {
       method: "POST",
       body: JSON.stringify({ hours_ago: 48 }),
     });
-    toast("已模拟逾期");
+    toast("已模拟逾期（若仍在冷静期内，外呼不会升级）");
     refreshCheckin();
     refreshHome();
   };
@@ -175,6 +182,7 @@ async function refreshCheckin() {
       method: "POST",
       body: JSON.stringify({
         checkin_interval_hours: Number($("#intervalHours").value || 24),
+        grace_hours: Number($("#graceHours").value || 72),
         executor_name: $("#executorName").value,
       }),
     });
@@ -290,6 +298,8 @@ async function refreshGuard() {
 
 async function refreshHandover() {
   const data = await api("/api/handover");
+  const snaps = await api("/api/snapshots").catch(() => ({ items: [] }));
+  const exportUrl = API_BASE.replace(/\/$/, "") + "/export/handover.html";
   $("#handoverBox").innerHTML = `
     <div class="card">
       <h3>${data.brand}</h3>
@@ -297,6 +307,10 @@ async function refreshHandover() {
       <div class="stat" style="margin-top:10px">
         <div class="box"><span class="muted">域名</span><b style="font-size:14px">${data.domain}</b></div>
         <div class="box"><span class="muted">执行人</span><b style="font-size:14px">${data.executor}</b></div>
+      </div>
+      <div class="row" style="margin-top:12px;gap:8px;flex-wrap:wrap">
+        <a class="btn" href="${exportUrl}" target="_blank" rel="noopener">打印 / 导出 PDF</a>
+        <button class="btn ghost" id="snapHand">保存版本快照</button>
       </div>
     </div>
     <div class="list">${
@@ -314,7 +328,111 @@ async function refreshHandover() {
             )
             .join("")
         : "<p class='muted'>尚无交割条目，请先在「电子继承」写入安排</p>"
-    }</div>`;
+    }</div>
+    <div class="card">
+      <h3>历史快照</h3>
+      <div class="list">${
+        (snaps.items || []).length
+          ? snaps.items
+              .map(
+                (s) =>
+                  `<div class="item"><strong>${s.label}</strong><div class="muted">${fmtTime(s.created_at)}</div></div>`
+              )
+              .join("")
+          : "<p class='muted'>尚无快照</p>"
+      }</div>
+    </div>`;
+  const btn = $("#snapHand");
+  if (btn) {
+    btn.onclick = async () => {
+      await api("/api/handover/snapshot", { method: "POST", body: "{}" });
+      toast("已保存快照");
+      refreshHandover();
+    };
+  }
+}
+
+async function refreshHeirs() {
+  const [bene, emer, audit] = await Promise.all([
+    api("/api/beneficiaries"),
+    api("/api/emergency"),
+    api("/api/audit"),
+  ]);
+  const sel = $("#emBene");
+  if (sel) {
+    sel.innerHTML =
+      (bene.items || [])
+        .map((b) => `<option value="${b.id}">${b.name}（${b.role}）</option>`)
+        .join("") || `<option value="">请先添加受益人</option>`;
+  }
+  const statusLabel = {
+    pending: "等待中",
+    approved: "已批准",
+    denied: "已拒绝",
+    auto_granted: "到期自动放行",
+  };
+  $("#heirsBox").innerHTML = `
+    <div class="card"><h3>受益人名单</h3>
+      <div class="list">${
+        (bene.items || []).length
+          ? bene.items
+              .map(
+                (b) =>
+                  `<div class="item"><span class="tag">${b.role}</span><strong>${b.name}</strong>
+                  <div class="muted">${b.contact || ""} ${b.note || ""}</div></div>`
+              )
+              .join("")
+          : "<p class='muted'>暂无受益人</p>"
+      }</div>
+    </div>
+    <div class="card"><h3>紧急取用申请</h3>
+      <div class="list">${
+        (emer.items || []).length
+          ? emer.items
+              .map(
+                (e) => `
+        <div class="item">
+          <span class="tag">${statusLabel[e.status] || e.status}</span>
+          <strong>${e.beneficiary_name || "受益人#" + e.beneficiary_id}</strong>
+          <div class="muted">${e.reason || ""} · 等待 ${e.wait_days} 天 · 截止 ${fmtTime(e.decide_by)}</div>
+          ${
+            e.status === "pending"
+              ? `<div class="row" style="margin-top:8px;gap:8px">
+                  <button class="btn secondary emDec" data-id="${e.id}" data-ok="1">批准</button>
+                  <button class="btn ghost emDec" data-id="${e.id}" data-ok="0">拒绝</button>
+                </div>`
+              : ""
+          }
+        </div>`
+              )
+              .join("")
+          : "<p class='muted'>暂无申请</p>"
+      }</div>
+    </div>
+    <div class="card"><h3>审计日志</h3>
+      <div class="list">${
+        (audit.items || []).length
+          ? audit.items
+              .slice(0, 12)
+              .map(
+                (a) =>
+                  `<div class="item"><span class="tag">${a.action}</span>
+                  <div class="muted">${a.detail || ""} · ${fmtTime(a.created_at)}</div></div>`
+              )
+              .join("")
+          : "<p class='muted'>暂无记录</p>"
+      }</div>
+    </div>`;
+  $$(".emDec").forEach((btn) => {
+    btn.onclick = async () => {
+      await api("/api/emergency/decide", {
+        method: "POST",
+        body: JSON.stringify({ id: Number(btn.dataset.id), approve: btn.dataset.ok === "1" }),
+      });
+      toast(btn.dataset.ok === "1" ? "已批准" : "已拒绝");
+      refreshHeirs();
+    };
+  });
 }
 
 async function refreshAssets() {
@@ -590,6 +708,42 @@ $("#exAdd").onclick = async () => {
     toast("加盟意向已收到");
     $("#exName").value = "";
     $("#exPhone").value = "";
+  } catch (e) {
+    toast(e.message);
+  }
+};
+
+$("#bnAdd").onclick = async () => {
+  try {
+    await api("/api/beneficiaries", {
+      method: "POST",
+      body: JSON.stringify({
+        name: $("#bnName").value,
+        role: $("#bnRole").value,
+        contact: $("#bnContact").value,
+        note: $("#bnNote").value,
+      }),
+    });
+    toast("受益人已保存");
+    $("#bnName").value = "";
+    refreshHeirs();
+  } catch (e) {
+    toast(e.message);
+  }
+};
+
+$("#emReq").onclick = async () => {
+  try {
+    await api("/api/emergency/request", {
+      method: "POST",
+      body: JSON.stringify({
+        beneficiary_id: Number($("#emBene").value || 0),
+        wait_days: Number($("#emWait").value || 7),
+        reason: $("#emReason").value,
+      }),
+    });
+    toast("紧急取用已进入等待期");
+    refreshHeirs();
   } catch (e) {
     toast(e.message);
   }

@@ -26,7 +26,7 @@ def json_bytes(obj: object, code: int = 200) -> tuple[int, bytes, str]:
 
 
 class Handler(BaseHTTPRequestHandler):
-    server_version = "EInherit/0.3"
+    server_version = "EInherit/0.4"
 
     def log_message(self, fmt: str, *args) -> None:  # noqa: A003
         sys.stderr.write("[%s] %s\n" % (self.log_date_time_string(), fmt % args))
@@ -64,6 +64,11 @@ class Handler(BaseHTTPRequestHandler):
 
         if path.startswith("/api/"):
             return self._api_get(path, qs)
+
+        if path in ("/export/handover.html", "/export/handover"):
+            html = db.handover_export_html(1).encode("utf-8")
+            self._send(200, html, "text/html; charset=utf-8")
+            return
 
         # static
         rel = "index.html" if path in ("/", "") else path.lstrip("/")
@@ -108,7 +113,7 @@ class Handler(BaseHTTPRequestHandler):
                     "app": "电子继承 App",
                     "brand_en": "E-Inherit",
                     "domain": "einherit.cn",
-                    "version": "0.3.0",
+                    "version": "0.4.0",
                 }
             elif path == "/api/me":
                 out = {"user": db.get_user(1), "ledger": db.recent_ledger(1, 8)}
@@ -140,6 +145,16 @@ class Handler(BaseHTTPRequestHandler):
                 }
             elif path == "/api/icu-pack":
                 out = {"pack": db.ICU_PACK, "count": len(db.ICU_PACK)}
+            elif path == "/api/beneficiaries":
+                out = {"items": db.list_beneficiaries(1)}
+            elif path == "/api/emergency":
+                out = {"items": db.list_emergency(1)}
+            elif path == "/api/audit":
+                out = {"items": db.recent_audit(1, 40)}
+            elif path == "/api/snapshots":
+                out = {"items": db.list_snapshots(1)}
+            elif path == "/api/learnings":
+                out = db.open_source_learnings()
             else:
                 code, body, ctype = json_bytes({"error": "not found"}, 404)
                 self._send(code, body, ctype)
@@ -155,6 +170,8 @@ class Handler(BaseHTTPRequestHandler):
             fields = {}
             if "checkin_interval_hours" in payload:
                 fields["checkin_interval_hours"] = float(payload["checkin_interval_hours"])
+            if "grace_hours" in payload:
+                fields["grace_hours"] = float(payload["grace_hours"])
             if "backup_contacts" in payload:
                 fields["backup_contacts"] = payload["backup_contacts"]
             if "name" in payload:
@@ -203,7 +220,9 @@ class Handler(BaseHTTPRequestHandler):
             return {"user": db.activate_membership(1), "paid": 365}
 
         if path == "/api/checkin":
-            return {"user": db.do_checkin(1), "message": "今日报备已完成，谢谢您的安心确认"}
+            u = db.do_checkin(1)
+            db.audit(1, "checkin", "ok")
+            return {"user": u, "message": "今日报备已完成，谢谢您的安心确认"}
 
         if path == "/api/checkin/escalate":
             return db.evaluate_escalation(
@@ -228,6 +247,25 @@ class Handler(BaseHTTPRequestHandler):
 
         if path == "/api/executor-lead":
             return {"item": db.add_executor_lead(payload)}
+
+        if path == "/api/beneficiaries":
+            return {"item": db.add_beneficiary(1, payload)}
+
+        if path == "/api/emergency/request":
+            return {"item": db.request_emergency(1, payload)}
+
+        if path == "/api/emergency/decide":
+            return {
+                "item": db.decide_emergency(
+                    1,
+                    int(payload.get("id") or 0),
+                    bool(payload.get("approve")),
+                    str(payload.get("note") or ""),
+                )
+            }
+
+        if path == "/api/handover/snapshot":
+            return {"item": db.save_handover_snapshot(1, str(payload.get("label") or ""))}
 
         # 演示：把上次报备拨回到过去，制造逾期
         if path == "/api/checkin/force-overdue":

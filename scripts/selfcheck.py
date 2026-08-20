@@ -77,10 +77,41 @@ def main() -> None:
     refund = call("/api/membership/lapse", {})
     assert "refunded" in refund, refund
 
+    b = call(
+        "/api/beneficiaries",
+        {"name": "自检受益人", "role": "heir", "contact": "13900000000"},
+    )["item"]
+    assert b["name"] == "自检受益人", b
+
+    em = call(
+        "/api/emergency/request",
+        {"beneficiary_id": b["id"], "wait_days": 7, "reason": "自检"},
+    )["item"]
+    assert em["status"] == "pending", em
+
+    denied = call(
+        "/api/emergency/decide",
+        {"id": em["id"], "approve": False, "note": "自检拒绝"},
+    )["item"]
+    assert denied["status"] == "denied", denied
+
+    snap = call("/api/handover/snapshot", {"label": "自检快照"})["item"]
+    assert "自检" in snap["label"] or snap["label"], snap
+
+    learn = call("/api/learnings")
+    assert learn.get("adopted_now"), learn
+
+    # export printable
+    import urllib.request as u2
+
+    with u2.urlopen(BASE + "/export/handover.html", timeout=5) as r:
+        html = r.read().decode()
+    assert "交割手册" in html, html[:200]
+
     h = call("/api/health")
     assert h.get("domain") == "einherit.cn", h
     assert "继承" in h.get("app", ""), h
-    assert h.get("version") == "0.3.0", h
+    assert h.get("version") == "0.4.0", h
 
     print("selfcheck OK")
 
