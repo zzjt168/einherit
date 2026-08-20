@@ -14,7 +14,7 @@
   <meta name="description" content="电子继承 App E-Inherit · einherit.cn · 个人公司化生命资产盘点与交割手册"/>
   <title>电子继承 App · E-Inherit</title>
   <link rel="icon" href="favicon.svg"/>
-  <link rel="stylesheet" href="app.css?v=20260820j"/>
+  <link rel="stylesheet" href="app.css?v=20260820k"/>
   <link rel="manifest" href="manifest.webmanifest"/>
 </head>
 <body>
@@ -36,22 +36,102 @@
       <p>把人生当成一家公司来盘点。Inherit：给执行人一份冷清晰的资产交割待办。</p>
     </div>
     <div class="hint" id="homeHint">加载中…</div>
-    <div class="grid">
-      <button class="tile gold" data-go="brain"><div class="ico">图</div><h3>大脑图谱</h3><p>总导航 · 点节点进模块</p></button>
-      <button class="tile" data-go="checkin"><div class="ico">◎</div><h3>今日报备</h3><p>漏报先电话本人，再联系备用</p></button>
-      <button class="tile gold" data-go="icu"><div class="ico">急</div><h3>急症前清册</h3><p>进ICU前清相册·聊天·出厂</p></button>
-      <button class="tile gold" data-go="authvideo"><div class="ico">授</div><h3>授权视频</h3><p>问候·对我司授权·处置思路</p></button>
-      <button class="tile" data-go="aftercare"><div class="ico">善</div><h3>善后工单</h3><p>须先交授权视频再开单</p></button>
-      <button class="tile" data-go="legacy"><div class="ico">交</div><h3>电子继承</h3><p>销毁·变现·转赠·出厂重置</p></button>
-      <button class="tile" data-go="company"><div class="ico">司</div><h3>个人公司化</h3><p>五部门生命资产盘点</p></button>
-      <button class="tile" data-go="guard"><div class="ico">防</div><h3>自保建议</h3><p>七宗罪危害序自保模板</p></button>
-      <button class="tile" data-go="assets"><div class="ico">記</div><h3>资产备忘</h3><p>账号与处理方法</p></button>
-      <button class="tile" data-go="med"><div class="ico">醫</div><h3>医旅医院</h3><p>国内外筛选推荐</p></button>
-      <button class="tile gold" data-go="member"><div class="ico">¥</div><h3>会员中心</h3><p>¥365/年 · 一天一块钱</p></button>
-      <button class="tile" data-go="travel"><div class="ico">旅</div><h3>差旅预存</h3><p>≥¥2000 · 断缴原路退</p></button>
-      <button class="tile" data-go="handover"><div class="ico">冊</div><h3>交割手册</h3><p>执行人冷待办清单</p></button>
-      <button class="tile" data-go="heirs"><div class="ico">益</div><h3>受益人与紧急取用</h3><p>等待期可拒绝 · 审计留痕</p></button>
-      <button class="tile" data-go="executor"><div class="ico">盟</div><h3>执行人加盟</h3><p>区域善后执行意向</p></button>
+
+    <div class="hubs">
+      <article class="hub hub-brain">
+        <button class="hub-main" data-go="brain" type="button">
+          <div class="hub-ico">图</div>
+          <div>
+            <h2>大脑图谱</h2>
+            <p>总导航 · 点关系与资产节点进入模块</p>
+          </div>
+          <span class="hub-arrow">→</span>
+        </button>
+      </article>
+
+      <article class="hub hub-drive open" data-hub="input">
+        <button class="hub-toggle" type="button" aria-expanded="true">
+          <div class="hub-ico drive">盘</div>
+          <div>
+            <h2>1 · 信息输入</h2>
+            <p>像硬盘一样：文件夹 → 内容 → 备忘</p>
+          </div>
+          <span class="hub-chevron">▾</span>
+        </button>
+        <div class="drive-tree">
+          <div class="drive-root">
+            <span class="drive-label">生命资产盘 · E-Inherit</span>
+          </div>
+          <details class="folder" open>
+            <summary>📁 个人公司化（五部门）</summary>
+            <div class="folder-body">
+              <button data-go="company" type="button">打开公司盘点</button>
+              <div class="folder-chips">
+                <span>生产部</span><span>财务部</span><span>知识产权部</span><span>行政部</span><span>董事会</span>
+              </div>
+            </div>
+          </details>
+          <details class="folder">
+            <summary>📁 资产与账号</summary>
+            <div class="folder-body">
+              <button data-go="assets" type="button">资产备忘</button>
+            </div>
+          </details>
+          <details class="folder">
+            <summary>📁 人与授权关系</summary>
+            <div class="folder-body">
+              <button data-go="heirs" type="button">受益人与紧急取用</button>
+              <button data-go="authvideo" type="button">授权说明视频</button>
+            </div>
+          </details>
+          <details class="folder">
+            <summary>📁 生存状态</summary>
+            <div class="folder-body">
+              <button data-go="checkin" type="button">今日报备</button>
+            </div>
+          </details>
+          <details class="folder">
+            <summary>📁 自保模板</summary>
+            <div class="folder-body">
+              <button data-go="guard" type="button">七宗罪自保建议</button>
+            </div>
+          </details>
+        </div>
+      </article>
+
+      <article class="hub hub-action open" data-hub="action">
+        <button class="hub-toggle" type="button" aria-expanded="true">
+          <div class="hub-ico act">出</div>
+          <div>
+            <h2>2 · 处置思路</h2>
+            <p>输出动作：清册 · 交割 · 善后 · 手册</p>
+          </div>
+          <span class="hub-chevron">▾</span>
+        </button>
+        <div class="hub-links">
+          <button class="tile" data-go="icu" type="button"><div class="ico">急</div><h3>急症前清册</h3><p>进ICU前清相册·聊天·出厂</p></button>
+          <button class="tile" data-go="legacy" type="button"><div class="ico">交</div><h3>电子继承交割</h3><p>销毁·变现·转赠·出厂重置</p></button>
+          <button class="tile" data-go="aftercare" type="button"><div class="ico">善</div><h3>善后工单</h3><p>须先交授权视频再开单</p></button>
+          <button class="tile" data-go="handover" type="button"><div class="ico">冊</div><h3>交割手册</h3><p>执行人冷待办清单</p></button>
+        </div>
+      </article>
+
+      <article class="hub hub-svc" data-hub="svc">
+        <button class="hub-toggle" type="button" aria-expanded="false">
+          <div class="hub-ico svc">服</div>
+          <div>
+            <h2>3 · 其它服务</h2>
+            <p>会员 · 差旅 · 医旅 · 执行人加盟</p>
+          </div>
+          <span class="hub-chevron">▸</span>
+        </button>
+        <div class="hub-links">
+          <button class="tile gold" data-go="member" type="button"><div class="ico">¥</div><h3>会员中心</h3><p>¥365/年 · 一天一块钱</p></button>
+          <button class="tile" data-go="travel" type="button"><div class="ico">旅</div><h3>差旅预存</h3><p>≥¥2000 · 断缴原路退</p></button>
+          <button class="tile" data-go="med" type="button"><div class="ico">醫</div><h3>医旅医院</h3><p>国内外筛选推荐</p></button>
+          <button class="tile" data-go="executor" type="button"><div class="ico">盟</div><h3>执行人加盟</h3><p>区域善后执行意向</p></button>
+        </div>
+      </article>
     </div>
   </section>
 
@@ -320,6 +400,6 @@
 </nav>
 
 <div class="toast" id="toast"></div>
-<script src="app.js?v=20260820j"></script>
+<script src="app.js?v=20260820k"></script>
 </body>
 </html>

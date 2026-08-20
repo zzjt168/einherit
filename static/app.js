@@ -752,6 +752,19 @@ async function refreshTravel() {
 }
 
 document.addEventListener("click", (e) => {
+  const toggle = e.target.closest(".hub-toggle");
+  if (toggle) {
+    e.preventDefault();
+    const hub = toggle.closest(".hub");
+    if (hub) {
+      hub.classList.toggle("open");
+      const open = hub.classList.contains("open");
+      toggle.setAttribute("aria-expanded", open ? "true" : "false");
+      const chev = toggle.querySelector(".hub-chevron");
+      if (chev) chev.textContent = open ? "▾" : "▸";
+    }
+    return;
+  }
   const go = e.target.closest("[data-go]");
   if (go) {
     e.preventDefault();
