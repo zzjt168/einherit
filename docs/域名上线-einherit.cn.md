@@ -29,3 +29,10 @@ iOS 壳默认打开 `https://einherit.cn/`。
 - 代码：`/srv/einherit` · 进程监听 `0.0.0.0:8877`
 - Nginx：`/etc/nginx/sites-enabled/einherit.cn` → `proxy_pass http://127.0.0.1:8877`
 - DNS 生效后：`certbot --nginx -d einherit.cn -d www.einherit.cn`
+
+
+## 上线状态
+
+- DNS：`@` / `www` → `31.220.60.129`（已启用）
+- HTTPS：Let’s Encrypt `einherit.cn` + `www`（至 2026-11-18）
+- 验收：`https://einherit.cn/api/health` → ok
