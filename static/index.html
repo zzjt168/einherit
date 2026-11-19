@@ -14,7 +14,7 @@
   <meta name="description" content="电子继承 App E-Inherit · einherit.cn · 个人公司化生命资产盘点与交割手册"/>
   <title>电子继承 App · E-Inherit</title>
   <link rel="icon" href="favicon.svg"/>
-  <link rel="stylesheet" href="app.css?v=20260820m"/>
+  <link rel="stylesheet" href="app.css?v=20261119r2"/>
   <link rel="manifest" href="manifest.webmanifest"/>
 </head>
 <body>
@@ -134,8 +134,18 @@
           <button class="tile" data-go="travel" type="button"><div class="ico">旅</div><h3>差旅预存</h3><p>≥¥2000 · 断缴原路退</p></button>
           <button class="tile" data-go="med" type="button"><div class="ico">醫</div><h3>医旅医院</h3><p>国内外筛选推荐</p></button>
           <button class="tile" data-go="executor" type="button"><div class="ico">盟</div><h3>执行人加盟</h3><p>区域善后执行意向</p></button>
+          <button class="tile" data-go="about" type="button"><div class="ico">界</div><h3>隐私与边界</h3><p>旁路托管 · 审计时间线</p></button>
         </div>
       </article>
+    </div>
+
+    <div class="card export-strip" id="exportStrip">
+      <h3>交割手册导出</h3>
+      <p class="muted" id="exportMeta">加载生成时间与条目数…</p>
+      <div class="row" style="gap:8px;flex-wrap:wrap;margin-top:10px">
+        <a class="btn" id="exportHandLink" href="/export/handover.html" target="_blank" rel="noopener">打开可打印手册</a>
+        <button class="btn ghost" data-go="handover" type="button">去交割页</button>
+      </div>
     </div>
   </section>
 
@@ -174,9 +184,14 @@
 
   <section class="panel" id="legacy">
     <div class="panel-head"><button class="back" data-go="home">←</button><h2>电子继承 · 交割</h2></div>
+    <div class="card export-strip">
+      <h3>导出交割手册</h3>
+      <p class="muted" id="legacyExportMeta">生成时间与条目数将显示在这里。</p>
+      <a class="btn" id="legacyExportLink" href="/export/handover.html" target="_blank" rel="noopener">打开 /export/handover.html</a>
+    </div>
     <div class="card">
       <h3>新增交割安排</h3>
-      <p class="muted">隐形电子财产销毁/销售变现/转赠；手机平板写清交给谁、是否出厂重置、照片与聊天是否消除。</p>
+      <p class="muted">写清设备归谁、是否出厂重置、照片与聊天是否清除——给执行人一份冷静清单。</p>
       <label class="field">名称<input id="lgTitle" placeholder="例如：iPad / 某社交账号"/></label>
       <label class="field">类别
         <select id="lgCat">
@@ -205,11 +220,17 @@
           <option>清除密码/照片</option>
         </select>
       </label>
-      <label class="field">受益人 / 接收人<input id="lgBene" placeholder="转赠时填写家人"/></label>
-      <div class="checks">
-        <label><input type="checkbox" id="lgReset"/> 恢复出厂设置</label>
-        <label><input type="checkbox" id="lgPhotos"/> 消除照片</label>
-        <label><input type="checkbox" id="lgChats"/> 消除聊天记录</label>
+      <label class="field">设备归谁 / 接收人
+        <input id="lgBene" list="lgBeneList" placeholder="从名册选择或手写家人"/>
+        <datalist id="lgBeneList"></datalist>
+      </label>
+      <div class="device-flags">
+        <p class="muted" style="margin:0 0 6px">设备处置勾选（结构化，可给执行人一眼看清）</p>
+        <div class="checks">
+          <label><input type="checkbox" id="lgReset"/> 出厂重置</label>
+          <label><input type="checkbox" id="lgPhotos"/> 清除照片</label>
+          <label><input type="checkbox" id="lgChats"/> 清除聊天</label>
+        </div>
       </div>
       <label class="field">执行备注<textarea id="lgNotes" rows="2" placeholder="给执行人的操作说明"></textarea></label>
       <button class="btn block" id="lgAdd">写入交割手册</button>
@@ -266,6 +287,12 @@
       </label>
       <button class="btn block" id="medSearch">筛选医院</button>
     </div>
+    <div class="card">
+      <h3>我的就医意向</h3>
+      <p class="muted">可查看详情、可撤回。空着也没关系，想好再留一条。</p>
+      <div id="medIntentDetail" class="intent-detail" hidden></div>
+      <div class="list" id="medIntentList"></div>
+    </div>
     <div class="list" id="medList"></div>
   </section>
 
@@ -287,9 +314,11 @@
   <section class="panel" id="heirs">
     <div class="panel-head"><button class="back" data-go="home">←</button><h2>受益人 · 紧急取用</h2></div>
     <div class="card">
-      <h3>添加受益人 / 受托人</h3>
-      <p class="muted">对标 Morrígan：受益人单独建档。紧急取用对标 Legacy Vault：申请后进入等待期，期间本人可拒绝。</p>
+      <h3>受益人 / 继承人名册</h3>
+      <p class="muted">可增删改。交割页能看到「给谁」；关系写清，便于执行人核对。</p>
+      <input type="hidden" id="bnEditId" value=""/>
       <label class="field">姓名<input id="bnName" placeholder="受益人姓名"/></label>
+      <label class="field">关系<input id="bnRelation" placeholder="如：配偶 / 子女 / 好友"/></label>
       <label class="field">角色
         <select id="bnRole">
           <option value="heir">继承人</option>
@@ -299,14 +328,22 @@
         </select>
       </label>
       <label class="field">联系方式<input id="bnContact" placeholder="手机 / 微信"/></label>
+      <label class="field">紧急取用短码提示（非密码）
+        <input id="bnHint" placeholder="例如：家人知道的生日后四位提示"/>
+      </label>
       <label class="field">备注<input id="bnNote" placeholder="可选"/></label>
-      <button class="btn block" id="bnAdd">保存受益人</button>
+      <button class="btn block" id="bnAdd">保存到名册</button>
+      <button class="btn ghost block" id="bnCancelEdit" type="button" hidden>取消编辑</button>
+    </div>
+    <div class="card calm-note">
+      <h3>紧急取用 · 短码说明</h3>
+      <p class="muted">演示级登记：只写「如何想起短码」的提示，不明文堆密码。紧急联系人申请后进入等待期，本人可拒绝；到期未拒绝才温和放行只读交割。</p>
     </div>
     <div class="card">
       <h3>发起紧急取用申请</h3>
       <label class="field">受益人<select id="emBene"></select></label>
       <label class="field">等待天数<input id="emWait" type="number" min="1" max="90" value="7"/></label>
-      <label class="field">事由<input id="emReason" placeholder="例如：主人失联需查阅交割手册"/></label>
+      <label class="field">事由<input id="emReason" placeholder="例如：需临时查阅交割手册"/></label>
       <button class="btn block" id="emReq">提交申请（进入等待期）</button>
     </div>
     <div id="heirsBox"></div>
@@ -394,6 +431,20 @@
       <button class="btn block" id="exAdd">提交加盟意向</button>
     </div>
   </section>
+
+  <section class="panel" id="about">
+    <div class="panel-head"><button class="back" data-go="home">←</button><h2>隐私与数据边界</h2></div>
+    <div class="card calm-note">
+      <h3>旁路托管，不恐吓</h3>
+      <p class="muted">电子继承做旁路托管与交割备忘：帮助您盘点与安排，不制造焦虑、不恐吓逾期。敏感口令只写提示，不明文堆密码。</p>
+      <a class="btn" href="privacy.html" target="_blank" rel="noopener">打开 privacy.html</a>
+    </div>
+    <div class="card">
+      <h3>操作时间线（只读）</h3>
+      <p class="muted">报备、交割变更、工单、授权视频等关键动作，温和可追溯。</p>
+      <div class="timeline" id="auditTimeline"></div>
+    </div>
+  </section>
 </div>
 
 <nav class="tabbar">
@@ -404,6 +455,6 @@
 </nav>
 
 <div class="toast" id="toast"></div>
-<script src="app.js?v=20260820m"></script>
+<script src="app.js?v=20261119r2"></script>
 </body>
 </html>
