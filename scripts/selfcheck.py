@@ -130,6 +130,38 @@ def main() -> None:
     assert mm["map"]["center"]["label"] == "主人", mm
     assert any(n["label"] == "长子" for n in [mm["map"].get("heir_bridge", {})]), mm
 
+    # round4：引导 / 报备历史 / 医院详情 / 导出包 / 部门排序
+    ob = call("/api/onboarding")
+    assert ob.get("total") == 3 and "steps" in ob, ob
+    assert ob["complete"] is True, ob
+
+    hist = call("/api/checkin/history?limit=5")
+    assert "items" in hist and len(hist["items"]) >= 1, hist
+
+    hid = hospitals["items"][0]["id"]
+    detail = call(f"/api/hospitals?id={hid}")
+    assert detail["item"]["id"] == hid, detail
+    assert detail["item"].get("address") or detail["item"].get("dept"), detail
+
+    pack = call("/api/export/pack")
+    assert pack.get("domain") == "einherit.cn", pack
+    assert "legacy_items" in pack and "beneficiaries" in pack, pack
+    phones = [c.get("phone", "") for c in pack.get("user", {}).get("backup_contacts", [])]
+    assert phones and all("****" in p for p in phones if p), pack
+
+    co2 = call("/api/company")
+    note_id = None
+    for d in co2["depts"]:
+        if d.get("notes"):
+            note_id = d["notes"][0]["id"]
+            break
+    assert note_id, co2
+    reordered = call(
+        "/api/company/note/reorder",
+        {"id": note_id, "direction": "down"},
+    )
+    assert "depts" in reordered, reordered
+
     print("selfcheck OK")
 
 

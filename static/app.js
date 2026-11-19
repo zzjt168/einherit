@@ -52,6 +52,7 @@ function show(id) {
     legacy: refreshLegacy,
     assets: refreshAssets,
     med: refreshMed,
+    medDetail: refreshMedDetail,
     member: refreshMember,
     travel: refreshTravel,
     company: refreshCompany,
@@ -60,6 +61,7 @@ function show(id) {
     heirs: refreshHeirs,
     icu: refreshIcu,
     aftercare: refreshAftercare,
+    settings: refreshSettings,
     executor: () => {},
   };
   if (loaders[id]) loaders[id]();
@@ -81,6 +83,86 @@ function fmtTime(ts) {
   return new Date(ts * 1000).toLocaleString("zh-CN", { hour12: false });
 }
 
+/** 统一空态：文案 + 主 CTA（低认知负荷） */
+function emptyState(message, ctaLabel, ctaGo) {
+  const btn = ctaLabel && ctaGo
+    ? `<button class="btn sm" type="button" data-go="${esc(ctaGo)}">${esc(ctaLabel)}</button>`
+    : "";
+  return `<div class="empty-state">
+    <p class="empty-title">${esc(message)}</p>
+    <p class="empty-hint">慢慢来就好，需要时再补一条。</p>
+    ${btn}
+  </div>`;
+}
+
+function envLabel() {
+  const host = location.hostname || "";
+  if (host === "einherit.cn" || host.endsWith(".einherit.cn")) {
+    return { kind: "prod", text: "正式环境 · einherit.cn" };
+  }
+  if (host === "127.0.0.1" || host === "localhost") {
+    return { kind: "dev", text: "本机开发 · 127.0.0.1" };
+  }
+  return { kind: "other", text: `当前主机 · ${host || "未知"}` };
+}
+
+const ONBOARD_DISMISS_KEY = "einherit_onboard_dismissed";
+
+function showLegacyCalmTip() {
+  const tip = $("#legacyCalmTip");
+  if (!tip) return;
+  tip.hidden = false;
+  tip.innerHTML = `<strong>已保存，可再改</strong><span>短时内随时回来调整处置方式或接收人，无需紧张。</span>
+    <button class="btn ghost sm" type="button" id="legacyCalmDismiss">知道了</button>`;
+  const btn = $("#legacyCalmDismiss");
+  if (btn) btn.onclick = () => { tip.hidden = true; };
+  clearTimeout(showLegacyCalmTip._t);
+  showLegacyCalmTip._t = setTimeout(() => { tip.hidden = true; }, 8000);
+}
+
+async function refreshOnboarding() {
+  const box = $("#onboardGuide");
+  if (!box) return;
+  try {
+    const data = await api("/api/onboarding");
+    const dismissed = localStorage.getItem(ONBOARD_DISMISS_KEY) === "1";
+    if (data.complete && dismissed) {
+      box.hidden = true;
+      box.innerHTML = "";
+      return;
+    }
+    box.hidden = false;
+    const steps = (data.steps || [])
+      .map(
+        (s, i) => `<li class="${s.done ? "done" : ""}">
+          <button type="button" data-go="${esc(s.go)}">
+            <span class="ob-n">${s.done ? "✓" : i + 1}</span>
+            <span><strong>${esc(s.title)}</strong><em>${esc(s.hint)}</em></span>
+          </button>
+        </li>`
+      )
+      .join("");
+    box.innerHTML = `
+      <div class="onboard-head">
+        <div>
+          <div class="onboard-label">首次引导</div>
+          <strong>${data.complete ? "三步已齐，随时可再改" : `温和起步 ${data.done}/${data.total}`}</strong>
+        </div>
+        <button class="btn ghost sm" type="button" id="onboardDismiss">${data.complete ? "收起" : "稍后再说"}</button>
+      </div>
+      <ol class="onboard-steps">${steps}</ol>`;
+    const d = $("#onboardDismiss");
+    if (d) {
+      d.onclick = () => {
+        localStorage.setItem(ONBOARD_DISMISS_KEY, "1");
+        box.hidden = true;
+      };
+    }
+  } catch {
+    box.hidden = true;
+  }
+}
+
 async function refreshHome() {
   try {
     const { user } = await api("/api/me");
@@ -95,11 +177,13 @@ async function refreshHome() {
     }
     const overdue = user.checkin_overdue;
     const grace = user.checkin_in_grace;
+    const env = envLabel();
     $("#homeHint").innerHTML = overdue
-      ? `⚠ 报备已过冷静期。将先电话联系您，再联系备用联系人。盘点进度 ${co.progress.pct}%。`
+      ? `报备稍有延迟，打个卡即可。盘点进度 ${co.progress.pct}%。`
       : grace
-        ? `⏳ 已过报备点，仍在冷静期（${user.grace_hours}h）。盘点进度 ${co.progress.pct}%。`
-        : `einherit.cn · 盘点进度 ${co.progress.pct}%（${co.progress.filled}/5 部门）· 下次报备 ${fmtTime(user.checkin_due_at)}`;
+        ? `仍在冷静窗口（${user.grace_hours}h）。盘点进度 ${co.progress.pct}%。`
+        : `盘点进度 ${co.progress.pct}%（${co.progress.filled}/5 部门）· 下次报备 ${fmtTime(user.checkin_due_at)} · <span class="env-chip env-${env.kind}">${env.text}</span>`;
+    await refreshOnboarding();
   } catch (e) {
     $("#homeHint").textContent = "服务未就绪：" + e.message;
   }
@@ -290,21 +374,34 @@ function applyBrainEdits(map) {
 async function refreshCheckin() {
   const box = $("#checkinBox");
   box.innerHTML = "<div class='card muted'>加载中…</div>";
-  const { user, calls } = await api("/api/checkin/status");
+  const [{ user, calls }, hist] = await Promise.all([
+    api("/api/checkin/status"),
+    api("/api/checkin/history?limit=12"),
+  ]);
   const statusHtml = user.checkin_overdue
-    ? `<div class="alert">已过冷静期。状态机：calling_self → calling_backup → manual_review（不直接宣布身故）。</div>`
+    ? `<div class="alert">报备稍有延迟。系统会先联系您本人，再联系备用联系人——不擅自下结论。</div>`
     : user.checkin_in_grace
-      ? `<div class="alert">已过报备点，仍在冷静期（${user.grace_hours} 小时）。暂不外呼，请尽快打卡。</div>`
+      ? `<div class="alert">已过报备点，仍在冷静期（${user.grace_hours} 小时）。打个卡就回到日常节奏。</div>`
       : `<div class="ok">报备正常。最近一次：${fmtTime(user.last_checkin_at)}</div>`;
   const contacts = (user.backup_contacts || [])
     .map((c) => `<li>${c.name}（${c.relation}）· ${c.phone}</li>`)
     .join("");
+  const historyHtml = (hist.items || []).length
+    ? hist.items
+        .map(
+          (h, i) =>
+            `<div class="item checkin-hist"><span class="tag">#${(hist.items || []).length - i}</span>
+            <strong>${fmtTime(h.at)}</strong>
+            <div class="muted">${esc(h.note || "报备")}</div></div>`
+        )
+        .join("")
+    : emptyState("还没有报备记录", "完成一次报备", "checkin");
 
   box.innerHTML = `
     ${statusHtml}
     <div class="card">
       <h3>一键报备</h3>
-      <p class="muted">确认「我还安全」。漏报先进入冷静期，过期后才 AI 外呼本人，再按序通知备用联系人。</p>
+      <p class="muted">确认「我还安全」。漏报先进入冷静期；过期后才联系本人，再按序联系备用联系人。</p>
       <div class="row">
         <button class="btn" id="doCheckin">我已安全 · 完成报备</button>
         <button class="btn ghost" id="forceOverdue">演示：制造逾期</button>
@@ -315,13 +412,20 @@ async function refreshCheckin() {
       </div>
     </div>
     <div class="card">
+      <h3>报备历史</h3>
+      <p class="muted">最近 ${Math.min(12, (hist.items || []).length || 0)} 次报备时间（只读）。</p>
+      <div class="list">${historyHtml}</div>
+    </div>
+    <div class="card">
       <h3>报备频率 / 冷静期 / 执行人</h3>
+      <p class="muted">完整编辑也可在「设置总控」。</p>
       <label class="field">间隔（小时）<input type="number" id="intervalHours" value="${user.checkin_interval_hours}" min="1"/></label>
       <label class="field">冷静期（小时）<input type="number" id="graceHours" value="${user.grace_hours || 72}" min="0"/></label>
       <label class="field">遗产执行人<input id="executorName" value="${user.executor_name || ""}" placeholder="董事会指定 CEO"/></label>
       <button class="btn ghost" id="saveInterval">保存</button>
       <h3 style="margin-top:16px">备用联系人</h3>
-      <ul class="muted">${contacts || "<li>暂无</li>"}</ul>
+      <ul class="muted">${contacts || "<li>暂无 · 可在设置中添加</li>"}</ul>
+      <button class="btn ghost sm" type="button" data-go="settings">去设置编辑</button>
     </div>
     <div class="card">
       <h3>外呼记录</h3>
@@ -333,7 +437,7 @@ async function refreshCheckin() {
                   `<div class="item"><span class="tag">${c.result}</span><strong>${c.target}</strong><div class="muted">${c.note}<br/>${fmtTime(c.created_at)}</div></div>`
               )
               .join("")
-          : "<p class='muted'>暂无外呼记录</p>"
+          : emptyState("暂无外呼记录", "查看报备说明", "checkin")
       }</div>
     </div>`;
 
@@ -377,8 +481,10 @@ async function refreshCheckin() {
         executor_name: $("#executorName").value,
       }),
     });
+    localStorage.removeItem(ONBOARD_DISMISS_KEY);
     toast("已保存");
     refreshCheckin();
+    refreshHome();
   };
 }
 
@@ -404,7 +510,7 @@ async function refreshLegacy() {
       <div class="muted">${it.beneficiary ? "接收人：" + it.beneficiary + " · " : ""}${it.notes || ""}</div>
     </div>`;
       })
-      .join("") || "<p class='muted'>暂无条目</p>";
+      .join("") || emptyState("还没有交割安排", "写第一条交割", "legacy");
 }
 
 async function refreshCompany() {
@@ -430,12 +536,21 @@ async function refreshCompany() {
         <label class="field"><textarea data-dept="${d.id}" class="coBody" rows="2" placeholder="内容"></textarea></label>
         <button class="btn secondary coAdd" data-dept="${d.id}">写入${d.short || d.name}</button>
         <div class="list" style="margin-top:10px">${
-          (d.notes || [])
-            .map(
-              (n) =>
-                `<div class="item"><strong>${n.title}</strong><div class="muted">${n.body || ""}</div></div>`
-            )
-            .join("") || "<p class='muted'>尚无盘点草稿</p>"
+          (d.notes || []).length
+            ? (d.notes || [])
+                .map(
+                  (n, idx, arr) =>
+                    `<div class="item note-row">
+                      <strong>${esc(n.title)}</strong>
+                      <div class="muted">${esc(n.body || "")}</div>
+                      <div class="note-sort">
+                        <button class="btn ghost sm coMove" data-id="${n.id}" data-dir="up" ${idx === 0 ? "disabled" : ""} type="button">上移</button>
+                        <button class="btn ghost sm coMove" data-id="${n.id}" data-dir="down" ${idx === arr.length - 1 ? "disabled" : ""} type="button">下移</button>
+                      </div>
+                    </div>`
+                )
+                .join("")
+            : emptyState("尚无盘点草稿", "去写交割", "legacy")
         }</div>
       </div>`
       )
@@ -455,10 +570,43 @@ async function refreshCompany() {
       refreshHome();
     };
   });
+  $$(".coMove").forEach((btn) => {
+    btn.onclick = async () => {
+      try {
+        await api("/api/company/note/reorder", {
+          method: "POST",
+          body: JSON.stringify({ id: Number(btn.dataset.id), direction: btn.dataset.dir }),
+        });
+        refreshCompany();
+      } catch (e) {
+        toast(e.message);
+      }
+    };
+  });
 }
 
 async function refreshGuard() {
   const data = await api("/api/self-guard");
+  const checked = (data.items || []).filter((it) => it.checked);
+  const sum = $("#guardSummary");
+  if (sum) {
+    sum.innerHTML = checked.length
+      ? `<h3>已纳入的自保动作 · ${checked.length}/7</h3>
+        <p class="muted">一页汇总，可随时取消勾选。</p>
+        <div class="list">${checked
+          .map(
+            (it) => `<div class="item">
+              <span class="sin-rank">${it.rank}</span>
+              <strong>${esc(it.sin)}</strong>
+              <div class="muted">${esc(it.advice)}</div>
+              <button class="btn ghost sm guardUncheck" data-rank="${it.rank}" type="button">取消纳入</button>
+            </div>`
+          )
+          .join("")}</div>`
+      : `<h3>自保动作提醒摘要</h3>
+        <p class="muted">勾选下方条目后，会汇总在这里，方便复习。</p>
+        ${emptyState("尚未勾选自保动作", "去七宗罪列表", "guard")}`;
+  }
   $("#guardList").innerHTML = data.items
     .map(
       (it) => `
@@ -476,14 +624,19 @@ async function refreshGuard() {
     </div>`
     )
     .join("");
+  const sync = async (rank, checkedFlag) => {
+    await api("/api/self-guard", {
+      method: "POST",
+      body: JSON.stringify({ sin_rank: Number(rank), checked: checkedFlag }),
+    });
+    toast(checkedFlag ? "已勾选自保" : "已取消");
+    refreshGuard();
+  };
   $$(".sinCheck").forEach((cb) => {
-    cb.onchange = async () => {
-      await api("/api/self-guard", {
-        method: "POST",
-        body: JSON.stringify({ sin_rank: Number(cb.dataset.rank), checked: cb.checked }),
-      });
-      toast(cb.checked ? "已勾选自保" : "已取消");
-    };
+    cb.onchange = () => sync(cb.dataset.rank, cb.checked).catch((e) => toast(e.message));
+  });
+  $$(".guardUncheck").forEach((btn) => {
+    btn.onclick = () => sync(btn.dataset.rank, false).catch((e) => toast(e.message));
   });
 }
 
@@ -518,7 +671,7 @@ async function refreshHandover() {
         </div>`
             )
             .join("")
-        : "<p class='muted'>尚无交割条目，请先在「电子继承」写入安排</p>"
+        : emptyState("尚无交割条目", "去写交割安排", "legacy")
     }</div>
     <div class="card">
       <h3>历史快照</h3>
@@ -530,7 +683,7 @@ async function refreshHandover() {
                   `<div class="item"><strong>${s.label}</strong><div class="muted">${fmtTime(s.created_at)}</div></div>`
               )
               .join("")
-          : "<p class='muted'>尚无快照</p>"
+          : emptyState("尚无快照", "先写交割", "legacy")
       }</div>
     </div>`;
   const btn = $("#snapHand");
@@ -573,7 +726,7 @@ async function refreshHeirs() {
                   <div class="muted">${b.contact || ""} ${b.note || ""}</div></div>`
               )
               .join("")
-          : "<p class='muted'>暂无受益人</p>"
+          : emptyState("暂无受益人", "添加受益人", "heirs")
       }</div>
     </div>
     <div class="card"><h3>紧急取用申请</h3>
@@ -597,7 +750,7 @@ async function refreshHeirs() {
         </div>`
               )
               .join("")
-          : "<p class='muted'>暂无申请</p>"
+          : emptyState("暂无紧急取用申请", "添加受益人", "heirs")
       }</div>
     </div>
     <div class="card"><h3>审计日志</h3>
@@ -611,7 +764,7 @@ async function refreshHeirs() {
                   <div class="muted">${a.detail || ""} · ${fmtTime(a.created_at)}</div></div>`
               )
               .join("")
-          : "<p class='muted'>暂无记录</p>"
+          : emptyState("暂无审计记录", "回首页", "home")
       }</div>
     </div>`;
   $$(".emDec").forEach((btn) => {
@@ -640,8 +793,10 @@ async function refreshAssets() {
       <div class="muted">处理：${it.dispose_note || "—"}</div>
     </div>`
       )
-      .join("") || "<p class='muted'>暂无备忘</p>";
+      .join("") || emptyState("暂无资产备忘", "记一笔备忘", "assets");
 }
+
+let _medDetailId = null;
 
 async function refreshMed(q = "", country = "") {
   const qs = new URLSearchParams();
@@ -655,25 +810,63 @@ async function refreshMed(q = "", country = "") {
     <div class="item">
       <span class="tag">${h.country}</span>
       ${h.intl ? '<span class="tag">国际患者</span>' : ""}
-      <strong>${h.name}</strong>
-      <div class="muted">${h.city} · ${h.dept}<br/>${h.tags || ""}</div>
-      <div class="row"><button class="btn secondary" data-hid="${h.id}">提交就医意向</button></div>
+      <strong>${esc(h.name)}</strong>
+      <div class="muted">${esc(h.city)} · ${esc(h.dept)}<br/>${esc(h.tags || "")}</div>
+      <div class="row" style="gap:8px;flex-wrap:wrap;margin-top:8px">
+        <button class="btn secondary medOpen" data-hid="${h.id}" type="button">查看详情</button>
+      </div>
     </div>`
       )
-      .join("") || "<p class='muted'>无匹配医院</p>";
+      .join("") || emptyState("无匹配医院", "清空关键词再筛", "med");
 
-  $$("#medList [data-hid]").forEach((btn) => {
-    btn.onclick = async () => {
-      await api("/api/hospitals/intent", {
-        method: "POST",
-        body: JSON.stringify({
-          hospital_id: Number(btn.dataset.hid),
-          note: "希望顾问协助评估就医路径",
-        }),
-      });
-      toast("意向已提交");
+  $$("#medList .medOpen").forEach((btn) => {
+    btn.onclick = () => {
+      _medDetailId = Number(btn.dataset.hid);
+      show("medDetail");
     };
   });
+}
+
+async function refreshMedDetail() {
+  const box = $("#medDetailBox");
+  if (!box) return;
+  if (!_medDetailId) {
+    box.innerHTML = emptyState("请先从列表选择医院", "返回医旅", "med");
+    return;
+  }
+  box.innerHTML = "<div class='card muted'>加载中…</div>";
+  try {
+    const { item: h } = await api("/api/hospitals?id=" + _medDetailId);
+    box.innerHTML = `
+      <div class="card">
+        <span class="tag">${esc(h.country)}</span>
+        ${h.intl ? '<span class="tag">国际患者</span>' : ""}
+        <h3 style="margin-top:8px">${esc(h.name)}</h3>
+        <p class="muted">${esc(h.city)} · 科室：${esc(h.dept)}</p>
+        <label class="field">地址<div class="detail-block">${esc(h.address || "暂无地址（演示可后续补全）")}</div></label>
+        <label class="field">备注<div class="detail-block">${esc(h.remark || h.tags || "信息中介，不做疗效承诺。")}</div></label>
+        <label class="field">意向说明
+          <textarea id="medIntentNote" rows="2" placeholder="希望顾问协助评估就医路径（可选）"></textarea>
+        </label>
+        <button class="btn block" id="medIntentSubmit" type="button">提交就医意向</button>
+      </div>`;
+    $("#medIntentSubmit").onclick = async () => {
+      try {
+        await api("/api/hospitals/intent", {
+          method: "POST",
+          body: JSON.stringify({
+            hospital_id: h.id,
+            note: ($("#medIntentNote").value || "").trim() || "希望顾问协助评估就医路径",
+          }),
+        });
+        toast("意向已提交");
+      } catch (e) {
+        toast(e.message);
+      }
+    };
+  } catch (e) {
+    box.innerHTML = emptyState(e.message || "加载失败", "返回医旅", "med");
+  }
 }
 
 async function refreshMember() {
@@ -798,7 +991,10 @@ $("#lgAdd").onclick = async () => {
   $("#lgTitle").value = "";
   $("#lgNotes").value = "";
   toast("已写入交割手册");
+  showLegacyCalmTip();
+  localStorage.removeItem(ONBOARD_DISMISS_KEY);
   refreshLegacy();
+  refreshHome();
 };
 
 $("#asAdd").onclick = async () => {
@@ -839,10 +1035,32 @@ async function refreshIcu() {
     .join("");
 }
 
+function renderAcBudgetTip(balance, budget) {
+  const tip = $("#acBudgetTip");
+  if (!tip) return;
+  const bal = Number(balance || 0);
+  const bud = Number(budget || 0);
+  if (!bud) {
+    tip.className = "budget-tip tone-soft";
+    tip.innerHTML = `当前差旅余额 <b>${fmtMoney(bal)}</b>。填写预算后，会提示是否够用。
+      <button class="btn ghost sm" type="button" data-go="travel">去预存</button>`;
+    return;
+  }
+  if (bal >= bud) {
+    tip.className = "budget-tip tone-ok";
+    tip.innerHTML = `差旅余额 <b>${fmtMoney(bal)}</b> ≥ 本单预算 <b>${fmtMoney(bud)}</b>，预存看起来够用。`;
+  } else {
+    tip.className = "budget-tip tone-care";
+    tip.innerHTML = `差旅余额 <b>${fmtMoney(bal)}</b> 低于本单预算 <b>${fmtMoney(bud)}</b>。可先补预存，或调低预算。
+      <button class="btn ghost sm" type="button" data-go="travel">去预存</button>`;
+  }
+}
+
 async function refreshAftercare() {
-  const [{ items, playbook }, av] = await Promise.all([
+  const [{ items, playbook }, av, travel] = await Promise.all([
     api("/api/aftercare"),
     api("/api/auth-video"),
+    api("/api/travel-fund"),
   ]);
   const gate = playbook.auth_video_gate || {};
   const must = (gate.must_include || []).map((x) => `<li>${x}</li>`).join("");
@@ -853,13 +1071,21 @@ async function refreshAftercare() {
       <b>${gate.title || "授权说明视频"}</b>
       <div class="muted">${gate.from_frames || ""}</div>
       <ul class="muted" style="padding-left:1.1em;margin:0.4em 0">${must}</ul>
-      <div>${av.ready ? "✅ 授权视频已就绪，可提交工单" : "⚠ 尚未完成授权视频 — "}
+      <div>${av.ready ? "授权视频已就绪，可提交工单" : "尚未完成授权视频 — "}
         <button class="btn ghost sm" data-go="authvideo" type="button">${av.ready ? "查看" : "去上传"}</button>
       </div>
     </div>
     <ul class="muted" style="padding-left:1.1em;margin:0.6em 0 0">
       ${playbook.frames.map((f) => `<li><b>${f.t}</b> → ${f.map}</li>`).join("")}
     </ul>`;
+  const bal = travel.fund?.balance || 0;
+  window._acTravelBalance = bal;
+  renderAcBudgetTip(bal, Number($("#acTravel")?.value || 0));
+  const travelInput = $("#acTravel");
+  if (travelInput) {
+    travelInput.oninput = () =>
+      renderAcBudgetTip(window._acTravelBalance || 0, Number(travelInput.value || 0));
+  }
   $("#acList").innerHTML = items.length
     ? items
         .map(
@@ -867,14 +1093,14 @@ async function refreshAftercare() {
       <strong>${it.title}</strong>
       <div class="muted">${SERVICE_LABEL[it.service_type] || it.service_type}
         · ${it.city || "未填城市"}
-        · 差旅预算 ¥${fmtMoney(it.travel_budget)}
+        · 差旅预算 ${fmtMoney(it.travel_budget)}
         · ${it.coop_state}
         · ${it.status}</div>
       <div class="muted">${it.visit_pref || ""} ${it.notes || ""}</div>
     </div>`
         )
         .join("")
-    : `<div class="empty">暂无善后工单</div>`;
+    : emptyState("暂无善后工单", "先上传授权视频", "authvideo");
 }
 
 async function refreshAuthVideo() {
@@ -897,7 +1123,7 @@ async function refreshAuthVideo() {
     </div>`
         )
         .join("")
-    : `<div class="empty">尚未上传授权视频</div>`;
+    : emptyState("尚未上传授权视频", "了解善后门槛", "aftercare");
 }
 
 $("#avUpload").onclick = async () => {
@@ -1047,5 +1273,112 @@ $("#brainReset").onclick = async () => {
     toast(e.message);
   }
 };
+
+async function refreshSettings() {
+  const box = $("#settingsBox");
+  if (!box) return;
+  box.innerHTML = "<div class='card muted'>加载中…</div>";
+  try {
+    const { user } = await api("/api/me");
+    const env = envLabel();
+    const privacyHref = API_BASE.replace(/\/$/, "") + "/privacy.html";
+    const exportHref = API_BASE.replace(/\/$/, "") + "/export/pack.json";
+    const contacts = user.backup_contacts || [];
+    while (contacts.length < 2) contacts.push({ name: "", relation: "", phone: "" });
+    box.innerHTML = `
+      <div class="card">
+        <h3>环境指示</h3>
+        <p class="env-chip env-${env.kind}">${esc(env.text)}</p>
+        <p class="muted">开发请用本机；对外演示请确认已切到 einherit.cn，避免混用数据。</p>
+      </div>
+      <div class="card">
+        <h3>报备频率与冷静期</h3>
+        <label class="field">间隔（小时）<input type="number" id="setInterval" value="${user.checkin_interval_hours}" min="1"/></label>
+        <label class="field">冷静期（小时）<input type="number" id="setGrace" value="${user.grace_hours || 72}" min="0"/></label>
+        <label class="field">遗产执行人<input id="setExecutor" value="${esc(user.executor_name || "")}" placeholder="董事会指定"/></label>
+      </div>
+      <div class="card">
+        <h3>备用联系人</h3>
+        <p class="muted">姓名 + 电话即可；关系可选。</p>
+        ${[0, 1]
+          .map(
+            (i) => `
+          <div class="contact-edit">
+            <label class="field">姓名<input id="setBkName${i}" value="${esc(contacts[i]?.name || "")}"/></label>
+            <label class="field">关系<input id="setBkRel${i}" value="${esc(contacts[i]?.relation || "")}" placeholder="配偶 / 子女"/></label>
+            <label class="field">电话<input id="setBkPhone${i}" value="${esc(contacts[i]?.phone || "")}"/></label>
+          </div>`
+          )
+          .join("")}
+        <button class="btn block" id="setSave" type="button">保存设置</button>
+      </div>
+      <div class="card">
+        <h3>隐私与导出</h3>
+        <div class="row" style="gap:8px;flex-wrap:wrap">
+          <a class="btn ghost" href="${privacyHref}" target="_blank" rel="noopener">隐私政策</a>
+          <button class="btn" id="setExport" type="button">导出数据包（JSON）</button>
+          <a class="btn ghost" href="${exportHref}" target="_blank" rel="noopener">新窗口打开 JSON</a>
+        </div>
+        <p class="muted" style="margin-top:8px">导出含交割、备忘与脱敏受益人；演示用途，不含完整密码。</p>
+      </div>
+      <div class="card">
+        <h3>引导</h3>
+        <button class="btn ghost" id="setShowOnboard" type="button">重新显示首次引导</button>
+      </div>`;
+    $("#setSave").onclick = async () => {
+      try {
+        const backup_contacts = [0, 1]
+          .map((i) => ({
+            name: ($("#setBkName" + i).value || "").trim(),
+            relation: ($("#setBkRel" + i).value || "").trim(),
+            phone: ($("#setBkPhone" + i).value || "").trim(),
+          }))
+          .filter((c) => c.name || c.phone);
+        for (const c of backup_contacts) {
+          if (!c.name || !c.phone) {
+            toast("备用联系人请同时填写姓名与电话");
+            return;
+          }
+        }
+        await api("/api/me", {
+          method: "POST",
+          body: JSON.stringify({
+            checkin_interval_hours: Number($("#setInterval").value || 24),
+            grace_hours: Number($("#setGrace").value || 72),
+            executor_name: $("#setExecutor").value,
+            backup_contacts,
+          }),
+        });
+        localStorage.removeItem(ONBOARD_DISMISS_KEY);
+        toast("设置已保存");
+        refreshSettings();
+        refreshHome();
+      } catch (e) {
+        toast(e.message);
+      }
+    };
+    $("#setExport").onclick = async () => {
+      try {
+        const pack = await api("/api/export/pack");
+        const blob = new Blob([JSON.stringify(pack, null, 2)], { type: "application/json" });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = `einherit-export-${Date.now()}.json`;
+        a.click();
+        URL.revokeObjectURL(a.href);
+        toast("已下载脱敏 JSON 演示包");
+      } catch (e) {
+        toast(e.message);
+      }
+    };
+    $("#setShowOnboard").onclick = () => {
+      localStorage.removeItem(ONBOARD_DISMISS_KEY);
+      toast("已恢复首次引导");
+      show("home");
+    };
+  } catch (e) {
+    box.innerHTML = `<div class="card"><p class="muted">${esc(e.message)}</p></div>`;
+  }
+}
 
 refreshHome();

@@ -71,6 +71,12 @@ class Handler(BaseHTTPRequestHandler):
             self._send(200, html, "text/html; charset=utf-8")
             return
 
+        if path == "/export/pack.json":
+            pack = db.export_data_pack(1)
+            code, body, ctype = json_bytes(pack)
+            self._send(code, body, ctype)
+            return
+
         # static
         rel = "index.html" if path in ("/", "") else path.lstrip("/")
         file_path = (STATIC / rel).resolve()
@@ -199,12 +205,26 @@ class Handler(BaseHTTPRequestHandler):
             elif path == "/api/hospitals":
                 q = (qs.get("q") or [""])[0]
                 country = (qs.get("country") or [""])[0]
-                out = {"items": db.list_hospitals(q=q, country=country)}
+                hid = (qs.get("id") or [""])[0]
+                if hid:
+                    item = db.get_hospital(int(hid))
+                    if not item:
+                        code, body, ctype = json_bytes({"error": "医院不存在"}, 404)
+                        self._send(code, body, ctype)
+                        return
+                    out = {"item": item}
+                else:
+                    out = {"items": db.list_hospitals(q=q, country=country)}
             elif path == "/api/checkin/status":
                 out = {
                     "user": db.get_user(1),
                     "calls": db.recent_calls(1, 10),
                 }
+            elif path == "/api/checkin/history":
+                limit = int((qs.get("limit") or ["20"])[0] or 20)
+                out = {"items": db.checkin_history(1, limit)}
+            elif path == "/api/onboarding":
+                out = db.onboarding_status(1)
             elif path == "/api/travel-fund":
                 out = {"fund": db.get_travel(1), "ledger": db.recent_ledger(1, 12)}
             elif path == "/api/company":
@@ -234,6 +254,8 @@ class Handler(BaseHTTPRequestHandler):
                 out = {"map": db.get_mindmap(1)}
             elif path == "/api/auth-video":
                 out = db.auth_video_status(1)
+            elif path == "/api/export/pack":
+                out = db.export_data_pack(1)
             else:
                 code, body, ctype = json_bytes({"error": "not found"}, 404)
                 self._send(code, body, ctype)
@@ -276,6 +298,13 @@ class Handler(BaseHTTPRequestHandler):
                     str(payload.get("body") or ""),
                 )
             }
+
+        if path == "/api/company/note/reorder":
+            return db.reorder_company_note(
+                1,
+                int(payload.get("id") or 0),
+                str(payload.get("direction") or ""),
+            )
 
         if path == "/api/self-guard":
             return db.set_self_guard(
