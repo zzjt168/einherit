@@ -97,7 +97,13 @@ def main() -> None:
 
     lead = call(
         "/api/executor-lead",
-        {"name": "自检加盟", "city": "武汉", "phone": "13800000000"},
+        {
+            "name": "自检加盟",
+            "province": "湖北",
+            "city": "武汉",
+            "region": "武昌",
+            "phone": "13800000000",
+        },
     )["item"]
     assert lead["name"] == "自检加盟", lead
     leads = call("/api/executor-lead")
@@ -141,6 +147,35 @@ def main() -> None:
     assert detail["item"]["id"] == intent["id"], detail
     cancelled = call("/api/hospitals/intent/cancel", {"id": intent["id"]})["intent"]
     assert cancelled.get("status") == "cancelled", cancelled
+    assert lead.get("province") == "湖北", lead
+    assert lead.get("region") == "武昌", lead
+
+    leads = call("/api/executor-leads")
+    assert any(x.get("id") == lead["id"] for x in leads["items"]), leads
+
+    updated = call(
+        "/api/executor-lead",
+        {
+            "id": lead["id"],
+            "name": "自检加盟",
+            "province": "湖北",
+            "city": "武汉",
+            "region": "洪山",
+            "phone": "13800000000",
+        },
+    )["item"]
+    assert updated.get("region") == "洪山", updated
+
+    assets = call(
+        "/api/assets", {"platform": "自检平台", "tag": "账号"}
+    )["item"]
+    assert assets["platform"] == "自检平台", assets
+    assert assets.get("tag") == "账号", assets
+
+    today = call("/api/today")
+    assert len(today.get("items") or []) == 3, today
+    assert "escalation" in today, today
+    assert today["escalation"].get("state"), today
 
     refund = call("/api/membership/lapse", {})
     assert "refunded" in refund, refund
