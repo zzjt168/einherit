@@ -370,11 +370,15 @@ def _ensure_columns(conn: sqlite3.Connection) -> None:
             ("factory_reset", "INTEGER DEFAULT 0"),
             ("clear_photos", "INTEGER DEFAULT 0"),
             ("clear_chats", "INTEGER DEFAULT 0"),
+            ("beneficiary_id", "INTEGER DEFAULT 0"),
         ],
         "assets": [("dept", "TEXT DEFAULT 'finance'")],
         "users": [
             ("executor_name", "TEXT DEFAULT ''"),
             ("grace_hours", "REAL DEFAULT 72"),
+        ],
+        "aftercare_jobs": [
+            ("contact_window", "TEXT DEFAULT ''"),
         ],
     }
     for table, cols in specs.items():
@@ -382,6 +386,18 @@ def _ensure_columns(conn: sqlite3.Connection) -> None:
         for name, decl in cols:
             if name not in existing:
                 conn.execute(f"ALTER TABLE {table} ADD COLUMN {name} {decl}")
+    # 急症前清册单项勾选（与写入交割手册分离，可回显）
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS icu_checklist (
+          user_id INTEGER NOT NULL,
+          pack_key TEXT NOT NULL,
+          checked INTEGER DEFAULT 0,
+          updated_at REAL NOT NULL,
+          PRIMARY KEY (user_id, pack_key)
+        )
+        """
+    )
 
 
 def init_db() -> None:
@@ -469,10 +485,26 @@ def get_user(user_id: int = 1) -> dict[str, Any]:
     u["checkin_in_grace"] = due < now <= hard_due
     u["checkin_overdue"] = now > hard_due  # 仅冷静期结束后才升级外呼
     u["checkin_soft_overdue"] = now > due
+    # 冷静期剩余（只读展示用；不改外呼状态机）
+    remain = max(0.0, hard_due - now) if due < now <= hard_due else 0.0
+    u["grace_remaining_seconds"] = int(remain)
+    u["grace_remaining_human"] = _fmt_duration(remain) if remain > 0 else ""
     u["domain"] = "einherit.cn"
     u["brand"] = "电子继承 App"
     u["brand_en"] = "E-Inherit"
     return u
+
+
+def _fmt_duration(seconds: float) -> str:
+    """温和时长文案（小时+分钟）。"""
+    sec = max(0, int(seconds))
+    hours, rem = divmod(sec, 3600)
+    minutes = rem // 60
+    if hours >= 1:
+        return f"{hours} 小时 {minutes} 分钟" if minutes else f"{hours} 小时"
+    if minutes >= 1:
+        return f"{minutes} 分钟"
+    return "不到 1 分钟"
 
 
 def update_user(user_id: int, **fields: Any) -> dict[str, Any]:
@@ -494,31 +526,94 @@ def list_legacy(user_id: int = 1) -> list[dict[str, Any]]:
     return [row_to_dict(r) for r in rows]  # type: ignore[misc]
 
 
+def _resolve_legacy_beneficiary(
+    user_id: int, payload: dict[str, Any]
+) -> tuple[int, str]:
+    """交割条目可指定受益人档案；无 id 时保留自由文本。"""
+    bid = int(payload.get("beneficiary_id") or 0)
+    name = str(payload.get("beneficiary") or "").strip()
+    if bid > 0:
+        with connect() as conn:
+            row = conn.execute(
+                "SELECT id, name FROM beneficiaries WHERE id=? AND user_id=?",
+                (bid, user_id),
+            ).fetchone()
+        if not row:
+            raise ValueError("所选受益人不存在")
+        return int(row["id"]), str(row["name"])
+    return 0, name
+
+
 def add_legacy(user_id: int, payload: dict[str, Any]) -> dict[str, Any]:
     now = time.time()
+    bid, bene_name = _resolve_legacy_beneficiary(user_id, payload)
     with connect() as conn:
         cur = conn.execute(
             "INSERT INTO legacy_items (user_id, title, category, action, beneficiary, notes, "
-            "dept, factory_reset, clear_photos, clear_chats, created_at) "
-            "VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+            "dept, factory_reset, clear_photos, clear_chats, beneficiary_id, created_at) "
+            "VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
             (
                 user_id,
                 payload.get("title", "").strip() or "未命名条目",
                 payload.get("category", "其他"),
                 payload.get("action", "销毁"),
-                payload.get("beneficiary", ""),
+                bene_name,
                 payload.get("notes", ""),
                 payload.get("dept", "admin"),
                 1 if payload.get("factory_reset") else 0,
                 1 if payload.get("clear_photos") else 0,
                 1 if payload.get("clear_chats") else 0,
+                bid,
                 now,
             ),
         )
         conn.commit()
         rid = cur.lastrowid
         row = conn.execute("SELECT * FROM legacy_items WHERE id=?", (rid,)).fetchone()
+    audit(user_id, "legacy.add", str(payload.get("title") or rid))
     return row_to_dict(row)  # type: ignore[return-value]
+
+
+def delete_legacy(user_id: int, item_id: int) -> dict[str, Any]:
+    with connect() as conn:
+        row = conn.execute(
+            "SELECT * FROM legacy_items WHERE id=? AND user_id=?", (item_id, user_id)
+        ).fetchone()
+        if not row:
+            raise ValueError("交割条目不存在")
+        title = row["title"]
+        conn.execute("DELETE FROM legacy_items WHERE id=?", (item_id,))
+        conn.commit()
+    audit(user_id, "legacy.delete", str(title))
+    return {"ok": True, "id": item_id, "title": title}
+
+
+def delete_asset(user_id: int, item_id: int) -> dict[str, Any]:
+    with connect() as conn:
+        row = conn.execute(
+            "SELECT * FROM assets WHERE id=? AND user_id=?", (item_id, user_id)
+        ).fetchone()
+        if not row:
+            raise ValueError("备忘不存在")
+        platform = row["platform"]
+        conn.execute("DELETE FROM assets WHERE id=?", (item_id,))
+        conn.commit()
+    audit(user_id, "asset.delete", str(platform))
+    return {"ok": True, "id": item_id, "platform": platform}
+
+
+def delete_beneficiary(user_id: int, bene_id: int) -> dict[str, Any]:
+    with connect() as conn:
+        row = conn.execute(
+            "SELECT * FROM beneficiaries WHERE id=? AND user_id=?", (bene_id, user_id)
+        ).fetchone()
+        if not row:
+            raise ValueError("受益人不存在")
+        name = row["name"]
+        conn.execute("DELETE FROM beneficiaries WHERE id=?", (bene_id,))
+        conn.commit()
+    audit(user_id, "beneficiary.delete", str(name))
+    return {"ok": True, "id": bene_id, "name": name}
 
 
 def list_assets(user_id: int = 1) -> list[dict[str, Any]]:
@@ -656,13 +751,20 @@ def add_med_intent(user_id: int, hospital_id: int | None, note: str) -> dict[str
     return row_to_dict(row)  # type: ignore[return-value]
 
 
+TRAVEL_THRESHOLD = 2000.0
+
+
 def get_travel(user_id: int = 1) -> dict[str, Any]:
     with connect() as conn:
         row = row_to_dict(
             conn.execute("SELECT * FROM travel_fund WHERE user_id=?", (user_id,)).fetchone()
         )
     if not row:
-        return {"user_id": user_id, "balance": 0.0, "updated_at": time.time()}
+        row = {"user_id": user_id, "balance": 0.0, "updated_at": time.time()}
+    bal = float(row.get("balance") or 0)
+    row["threshold"] = TRAVEL_THRESHOLD
+    row["meets_threshold"] = bal >= TRAVEL_THRESHOLD
+    row["shortfall"] = max(0.0, TRAVEL_THRESHOLD - bal)
     return row
 
 
@@ -804,6 +906,7 @@ def handover_checklist(user_id: int = 1) -> dict[str, Any]:
     u = get_user(user_id)
     items = list_legacy(user_id)
     todos = []
+    bene_names: set[str] = set()
     for it in items:
         bits = [it["action"]]
         if it.get("factory_reset"):
@@ -814,12 +917,14 @@ def handover_checklist(user_id: int = 1) -> dict[str, Any]:
             bits.append("清除聊天")
         if it.get("beneficiary"):
             bits.append(f"交给 {it['beneficiary']}")
+            bene_names.add(str(it["beneficiary"]).strip())
         todos.append(
             {
                 "title": it["title"],
                 "ops": bits,
                 "notes": it.get("notes") or "",
                 "dept": it.get("dept") or "",
+                "beneficiary": it.get("beneficiary") or "",
             }
         )
     return {
@@ -828,8 +933,56 @@ def handover_checklist(user_id: int = 1) -> dict[str, Any]:
         "executor": u.get("executor_name") or "（未指定执行人）",
         "member": u.get("is_member"),
         "todos": todos,
+        "item_count": len(todos),
+        "beneficiary_count": len(bene_names),
         "note": "本清单为客观资产交割待办，不依赖情感授权。",
     }
+
+
+def _icu_pack_key(idx: int, tpl: dict[str, Any]) -> str:
+    return f"icu_{idx}_{tpl.get('title') or idx}"
+
+
+def icu_checklist_state(user_id: int = 1) -> dict[str, Any]:
+    """急症前清册单项勾选状态（可持久化回显）。"""
+    with connect() as conn:
+        rows = {
+            r["pack_key"]: bool(r["checked"])
+            for r in conn.execute(
+                "SELECT pack_key, checked FROM icu_checklist WHERE user_id=?", (user_id,)
+            ).fetchall()
+        }
+    items = []
+    for i, tpl in enumerate(ICU_PACK):
+        key = _icu_pack_key(i, tpl)
+        items.append(
+            {
+                **tpl,
+                "pack_key": key,
+                "checked": bool(rows.get(key, False)),
+            }
+        )
+    done = sum(1 for it in items if it["checked"])
+    return {"items": items, "done": done, "total": len(items)}
+
+
+def set_icu_checklist(user_id: int, pack_key: str, checked: bool) -> dict[str, Any]:
+    key = str(pack_key or "").strip()
+    if not key:
+        raise ValueError("缺少清册项")
+    valid = {_icu_pack_key(i, t) for i, t in enumerate(ICU_PACK)}
+    if key not in valid:
+        raise ValueError("清册项无效")
+    now = time.time()
+    with connect() as conn:
+        conn.execute(
+            "INSERT INTO icu_checklist (user_id, pack_key, checked, updated_at) VALUES (?,?,?,?) "
+            "ON CONFLICT(user_id, pack_key) DO UPDATE SET checked=excluded.checked, "
+            "updated_at=excluded.updated_at",
+            (user_id, key, 1 if checked else 0, now),
+        )
+        conn.commit()
+    return icu_checklist_state(user_id)
 
 
 def apply_icu_pack(user_id: int = 1, beneficiary: str = "") -> list[dict[str, Any]]:
@@ -860,13 +1013,15 @@ def add_aftercare(user_id: int, payload: dict[str, Any]) -> dict[str, Any]:
     with connect() as conn:
         cur = conn.execute(
             "INSERT INTO aftercare_jobs (user_id, service_type, title, city, visit_pref, "
-            "travel_budget, coop_state, status, notes, created_at) VALUES (?,?,?,?,?,?,?,?,?,?)",
+            "contact_window, travel_budget, coop_state, status, notes, created_at) "
+            "VALUES (?,?,?,?,?,?,?,?,?,?,?)",
             (
                 user_id,
                 service_type,
                 title,
                 str(payload.get("city") or ""),
                 str(payload.get("visit_pref") or ""),
+                str(payload.get("contact_window") or ""),
                 float(payload.get("travel_budget") or 0),
                 str(payload.get("coop_state") or "pending"),
                 str(payload.get("status") or "queued"),
@@ -876,6 +1031,7 @@ def add_aftercare(user_id: int, payload: dict[str, Any]) -> dict[str, Any]:
         )
         rid = cur.lastrowid
         row = conn.execute("SELECT * FROM aftercare_jobs WHERE id=?", (rid,)).fetchone()
+    audit(user_id, "aftercare.add", title)
     return row_to_dict(row)  # type: ignore[return-value]
 
 
@@ -942,13 +1098,53 @@ def audit(user_id: int, action: str, detail: str = "") -> None:
         conn.commit()
 
 
-def recent_audit(user_id: int = 1, limit: int = 30) -> list[dict[str, Any]]:
+AUDIT_TYPE_LABELS = {
+    "checkin": "报备",
+    "legacy": "交割",
+    "aftercare": "工单",
+    "auth": "授权",
+}
+
+
+def _audit_type(action: str) -> str:
+    a = str(action or "")
+    if a.startswith("checkin") or a == "checkin":
+        return "checkin"
+    if a.startswith("legacy") or a.startswith("handover"):
+        return "legacy"
+    if a.startswith("aftercare"):
+        return "aftercare"
+    if (
+        a.startswith("auth_video")
+        or a.startswith("beneficiary")
+        or a.startswith("emergency")
+    ):
+        return "auth"
+    return "other"
+
+
+def recent_audit(
+    user_id: int = 1, limit: int = 30, type_filter: str = ""
+) -> list[dict[str, Any]]:
     with connect() as conn:
         rows = conn.execute(
             "SELECT * FROM audit_log WHERE user_id=? ORDER BY id DESC LIMIT ?",
-            (user_id, limit),
+            (user_id, max(limit, 80)),
         ).fetchall()
-    return [row_to_dict(r) for r in rows]  # type: ignore[misc]
+    items = []
+    want = str(type_filter or "").strip()
+    for r in rows:
+        d = row_to_dict(r)
+        assert d is not None
+        kind = _audit_type(str(d.get("action") or ""))
+        d["type"] = kind
+        d["type_label"] = AUDIT_TYPE_LABELS.get(kind, "其他")
+        if want and kind != want:
+            continue
+        items.append(d)
+        if len(items) >= limit:
+            break
+    return items
 
 
 def list_beneficiaries(user_id: int = 1) -> list[dict[str, Any]]:

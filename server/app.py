@@ -189,6 +189,7 @@ class Handler(BaseHTTPRequestHandler):
                     "brand_en": "E-Inherit",
                     "domain": "einherit.cn",
                     "version": "0.5.0",
+                    "server_version": self.server_version,
                 }
             elif path == "/api/me":
                 out = {"user": db.get_user(1), "ledger": db.recent_ledger(1, 8)}
@@ -220,12 +221,20 @@ class Handler(BaseHTTPRequestHandler):
                 }
             elif path == "/api/icu-pack":
                 out = {"pack": db.ICU_PACK, "count": len(db.ICU_PACK)}
+            elif path == "/api/icu-checklist":
+                out = db.icu_checklist_state(1)
             elif path == "/api/beneficiaries":
                 out = {"items": db.list_beneficiaries(1)}
             elif path == "/api/emergency":
                 out = {"items": db.list_emergency(1)}
             elif path == "/api/audit":
-                out = {"items": db.recent_audit(1, 40)}
+                t = (qs.get("type") or [""])[0]
+                out = {
+                    "items": db.recent_audit(1, 40, type_filter=t),
+                    "types": [
+                        {"id": k, "label": v} for k, v in db.AUDIT_TYPE_LABELS.items()
+                    ],
+                }
             elif path == "/api/snapshots":
                 out = {"items": db.list_snapshots(1)}
             elif path == "/api/learnings":
@@ -264,8 +273,14 @@ class Handler(BaseHTTPRequestHandler):
         if path == "/api/legacy":
             return {"item": db.add_legacy(1, payload)}
 
+        if path == "/api/legacy/delete":
+            return db.delete_legacy(1, int(payload.get("id") or 0))
+
         if path == "/api/assets":
             return {"item": db.add_asset(1, payload)}
+
+        if path == "/api/assets/delete":
+            return db.delete_asset(1, int(payload.get("id") or 0))
 
         if path == "/api/company/note":
             return {
@@ -321,6 +336,13 @@ class Handler(BaseHTTPRequestHandler):
             items = db.apply_icu_pack(1, str(payload.get("beneficiary") or ""))
             return {"items": items, "message": f"已写入急症前清册 {len(items)} 条"}
 
+        if path == "/api/icu-checklist":
+            return db.set_icu_checklist(
+                1,
+                str(payload.get("pack_key") or ""),
+                bool(payload.get("checked")),
+            )
+
         if path == "/api/aftercare":
             return {"item": db.add_aftercare(1, payload)}
 
@@ -329,6 +351,9 @@ class Handler(BaseHTTPRequestHandler):
 
         if path == "/api/beneficiaries":
             return {"item": db.add_beneficiary(1, payload)}
+
+        if path == "/api/beneficiaries/delete":
+            return db.delete_beneficiary(1, int(payload.get("id") or 0))
 
         if path == "/api/emergency/request":
             return {"item": db.request_emergency(1, payload)}

@@ -61,8 +61,28 @@ function show(id) {
     icu: refreshIcu,
     aftercare: refreshAftercare,
     executor: () => {},
+    appAbout: refreshAppAbout,
   };
   if (loaders[id]) loaders[id]();
+}
+
+/** 温和二次确认（无恐吓措辞） */
+function calmConfirm(title, body) {
+  const dlg = $("#confirmDialog");
+  if (!dlg || typeof dlg.showModal !== "function") {
+    return Promise.resolve(window.confirm(`${title}\n${body}`));
+  }
+  $("#confirmTitle").textContent = title;
+  $("#confirmBody").textContent = body;
+  dlg.returnValue = "";
+  dlg.showModal();
+  return new Promise((resolve) => {
+    const onClose = () => {
+      dlg.removeEventListener("close", onClose);
+      resolve(dlg.returnValue === "ok");
+    };
+    dlg.addEventListener("close", onClose);
+  });
 }
 
 function actionClass(action) {
@@ -291,10 +311,18 @@ async function refreshCheckin() {
   const box = $("#checkinBox");
   box.innerHTML = "<div class='card muted'>加载中…</div>";
   const { user, calls } = await api("/api/checkin/status");
+  const graceRemain =
+    user.checkin_in_grace && user.grace_remaining_human
+      ? `<div class="grace-remain" id="graceRemain" aria-live="polite">
+          <span class="muted">冷静期还剩</span>
+          <strong>${esc(user.grace_remaining_human)}</strong>
+          <span class="muted"> · 打个卡即可回到日常节奏</span>
+        </div>`
+      : "";
   const statusHtml = user.checkin_overdue
     ? `<div class="alert">已过冷静期。状态机：calling_self → calling_backup → manual_review（不直接宣布身故）。</div>`
     : user.checkin_in_grace
-      ? `<div class="alert">已过报备点，仍在冷静期（${user.grace_hours} 小时）。暂不外呼，请尽快打卡。</div>`
+      ? `<div class="alert">已过报备点，仍在冷静期（设定 ${user.grace_hours} 小时）。暂不外呼，请尽快打卡。${graceRemain}</div>`
       : `<div class="ok">报备正常。最近一次：${fmtTime(user.last_checkin_at)}</div>`;
   const contacts = (user.backup_contacts || [])
     .map((c) => `<li>${c.name}（${c.relation}）· ${c.phone}</li>`)
@@ -382,7 +410,21 @@ async function refreshCheckin() {
   };
 }
 
+async function fillLegacyBenePick() {
+  const sel = $("#lgBenePick");
+  if (!sel) return;
+  const prev = sel.value;
+  const { items } = await api("/api/beneficiaries").catch(() => ({ items: [] }));
+  sel.innerHTML =
+    `<option value="">不指定（或下方手写）</option>` +
+    (items || [])
+      .map((b) => `<option value="${b.id}">${esc(b.name)}（${esc(b.role)}）</option>`)
+      .join("");
+  if (prev) sel.value = prev;
+}
+
 async function refreshLegacy() {
+  await fillLegacyBenePick();
   const { items } = await api("/api/legacy");
   $("#lgList").innerHTML =
     items
@@ -400,11 +442,29 @@ async function refreshLegacy() {
       <span class="tag">${it.category}</span>
       <span class="tag ${actionClass(it.action)}">${it.action}</span>
       ${flags}
-      <strong>${it.title}</strong>
-      <div class="muted">${it.beneficiary ? "接收人：" + it.beneficiary + " · " : ""}${it.notes || ""}</div>
+      <strong>${esc(it.title)}</strong>
+      <div class="muted">${it.beneficiary ? "接收人：" + esc(it.beneficiary) + " · " : ""}${esc(it.notes || "")}</div>
+      <div class="row" style="margin-top:8px">
+        <button class="btn ghost sm lgDel" type="button" data-id="${it.id}" data-title="${esc(it.title)}">移出手册</button>
+      </div>
     </div>`;
       })
       .join("") || "<p class='muted'>暂无条目</p>";
+  $$(".lgDel").forEach((btn) => {
+    btn.onclick = async () => {
+      const ok = await calmConfirm(
+        "移出这条交割安排？",
+        `「${btn.dataset.title || "该条目"}」将从手册中拿下，之后还可以再写回来。`
+      );
+      if (!ok) return;
+      await api("/api/legacy/delete", {
+        method: "POST",
+        body: JSON.stringify({ id: Number(btn.dataset.id) }),
+      });
+      toast("已移出");
+      refreshLegacy();
+    };
+  });
 }
 
 async function refreshCompany() {
@@ -491,6 +551,8 @@ async function refreshHandover() {
   const data = await api("/api/handover");
   const snaps = await api("/api/snapshots").catch(() => ({ items: [] }));
   const exportUrl = API_BASE.replace(/\/$/, "") + "/export/handover.html";
+  const itemCount = data.item_count ?? (data.todos || []).length;
+  const beneCount = data.beneficiary_count ?? 0;
   $("#handoverBox").innerHTML = `
     <div class="card">
       <h3>${data.brand}</h3>
@@ -498,6 +560,12 @@ async function refreshHandover() {
       <div class="stat" style="margin-top:10px">
         <div class="box"><span class="muted">域名</span><b style="font-size:14px">${data.domain}</b></div>
         <div class="box"><span class="muted">执行人</span><b style="font-size:14px">${data.executor}</b></div>
+      </div>
+      <div class="export-preview" id="handoverPreview">
+        <span class="muted">导出前核对</span>
+        <strong>将含 ${itemCount} 条交割</strong>
+        <span class="muted">·</span>
+        <strong>受益人 ${beneCount} 位</strong>
       </div>
       <div class="row" style="margin-top:12px;gap:8px;flex-wrap:wrap">
         <a class="btn" href="${exportUrl}" target="_blank" rel="noopener">打印 / 导出 PDF</a>
@@ -543,11 +611,14 @@ async function refreshHandover() {
   }
 }
 
+let _auditFilter = "";
+
 async function refreshHeirs() {
+  const typeQs = _auditFilter ? `?type=${encodeURIComponent(_auditFilter)}` : "";
   const [bene, emer, audit] = await Promise.all([
     api("/api/beneficiaries"),
     api("/api/emergency"),
-    api("/api/audit"),
+    api("/api/audit" + typeQs),
   ]);
   const sel = $("#emBene");
   if (sel) {
@@ -562,6 +633,19 @@ async function refreshHeirs() {
     denied: "已拒绝",
     auto_granted: "到期自动放行",
   };
+  const types = audit.types || [
+    { id: "checkin", label: "报备" },
+    { id: "legacy", label: "交割" },
+    { id: "aftercare", label: "工单" },
+    { id: "auth", label: "授权" },
+  ];
+  const chipHtml = [
+    `<button type="button" class="chip${!_auditFilter ? " active" : ""}" data-atype="">全部</button>`,
+    ...types.map(
+      (t) =>
+        `<button type="button" class="chip${_auditFilter === t.id ? " active" : ""}" data-atype="${t.id}">${t.label}</button>`
+    ),
+  ].join("");
   $("#heirsBox").innerHTML = `
     <div class="card"><h3>受益人名单</h3>
       <div class="list">${
@@ -569,8 +653,11 @@ async function refreshHeirs() {
           ? bene.items
               .map(
                 (b) =>
-                  `<div class="item"><span class="tag">${b.role}</span><strong>${b.name}</strong>
-                  <div class="muted">${b.contact || ""} ${b.note || ""}</div></div>`
+                  `<div class="item"><span class="tag">${esc(b.role)}</span><strong>${esc(b.name)}</strong>
+                  <div class="muted">${esc(b.contact || "")} ${esc(b.note || "")}</div>
+                  <div class="row" style="margin-top:8px">
+                    <button class="btn ghost sm bnDel" type="button" data-id="${b.id}" data-name="${esc(b.name)}">从名册拿下</button>
+                  </div></div>`
               )
               .join("")
           : "<p class='muted'>暂无受益人</p>"
@@ -600,15 +687,17 @@ async function refreshHeirs() {
           : "<p class='muted'>暂无申请</p>"
       }</div>
     </div>
-    <div class="card"><h3>审计日志</h3>
-      <div class="list">${
+    <div class="card"><h3>审计时间线</h3>
+      <div class="chip-row" id="auditFilterChips" role="group" aria-label="按类型筛选">${chipHtml}</div>
+      <div class="list" id="auditFilteredList">${
         (audit.items || []).length
           ? audit.items
-              .slice(0, 12)
+              .slice(0, 16)
               .map(
                 (a) =>
-                  `<div class="item"><span class="tag">${a.action}</span>
-                  <div class="muted">${a.detail || ""} · ${fmtTime(a.created_at)}</div></div>`
+                  `<div class="item"><span class="tag">${esc(a.type_label || a.action)}</span>
+                  <strong>${esc(a.action)}</strong>
+                  <div class="muted">${esc(a.detail || "")} · ${fmtTime(a.created_at)}</div></div>`
               )
               .join("")
           : "<p class='muted'>暂无记录</p>"
@@ -624,6 +713,27 @@ async function refreshHeirs() {
       refreshHeirs();
     };
   });
+  $$(".bnDel").forEach((btn) => {
+    btn.onclick = async () => {
+      const ok = await calmConfirm(
+        "从名册拿下这位受益人？",
+        `「${btn.dataset.name || "该受益人"}」会离开名册；交割条目里已写的名字仍会保留。`
+      );
+      if (!ok) return;
+      await api("/api/beneficiaries/delete", {
+        method: "POST",
+        body: JSON.stringify({ id: Number(btn.dataset.id) }),
+      });
+      toast("已从名册拿下");
+      refreshHeirs();
+    };
+  });
+  $$("#auditFilterChips [data-atype]").forEach((chip) => {
+    chip.onclick = () => {
+      _auditFilter = chip.dataset.atype || "";
+      refreshHeirs();
+    };
+  });
 }
 
 async function refreshAssets() {
@@ -635,28 +745,58 @@ async function refreshAssets() {
     <div class="item">
       <span class="tag">${DEPT_SHORT[it.dept] || DEPT_NAME[it.dept] || ""}</span>
       <span class="tag">${it.visibility}</span>
-      <strong>${it.platform}</strong>
-      <div class="muted">${it.account_hint || ""} · ${it.summary || ""}</div>
-      <div class="muted">处理：${it.dispose_note || "—"}</div>
+      <strong>${esc(it.platform)}</strong>
+      <div class="muted">${esc(it.account_hint || "")} · ${esc(it.summary || "")}</div>
+      <div class="muted">处理：${esc(it.dispose_note || "—")}</div>
+      <div class="row" style="margin-top:8px">
+        <button class="btn ghost sm asDel" type="button" data-id="${it.id}" data-name="${esc(it.platform)}">删除备忘</button>
+      </div>
     </div>`
       )
       .join("") || "<p class='muted'>暂无备忘</p>";
+  $$(".asDel").forEach((btn) => {
+    btn.onclick = async () => {
+      const ok = await calmConfirm(
+        "删除这条资产备忘？",
+        `「${btn.dataset.name || "该备忘"}」将从列表拿下，需要时可再记一笔。`
+      );
+      if (!ok) return;
+      await api("/api/assets/delete", {
+        method: "POST",
+        body: JSON.stringify({ id: Number(btn.dataset.id) }),
+      });
+      toast("已删除备忘");
+      refreshAssets();
+    };
+  });
 }
+
+let _medRegion = "";
 
 async function refreshMed(q = "", country = "") {
   const qs = new URLSearchParams();
-  if (q) qs.set("q", q);
-  if (country) qs.set("country", country);
-  const { items } = await api("/api/hospitals?" + qs.toString());
+  const qVal = q || ($("#medQ")?.value || "").trim();
+  let countryVal = country || ($("#medCountry")?.value || "");
+  if (_medRegion === "国内") countryVal = "中国";
+  if (_medRegion === "国外" && (!countryVal || countryVal === "中国")) countryVal = "";
+  if (qVal) qs.set("q", qVal);
+  if (countryVal) qs.set("country", countryVal);
+  let { items } = await api("/api/hospitals?" + qs.toString());
+  if (_medRegion === "国外") {
+    items = (items || []).filter((h) => h.country && h.country !== "中国");
+  }
+  $$("#medRegionChips .chip").forEach((c) => {
+    c.classList.toggle("active", (c.dataset.region || "") === _medRegion);
+  });
   $("#medList").innerHTML =
     items
       .map(
         (h) => `
     <div class="item">
-      <span class="tag">${h.country}</span>
+      <span class="tag">${esc(h.country)}</span>
       ${h.intl ? '<span class="tag">国际患者</span>' : ""}
-      <strong>${h.name}</strong>
-      <div class="muted">${h.city} · ${h.dept}<br/>${h.tags || ""}</div>
+      <strong>${esc(h.name)}</strong>
+      <div class="muted">${esc(h.city)} · ${esc(h.dept)}<br/>${esc(h.tags || "")}</div>
       <div class="row"><button class="btn secondary" data-hid="${h.id}">提交就医意向</button></div>
     </div>`
       )
@@ -718,16 +858,24 @@ async function refreshMember() {
 
 async function refreshTravel() {
   const { fund, ledger } = await api("/api/travel-fund");
+  const short = Number(fund.shortfall || 0);
+  const tip = fund.meets_threshold
+    ? `<div class="hint soft" id="travelThresholdTip">差旅预存已达建议门槛，可安心安排上门。</div>`
+    : `<div class="hint soft" id="travelThresholdTip">
+        当前余额略低于建议门槛（差 ${fmtMoney(short)}）。可先演示补足，便于上门差旅记账。
+        <button class="btn sm" type="button" id="travelTopupHint">补足至 ¥2000</button>
+      </div>`;
   $("#travelBox").innerHTML = `
     <div class="card">
       <h3>差旅费预存</h3>
       <p class="muted">建议 ≥¥2000，上不封顶。会员断缴后未消费余额自动原路退回。</p>
       <div class="stat" style="margin-top:12px">
         <div class="box"><span class="muted">余额</span><b>${fmtMoney(fund.balance)}</b></div>
-        <div class="box"><span class="muted">门槛</span><b>¥2000</b></div>
+        <div class="box"><span class="muted">门槛</span><b>¥${Number(fund.threshold || 2000)}</b></div>
       </div>
+      ${tip}
       <label class="field" style="margin-top:12px">充值金额
-        <input type="number" id="travelAmt" value="2000" min="1" step="100"/>
+        <input type="number" id="travelAmt" value="${fund.meets_threshold ? 2000 : Math.max(2000, Math.ceil(short) || 2000)}" min="1" step="100"/>
       </label>
       <button class="btn block" id="travelPay">预存入账</button>
     </div>
@@ -756,6 +904,14 @@ async function refreshTravel() {
       toast(e.message);
     }
   };
+  const tipBtn = $("#travelTopupHint");
+  if (tipBtn) {
+    tipBtn.onclick = () => {
+      const need = Math.max(2000, Math.ceil(Number(fund.shortfall || 2000)));
+      $("#travelAmt").value = String(need);
+      toast("已填入建议补足金额，确认后点预存入账");
+    };
+  }
 }
 
 document.addEventListener("click", (e) => {
@@ -787,6 +943,7 @@ $("#lgAdd").onclick = async () => {
       title: $("#lgTitle").value,
       category: $("#lgCat").value,
       action: $("#lgAction").value,
+      beneficiary_id: Number($("#lgBenePick")?.value || 0),
       beneficiary: $("#lgBene").value,
       notes: $("#lgNotes").value,
       dept: $("#lgDept").value,
@@ -797,6 +954,7 @@ $("#lgAdd").onclick = async () => {
   });
   $("#lgTitle").value = "";
   $("#lgNotes").value = "";
+  if ($("#lgBenePick")) $("#lgBenePick").value = "";
   toast("已写入交割手册");
   refreshLegacy();
 };
@@ -817,7 +975,20 @@ $("#asAdd").onclick = async () => {
   refreshAssets();
 };
 
-$("#medSearch").onclick = () => refreshMed($("#medQ").value.trim(), $("#medCountry").value);
+$("#medSearch").onclick = () => {
+  _medRegion = "";
+  refreshMed($("#medQ").value.trim(), $("#medCountry").value);
+};
+
+$$("#medRegionChips [data-region]").forEach((chip) => {
+  chip.onclick = () => {
+    _medRegion = chip.dataset.region || "";
+    if (_medRegion === "国内" && $("#medCountry")) $("#medCountry").value = "中国";
+    if (_medRegion === "国外" && $("#medCountry")) $("#medCountry").value = "";
+    if (!_medRegion && $("#medCountry")) $("#medCountry").value = "";
+    refreshMed($("#medQ").value.trim(), $("#medCountry").value);
+  };
+});
 
 const SERVICE_LABEL = {
   delete_data: "删除电子数据",
@@ -827,16 +998,52 @@ const SERVICE_LABEL = {
 };
 
 async function refreshIcu() {
-  const { pack } = await api("/api/icu-pack");
-  $("#icuPreview").innerHTML = pack
+  const data = await api("/api/icu-checklist").catch(async () => {
+    const { pack } = await api("/api/icu-pack");
+    return {
+      items: (pack || []).map((p, i) => ({
+        ...p,
+        pack_key: `icu_${i}_${p.title}`,
+        checked: false,
+      })),
+      done: 0,
+      total: (pack || []).length,
+    };
+  });
+  const hint = $("#icuCheckHint");
+  if (hint) {
+    hint.textContent = `已勾选 ${data.done || 0}/${data.total || 0} 项（勾选会保存并回显）。确认后再写入交割手册。`;
+  }
+  $("#icuPreview").innerHTML = (data.items || [])
     .map(
       (p) => `<div class="item">
-      <strong>${p.title}</strong>
-      <div class="muted">${p.category} · ${p.action}</div>
-      <div class="muted">${p.notes || ""}</div>
+      <label class="icu-check">
+        <input type="checkbox" class="icuPackCheck" data-key="${esc(p.pack_key)}" ${p.checked ? "checked" : ""}/>
+        <span>已完成此项准备</span>
+      </label>
+      <strong>${esc(p.title)}</strong>
+      <div class="muted">${esc(p.category)} · ${esc(p.action)}</div>
+      <div class="muted">${esc(p.notes || "")}</div>
     </div>`
     )
     .join("");
+  $$(".icuPackCheck").forEach((cb) => {
+    cb.onchange = async () => {
+      try {
+        const r = await api("/api/icu-checklist", {
+          method: "POST",
+          body: JSON.stringify({ pack_key: cb.dataset.key, checked: cb.checked }),
+        });
+        if (hint) {
+          hint.textContent = `已勾选 ${r.done || 0}/${r.total || 0} 项（勾选会保存并回显）。确认后再写入交割手册。`;
+        }
+        toast(cb.checked ? "已记下完成" : "已取消勾选");
+      } catch (e) {
+        cb.checked = !cb.checked;
+        toast(e.message);
+      }
+    };
+  });
 }
 
 async function refreshAftercare() {
@@ -864,17 +1071,37 @@ async function refreshAftercare() {
     ? items
         .map(
           (it) => `<div class="item">
-      <strong>${it.title}</strong>
+      <strong>${esc(it.title)}</strong>
       <div class="muted">${SERVICE_LABEL[it.service_type] || it.service_type}
-        · ${it.city || "未填城市"}
+        · ${esc(it.city || "未填城市")}
         · 差旅预算 ¥${fmtMoney(it.travel_budget)}
-        · ${it.coop_state}
-        · ${it.status}</div>
-      <div class="muted">${it.visit_pref || ""} ${it.notes || ""}</div>
+        · ${esc(it.coop_state)}
+        · ${esc(it.status)}</div>
+      <div class="muted">${[
+        it.visit_pref ? `偏好：${it.visit_pref}` : "",
+        it.contact_window ? `联系窗口：${it.contact_window}` : "",
+        it.notes || "",
+      ]
+        .filter(Boolean)
+        .map(esc)
+        .join(" · ")}</div>
     </div>`
         )
         .join("")
     : `<div class="empty">暂无善后工单</div>`;
+}
+
+async function refreshAppAbout() {
+  try {
+    const h = await api("/api/health");
+    $("#aboutAppVer").textContent = h.version || "—";
+    $("#aboutSrvVer").textContent = h.server_version || "—";
+    $("#aboutHealthResult").textContent = "可随时点一下，确认服务是否就绪。";
+  } catch (e) {
+    $("#aboutAppVer").textContent = "—";
+    $("#aboutSrvVer").textContent = "—";
+    $("#aboutHealthResult").textContent = "暂无法读取版本：" + e.message;
+  }
 }
 
 async function refreshAuthVideo() {
@@ -947,6 +1174,7 @@ $("#acAdd").onclick = async () => {
         title: $("#acTitle").value,
         city: $("#acCity").value,
         visit_pref: $("#acPref").value,
+        contact_window: $("#acWindow")?.value || "",
         travel_budget: Number($("#acTravel").value || 0),
         coop_state: $("#acCoop").value,
         notes: $("#acNotes").value,
@@ -959,6 +1187,25 @@ $("#acAdd").onclick = async () => {
     toast(e.message);
   }
 };
+
+$("#aboutHealthBtn")?.addEventListener("click", async () => {
+  const out = $("#aboutHealthResult");
+  if (out) out.textContent = "检查中…";
+  try {
+    const h = await api("/api/health");
+    $("#aboutAppVer").textContent = h.version || "—";
+    $("#aboutSrvVer").textContent = h.server_version || "—";
+    if (out) {
+      out.textContent = h.ok
+        ? `服务正常 · ${h.app || "电子继承"} · ${h.domain || "einherit.cn"} · ${h.version || ""}`
+        : "服务已响应，但状态未标记为就绪。";
+    }
+    toast("健康检查完成");
+  } catch (e) {
+    if (out) out.textContent = "健康检查未通过：" + e.message;
+    toast(e.message);
+  }
+});
 
 $("#exAdd").onclick = async () => {
   try {
