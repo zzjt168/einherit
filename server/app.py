@@ -279,6 +279,12 @@ class Handler(BaseHTTPRequestHandler):
                 out = db.execution_queue(1)
             elif path == "/api/home-next":
                 out = db.home_next_step(1)
+            elif path == "/api/executor-card":
+                out = db.executor_card(1)
+            elif path == "/api/checkin/readable":
+                out = db.checkin_readable(1)
+            elif path == "/api/export/summary":
+                out = db.export_pack_summary(1)
             elif path in ("/api/hospitals/intent", "/api/med-intent"):
                 iid = int((qs.get("id") or ["0"])[0] or 0)
                 out = {"item": db.get_med_intent(1, iid)}
@@ -333,6 +339,13 @@ class Handler(BaseHTTPRequestHandler):
             return db.batch_legacy_action(
                 1,
                 list(payload.get("ids") or []),
+                str(payload.get("action") or ""),
+            )
+
+        if path == "/api/legacy/update":
+            return db.update_legacy_action(
+                1,
+                int(payload.get("id") or 0),
                 str(payload.get("action") or ""),
             )
 

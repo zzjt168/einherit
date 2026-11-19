@@ -985,6 +985,14 @@ def get_travel(user_id: int = 1) -> dict[str, Any]:
     row["met"] = balance >= threshold
     row["meets_threshold"] = balance >= threshold
     row["last_refund"] = last_refund
+    shortfall = max(0.0, threshold - balance)
+    row["shortfall"] = shortfall
+    row["progress_pct"] = (
+        100 if threshold <= 0 else min(100, int(round(100.0 * balance / threshold)))
+    )
+    row["progress_label"] = (
+        "已达建议门槛" if balance >= threshold else f"还差 ¥{shortfall:.0f}"
+    )
     return row
 
 
@@ -1180,7 +1188,26 @@ def export_data_pack(user_id: int = 1) -> dict[str, Any]:
             for b in bene
         ],
         "notice": "演示导出包：联系方式已脱敏；不含完整密码/私钥。",
+        "summary": {
+            "legacy_count": len(legacy),
+            "assets_count": len(assets),
+            "beneficiaries_count": len(bene),
+            "backup_contacts_count": len(u.get("backup_contacts") or []),
+            "exported_at": time.strftime("%Y-%m-%dT%H:%M:%S", time.localtime()),
+            "domain": "einherit.cn",
+            "text": (
+                f"电子继承导出摘要 · 交割 {len(legacy)} · 备忘 {len(assets)} · "
+                f"受益人 {len(bene)} · 备用联系人 {len(u.get('backup_contacts') or [])} · "
+                f"einherit.cn · {time.strftime('%Y-%m-%d %H:%M', time.localtime())}"
+            ),
+        },
     }
+
+
+def export_pack_summary(user_id: int = 1) -> dict[str, Any]:
+    """导出包条数摘要（便于一键复制；不改导出本体）。"""
+    pack = export_data_pack(user_id)
+    return {"summary": pack.get("summary") or {}, "domain": pack.get("domain") or "einherit.cn"}
 
 
 def evaluate_escalation(user_id: int = 1, simulate_unreachable: bool = False) -> dict[str, Any]:
@@ -1846,6 +1873,25 @@ def delete_beneficiary(user_id: int, bene_id: int) -> dict[str, Any]:
     return {"ok": True, "id": bene_id, "name": name}
 
 
+def _fmt_wait_remaining(seconds: int) -> str:
+    seconds = max(0, int(seconds or 0))
+    if seconds <= 0:
+        return "等待期已满"
+    days, rem = divmod(seconds, 86400)
+    hours, rem = divmod(rem, 3600)
+    mins = rem // 60
+    parts: list[str] = []
+    if days:
+        parts.append(f"{days} 天")
+    if hours:
+        parts.append(f"{hours} 小时")
+    if mins and not days:
+        parts.append(f"{mins} 分")
+    if not parts:
+        parts.append("不到 1 分钟")
+    return "约还剩 " + " ".join(parts)
+
+
 def list_emergency(user_id: int = 1) -> list[dict[str, Any]]:
     tick_emergency(user_id)
     with connect() as conn:
@@ -1856,7 +1902,22 @@ def list_emergency(user_id: int = 1) -> list[dict[str, Any]]:
             "WHERE e.user_id=? ORDER BY e.id DESC",
             (user_id,),
         ).fetchall()
-    return [row_to_dict(r) for r in rows]  # type: ignore[misc]
+    now = time.time()
+    out: list[dict[str, Any]] = []
+    for r in rows:
+        it = row_to_dict(r)
+        if not it:
+            continue
+        decide_by = float(it.get("decide_by") or 0)
+        if str(it.get("status") or "") == "pending" and decide_by:
+            rem = max(0, int(decide_by - now))
+            it["wait_remaining_seconds"] = rem
+            it["wait_remaining_label"] = _fmt_wait_remaining(rem)
+        else:
+            it["wait_remaining_seconds"] = 0
+            it["wait_remaining_label"] = ""
+        out.append(it)
+    return out
 
 
 def request_emergency(user_id: int, payload: dict[str, Any]) -> dict[str, Any]:
@@ -2234,11 +2295,37 @@ def save_auth_video(
 
 def auth_video_status(user_id: int = 1) -> dict[str, Any]:
     items = list_auth_videos(user_id)
+    latest = items[0] if items else None
+    checklist = [
+        {
+            "key": "greeting",
+            "label": "问候",
+            "done": bool(latest and latest.get("has_greeting")),
+            "demo_checked": bool(latest and latest.get("has_greeting")),
+        },
+        {
+            "key": "authorize",
+            "label": "授权",
+            "done": bool(latest and latest.get("has_authorize")),
+            "demo_checked": bool(latest and latest.get("has_authorize")),
+        },
+        {
+            "key": "plan",
+            "label": "思路",
+            "done": bool(latest and latest.get("has_plan")),
+            "demo_checked": bool(latest and latest.get("has_plan")),
+        },
+    ]
+    if auth_video_ready(user_id):
+        for c in checklist:
+            c["done"] = True
+            c["demo_checked"] = True
     return {
         "ready": auth_video_ready(user_id),
         "script": AUTH_VIDEO_SCRIPT,
         "items": items,
-        "latest": items[0] if items else None,
+        "latest": latest,
+        "checklist": checklist,
         "gate": "未完成授权视频前，不可提交善后工单",
     }
 
@@ -2484,3 +2571,72 @@ def home_next_step(user_id: int = 1) -> dict[str, Any]:
         "cta": "打开交割手册",
         "reason": "steady",
     }
+
+
+def executor_card(user_id: int = 1) -> dict[str, Any]:
+    """首页/手册只读执行人卡片（缺则温和 CTA；不改外呼机）。"""
+    u = get_user(user_id)
+    name = str(u.get("executor_name") or "").strip()
+    contact_hint = ""
+    role_executors = [
+        b
+        for b in list_beneficiaries(user_id)
+        if str(b.get("role") or "").lower() == "executor"
+    ]
+    if role_executors:
+        if not name:
+            name = str(role_executors[0].get("name") or "").strip()
+        contact_hint = str(role_executors[0].get("contact") or "").strip()
+    has = bool(name)
+    return {
+        "has_executor": has,
+        "name": name,
+        "contact_hint": contact_hint,
+        "text": (
+            f"当前执行人：{name}"
+            if has
+            else "尚未指定执行人。可在报备页慢慢填写，不着急。"
+        ),
+        "contact_text": (
+            f"联系提示：{contact_hint}" if contact_hint else "联系提示：可在受益人名册补充"
+        ),
+        "cta": "查看报备设置" if has else "去设置执行人",
+        "go": "checkin",
+        "note": "只读展示；修改请到报备页「遗产执行人」。",
+    }
+
+
+def checkin_readable(user_id: int = 1) -> dict[str, Any]:
+    """报备频率与下次建议时间（只读说明；不改外呼升级机）。"""
+    u = get_user(user_id)
+    interval = float(u.get("checkin_interval_hours") or 24)
+    next_at = float(u.get("checkin_due_at") or 0)
+    last_at = float(u.get("last_checkin_at") or 0)
+    next_iso = (
+        time.strftime("%Y-%m-%d %H:%M", time.localtime(next_at)) if next_at else "—"
+    )
+    last_iso = (
+        time.strftime("%Y-%m-%d %H:%M", time.localtime(last_at)) if last_at else "尚未报备"
+    )
+    return {
+        "interval_hours": interval,
+        "grace_hours": float(u.get("grace_hours") or 72),
+        "last_checkin_at": last_at,
+        "next_suggested_at": next_at,
+        "last_checkin_label": last_iso,
+        "next_suggested_label": next_iso,
+        "readable": (
+            f"当前间隔 {interval:g} 小时；最近一次 {last_iso}；"
+            f"下次建议约在 {next_iso}。只读说明，不改外呼流程。"
+        ),
+    }
+
+
+def update_legacy_action(user_id: int, item_id: int, action: str) -> dict[str, Any]:
+    """单条交割快速改处置（复用批量处置校验）。"""
+    item_id = int(item_id or 0)
+    if item_id <= 0:
+        raise ValueError("请指定交割条目")
+    result = batch_legacy_action(user_id, [item_id], action)
+    items = [it for it in result.get("items") or [] if int(it.get("id") or 0) == item_id]
+    return {"updated": 1, "action": result.get("action"), "item": items[0] if items else None}
