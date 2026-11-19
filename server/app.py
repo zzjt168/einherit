@@ -234,6 +234,12 @@ class Handler(BaseHTTPRequestHandler):
                 out = {"map": db.get_mindmap(1)}
             elif path == "/api/auth-video":
                 out = db.auth_video_status(1)
+            elif path == "/api/today":
+                out = db.today_todos(1)
+            elif path == "/api/executor-leads":
+                out = {"items": db.list_executor_leads()}
+            elif path == "/api/asset-tags":
+                out = {"tags": list(db.ASSET_TAGS)}
             else:
                 code, body, ctype = json_bytes({"error": "not found"}, 404)
                 self._send(code, body, ctype)
@@ -325,7 +331,10 @@ class Handler(BaseHTTPRequestHandler):
             return {"item": db.add_aftercare(1, payload)}
 
         if path == "/api/executor-lead":
-            return {"item": db.add_executor_lead(payload)}
+            lead_id = int(payload.get("id") or 0)
+            if lead_id:
+                return {"item": db.update_executor_lead(lead_id, payload), "updated": True}
+            return {"item": db.add_executor_lead(payload), "updated": False}
 
         if path == "/api/beneficiaries":
             return {"item": db.add_beneficiary(1, payload)}

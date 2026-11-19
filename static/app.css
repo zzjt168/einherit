@@ -614,6 +614,172 @@ label.field textarea {
 .auth-script li { margin-bottom: 8px; }
 .auth-script b { color: var(--ink); }
 
+/* Round3 · 今日待办三件套（避开 PR#1 #todayCheckin） */
+.today-todos {
+  margin: 12px 18px 0;
+  padding: 14px;
+  border-radius: var(--radius);
+  background: linear-gradient(180deg, #f7faf8 0%, var(--card) 72%);
+  border: 1px solid #d8e4dc;
+  box-shadow: var(--shadow);
+}
+.today-todos-label {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--sage-deep);
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+.today-todos-list {
+  display: grid;
+  gap: 8px;
+}
+.todo-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  text-align: left;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: #fff;
+  cursor: pointer;
+}
+.todo-item.done { opacity: 0.88; }
+.todo-mark {
+  flex: 0 0 auto;
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--gold-soft);
+  color: #6b5a3a;
+}
+.todo-item.done .todo-mark {
+  background: var(--sage-soft);
+  color: var(--sage-deep);
+}
+.todo-body { flex: 1; min-width: 0; }
+.todo-body strong {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+}
+.todo-body .muted { font-size: 12px; }
+.todo-arrow { color: var(--ink-soft); }
+
+/* 失联升级只读卡 */
+.esc-readonly {
+  margin: 0 0 12px;
+  padding: 14px;
+  border-radius: var(--radius);
+  border: 1px solid #ddd5c8;
+  background: linear-gradient(180deg, #faf7f2 0%, var(--card) 70%);
+}
+.esc-readonly-label {
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: #6b5a3a;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+.esc-state {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.esc-state strong { font-size: 15px; }
+.esc-calls { display: grid; gap: 6px; margin-top: 8px; }
+.esc-call { font-size: 12px; color: var(--ink-soft); line-height: 1.45; }
+
+.filter-card h3 { margin-bottom: 8px; }
+
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 10px 18px 4px;
+}
+.chip {
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--ink-soft);
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 12px;
+  cursor: pointer;
+}
+.chip.active {
+  border-color: #c5d7cb;
+  background: var(--sage-soft);
+  color: var(--sage-deep);
+  font-weight: 600;
+}
+
+.member-expiry {
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: var(--sage-soft);
+}
+.member-expiry.soft {
+  background: var(--gold-soft);
+  border-color: #e6dcc6;
+}
+.member-expiry strong { display: block; margin-bottom: 4px; }
+.member-expiry p { margin: 0; font-size: 13px; color: var(--ink-soft); line-height: 1.5; }
+
+.share-note {
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid #ddd5c8;
+  background: #faf7f2;
+}
+.share-note strong { display: block; font-size: 13px; margin-bottom: 4px; }
+.share-note p { margin: 0; font-size: 13px; color: var(--ink-soft); line-height: 1.5; }
+
+.av-checks-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 8px 0;
+}
+.av-check {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--ink-soft);
+}
+.av-check.yes {
+  background: var(--sage-soft);
+  border-color: #cfe0d4;
+  color: var(--sage-deep);
+}
+.av-check.no {
+  background: #f6f1ea;
+  border-color: #e4d8c8;
+  color: #7a6a55;
+}
+
+.env-footer {
+  margin: 18px 18px 0;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px dashed var(--line);
+  background: rgba(255, 252, 247, 0.7);
+  font-size: 12px;
+  color: var(--ink-soft);
+  text-align: center;
+}
+.env-footer.env-dev { border-color: #d6c9a8; color: #6b5a3a; }
+.env-footer.env-prod { border-color: #c5d7cb; color: var(--sage-deep); }
+
 @media (min-width: 900px) {
   .app {
     max-width: 980px;

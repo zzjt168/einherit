@@ -154,6 +154,7 @@ CREATE TABLE IF NOT EXISTS assets (
   dispose_note TEXT DEFAULT '',
   visibility TEXT DEFAULT 'private',
   dept TEXT DEFAULT 'finance',
+  tag TEXT DEFAULT '其他',
   created_at REAL NOT NULL
 );
 
@@ -234,7 +235,9 @@ CREATE TABLE IF NOT EXISTS aftercare_jobs (
 CREATE TABLE IF NOT EXISTS executor_leads (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   name TEXT NOT NULL,
+  province TEXT DEFAULT '',
   city TEXT DEFAULT '',
+  region TEXT DEFAULT '',
   phone TEXT DEFAULT '',
   note TEXT DEFAULT '',
   created_at REAL NOT NULL
@@ -362,6 +365,17 @@ def connect() -> sqlite3.Connection:
     return conn
 
 
+ASSET_TAGS = ("账号", "设备", "虚拟资产", "其他")
+
+ESCALATION_LABELS = {
+    "ok": "正常",
+    "grace": "冷静期内",
+    "calling_self": "联系本人中",
+    "calling_backup": "联系备用联系人中",
+    "manual_review": "人工复核中",
+}
+
+
 def _ensure_columns(conn: sqlite3.Connection) -> None:
     """轻量迁移：老库补列。"""
     specs = {
@@ -371,10 +385,17 @@ def _ensure_columns(conn: sqlite3.Connection) -> None:
             ("clear_photos", "INTEGER DEFAULT 0"),
             ("clear_chats", "INTEGER DEFAULT 0"),
         ],
-        "assets": [("dept", "TEXT DEFAULT 'finance'")],
+        "assets": [
+            ("dept", "TEXT DEFAULT 'finance'"),
+            ("tag", "TEXT DEFAULT '其他'"),
+        ],
         "users": [
             ("executor_name", "TEXT DEFAULT ''"),
             ("grace_hours", "REAL DEFAULT 72"),
+        ],
+        "executor_leads": [
+            ("province", "TEXT DEFAULT ''"),
+            ("region", "TEXT DEFAULT ''"),
         ],
     }
     for table, cols in specs.items():
@@ -529,12 +550,18 @@ def list_assets(user_id: int = 1) -> list[dict[str, Any]]:
     return [row_to_dict(r) for r in rows]  # type: ignore[misc]
 
 
+def normalize_asset_tag(raw: Any) -> str:
+    tag = str(raw or "").strip()
+    return tag if tag in ASSET_TAGS else "其他"
+
+
 def add_asset(user_id: int, payload: dict[str, Any]) -> dict[str, Any]:
     now = time.time()
+    tag = normalize_asset_tag(payload.get("tag"))
     with connect() as conn:
         cur = conn.execute(
-            "INSERT INTO assets (user_id, platform, account_hint, summary, dispose_note, visibility, dept, created_at) "
-            "VALUES (?,?,?,?,?,?,?,?)",
+            "INSERT INTO assets (user_id, platform, account_hint, summary, dispose_note, visibility, dept, tag, created_at) "
+            "VALUES (?,?,?,?,?,?,?,?,?)",
             (
                 user_id,
                 payload.get("platform", "").strip() or "未命名平台",
@@ -543,6 +570,7 @@ def add_asset(user_id: int, payload: dict[str, Any]) -> dict[str, Any]:
                 payload.get("dispose_note", ""),
                 payload.get("visibility", "private"),
                 payload.get("dept", "finance"),
+                tag,
                 now,
             ),
         )
@@ -829,6 +857,66 @@ def handover_checklist(user_id: int = 1) -> dict[str, Any]:
         "member": u.get("is_member"),
         "todos": todos,
         "note": "本清单为客观资产交割待办，不依赖情感授权。",
+        "share_hint": "仅执行人持有，勿转发至群聊或公开渠道。",
+    }
+
+
+def icu_pack_generated(user_id: int = 1) -> bool:
+    """急症前清册是否已写入（按模板标题匹配）。"""
+    titles = {tpl["title"] for tpl in ICU_PACK}
+    found = {it.get("title") for it in list_legacy(user_id)}
+    return titles.issubset(found)
+
+
+def today_todos(user_id: int = 1) -> dict[str, Any]:
+    """首页三件套：今日报备 / 急症清册 / 交割未完成条数。只读聚合，不改状态机。"""
+    u = get_user(user_id)
+    hand = handover_checklist(user_id)
+    open_count = len(hand.get("todos") or [])
+    if u.get("checkin_overdue"):
+        checkin_label = "报备稍有延迟"
+        checkin_done = False
+    elif u.get("checkin_in_grace"):
+        checkin_label = "报备点已过，仍在冷静期"
+        checkin_done = False
+    else:
+        checkin_label = "今日报备正常"
+        checkin_done = True
+    icu_done = icu_pack_generated(user_id)
+    state = u.get("escalation_state") or "ok"
+    if u.get("checkin_in_grace") and state == "ok":
+        state = "grace"
+    return {
+        "items": [
+            {
+                "key": "checkin",
+                "title": "今日报备",
+                "done": checkin_done,
+                "detail": checkin_label,
+                "go": "checkin",
+            },
+            {
+                "key": "icu",
+                "title": "急症前清册",
+                "done": icu_done,
+                "detail": "已生成" if icu_done else "尚未生成",
+                "go": "icu",
+            },
+            {
+                "key": "handover",
+                "title": "交割未完成",
+                "done": open_count == 0,
+                "detail": f"{open_count} 条待办" if open_count else "暂无待办条目",
+                "go": "handover" if open_count else "legacy",
+            },
+        ],
+        "escalation": {
+            "state": state,
+            "label": ESCALATION_LABELS.get(state, state),
+            "calls": recent_calls(user_id, 3),
+        },
+        "open_handover_count": open_count,
+        "icu_generated": icu_done,
     }
 
 
@@ -879,17 +967,42 @@ def add_aftercare(user_id: int, payload: dict[str, Any]) -> dict[str, Any]:
     return row_to_dict(row)  # type: ignore[return-value]
 
 
+def _require_executor_region(payload: dict[str, Any]) -> tuple[str, str, str]:
+    province = str(payload.get("province") or "").strip()
+    city = str(payload.get("city") or "").strip()
+    region = str(payload.get("region") or "").strip()
+    if not province:
+        raise ValueError("请填写省份/直辖市")
+    if not city:
+        raise ValueError("请填写城市")
+    if not region:
+        raise ValueError("请填写区域（区/县）")
+    return province, city, region
+
+
+def list_executor_leads(limit: int = 40) -> list[dict[str, Any]]:
+    with connect() as conn:
+        rows = conn.execute(
+            "SELECT * FROM executor_leads ORDER BY id DESC LIMIT ?", (limit,)
+        ).fetchall()
+    return [row_to_dict(r) for r in rows]  # type: ignore[misc]
+
+
 def add_executor_lead(payload: dict[str, Any]) -> dict[str, Any]:
     now = time.time()
     name = str(payload.get("name") or "").strip()
     if not name:
         raise ValueError("请填写姓名")
+    province, city, region = _require_executor_region(payload)
     with connect() as conn:
         cur = conn.execute(
-            "INSERT INTO executor_leads (name, city, phone, note, created_at) VALUES (?,?,?,?,?)",
+            "INSERT INTO executor_leads (name, province, city, region, phone, note, created_at) "
+            "VALUES (?,?,?,?,?,?,?)",
             (
                 name,
-                str(payload.get("city") or ""),
+                province,
+                city,
+                region,
                 str(payload.get("phone") or ""),
                 str(payload.get("note") or ""),
                 now,
@@ -898,6 +1011,34 @@ def add_executor_lead(payload: dict[str, Any]) -> dict[str, Any]:
         rid = cur.lastrowid
         row = conn.execute("SELECT * FROM executor_leads WHERE id=?", (rid,)).fetchone()
     return row_to_dict(row)  # type: ignore[return-value]
+
+
+def update_executor_lead(lead_id: int, payload: dict[str, Any]) -> dict[str, Any]:
+    if lead_id <= 0:
+        raise ValueError("无效的加盟记录")
+    with connect() as conn:
+        row = conn.execute("SELECT * FROM executor_leads WHERE id=?", (lead_id,)).fetchone()
+        if not row:
+            raise ValueError("未找到该加盟意向")
+    name = str(payload.get("name") or row["name"] or "").strip()
+    if not name:
+        raise ValueError("请填写姓名")
+    merged = {
+        "province": payload.get("province", row["province"] if "province" in row.keys() else ""),
+        "city": payload.get("city", row["city"]),
+        "region": payload.get("region", row["region"] if "region" in row.keys() else ""),
+    }
+    province, city, region = _require_executor_region(merged)
+    phone = str(payload.get("phone") if "phone" in payload else row["phone"] or "")
+    note = str(payload.get("note") if "note" in payload else row["note"] or "")
+    with connect() as conn:
+        conn.execute(
+            "UPDATE executor_leads SET name=?, province=?, city=?, region=?, phone=?, note=? WHERE id=?",
+            (name, province, city, region, phone, note, lead_id),
+        )
+        conn.commit()
+        out = conn.execute("SELECT * FROM executor_leads WHERE id=?", (lead_id,)).fetchone()
+    return row_to_dict(out)  # type: ignore[return-value]
 
 
 def aftercare_playbook() -> dict[str, Any]:

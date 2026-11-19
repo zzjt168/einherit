@@ -14,7 +14,7 @@
   <meta name="description" content="电子继承 App E-Inherit · einherit.cn · 个人公司化生命资产盘点与交割手册"/>
   <title>电子继承 App · E-Inherit</title>
   <link rel="icon" href="favicon.svg"/>
-  <link rel="stylesheet" href="app.css?v=20260820m"/>
+  <link rel="stylesheet" href="app.css?v=20261119r3"/>
   <link rel="manifest" href="manifest.webmanifest"/>
 </head>
 <body>
@@ -36,6 +36,13 @@
       <p>把人生当成一家公司来盘点。Inherit：给执行人一份冷清晰的资产交割待办。</p>
     </div>
     <div class="hint" id="homeHint">加载中…</div>
+
+    <div class="today-todos" id="todayTodos" aria-live="polite">
+      <div class="today-todos-label">今日待办</div>
+      <div class="today-todos-list" id="todayTodosList">
+        <p class="muted">加载中…</p>
+      </div>
+    </div>
 
     <div class="hubs">
       <article class="hub hub-brain">
@@ -174,6 +181,20 @@
 
   <section class="panel" id="legacy">
     <div class="panel-head"><button class="back" data-go="home">←</button><h2>电子继承 · 交割</h2></div>
+    <div class="card filter-card">
+      <h3>搜索与筛选</h3>
+      <label class="field">关键词<input id="lgFilterQ" placeholder="名称 / 接收人 / 备注"/></label>
+      <label class="field">处置类型
+        <select id="lgFilterAction">
+          <option value="">全部</option>
+          <option>销毁</option>
+          <option>销售变现</option>
+          <option>销毁数据后转赠</option>
+          <option>清除密码/照片</option>
+        </select>
+      </label>
+      <button class="btn ghost block" id="lgFilterApply" type="button">筛选列表</button>
+    </div>
     <div class="card">
       <h3>新增交割安排</h3>
       <p class="muted">隐形电子财产销毁/销售变现/转赠；手机平板写清交给谁、是否出厂重置、照片与聊天是否消除。</p>
@@ -235,6 +256,14 @@
       <label class="field">平台<input id="asPlatform" placeholder="微信 / 网盘 / 交易所…"/></label>
       <label class="field">账号提示（可脱敏）<input id="asHint" placeholder="尾号或昵称"/></label>
       <label class="field">资产概要<input id="asSummary" placeholder="勿写完整密码/私钥"/></label>
+      <label class="field">分类标签
+        <select id="asTag">
+          <option>账号</option>
+          <option>设备</option>
+          <option>虚拟资产</option>
+          <option selected>其他</option>
+        </select>
+      </label>
       <label class="field">部门
         <select id="asDept">
           <option value="finance">财务部/资金与负债类(银行卡 保险 贷款)</option>
@@ -246,6 +275,13 @@
       </label>
       <label class="field">处理方法<textarea id="asNote" rows="2"></textarea></label>
       <button class="btn block" id="asAdd">保存备忘</button>
+    </div>
+    <div class="chip-row" id="asTagFilter" role="group" aria-label="按标签筛选">
+      <button type="button" class="chip active" data-tag="">全部</button>
+      <button type="button" class="chip" data-tag="账号">账号</button>
+      <button type="button" class="chip" data-tag="设备">设备</button>
+      <button type="button" class="chip" data-tag="虚拟资产">虚拟资产</button>
+      <button type="button" class="chip" data-tag="其他">其他</button>
     </div>
     <div class="list" id="asList"></div>
   </section>
@@ -325,7 +361,7 @@
 
   <section class="panel" id="authvideo">
     <div class="panel-head"><button class="back" data-go="home">←</button><h2>授权说明视频</h2></div>
-    <div class="card">
+    <div class="card" id="avUploadCard">
       <h3>善后前置门槛（对标案例逐帧要点）</h3>
       <p class="muted">王洋律师案例：启动处置前，用户须先提交一段说明视频。视频须同时覆盖下面三段，作为对我司执行的留证。</p>
       <ol class="auth-script" id="authScript"></ol>
@@ -341,7 +377,11 @@
       <button class="btn block" id="avUpload">上传授权视频</button>
       <p class="muted" id="avStatus">加载中…</p>
     </div>
-    <div class="list" id="avList"></div>
+    <div class="card">
+      <h3>历史视频</h3>
+      <p class="muted">查看三勾状态；需要更新时可重新上传，最新通过门槛的一条生效。</p>
+      <div class="list" id="avList"></div>
+    </div>
   </section>
 
   <section class="panel" id="aftercare">
@@ -386,14 +426,25 @@
     <div class="panel-head"><button class="back" data-go="home">←</button><h2>执行人加盟</h2></div>
     <div class="card">
       <h3>区域善后执行意向</h3>
-      <p class="muted">评论区常见「本地需要人吗」——先收意向，再人工审核培训与合规。</p>
+      <p class="muted">评论区常见「本地需要人吗」——先收意向，再人工审核培训与合规。省市与区域必填，便于就近匹配。</p>
+      <input type="hidden" id="exEditId" value=""/>
       <label class="field">姓名<input id="exName" placeholder="真实姓名"/></label>
-      <label class="field">城市<input id="exCity" placeholder="可服务城市"/></label>
+      <label class="field">省份 / 直辖市<input id="exProvince" placeholder="例如：湖北省"/></label>
+      <label class="field">城市<input id="exCity" placeholder="例如：武汉市"/></label>
+      <label class="field">区域（区/县）<input id="exRegion" placeholder="例如：武昌区"/></label>
       <label class="field">联系方式<input id="exPhone" placeholder="手机号"/></label>
       <label class="field">说明<textarea id="exNote" rows="2" placeholder="从业背景 / 可服务时段"></textarea></label>
-      <button class="btn block" id="exAdd">提交加盟意向</button>
+      <div class="row" style="gap:8px;flex-wrap:wrap">
+        <button class="btn block" id="exAdd" style="flex:1">提交加盟意向</button>
+        <button class="btn ghost" id="exReset" type="button" hidden>取消编辑</button>
+      </div>
     </div>
+    <div class="list" id="exList"></div>
   </section>
+
+  <footer class="env-footer" id="envFooter" aria-label="运行环境">
+    <span id="envBadge">环境检测中…</span>
+  </footer>
 </div>
 
 <nav class="tabbar">
@@ -404,6 +455,6 @@
 </nav>
 
 <div class="toast" id="toast"></div>
-<script src="app.js?v=20260820m"></script>
+<script src="app.js?v=20261119r3"></script>
 </body>
 </html>
