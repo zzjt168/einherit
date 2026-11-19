@@ -209,6 +209,7 @@ class Handler(BaseHTTPRequestHandler):
             elif path == "/api/hospitals":
                 q = (qs.get("q") or [""])[0]
                 country = (qs.get("country") or [""])[0]
+                region = (qs.get("region") or [""])[0]
                 hid = (qs.get("id") or [""])[0]
                 if hid:
                     item = db.get_hospital(int(hid))
@@ -218,7 +219,10 @@ class Handler(BaseHTTPRequestHandler):
                         return
                     out = {"item": item}
                 else:
-                    out = {"items": db.list_hospitals(q=q, country=country)}
+                    out = {
+                        "items": db.list_hospitals(q=q, country=country, region=region),
+                        "region": region or "",
+                    }
             elif path in ("/api/hospitals/intents", "/api/med-intents"):
                 out = {"items": db.list_med_intents(1)}
             elif path == "/api/checkin/status":
@@ -302,6 +306,16 @@ class Handler(BaseHTTPRequestHandler):
                 out = {"tags": list(db.ASSET_TAGS)}
             elif path == "/api/export/pack":
                 out = db.export_data_pack(1)
+            elif path == "/api/assets/dispose-pending":
+                out = db.assets_dispose_pending(1)
+            elif path == "/api/backup-contacts/summary":
+                out = db.backup_contacts_summary(1)
+            elif path == "/api/membership/gentle":
+                out = db.membership_gentle(1)
+            elif path == "/api/aftercare/cities":
+                out = db.aftercare_cities(1)
+            elif path == "/api/snapshots/compare":
+                out = db.snapshots_compare(1)
             else:
                 code, body, ctype = json_bytes({"error": "not found"}, 404)
                 self._send(code, body, ctype)
@@ -360,6 +374,13 @@ class Handler(BaseHTTPRequestHandler):
                 1,
                 int(payload.get("id") or 0),
                 str(payload.get("review_at") or ""),
+            )
+
+        if path == "/api/assets/dispose":
+            return db.set_asset_dispose(
+                1,
+                int(payload.get("id") or 0),
+                str(payload.get("dispose_note") or ""),
             )
 
         if path == "/api/med-intent/status":
