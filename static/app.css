@@ -134,6 +134,89 @@ a { color: var(--sage-deep); }
   border: 1px solid #d5e4da;
 }
 
+/* 今日报备 · 首页轻量状态条（低认知负荷，禁恐吓） */
+.today-checkin {
+  margin: 14px 18px 0;
+  padding: 14px 14px 12px;
+  border-radius: var(--radius);
+  background: var(--card);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+.today-checkin.tone-ok {
+  border-color: #cfe0d4;
+  background: linear-gradient(180deg, #f7fbf8 0%, var(--card) 70%);
+}
+.today-checkin.tone-soft {
+  border-color: #e6dcc6;
+  background: linear-gradient(180deg, #fbf7ef 0%, var(--card) 70%);
+}
+.today-checkin.tone-care {
+  border-color: #ddd0c4;
+  background: linear-gradient(180deg, #faf6f2 0%, var(--card) 70%);
+}
+.today-label {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--sage-deep);
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+.today-title {
+  font-size: 16px;
+  font-weight: 650;
+  color: var(--ink);
+  margin: 0;
+}
+.today-detail {
+  margin: 6px 0 0;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--ink-soft);
+}
+.today-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.status-card {
+  padding: 12px 14px;
+  border-radius: 12px;
+  font-size: 13px;
+  line-height: 1.55;
+  margin-bottom: 12px;
+  border: 1px solid var(--line);
+  background: var(--sage-soft);
+  color: var(--sage-deep);
+}
+.status-card.tone-ok {
+  background: var(--sage-soft);
+  border-color: #d5e4da;
+  color: var(--sage-deep);
+}
+.status-card.tone-soft {
+  background: var(--gold-soft);
+  border-color: #e8dcc4;
+  color: #6b5a3a;
+}
+.status-card.tone-care {
+  background: #f3eee8;
+  border-color: #e0d5c8;
+  color: #5c5044;
+}
+.status-card strong {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 14px;
+  color: var(--ink);
+}
+
 .grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
