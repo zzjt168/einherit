@@ -1357,3 +1357,45 @@ body.large-text select { font-size: 1.05em; }
 .med-fav { border-color: #c5d7cb; }
 .tag.fav-tag { background: var(--sage-soft); color: var(--sage-deep); }
 #settingsEnvCard .stat { gap: 8px; }
+
+/* Round8 · 温和增量 */
+.executor-card strong { display: block; margin-top: 6px; font-size: 1.05em; }
+.lg-quick-action {
+  margin-top: 8px;
+  max-width: 220px;
+}
+.as-tag-filters,
+.ac-status-filters { margin: 8px 0 4px; }
+.travel-progress {
+  margin-top: 12px;
+}
+.travel-progress-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 13px;
+  color: var(--muted, #6b7585);
+  margin-bottom: 6px;
+}
+.travel-progress-track {
+  height: 8px;
+  border-radius: 999px;
+  background: #e7ebe8;
+  overflow: hidden;
+}
+.travel-progress-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #7a9a88, #5b7f6e);
+  transition: width 0.45s ease;
+}
+.av-checklist-echo {
+  margin-top: 10px;
+}
+.tag.status-pending_auth { background: #e8eef5; color: #3d556e; }
+.tag.status-executable { background: #e6f0ea; color: #2f5d45; }
+.tag.status-done { background: #eee; color: #555; }
+.tag.status-submitted { background: #f3eee8; color: #5c5044; }
+.wait-remain { color: var(--sage-deep, #3a5548); }
+body.privacy-mode .privacy-hint { opacity: 0.85; }

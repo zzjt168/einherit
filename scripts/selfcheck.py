@@ -465,6 +465,63 @@ def main() -> None:
         preview = r.read().decode()
     assert "交割手册" in preview and "einherit.cn" in preview, preview[:240]
 
+    # Round8 · 执行人卡片只读
+    card = call("/api/executor-card")
+    assert "has_executor" in card and "cta" in card and "go" in card, card
+    assert card.get("go") == "checkin", card
+
+    # Round8 · 交割单条快速改处置
+    one = call("/api/legacy", {"title": "自检快速改处置", "category": "其他", "action": "销毁"})["item"]
+    upd = call("/api/legacy/update", {"id": one["id"], "action": "变现"})
+    assert upd.get("updated") == 1, upd
+    assert (upd.get("item") or {}).get("action") == "变现", upd
+
+    # Round8 · 备忘标签枚举（筛选数据源）
+    tags = call("/api/asset-tags")
+    assert set(tags.get("tags") or []) >= {"账号", "设备", "虚拟资产", "其他"}, tags
+
+    # Round8 · 报备频率可读说明（不改外呼机）
+    readable = call("/api/checkin/readable")
+    assert "interval_hours" in readable and "next_suggested_at" in readable, readable
+    assert "readable" in readable and "下次建议" in readable["readable"], readable
+
+    # Round8 · 差旅进度字段
+    tf8 = call("/api/travel-fund")["fund"]
+    assert "progress_pct" in tf8 and "shortfall" in tf8 and "progress_label" in tf8, tf8
+    assert 0 <= int(tf8["progress_pct"]) <= 100, tf8
+
+    # Round8 · 善后工单 status_key（筛选）
+    jobs8 = call("/api/aftercare")["items"]
+    assert jobs8 and all("status_key" in j and "status_label" in j for j in jobs8), jobs8
+
+    # Round8 · 授权视频门槛 checklist 回显
+    av8 = call("/api/auth-video")
+    assert isinstance(av8.get("checklist"), list) and len(av8["checklist"]) == 3, av8
+    assert {c["key"] for c in av8["checklist"]} == {"greeting", "authorize", "plan"}, av8
+
+    # Round8 · 紧急取用等待期倒计时只读
+    b_wait = call(
+        "/api/beneficiaries",
+        {"name": "自检等待期", "role": "heir", "contact": "13500000000"},
+    )["item"]
+    em8 = call(
+        "/api/emergency/request",
+        {"beneficiary_id": b_wait["id"], "wait_days": 7, "reason": "自检倒计时"},
+    )["item"]
+    assert em8.get("status") == "pending", em8
+    em_list = call("/api/emergency")["items"]
+    hit = next((x for x in em_list if x.get("id") == em8["id"]), None)
+    assert hit and "wait_remaining_seconds" in hit and "wait_remaining_label" in hit, hit
+    assert hit["wait_remaining_seconds"] > 0, hit
+    call("/api/emergency/decide", {"id": em8["id"], "approve": False, "note": "自检关闭"})
+
+    # Round8 · 导出摘要一键复制数据源
+    summ = call("/api/export/summary")
+    assert summ.get("summary", {}).get("text"), summ
+    assert "legacy_count" in summ["summary"] and "assets_count" in summ["summary"], summ
+    pack8 = call("/api/export/pack")
+    assert pack8.get("summary", {}).get("text"), pack8
+
     print("selfcheck OK")
 
 
