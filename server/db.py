@@ -164,6 +164,7 @@ CREATE TABLE IF NOT EXISTS company_notes (
   dept TEXT NOT NULL,
   title TEXT NOT NULL,
   body TEXT DEFAULT '',
+  sort_order INTEGER DEFAULT 0,
   created_at REAL NOT NULL
 );
 
@@ -183,7 +184,9 @@ CREATE TABLE IF NOT EXISTS hospitals (
   city TEXT NOT NULL,
   dept TEXT NOT NULL,
   tags TEXT DEFAULT '',
-  intl INTEGER DEFAULT 0
+  intl INTEGER DEFAULT 0,
+  address TEXT DEFAULT '',
+  remark TEXT DEFAULT ''
 );
 
 CREATE TABLE IF NOT EXISTS med_intents (
@@ -360,6 +363,18 @@ SEED_HOSPITALS = [
     ("新加坡国立大学医院", "新加坡", "新加坡", "综合", "英语友好", 1),
 ]
 
+# 医旅详情补全（地址 / 冷静备注；信息中介，不做疗效承诺）
+HOSPITAL_DETAILS = [
+    ("北京协和医院", "北京市东城区帅府园1号", "可先了解国际医疗部预约流程；不做疗效承诺。"),
+    ("上海交通大学医学院附属瑞金医院", "上海市黄浦区瑞金二路197号", "内分泌/血液方向常见问询；建议顾问协助路径评估。"),
+    ("武汉同济医院", "武汉市硚口区解放大道1095号", "肿瘤/移植相关转诊信息仅供筛选。"),
+    ("广州中山大学附属第一医院", "广州市越秀区中山二路58号", "器官移植相关咨询请以医院官方为准。"),
+    ("梅奥诊所 Mayo Clinic", "200 First St. SW, Rochester, MN", "国际患者通道信息；出行与签证请自行核实。"),
+    ("MD 安德森癌症中心", "1515 Holcombe Blvd, Houston, TX", "癌症专科信息中介；治疗方案需面诊确认。"),
+    ("东京大学医学部附属病院", "東京都文京区本郷7-3-1", "国际患者窗口信息仅供参考。"),
+    ("新加坡国立大学医院", "5 Lower Kent Ridge Rd, Singapore", "英语友好；费用与预约以院方为准。"),
+]
+
 
 def connect() -> sqlite3.Connection:
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)
@@ -402,9 +417,15 @@ def _ensure_columns(conn: sqlite3.Connection) -> None:
         ],
         "med_intents": [
             ("status", "TEXT DEFAULT 'open'"),
+        ],
         "executor_leads": [
             ("province", "TEXT DEFAULT ''"),
             ("region", "TEXT DEFAULT ''"),
+        ],
+        "company_notes": [("sort_order", "INTEGER DEFAULT 0")],
+        "hospitals": [
+            ("address", "TEXT DEFAULT ''"),
+            ("remark", "TEXT DEFAULT ''"),
         ],
     }
     for table, cols in specs.items():
@@ -412,6 +433,9 @@ def _ensure_columns(conn: sqlite3.Connection) -> None:
         for name, decl in cols:
             if name not in existing:
                 conn.execute(f"ALTER TABLE {table} ADD COLUMN {name} {decl}")
+    # 部门内条目：仅把仍为默认 0 的行回填为 id，便于上下移（不覆盖已排序）
+    for r in conn.execute("SELECT id FROM company_notes WHERE sort_order = 0").fetchall():
+        conn.execute("UPDATE company_notes SET sort_order = ? WHERE id = ?", (r["id"], r["id"]))
 
 
 def init_db() -> None:
@@ -469,6 +493,12 @@ def init_db() -> None:
             conn.executemany(
                 "INSERT INTO hospitals (name, country, city, dept, tags, intl) VALUES (?,?,?,?,?,?)",
                 SEED_HOSPITALS,
+            )
+        # 医院详情缺省地址/备注（演示信息，非疗效承诺；在种子之后回填）
+        for name, address, remark in HOSPITAL_DETAILS:
+            conn.execute(
+                "UPDATE hospitals SET address=?, remark=? WHERE name=? AND (address IS NULL OR address='')",
+                (address, remark, name),
             )
         conn.commit()
 
@@ -643,7 +673,8 @@ def company_overview(user_id: int = 1) -> dict[str, Any]:
         notes = [
             row_to_dict(r)
             for r in conn.execute(
-                "SELECT * FROM company_notes WHERE user_id=? ORDER BY id DESC", (user_id,)
+                "SELECT * FROM company_notes WHERE user_id=? ORDER BY sort_order ASC, id ASC",
+                (user_id,),
             ).fetchall()
         ]
         legacy = conn.execute(
@@ -680,13 +711,60 @@ def company_overview(user_id: int = 1) -> dict[str, Any]:
 def add_company_note(user_id: int, dept: str, title: str, body: str) -> dict[str, Any]:
     now = time.time()
     with connect() as conn:
+        mx = conn.execute(
+            "SELECT COALESCE(MAX(sort_order), 0) AS m FROM company_notes WHERE user_id=? AND dept=?",
+            (user_id, dept),
+        ).fetchone()["m"]
         cur = conn.execute(
-            "INSERT INTO company_notes (user_id, dept, title, body, created_at) VALUES (?,?,?,?,?)",
-            (user_id, dept, title or "盘点条目", body or "", now),
+            "INSERT INTO company_notes (user_id, dept, title, body, sort_order, created_at) "
+            "VALUES (?,?,?,?,?,?)",
+            (user_id, dept, title or "盘点条目", body or "", int(mx) + 1, now),
         )
         conn.commit()
         row = conn.execute("SELECT * FROM company_notes WHERE id=?", (cur.lastrowid,)).fetchone()
     return row_to_dict(row)  # type: ignore[return-value]
+
+
+def reorder_company_note(user_id: int, note_id: int, direction: str) -> dict[str, Any]:
+    """部门内上下移：direction 为 up|down。"""
+    direction = (direction or "").lower().strip()
+    if direction not in ("up", "down"):
+        raise ValueError("direction 须为 up 或 down")
+    with connect() as conn:
+        row = conn.execute(
+            "SELECT * FROM company_notes WHERE id=? AND user_id=?", (note_id, user_id)
+        ).fetchone()
+        if not row:
+            raise ValueError("找不到该盘点条目")
+        dept = row["dept"]
+        siblings = conn.execute(
+            "SELECT id, sort_order FROM company_notes WHERE user_id=? AND dept=? "
+            "ORDER BY sort_order ASC, id ASC",
+            (user_id, dept),
+        ).fetchall()
+        ids = [r["id"] for r in siblings]
+        try:
+            idx = ids.index(note_id)
+        except ValueError as e:
+            raise ValueError("找不到该盘点条目") from e
+        swap_with = idx - 1 if direction == "up" else idx + 1
+        if swap_with < 0 or swap_with >= len(siblings):
+            return company_overview(user_id)
+        a, b = siblings[idx], siblings[swap_with]
+        conn.execute("UPDATE company_notes SET sort_order=? WHERE id=?", (b["sort_order"], a["id"]))
+        conn.execute("UPDATE company_notes SET sort_order=? WHERE id=?", (a["sort_order"], b["id"]))
+        # 若 sort_order 相同，交换后仍冲突时用位置重排
+        if a["sort_order"] == b["sort_order"]:
+            for i, s in enumerate(
+                conn.execute(
+                    "SELECT id FROM company_notes WHERE user_id=? AND dept=? ORDER BY sort_order ASC, id ASC",
+                    (user_id, dept),
+                ).fetchall(),
+                start=1,
+            ):
+                conn.execute("UPDATE company_notes SET sort_order=? WHERE id=?", (i, s["id"]))
+        conn.commit()
+    return company_overview(user_id)
 
 
 def self_guard_state(user_id: int = 1) -> dict[str, Any]:
@@ -731,6 +809,12 @@ def list_hospitals(q: str = "", country: str = "") -> list[dict[str, Any]]:
     with connect() as conn:
         rows = conn.execute(sql, args).fetchall()
     return [row_to_dict(r) for r in rows]  # type: ignore[misc]
+
+
+def get_hospital(hospital_id: int) -> dict[str, Any] | None:
+    with connect() as conn:
+        row = conn.execute("SELECT * FROM hospitals WHERE id=?", (hospital_id,)).fetchone()
+    return row_to_dict(row)
 
 
 def add_med_intent(user_id: int, hospital_id: int | None, note: str) -> dict[str, Any]:
@@ -872,7 +956,163 @@ def do_checkin(user_id: int = 1) -> dict[str, Any]:
     now = time.time()
     u = update_user(user_id, last_checkin_at=now, escalation_state="ok")
     add_ledger(user_id, "checkin", 0, "生存报备打卡")
+    audit(user_id, "checkin", "生存报备打卡")
     return u
+
+
+def checkin_history(user_id: int = 1, limit: int = 20) -> list[dict[str, Any]]:
+    """最近 N 次报备时间（只读；来自 ledger，不改外呼状态机）。"""
+    limit = max(1, min(int(limit or 20), 100))
+    with connect() as conn:
+        rows = conn.execute(
+            "SELECT id, note, created_at FROM ledger WHERE user_id=? AND kind='checkin' "
+            "ORDER BY id DESC LIMIT ?",
+            (user_id, limit),
+        ).fetchall()
+    items = [
+        {
+            "id": r["id"],
+            "at": r["created_at"],
+            "note": r["note"] or "生存报备",
+        }
+        for r in rows
+    ]
+    if not items:
+        u = get_user(user_id)
+        if u.get("last_checkin_at"):
+            items = [
+                {
+                    "id": 0,
+                    "at": u["last_checkin_at"],
+                    "note": "最近一次报备",
+                }
+            ]
+    return items
+
+
+def onboarding_status(user_id: int = 1) -> dict[str, Any]:
+    """首次引导三步：报备设置 → 备用联系人 → 交割至少一条。"""
+    u = get_user(user_id)
+    contacts = u.get("backup_contacts") or []
+    contacts_ok = any(
+        str(c.get("name") or "").strip() and str(c.get("phone") or "").strip() for c in contacts
+    )
+    legacy_n = len(list_legacy(user_id))
+    checkin_ok = bool(u.get("checkin_interval_hours")) and bool(u.get("grace_hours") is not None)
+    # 报备设置：间隔 + 冷静期已配置（演示默认即有）；执行人有则更完整
+    steps = [
+        {
+            "id": "checkin",
+            "title": "报备设置",
+            "hint": "设定报备间隔与冷静期，安心节奏由你掌握。",
+            "done": checkin_ok,
+            "go": "settings",
+        },
+        {
+            "id": "contacts",
+            "title": "备用联系人",
+            "hint": "至少一位可联系的家人或朋友。",
+            "done": contacts_ok,
+            "go": "settings",
+        },
+        {
+            "id": "legacy",
+            "title": "交割至少一条",
+            "hint": "先写一条设备或账号安排即可。",
+            "done": legacy_n >= 1,
+            "go": "legacy",
+        },
+    ]
+    done_n = sum(1 for s in steps if s["done"])
+    return {
+        "steps": steps,
+        "done": done_n,
+        "total": len(steps),
+        "complete": done_n == len(steps),
+    }
+
+
+def export_data_pack(user_id: int = 1) -> dict[str, Any]:
+    """一键导出：交割 + 备忘 + 受益人脱敏 JSON（演示包）。"""
+    u = get_user(user_id)
+    legacy = list_legacy(user_id)
+    assets = list_assets(user_id)
+    bene = list_beneficiaries(user_id)
+
+    def mask_phone(p: str) -> str:
+        s = str(p or "").strip()
+        if len(s) < 7:
+            return "***" if s else ""
+        return s[:3] + "****" + s[-4:]
+
+    def mask_contact(c: str) -> str:
+        s = str(c or "").strip()
+        if not s:
+            return ""
+        if s.isdigit() or (s.startswith("+") and s[1:].isdigit()):
+            return mask_phone(s)
+        if "@" in s:
+            name, _, domain = s.partition("@")
+            return (name[:1] + "***@" + domain) if domain else "***"
+        if len(s) <= 2:
+            return "*" * len(s)
+        return s[0] + "*" * (len(s) - 2) + s[-1]
+
+    return {
+        "brand": "电子继承 App",
+        "brand_en": "E-Inherit",
+        "domain": "einherit.cn",
+        "exported_at": time.strftime("%Y-%m-%dT%H:%M:%S", time.localtime()),
+        "user": {
+            "name": u.get("name"),
+            "executor_name": u.get("executor_name") or "",
+            "checkin_interval_hours": u.get("checkin_interval_hours"),
+            "grace_hours": u.get("grace_hours"),
+            "backup_contacts": [
+                {
+                    "name": c.get("name"),
+                    "relation": c.get("relation"),
+                    "phone": mask_phone(c.get("phone") or ""),
+                }
+                for c in (u.get("backup_contacts") or [])
+            ],
+        },
+        "legacy_items": [
+            {
+                "title": it.get("title"),
+                "category": it.get("category"),
+                "action": it.get("action"),
+                "beneficiary": it.get("beneficiary"),
+                "dept": it.get("dept"),
+                "factory_reset": bool(it.get("factory_reset")),
+                "clear_photos": bool(it.get("clear_photos")),
+                "clear_chats": bool(it.get("clear_chats")),
+                "notes": it.get("notes") or "",
+            }
+            for it in legacy
+        ],
+        "assets": [
+            {
+                "platform": a.get("platform"),
+                "account_hint": a.get("account_hint"),
+                "summary": a.get("summary"),
+                "dispose_note": a.get("dispose_note"),
+                "dept": a.get("dept"),
+                "visibility": a.get("visibility"),
+            }
+            for a in assets
+        ],
+        "beneficiaries": [
+            {
+                "name": b.get("name"),
+                "role": b.get("role"),
+                "contact": mask_contact(b.get("contact") or ""),
+                "note": b.get("note") or "",
+            }
+            for b in bene
+        ],
+        "notice": "演示导出包：联系方式已脱敏；不含完整密码/私钥。",
+    }
 
 
 def evaluate_escalation(user_id: int = 1, simulate_unreachable: bool = False) -> dict[str, Any]:
