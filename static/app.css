@@ -768,6 +768,86 @@ button.btn:disabled {
 .auth-script li { margin-bottom: 8px; }
 .auth-script b { color: var(--ink); }
 
+/* Round-2 · calm status / export / timeline */
+.export-strip h3 { margin-top: 0; }
+.device-row {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin: 6px 0;
+  font-size: 13px;
+}
+.device-row b { font-size: 14px; }
+.device-row b.soft { font-weight: 500; color: var(--ink-soft); }
+.device-flags {
+  margin: 8px 0 4px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--sage-soft);
+  border: 1px solid #d5e4da;
+}
+.device-flags-row { margin: 6px 0; display: flex; flex-wrap: wrap; gap: 4px; }
+.item .tag.flag-on { background: var(--sage-soft); color: var(--sage-deep); }
+.item .tag.flag-off { background: #f0eeea; color: #8a857c; }
+.item .tag.status-wait { background: var(--gold-soft); color: #7a5d2e; }
+.item .tag.status-ready { background: var(--sage-soft); color: var(--sage-deep); }
+.item .tag.status-queued { background: #e6eef7; color: #3d5a80; }
+.item .tag.status-done { background: #efece6; color: var(--ink-soft); }
+.calm-note { background: linear-gradient(180deg, #fffcf7 0%, #f7f3eb 100%); }
+.calm-nudge {
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--gold-soft);
+  color: #7a5d2e;
+  font-size: 13px;
+  border: 1px solid #e6d7b8;
+}
+.snap-tip { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.empty.calm {
+  padding: 16px;
+  border-radius: 14px;
+  background: #fff;
+  border: 1px dashed var(--line);
+  color: var(--ink-soft);
+  font-size: 13px;
+  text-align: center;
+}
+.intent-detail {
+  margin-bottom: 12px;
+  padding: 12px;
+  border-radius: 12px;
+  background: var(--sage-soft);
+  border: 1px solid #d5e4da;
+  font-size: 13px;
+}
+.timeline-list {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 0 14px;
+  border-left: 2px solid var(--line);
+}
+.timeline-list li {
+  position: relative;
+  padding: 0 0 16px 16px;
+}
+.timeline-list .tl-dot {
+  position: absolute;
+  left: -19px;
+  top: 4px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--sage);
+  border: 2px solid #fffcf7;
+}
+.timeline-list .tl-body strong {
+  display: block;
+  font-size: 14px;
+  margin: 0 0 2px;
+}
+.stat { grid-template-columns: 1fr 1fr; }
+
 @media (min-width: 900px) {
   .app {
     max-width: 980px;

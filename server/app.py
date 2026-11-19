@@ -241,7 +241,18 @@ class Handler(BaseHTTPRequestHandler):
             elif path == "/api/audit":
                 out = {"items": db.recent_audit(1, 40)}
             elif path == "/api/snapshots":
-                out = {"items": db.list_snapshots(1)}
+                out = {
+                    "items": db.list_snapshots(1),
+                    "latest": db.latest_snapshot(1),
+                }
+            elif path == "/api/snapshot":
+                sid = int((qs.get("id") or ["0"])[0] or 0)
+                out = {"item": db.get_snapshot(1, sid)}
+            elif path in ("/api/hospitals/intents", "/api/med-intents"):
+                out = {"items": db.list_med_intents(1)}
+            elif path in ("/api/hospitals/intent", "/api/med-intent"):
+                iid = int((qs.get("id") or ["0"])[0] or 0)
+                out = {"item": db.get_med_intent(1, iid)}
             elif path == "/api/learnings":
                 out = db.open_source_learnings()
             elif path == "/api/mindmap":
@@ -312,6 +323,12 @@ class Handler(BaseHTTPRequestHandler):
                 )
             }
 
+        if path in ("/api/hospitals/intent/cancel", "/api/med-intent/cancel"):
+            return {
+                "intent": db.cancel_med_intent(1, int(payload.get("id") or 0)),
+                "message": "意向已温和撤回，需要时可再提交",
+            }
+
         if path == "/api/membership/pay":
             return {"user": db.activate_membership(1), "paid": 365}
 
@@ -346,6 +363,16 @@ class Handler(BaseHTTPRequestHandler):
 
         if path == "/api/beneficiaries":
             return {"item": db.add_beneficiary(1, payload)}
+
+        if path == "/api/beneficiaries/update":
+            return {
+                "item": db.update_beneficiary(
+                    1, int(payload.get("id") or 0), payload
+                )
+            }
+
+        if path == "/api/beneficiaries/delete":
+            return db.delete_beneficiary(1, int(payload.get("id") or 0))
 
         if path == "/api/emergency/request":
             return {"item": db.request_emergency(1, payload)}

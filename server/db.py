@@ -190,6 +190,7 @@ CREATE TABLE IF NOT EXISTS med_intents (
   user_id INTEGER NOT NULL,
   hospital_id INTEGER,
   note TEXT DEFAULT '',
+  status TEXT DEFAULT 'open',
   created_at REAL NOT NULL
 );
 
@@ -245,8 +246,10 @@ CREATE TABLE IF NOT EXISTS beneficiaries (
   user_id INTEGER NOT NULL,
   name TEXT NOT NULL,
   role TEXT DEFAULT 'heir',
+  relation TEXT DEFAULT '',
   contact TEXT DEFAULT '',
   note TEXT DEFAULT '',
+  passphrase_hint TEXT DEFAULT '',
   created_at REAL NOT NULL
 );
 
@@ -375,6 +378,13 @@ def _ensure_columns(conn: sqlite3.Connection) -> None:
         "users": [
             ("executor_name", "TEXT DEFAULT ''"),
             ("grace_hours", "REAL DEFAULT 72"),
+        ],
+        "beneficiaries": [
+            ("relation", "TEXT DEFAULT ''"),
+            ("passphrase_hint", "TEXT DEFAULT ''"),
+        ],
+        "med_intents": [
+            ("status", "TEXT DEFAULT 'open'"),
         ],
     }
     for table, cols in specs.items():
@@ -549,6 +559,8 @@ def add_legacy(user_id: int, payload: dict[str, Any]) -> dict[str, Any]:
         conn.commit()
         rid = cur.lastrowid
         row = conn.execute("SELECT * FROM legacy_items WHERE id=?", (rid,)).fetchone()
+    title = (row_to_dict(row) or {}).get("title") or ""
+    audit(user_id, "legacy.change", str(title))
     return row_to_dict(row)  # type: ignore[return-value]
 
 
@@ -700,12 +712,69 @@ def add_med_intent(user_id: int, hospital_id: int | None, note: str) -> dict[str
     now = time.time()
     with connect() as conn:
         cur = conn.execute(
-            "INSERT INTO med_intents (user_id, hospital_id, note, created_at) VALUES (?,?,?,?)",
-            (user_id, hospital_id, note, now),
+            "INSERT INTO med_intents (user_id, hospital_id, note, status, created_at) "
+            "VALUES (?,?,?,?,?)",
+            (user_id, hospital_id, note, "open", now),
         )
         conn.commit()
-        row = conn.execute("SELECT * FROM med_intents WHERE id=?", (cur.lastrowid,)).fetchone()
-    return row_to_dict(row)  # type: ignore[return-value]
+        rid = cur.lastrowid
+    audit(user_id, "med.intent", f"hospital={hospital_id or '-'}")
+    return get_med_intent(user_id, int(rid or 0))
+
+
+def list_med_intents(user_id: int = 1, limit: int = 40, include_cancelled: bool = True) -> list[dict[str, Any]]:
+    with connect() as conn:
+        rows = conn.execute(
+            "SELECT m.*, h.name AS hospital_name, h.country AS hospital_country, "
+            "h.city AS hospital_city, h.dept AS hospital_dept "
+            "FROM med_intents m LEFT JOIN hospitals h ON h.id = m.hospital_id "
+            "WHERE m.user_id=? ORDER BY m.id DESC LIMIT ?",
+            (user_id, limit),
+        ).fetchall()
+    items = [row_to_dict(r) for r in rows]  # type: ignore[misc]
+    if not include_cancelled:
+        items = [i for i in items if (i or {}).get("status") != "cancelled"]
+    for it in items:
+        if not it:
+            continue
+        st = it.get("status") or "open"
+        it["status_label"] = {"open": "进行中", "cancelled": "已撤回", "done": "已完成"}.get(st, st)
+    return items
+
+
+def get_med_intent(user_id: int, intent_id: int) -> dict[str, Any]:
+    with connect() as conn:
+        row = conn.execute(
+            "SELECT m.*, h.name AS hospital_name, h.country AS hospital_country, "
+            "h.city AS hospital_city, h.dept AS hospital_dept, h.tags AS hospital_tags "
+            "FROM med_intents m LEFT JOIN hospitals h ON h.id = m.hospital_id "
+            "WHERE m.user_id=? AND m.id=?",
+            (user_id, intent_id),
+        ).fetchone()
+    if not row:
+        raise ValueError("意向单不存在")
+    it = row_to_dict(row)
+    assert it is not None
+    st = it.get("status") or "open"
+    it["status_label"] = {"open": "进行中", "cancelled": "已撤回", "done": "已完成"}.get(st, st)
+    return it
+
+
+def cancel_med_intent(user_id: int, intent_id: int) -> dict[str, Any]:
+    with connect() as conn:
+        row = conn.execute(
+            "SELECT * FROM med_intents WHERE id=? AND user_id=?", (intent_id, user_id)
+        ).fetchone()
+        if not row:
+            raise ValueError("意向单不存在")
+        if (row["status"] or "open") == "cancelled":
+            raise ValueError("该意向已撤回")
+        conn.execute(
+            "UPDATE med_intents SET status='cancelled' WHERE id=?", (intent_id,)
+        )
+        conn.commit()
+    audit(user_id, "med.intent.cancel", f"id={intent_id}")
+    return get_med_intent(user_id, intent_id)
 
 
 def list_med_intents(user_id: int = 1, limit: int = 30) -> list[dict[str, Any]]:
@@ -916,6 +985,7 @@ def handover_checklist(user_id: int = 1) -> dict[str, Any]:
     """Inherit 交割待办：给执行人的冷手册摘要。"""
     u = get_user(user_id)
     items = list_legacy(user_id)
+    heirs = list_beneficiaries(user_id)
     todos = []
     for it in items:
         bits = [it["action"]]
@@ -937,6 +1007,13 @@ def handover_checklist(user_id: int = 1) -> dict[str, Any]:
             }
         )
     progress = legacy_progress(user_id)
+                "beneficiary": it.get("beneficiary") or "",
+                "factory_reset": bool(it.get("factory_reset")),
+                "clear_photos": bool(it.get("clear_photos")),
+                "clear_chats": bool(it.get("clear_chats")),
+            }
+        )
+    now = time.time()
     return {
         "brand": "E-Inherit 交割手册",
         "domain": "einherit.cn",
@@ -944,6 +1021,18 @@ def handover_checklist(user_id: int = 1) -> dict[str, Any]:
         "member": u.get("is_member"),
         "todos": todos,
         "progress": progress,
+        "item_count": len(todos),
+        "generated_at": now,
+        "generated_at_iso": time.strftime("%Y-%m-%d %H:%M", time.localtime(now)),
+        "heirs": [
+            {
+                "name": h.get("name"),
+                "role": h.get("role"),
+                "relation": h.get("relation") or "",
+            }
+            for h in heirs
+        ],
+        "export_path": "/export/handover.html",
         "note": "本清单为客观资产交割待办，不依赖情感授权。",
     }
 
@@ -969,14 +1058,34 @@ def icu_pack_items(user_id: int = 1) -> list[dict[str, Any]]:
 def icu_pack_ready(user_id: int = 1) -> bool:
     found = {it["title"] for it in icu_pack_items(user_id)}
     return all(t["title"] in found for t in ICU_PACK)
+def _aftercare_status_meta(row: dict[str, Any], ready: bool) -> dict[str, str]:
+    """冷静状态标签：待授权 / 可执行 / 已提交（不恐吓）。"""
+    raw = str(row.get("status") or "queued")
+    coop = str(row.get("coop_state") or "pending")
+    if raw in ("done", "completed", "closed"):
+        return {"status_key": "done", "status_label": "已完成", "status_tone": "done"}
+    if not ready or raw in ("draft", "pending_auth"):
+        return {"status_key": "pending_auth", "status_label": "待授权", "status_tone": "wait"}
+    if coop == "cooperative" or raw in ("ready", "executable"):
+        return {"status_key": "executable", "status_label": "可执行", "status_tone": "ready"}
+    return {"status_key": "submitted", "status_label": "已提交", "status_tone": "queued"}
 
 
 def list_aftercare(user_id: int = 1) -> list[dict[str, Any]]:
+    ready = auth_video_ready(user_id)
     with connect() as conn:
         rows = conn.execute(
             "SELECT * FROM aftercare_jobs WHERE user_id=? ORDER BY id DESC", (user_id,)
         ).fetchall()
-    return [row_to_dict(r) for r in rows]  # type: ignore[misc]
+    out: list[dict[str, Any]] = []
+    for r in rows:
+        item = row_to_dict(r)
+        if not item:
+            continue
+        item.update(_aftercare_status_meta(item, ready))
+        item["travel_budget_label"] = f"¥{float(item.get('travel_budget') or 0):.0f}"
+        out.append(item)
+    return out
 
 
 def add_aftercare(user_id: int, payload: dict[str, Any]) -> dict[str, Any]:
@@ -1004,7 +1113,12 @@ def add_aftercare(user_id: int, payload: dict[str, Any]) -> dict[str, Any]:
         )
         rid = cur.lastrowid
         row = conn.execute("SELECT * FROM aftercare_jobs WHERE id=?", (rid,)).fetchone()
-    return row_to_dict(row)  # type: ignore[return-value]
+    audit(user_id, "aftercare.submit", title)
+    item = row_to_dict(row)
+    assert item is not None
+    item.update(_aftercare_status_meta(item, True))
+    item["travel_budget_label"] = f"¥{float(item.get('travel_budget') or 0):.0f}"
+    return item
 
 
 def add_executor_lead(payload: dict[str, Any]) -> dict[str, Any]:
@@ -1078,13 +1192,43 @@ def audit(user_id: int, action: str, detail: str = "") -> None:
         conn.commit()
 
 
+_AUDIT_LABELS = {
+    "checkin": "生存报备",
+    "beneficiary.add": "新增受益人",
+    "beneficiary.update": "更新受益人",
+    "beneficiary.delete": "移除受益人",
+    "emergency.request": "紧急取用申请",
+    "emergency.approved": "紧急取用已批准",
+    "emergency.denied": "紧急取用已拒绝",
+    "emergency.auto_granted": "紧急取用到期放行",
+    "handover.snapshot": "交割快照",
+    "auth_video.upload": "授权视频",
+    "aftercare.submit": "善后工单",
+    "med.intent": "医旅意向",
+    "med.intent.cancel": "撤回医旅意向",
+    "mindmap.save": "保存大脑图谱",
+    "legacy.change": "交割变更",
+}
+
+
 def recent_audit(user_id: int = 1, limit: int = 30) -> list[dict[str, Any]]:
     with connect() as conn:
         rows = conn.execute(
             "SELECT * FROM audit_log WHERE user_id=? ORDER BY id DESC LIMIT ?",
             (user_id, limit),
         ).fetchall()
-    return [row_to_dict(r) for r in rows]  # type: ignore[misc]
+    out: list[dict[str, Any]] = []
+    for r in rows:
+        item = row_to_dict(r)
+        if not item:
+            continue
+        action = str(item.get("action") or "")
+        item["label"] = _AUDIT_LABELS.get(action, action or "记录")
+        item["created_at_iso"] = time.strftime(
+            "%Y-%m-%d %H:%M", time.localtime(float(item.get("created_at") or 0))
+        )
+        out.append(item)
+    return out
 
 
 def list_beneficiaries(user_id: int = 1) -> list[dict[str, Any]]:
@@ -1099,17 +1243,22 @@ def add_beneficiary(user_id: int, payload: dict[str, Any]) -> dict[str, Any]:
     name = str(payload.get("name") or "").strip()
     if not name:
         raise ValueError("请填写受益人姓名")
+    hint = str(payload.get("passphrase_hint") or "").strip()
+    if hint and ("密码" in hint or "password" in hint.lower() or len(hint) > 80):
+        raise ValueError("请只登记口令提示（如「生日后四位」），不要写入真实密码")
     now = time.time()
     with connect() as conn:
         cur = conn.execute(
-            "INSERT INTO beneficiaries (user_id, name, role, contact, note, created_at) "
-            "VALUES (?,?,?,?,?,?)",
+            "INSERT INTO beneficiaries (user_id, name, role, relation, contact, note, "
+            "passphrase_hint, created_at) VALUES (?,?,?,?,?,?,?,?)",
             (
                 user_id,
                 name,
                 str(payload.get("role") or "heir"),
+                str(payload.get("relation") or ""),
                 str(payload.get("contact") or ""),
                 str(payload.get("note") or ""),
+                hint,
                 now,
             ),
         )
@@ -1117,6 +1266,56 @@ def add_beneficiary(user_id: int, payload: dict[str, Any]) -> dict[str, Any]:
         row = conn.execute("SELECT * FROM beneficiaries WHERE id=?", (rid,)).fetchone()
     audit(user_id, "beneficiary.add", name)
     return row_to_dict(row)  # type: ignore[return-value]
+
+
+def update_beneficiary(user_id: int, bene_id: int, payload: dict[str, Any]) -> dict[str, Any]:
+    with connect() as conn:
+        row = conn.execute(
+            "SELECT * FROM beneficiaries WHERE id=? AND user_id=?", (bene_id, user_id)
+        ).fetchone()
+        if not row:
+            raise ValueError("受益人不存在")
+        name = str(payload.get("name") if "name" in payload else row["name"]).strip()
+        if not name:
+            raise ValueError("请填写受益人姓名")
+        hint = str(
+            payload.get("passphrase_hint")
+            if "passphrase_hint" in payload
+            else (row["passphrase_hint"] if "passphrase_hint" in row.keys() else "")
+        ).strip()
+        if hint and ("密码" in hint or "password" in hint.lower() or len(hint) > 80):
+            raise ValueError("请只登记口令提示（如「生日后四位」），不要写入真实密码")
+        relation = str(
+            payload.get("relation")
+            if "relation" in payload
+            else (row["relation"] if "relation" in row.keys() else "")
+        )
+        role = str(payload.get("role") if "role" in payload else row["role"] or "heir")
+        contact = str(payload.get("contact") if "contact" in payload else row["contact"] or "")
+        note = str(payload.get("note") if "note" in payload else row["note"] or "")
+        conn.execute(
+            "UPDATE beneficiaries SET name=?, role=?, relation=?, contact=?, note=?, "
+            "passphrase_hint=? WHERE id=?",
+            (name, role, relation, contact, note, hint, bene_id),
+        )
+        conn.commit()
+        row = conn.execute("SELECT * FROM beneficiaries WHERE id=?", (bene_id,)).fetchone()
+    audit(user_id, "beneficiary.update", name)
+    return row_to_dict(row)  # type: ignore[return-value]
+
+
+def delete_beneficiary(user_id: int, bene_id: int) -> dict[str, Any]:
+    with connect() as conn:
+        row = conn.execute(
+            "SELECT * FROM beneficiaries WHERE id=? AND user_id=?", (bene_id, user_id)
+        ).fetchone()
+        if not row:
+            raise ValueError("受益人不存在")
+        name = row["name"]
+        conn.execute("DELETE FROM beneficiaries WHERE id=?", (bene_id,))
+        conn.commit()
+    audit(user_id, "beneficiary.delete", str(name))
+    return {"ok": True, "id": bene_id, "name": name}
 
 
 def list_emergency(user_id: int = 1) -> list[dict[str, Any]]:
@@ -1209,6 +1408,21 @@ def tick_emergency(user_id: int = 1) -> int:
     return len(granted)
 
 
+def _snapshot_summary(payload_text: str) -> dict[str, Any]:
+    try:
+        data = json.loads(payload_text or "{}")
+    except json.JSONDecodeError:
+        data = {}
+    todos = data.get("todos") or []
+    titles = [str(t.get("title") or "") for t in todos[:5] if isinstance(t, dict)]
+    return {
+        "item_count": len(todos) if isinstance(todos, list) else 0,
+        "executor": data.get("executor") or "",
+        "titles": titles,
+        "heirs": data.get("heirs") or [],
+    }
+
+
 def save_handover_snapshot(user_id: int = 1, label: str = "") -> dict[str, Any]:
     hand = handover_checklist(user_id)
     now = time.time()
@@ -1221,19 +1435,56 @@ def save_handover_snapshot(user_id: int = 1, label: str = "") -> dict[str, Any]:
         )
         rid = cur.lastrowid
         row = conn.execute(
-            "SELECT id, user_id, label, created_at FROM handover_snapshots WHERE id=?", (rid,)
+            "SELECT id, user_id, label, created_at, payload FROM handover_snapshots WHERE id=?",
+            (rid,),
         ).fetchone()
     audit(user_id, "handover.snapshot", label)
-    return row_to_dict(row)  # type: ignore[return-value]
+    item = row_to_dict(row)
+    assert item is not None
+    item["summary"] = _snapshot_summary(str(item.pop("payload", "") or ""))
+    return item
 
 
-def list_snapshots(user_id: int = 1) -> list[dict[str, Any]]:
+def list_snapshots(user_id: int = 1, limit: int = 20) -> list[dict[str, Any]]:
     with connect() as conn:
         rows = conn.execute(
-            "SELECT id, user_id, label, created_at FROM handover_snapshots WHERE user_id=? ORDER BY id DESC",
-            (user_id,),
+            "SELECT id, user_id, label, created_at, payload FROM handover_snapshots "
+            "WHERE user_id=? ORDER BY id DESC LIMIT ?",
+            (user_id, limit),
         ).fetchall()
-    return [row_to_dict(r) for r in rows]  # type: ignore[misc]
+    out: list[dict[str, Any]] = []
+    for r in rows:
+        item = row_to_dict(r)
+        if not item:
+            continue
+        item["summary"] = _snapshot_summary(str(item.pop("payload", "") or ""))
+        out.append(item)
+    return out
+
+
+def get_snapshot(user_id: int, snap_id: int) -> dict[str, Any]:
+    with connect() as conn:
+        row = conn.execute(
+            "SELECT id, user_id, label, created_at, payload FROM handover_snapshots "
+            "WHERE id=? AND user_id=?",
+            (snap_id, user_id),
+        ).fetchone()
+    if not row:
+        raise ValueError("快照不存在")
+    item = row_to_dict(row)
+    assert item is not None
+    payload = str(item.pop("payload", "") or "")
+    item["summary"] = _snapshot_summary(payload)
+    try:
+        item["checklist"] = json.loads(payload)
+    except json.JSONDecodeError:
+        item["checklist"] = {}
+    return item
+
+
+def latest_snapshot(user_id: int = 1) -> dict[str, Any] | None:
+    items = list_snapshots(user_id, limit=1)
+    return items[0] if items else None
 
 
 def handover_export_html(user_id: int = 1) -> str:
@@ -1241,12 +1492,20 @@ def handover_export_html(user_id: int = 1) -> str:
     hand = handover_checklist(user_id)
     u = get_user(user_id)
     items = hand.get("todos") or []
+    heirs = hand.get("heirs") or []
+    heir_line = "、".join(
+        f"{h.get('name')}（{h.get('relation') or h.get('role') or '受益人'}）"
+        for h in heirs
+        if h.get("name")
+    ) or "尚未登记受益人"
     rows = "".join(
         f"<tr><td>{_esc(i.get('title'))}</td><td>{_esc(' · '.join(i.get('ops') or []))}</td>"
+        f"<td>{_esc(i.get('beneficiary') or '—')}</td>"
         f"<td>{_esc(i.get('dept'))}</td><td>{_esc(i.get('notes'))}</td></tr>"
         for i in items
     )
-    when = time.strftime("%Y-%m-%d %H:%M", time.localtime())
+    when = hand.get("generated_at_iso") or time.strftime("%Y-%m-%d %H:%M", time.localtime())
+    count = int(hand.get("item_count") or len(items))
     return f"""<!DOCTYPE html>
 <html lang="zh-CN"><head><meta charset="utf-8"/>
 <title>交割手册 · { _esc(u.get('name') or '主人') }</title>
@@ -1260,9 +1519,10 @@ th,td{{border:1px solid #ccc;padding:8px;text-align:left}} th{{background:#f5f5f
 </style></head><body>
 <button onclick="window.print()">打印 / 另存 PDF</button>
 <h1>电子继承 · 交割手册</h1>
-<div class="meta">主人：{_esc(u.get('name'))} · 执行人：{_esc(u.get('executor_name') or '未指定')} · 导出：{when}</div>
-<table><thead><tr><th>事项</th><th>动作</th><th>部门</th><th>备注</th></tr></thead>
-<tbody>{rows or '<tr><td colspan="4">暂无条目</td></tr>'}</tbody></table>
+<div class="meta">主人：{_esc(u.get('name'))} · 执行人：{_esc(u.get('executor_name') or '未指定')} · 生成：{when} · 条目 {count}</div>
+<div class="meta">给谁：{_esc(heir_line)}</div>
+<table><thead><tr><th>事项</th><th>动作</th><th>接收人</th><th>部门</th><th>备注</th></tr></thead>
+<tbody>{rows or '<tr><td colspan="5">暂无条目</td></tr>'}</tbody></table>
 <p class="disclaimer">本手册仅供授权执行人善后参考，不构成法律文件；紧急取用须经等待期或主人确认。
 对标开源：Legacy Vault 紧急等待期 · Morrígan 版本快照 · 打印交付。</p>
 </body></html>"""
