@@ -14,7 +14,7 @@
   <meta name="description" content="电子继承 App E-Inherit · einherit.cn · 个人公司化生命资产盘点与交割手册"/>
   <title>电子继承 App · E-Inherit</title>
   <link rel="icon" href="favicon.svg"/>
-  <link rel="stylesheet" href="app.css?v=20261119r3"/>
+  <link rel="stylesheet" href="app.css?v=20261119r4"/>
   <link rel="manifest" href="manifest.webmanifest"/>
 </head>
 <body>
@@ -27,7 +27,10 @@
         <span>E-Inherit · einherit.cn</span>
       </div>
     </div>
-    <div id="memberPill" class="pill guest">未开通会员</div>
+    <div class="topbar-actions">
+      <button class="btn ghost sm" type="button" data-go="settings" title="设置">设置</button>
+      <div id="memberPill" class="pill guest">未开通会员</div>
+    </div>
   </header>
 
   <section class="panel active" id="home">
@@ -46,6 +49,7 @@
         <button class="btn ghost sm" type="button" data-go="checkin">详情</button>
       </div>
     </div>
+    <div class="onboard" id="onboardGuide" hidden></div>
     <div class="hint" id="homeHint">加载中…</div>
 
     <div class="today-todos" id="todayTodos" aria-live="polite">
@@ -220,6 +224,7 @@
       </label>
       <button class="btn ghost block" id="lgFilterApply" type="button">筛选列表</button>
     </div>
+    <div class="calm-tip" id="legacyCalmTip" hidden role="status"></div>
     <div class="card">
       <h3>新增交割安排</h3>
       <p class="muted">写清设备归谁、是否出厂重置、照片与聊天是否清除——给执行人一份冷静清单。</p>
@@ -278,6 +283,7 @@
     <div class="panel-head"><button class="back" data-go="home">←</button><h2>自保建议</h2></div>
     <div class="card"><p class="muted">七宗罪按危害程度排序：色欲 → 暴食 → 贪婪 → 懒惰 → 暴怒 → 嫉妒 → 傲慢。勾选表示已纳入个人自保动作。</p></div>
     <div id="guardReview"></div>
+    <div class="card" id="guardSummary"></div>
     <div class="list" id="guardList"></div>
   </section>
 
@@ -353,6 +359,11 @@
       <div class="list" id="medIntentList"></div>
     </div>
     <div class="list" id="medList"></div>
+  </section>
+
+  <section class="panel" id="medDetail">
+    <div class="panel-head"><button class="back" data-go="med">←</button><h2>医院详情</h2></div>
+    <div id="medDetailBox"></div>
   </section>
 
   <section class="panel" id="member">
@@ -455,6 +466,7 @@
     <div class="card">
       <h3>新建善后工单</h3>
       <p class="muted">删数据 · 变卖电子资产 · 上门执行。差旅从预存扣（演示记账）。客户失联走报备升级，不擅自执行。</p>
+      <div class="budget-tip" id="acBudgetTip" aria-live="polite">加载差旅余额…</div>
       <label class="field">服务类型
         <select id="acType">
           <option value="delete_data">删除电子数据</option>
@@ -485,6 +497,11 @@
       <button class="btn block" id="acAdd">提交善后工单</button>
     </div>
     <div class="list" id="acList"></div>
+  </section>
+
+  <section class="panel" id="settings">
+    <div class="panel-head"><button class="back" data-go="home">←</button><h2>设置总控</h2></div>
+    <div id="settingsBox"></div>
   </section>
 
   <section class="panel" id="executor">
@@ -540,6 +557,6 @@
 </nav>
 
 <div class="toast" id="toast"></div>
-<script src="app.js?v=20261119r3"></script>
+<script src="app.js?v=20261119r4"></script>
 </body>
 </html>
