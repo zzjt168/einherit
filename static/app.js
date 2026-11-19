@@ -81,6 +81,44 @@ function fmtTime(ts) {
   return new Date(ts * 1000).toLocaleString("zh-CN", { hour12: false });
 }
 
+/** 今日报备文案：只读现有字段，不改外呼/断缴状态机；语气平稳、可一键打卡。 */
+function checkinClarity(user) {
+  const last = fmtTime(user.last_checkin_at);
+  const next = fmtTime(user.checkin_due_at);
+  if (user.checkin_overdue) {
+    return {
+      tone: "care",
+      title: "报备稍有延迟，先打个卡就好",
+      detail: `我们会先轻轻联系您本人，再联系备用联系人——不擅自下结论。最近报备：${last}`,
+      cta: "我已安全 · 完成报备",
+      highlightCta: true,
+    };
+  }
+  if (user.checkin_in_grace) {
+    return {
+      tone: "soft",
+      title: "报备点已过，仍在冷静期",
+      detail: `还有约 ${user.grace_hours || 72} 小时冷静窗口。打个卡就回到日常节奏，无需紧张。下次节点：${next}`,
+      cta: "我已安全 · 完成报备",
+      highlightCta: true,
+    };
+  }
+  return {
+    tone: "ok",
+    title: "今日报备状态正常",
+    detail: `最近一次：${last} · 下次提醒：${next}`,
+    cta: "再报一次",
+    highlightCta: false,
+  };
+}
+
+async function doQuickCheckin() {
+  await api("/api/checkin", { method: "POST", body: "{}" });
+  toast("报备完成，安心继续盘点");
+  refreshHome();
+  if ($("#checkin").classList.contains("active")) refreshCheckin();
+}
+
 async function refreshHome() {
   try {
     const { user } = await api("/api/me");
@@ -93,15 +131,22 @@ async function refreshHome() {
       pill.className = "pill guest";
       pill.textContent = "未开通会员";
     }
-    const overdue = user.checkin_overdue;
-    const grace = user.checkin_in_grace;
-    $("#homeHint").innerHTML = overdue
-      ? `⚠ 报备已过冷静期。将先电话联系您，再联系备用联系人。盘点进度 ${co.progress.pct}%。`
-      : grace
-        ? `⏳ 已过报备点，仍在冷静期（${user.grace_hours}h）。盘点进度 ${co.progress.pct}%。`
-        : `einherit.cn · 盘点进度 ${co.progress.pct}%（${co.progress.filled}/5 部门）· 下次报备 ${fmtTime(user.checkin_due_at)}`;
+    const clarity = checkinClarity(user);
+    const strip = $("#todayCheckin");
+    strip.className = `today-checkin tone-${clarity.tone}`;
+    $("#todayTitle").textContent = clarity.title;
+    $("#todayDetail").textContent = clarity.detail;
+    const btn = $("#todayCheckinBtn");
+    btn.textContent = clarity.cta;
+    btn.className = clarity.highlightCta ? "btn sm" : "btn ghost sm";
+    btn.onclick = () => doQuickCheckin().catch((e) => toast(e.message));
+
+    $("#homeHint").textContent =
+      `einherit.cn · 盘点进度 ${co.progress.pct}%（${co.progress.filled}/5 部门）`;
   } catch (e) {
     $("#homeHint").textContent = "服务未就绪：" + e.message;
+    $("#todayTitle").textContent = "报备状态暂不可用";
+    $("#todayDetail").textContent = e.message;
   }
 }
 
@@ -291,11 +336,8 @@ async function refreshCheckin() {
   const box = $("#checkinBox");
   box.innerHTML = "<div class='card muted'>加载中…</div>";
   const { user, calls } = await api("/api/checkin/status");
-  const statusHtml = user.checkin_overdue
-    ? `<div class="alert">已过冷静期。状态机：calling_self → calling_backup → manual_review（不直接宣布身故）。</div>`
-    : user.checkin_in_grace
-      ? `<div class="alert">已过报备点，仍在冷静期（${user.grace_hours} 小时）。暂不外呼，请尽快打卡。</div>`
-      : `<div class="ok">报备正常。最近一次：${fmtTime(user.last_checkin_at)}</div>`;
+  const clarity = checkinClarity(user);
+  const statusHtml = `<div class="status-card tone-${clarity.tone}"><strong>${clarity.title}</strong>${clarity.detail}</div>`;
   const contacts = (user.backup_contacts || [])
     .map((c) => `<li>${c.name}（${c.relation}）· ${c.phone}</li>`)
     .join("");
@@ -304,7 +346,7 @@ async function refreshCheckin() {
     ${statusHtml}
     <div class="card">
       <h3>一键报备</h3>
-      <p class="muted">确认「我还安全」。漏报先进入冷静期，过期后才 AI 外呼本人，再按序通知备用联系人。</p>
+      <p class="muted">确认「我还安全」。漏报先进入冷静期；冷静期过后才会联系您本人，再按序联系备用联系人。演示外呼不影响真实通知。</p>
       <div class="row">
         <button class="btn" id="doCheckin">我已安全 · 完成报备</button>
         <button class="btn ghost" id="forceOverdue">演示：制造逾期</button>
@@ -338,10 +380,12 @@ async function refreshCheckin() {
     </div>`;
 
   $("#doCheckin").onclick = async () => {
-    await api("/api/checkin", { method: "POST", body: "{}" });
-    toast("报备完成");
-    refreshCheckin();
-    refreshHome();
+    try {
+      await doQuickCheckin();
+      refreshCheckin();
+    } catch (e) {
+      toast(e.message);
+    }
   };
   $("#forceOverdue").onclick = async () => {
     await api("/api/checkin/force-overdue", {
