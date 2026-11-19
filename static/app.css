@@ -1292,3 +1292,44 @@ button.btn:disabled {
   }
   .brain-canvas svg { min-width: 0; }
 }
+
+/* Round6 · 温和增量 */
+.soft-banner {
+  margin: 12px 16px 0;
+  padding: 10px 14px;
+  border-radius: 12px;
+  transition: opacity 0.35s ease;
+}
+.soft-banner[hidden] { display: none; }
+body.large-text { font-size: 18px; }
+body.large-text .panel-head h2,
+body.large-text .card h3,
+body.large-text strong { font-size: 1.15em; }
+body.large-text .btn,
+body.large-text input,
+body.large-text textarea,
+body.large-text select { font-size: 1.05em; }
+.large-toggle { gap: 10px; align-items: center; }
+.benefit-list {
+  margin: 8px 0 0;
+  padding-left: 1.2em;
+  line-height: 1.7;
+  color: var(--ink, #2a3340);
+}
+.lg-batch {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--muted, #6b7585);
+  margin-right: 6px;
+}
+.tag.review-due { background: #f3e8e0; color: #7a4e3a; }
+.tag.review-soon { background: #e8eef5; color: #3d556e; }
+.tag.muted-tag { opacity: 0.75; }
+.review-field { margin-top: 8px; }
+.tag.status-pending,
+.tag.status-open { background: #e8eef5; color: #3d556e; }
+.tag.status-contacted { background: #e6f0ea; color: #2f5d45; }
+.tag.status-cancelled { background: #eee; color: #666; }
+.btn.sm { padding: 4px 10px; font-size: 13px; }

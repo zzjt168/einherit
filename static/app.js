@@ -61,21 +61,8 @@ function show(id) {
     icu: refreshIcu,
     aftercare: refreshAftercare,
     executor: refreshExecutor,
-    about: refreshAbout,
-    executor: () => {},
   };
   if (loaders[id]) loaders[id]();
-}
-
-function exportUrl() {
-  return API_BASE.replace(/\/$/, "") + "/export/handover.html";
-}
-
-function fillExportMeta(el, data) {
-  if (!el || !data) return;
-  const n = data.item_count != null ? data.item_count : (data.todos || []).length;
-  const when = data.generated_at_iso || fmtTime(data.generated_at);
-  el.textContent = `生成 ${when} · ${n} 条交割条目 · 可打印带走`;
 }
 
 function actionClass(action) {
@@ -132,61 +119,10 @@ async function doQuickCheckin() {
   if ($("#checkin").classList.contains("active")) refreshCheckin();
 }
 
-function renderTodayTodos(data) {
-  const box = $("#todayTodosList");
-  if (!box) return;
-  const items = data.items || [];
-  box.innerHTML = items
-    .map((it) => {
-      const mark = it.done ? "已办" : "待办";
-      return `<button type="button" class="todo-item ${it.done ? "done" : ""}" data-go="${esc(it.go)}">
-        <span class="todo-mark">${mark}</span>
-        <span class="todo-body">
-          <strong>${esc(it.title)}</strong>
-          <span class="muted">${esc(it.detail)}</span>
-        </span>
-        <span class="todo-arrow">→</span>
-      </button>`;
-    })
-    .join("");
-}
-
-function escalationReadonlyHtml(user, calls, escMeta) {
-  const state = (escMeta && escMeta.state) || user.escalation_state || "ok";
-  const label =
-    (escMeta && escMeta.label) ||
-    ({
-      ok: "正常",
-      grace: "冷静期内",
-      calling_self: "联系本人中",
-      calling_backup: "联系备用联系人中",
-      manual_review: "人工复核中",
-    }[state] || state);
-  const recent = (calls || []).slice(0, 3);
-  const callHtml = recent.length
-    ? recent
-        .map(
-          (c) =>
-            `<div class="esc-call"><span class="tag">${esc(c.result)}</span> ${esc(c.target)} · ${esc(c.note || "")} · ${fmtTime(c.created_at)}</div>`
-        )
-        .join("")
-    : `<p class="muted" style="margin:0">暂无外呼摘要</p>`;
-  return `<div class="esc-readonly" id="escReadonly">
-    <div class="esc-readonly-label">失联升级状态（只读）</div>
-    <div class="esc-state"><strong>${esc(label)}</strong><span class="muted">${esc(state)}</span></div>
-    <p class="muted">仅展示当前状态与最近外呼摘要，不在此改动升级流程。</p>
-    <div class="esc-calls">${callHtml}</div>
-  </div>`;
-}
-
 async function refreshHome() {
   try {
-    const [{ user }, co, hand, today] = await Promise.all([
-      api("/api/me"),
-      api("/api/company"),
-      api("/api/handover"),
-      api("/api/today").catch(() => ({ items: [] })),
-    ]);
+    const { user } = await api("/api/me");
+    const [co, hand] = await Promise.all([api("/api/company"), api("/api/handover")]);
     const pill = $("#memberPill");
     if (user.is_member) {
       pill.className = "pill member";
@@ -195,21 +131,16 @@ async function refreshHome() {
       pill.className = "pill guest";
       pill.textContent = "未开通会员";
     }
+    const clarity = checkinClarity(user);
     const strip = $("#todayCheckin");
-    if (strip && typeof checkinClarity === "function") {
-      const clarity = checkinClarity(user);
-      strip.className = `today-checkin tone-${clarity.tone}`;
-      const title = $("#todayTitle");
-      const detail = $("#todayDetail");
-      if (title) title.textContent = clarity.title;
-      if (detail) detail.textContent = clarity.detail;
-      const btn = $("#todayCheckinBtn");
-      if (btn) {
-        btn.textContent = clarity.cta;
-        btn.className = clarity.highlightCta ? "btn sm" : "btn ghost sm";
-        btn.onclick = () => doQuickCheckin().catch((e) => toast(e.message));
-      }
-    }
+    strip.className = `today-checkin tone-${clarity.tone}`;
+    $("#todayTitle").textContent = clarity.title;
+    $("#todayDetail").textContent = clarity.detail;
+    const btn = $("#todayCheckinBtn");
+    btn.textContent = clarity.cta;
+    btn.className = clarity.highlightCta ? "btn sm" : "btn ghost sm";
+    btn.onclick = () => doQuickCheckin().catch((e) => toast(e.message));
+
     const hp = hand.progress || {};
     const handBit = `交割类型 ${hp.filled_types || 0}/${hp.total_types || 4}`;
     const gapBit =
@@ -218,18 +149,10 @@ async function refreshHome() {
         : "";
     $("#homeHint").textContent =
       `einherit.cn · 盘点 ${co.progress.pct}%（${co.progress.filled}/5）· ${handBit}${gapBit}`;
-    fillExportMeta($("#exportMeta"), hand);
-    const link = $("#exportHandLink");
-    if (link) link.href = exportUrl();
-    if ($("#todayTodosList")) renderTodayTodos(today);
   } catch (e) {
     $("#homeHint").textContent = "服务未就绪：" + e.message;
-    const title = $("#todayTitle");
-    const detail = $("#todayDetail");
-    if (title) title.textContent = "报备状态暂不可用";
-    if (detail) detail.textContent = e.message;
-    const box = $("#todayTodosList");
-    if (box) box.innerHTML = `<p class="muted">待办暂不可用</p>`;
+    $("#todayTitle").textContent = "报备状态暂不可用";
+    $("#todayDetail").textContent = e.message;
   }
 }
 
@@ -435,23 +358,10 @@ async function refreshCheckin() {
         <label class="field">电话<input class="bkPhone" value="${esc(c.phone || "")}"/></label>
       </div>`
     )
-  const [{ user, calls }, today] = await Promise.all([
-    api("/api/checkin/status"),
-    api("/api/today").catch(() => ({ escalation: null })),
-  ]);
-  const statusHtml = user.checkin_overdue
-    ? `<div class="alert">已过冷静期。状态机：calling_self → calling_backup → manual_review（不直接宣布身故）。</div>`
-    : user.checkin_in_grace
-      ? `<div class="alert">已过报备点，仍在冷静期（${user.grace_hours} 小时）。暂不外呼，请尽快打卡。</div>`
-      : `<div class="ok">报备正常。最近一次：${fmtTime(user.last_checkin_at)}</div>`;
-  const contacts = (user.backup_contacts || [])
-    .map((c) => `<li>${c.name}（${c.relation}）· ${c.phone}</li>`)
     .join("");
-  const escCard = escalationReadonlyHtml(user, calls, today.escalation);
 
   box.innerHTML = `
     ${statusHtml}
-    ${escCard}
     <div class="card">
       <h3>一键报备</h3>
       <p class="muted">确认「我还安全」。漏报先进入冷静期；冷静期过后才会联系您本人，再按序联系备用联系人。演示外呼不影响真实通知。</p>
@@ -568,69 +478,29 @@ async function refreshCheckin() {
   };
 }
 
-let _legacyCache = [];
-
-function renderLegacyList(items) {
-  const q = ($("#lgFilterQ")?.value || "").trim().toLowerCase();
-  const action = $("#lgFilterAction")?.value || "";
-  const filtered = (items || []).filter((it) => {
-    if (action && String(it.action) !== action) return false;
-    if (!q) return true;
-    const blob = [it.title, it.beneficiary, it.notes, it.category, it.action]
-      .join(" ")
-      .toLowerCase();
-    return blob.includes(q);
-  });
+async function refreshLegacy() {
+  const { items } = await api("/api/legacy");
   $("#lgList").innerHTML =
-    filtered
+    items
       .map((it) => {
-        const who = it.beneficiary
-          ? `<div class="device-row"><span class="muted">设备归谁</span><b>${esc(it.beneficiary)}</b></div>`
-          : `<div class="device-row"><span class="muted">设备归谁</span><b class="soft">未指定</b></div>`;
         const flags = [
-          ["出厂重置", !!it.factory_reset],
-          ["清除照片", !!it.clear_photos],
-          ["清除聊天", !!it.clear_chats],
+          it.factory_reset ? "出厂重置" : null,
+          it.clear_photos ? "清照片" : null,
+          it.clear_chats ? "清聊天" : null,
         ]
-          .map(
-            ([label, on]) =>
-              `<span class="tag ${on ? "flag-on" : "flag-off"}">${label}${on ? " · 是" : " · 否"}</span>`
-          )
+          .filter(Boolean)
+          .map((x) => `<span class="tag">${x}</span>`)
           .join("");
         return `<div class="item">
       <span class="tag">${DEPT_SHORT[it.dept] || DEPT_NAME[it.dept] || it.dept || ""}</span>
-      <span class="tag">${esc(it.category)}</span>
-      <span class="tag ${actionClass(it.action)}">${esc(it.action)}</span>
-      <strong>${esc(it.title)}</strong>
-      ${who}
-      <div class="device-flags-row">${flags}</div>
-      <div class="muted">${esc(it.notes || "")}</div>
+      <span class="tag">${it.category}</span>
+      <span class="tag ${actionClass(it.action)}">${it.action}</span>
+      ${flags}
+      <strong>${it.title}</strong>
+      <div class="muted">${it.beneficiary ? "接收人：" + it.beneficiary + " · " : ""}${it.notes || ""}</div>
     </div>`;
       })
-      .join("") ||
-    `<p class='muted'>${(items || []).length ? "无匹配条目，可放宽筛选" : "暂无条目。写清归谁与出厂/清除勾选即可。"}</p>`;
-}
-
-async function refreshLegacy() {
-  const [{ items }, hand, bene] = await Promise.all([
-    api("/api/legacy"),
-    api("/api/handover"),
-    api("/api/beneficiaries").catch(() => ({ items: [] })),
-  ]);
-  fillExportMeta($("#legacyExportMeta"), hand);
-  const lex = $("#legacyExportLink");
-  if (lex) lex.href = exportUrl();
-  const dl = $("#lgBeneList");
-  if (dl) {
-    dl.innerHTML = (bene.items || [])
-      .map((b) => {
-        const rel = b.relation ? `（${b.relation}）` : "";
-        return `<option value="${esc(b.name)}${esc(rel)}"></option>`;
-      })
-      .join("");
-  }
-  _legacyCache = items || [];
-  renderLegacyList(_legacyCache);
+      .join("") || "<p class='muted'>暂无条目</p>";
 }
 
 async function refreshCompany() {
@@ -690,15 +560,7 @@ async function refreshCompany() {
         method: "POST",
         body: JSON.stringify({ dept, title, body }),
       });
-      try {
-        await api("/api/handover/snapshot", {
-          method: "POST",
-          body: JSON.stringify({ label: `公司盘点 · ${DEPT_SHORT[dept] || dept}` }),
-        });
-        toast("已写入部门盘点，并留了一份快照");
-      } catch (_) {
-        toast("已写入部门盘点");
-      }
+      toast("已写入部门盘点");
       refreshCompany();
       refreshHome();
     };
@@ -779,56 +641,25 @@ async function refreshHandover() {
         `<div class="row-line"><span>${b.action}</span><span>${b.filled ? "已有安排" : "暂未填写"} · ${b.count} 条</span></div>`
     )
     .join("");
-  const snaps = await api("/api/snapshots").catch(() => ({ items: [], latest: null }));
-  const href = exportUrl();
-  const heirsLine =
-    (data.heirs || [])
-      .map((h) => `${h.name}${h.relation ? "·" + h.relation : ""}`)
-      .join("、") || "尚未登记受益人（可去「受益人」名册补齐）";
-  const latest = snaps.latest;
-  const latestHtml = latest
-    ? `<div class="ok snap-tip">最近快照「${esc(latest.label)}」· ${fmtTime(latest.created_at)} · ${
-        (latest.summary && latest.summary.item_count) || 0
-      } 条
-        <button class="btn ghost sm snapView" data-id="${latest.id}" type="button">查看摘要</button>
-      </div>`
-    : `<p class="muted">保存交割或公司盘点后，这里会提示「已留快照」。</p>`;
-  $("#handoverBox").innerHTML = `
-    <div class="card export-strip">
-      <h3>${esc(data.brand)}</h3>
-      <p class="muted">${esc(data.note)}</p>
-  const shareHint = data.share_hint || "仅执行人持有，勿转发至群聊或公开渠道。";
   $("#handoverBox").innerHTML = `
     <div class="card">
       <h3>${data.brand}</h3>
       <p class="muted">${data.note}</p>
-      <div class="share-note">
-        <strong>分享说明</strong>
-        <p>${esc(shareHint)}</p>
-      </div>
       <div class="stat" style="margin-top:10px">
-        <div class="box"><span class="muted">生成时间</span><b style="font-size:14px">${esc(
-          data.generated_at_iso || "—"
-        )}</b></div>
-        <div class="box"><span class="muted">条目数</span><b style="font-size:14px">${
-          data.item_count != null ? data.item_count : (data.todos || []).length
-        }</b></div>
+        <div class="box"><span class="muted">域名</span><b style="font-size:14px">${data.domain}</b></div>
+        <div class="box"><span class="muted">执行人</span><b style="font-size:14px">${data.executor}</b></div>
       </div>
       <div style="margin-top:12px">
         <div class="muted">交割完成度（按处置类型）· ${prog.filled_types}/${prog.total_types}</div>
         <div class="progress-bar"><i style="width:${prog.pct || 0}%"></i></div>
         <div class="action-progress">${byAction}</div>
       </div>
-      <p class="muted" style="margin-top:10px">给谁：${esc(heirsLine)}</p>
       <div class="row" style="margin-top:12px;gap:8px;flex-wrap:wrap">
-        <a class="btn" href="${href}" target="_blank" rel="noopener">打开 /export/handover.html</a>
-        <a class="btn" href="${exportUrl}" target="_blank" rel="noopener">打开打印页</a>
-        <button class="btn ghost" id="copyHandLink" type="button">复制手册链接</button>
+        <a class="btn" href="${exportUrl}" target="_blank" rel="noopener">打印 / 导出 PDF</a>
         <button class="btn ghost" id="snapHand">保存版本快照</button>
         <button class="btn ghost" data-go="legacy" type="button">去补交割</button>
       </div>
     </div>
-    <div class="card"><h3>快照提示</h3>${latestHtml}<div id="snapDetail"></div></div>
     <div class="list">${
       data.todos.length
         ? data.todos
@@ -837,11 +668,9 @@ async function refreshHandover() {
         <div class="item">
           <span class="tag">待办 ${i + 1}</span>
           <span class="tag">${DEPT_SHORT[t.dept] || DEPT_NAME[t.dept] || t.dept || ""}</span>
-          <strong>${esc(t.title)}</strong>
-          <div class="muted">${esc((t.ops || []).join(" · "))}</div>
-          <div class="muted">${t.beneficiary ? "给谁：" + esc(t.beneficiary) + " · " : ""}${esc(
-                t.notes || ""
-              )}</div>
+          <strong>${t.title}</strong>
+          <div class="muted">${(t.ops || []).join(" · ")}</div>
+          <div class="muted">${t.notes || ""}</div>
         </div>`
             )
             .join("")
@@ -854,11 +683,7 @@ async function refreshHandover() {
           ? snaps.items
               .map(
                 (s) =>
-                  `<div class="item"><strong>${esc(s.label)}</strong>
-                  <div class="muted">${fmtTime(s.created_at)} · ${
-                    (s.summary && s.summary.item_count) || 0
-                  } 条</div>
-                  <button class="btn ghost sm snapView" data-id="${s.id}" type="button">查看摘要</button></div>`
+                  `<div class="item"><strong>${s.label}</strong><div class="muted">${fmtTime(s.created_at)}</div></div>`
               )
               .join("")
           : "<p class='muted'>尚无快照</p>"
@@ -868,52 +693,23 @@ async function refreshHandover() {
   if (btn) {
     btn.onclick = async () => {
       await api("/api/handover/snapshot", { method: "POST", body: "{}" });
-      toast("已留快照，可随时回看摘要");
+      toast("已保存快照");
       refreshHandover();
-    };
-  }
-  $$(".snapView").forEach((b) => {
-    b.onclick = async () => {
-      const r = await api("/api/snapshot?id=" + b.dataset.id);
-      const s = r.item || {};
-      const sum = s.summary || {};
-      const titles = (sum.titles || []).map((t) => `<li>${esc(t)}</li>`).join("") || "<li>无条目</li>";
-      const box = $("#snapDetail");
-      if (box) {
-        box.innerHTML = `<div class="item" style="margin-top:10px">
-          <strong>${esc(s.label)}</strong>
-          <div class="muted">${fmtTime(s.created_at)} · 执行人 ${esc(sum.executor || "—")} · ${
-          sum.item_count || 0
-        } 条</div>
-          <ul class="muted" style="padding-left:1.1em;margin:6px 0 0">${titles}</ul>
-        </div>`;
-      }
-    };
-  });
-  const copyBtn = $("#copyHandLink");
-  if (copyBtn) {
-    copyBtn.onclick = async () => {
-      const abs = new URL(exportUrl, location.href).href;
-      try {
-        await navigator.clipboard.writeText(abs);
-        toast("已复制手册链接（请仅发给执行人）");
-      } catch {
-        toast(abs);
-      }
     };
   }
 }
 
 async function refreshHeirs() {
-  const [bene, emer] = await Promise.all([api("/api/beneficiaries"), api("/api/emergency")]);
+  const [bene, emer, audit] = await Promise.all([
+    api("/api/beneficiaries"),
+    api("/api/emergency"),
+    api("/api/audit"),
+  ]);
   const sel = $("#emBene");
   if (sel) {
     sel.innerHTML =
       (bene.items || [])
-        .map(
-          (b) =>
-            `<option value="${b.id}">${esc(b.name)}（${esc(b.relation || b.role)}）</option>`
-        )
+        .map((b) => `<option value="${b.id}">${b.name}（${b.role}）</option>`)
         .join("") || `<option value="">请先添加受益人</option>`;
   }
   const statusLabel = {
@@ -923,29 +719,17 @@ async function refreshHeirs() {
     auto_granted: "到期自动放行",
   };
   $("#heirsBox").innerHTML = `
-    <div class="card"><h3>名册（交割页可见「给谁」）</h3>
+    <div class="card"><h3>受益人名单</h3>
       <div class="list">${
         (bene.items || []).length
           ? bene.items
               .map(
                 (b) =>
-                  `<div class="item">
-                    <span class="tag">${esc(b.role)}</span>
-                    ${b.relation ? `<span class="tag">${esc(b.relation)}</span>` : ""}
-                    <strong>${esc(b.name)}</strong>
-                    <div class="muted">${esc(b.contact || "")}${b.note ? " · " + esc(b.note) : ""}</div>
-                    <div class="muted">短码提示：${esc(b.passphrase_hint || "未登记（仅提示，不明文密码）")}</div>
-                    <div class="row" style="margin-top:8px;gap:8px;flex-wrap:wrap">
-                      <button class="btn secondary sm bnEdit" type="button"
-                        data-id="${b.id}" data-name="${esc(b.name)}" data-role="${esc(b.role)}"
-                        data-relation="${esc(b.relation || "")}" data-contact="${esc(b.contact || "")}"
-                        data-note="${esc(b.note || "")}" data-hint="${esc(b.passphrase_hint || "")}">编辑</button>
-                      <button class="btn ghost sm bnDel" type="button" data-id="${b.id}">移除</button>
-                    </div>
-                  </div>`
+                  `<div class="item"><span class="tag">${b.role}</span><strong>${b.name}</strong>
+                  <div class="muted">${b.contact || ""} ${b.note || ""}</div></div>`
               )
               .join("")
-          : "<p class='muted'>暂无受益人。添加后，交割条目可写清「给谁」。</p>"
+          : "<p class='muted'>暂无受益人</p>"
       }</div>
     </div>
     <div class="card"><h3>紧急取用申请</h3>
@@ -956,10 +740,8 @@ async function refreshHeirs() {
                 (e) => `
         <div class="item">
           <span class="tag">${statusLabel[e.status] || e.status}</span>
-          <strong>${esc(e.beneficiary_name || "受益人#" + e.beneficiary_id)}</strong>
-          <div class="muted">${esc(e.reason || "")} · 等待 ${e.wait_days} 天 · 截止 ${fmtTime(
-                  e.decide_by
-                )}</div>
+          <strong>${e.beneficiary_name || "受益人#" + e.beneficiary_id}</strong>
+          <div class="muted">${e.reason || ""} · 等待 ${e.wait_days} 天 · 截止 ${fmtTime(e.decide_by)}</div>
           ${
             e.status === "pending"
               ? `<div class="row" style="margin-top:8px;gap:8px">
@@ -973,6 +755,20 @@ async function refreshHeirs() {
               .join("")
           : "<p class='muted'>暂无申请</p>"
       }</div>
+    </div>
+    <div class="card"><h3>审计日志</h3>
+      <div class="list">${
+        (audit.items || []).length
+          ? audit.items
+              .slice(0, 12)
+              .map(
+                (a) =>
+                  `<div class="item"><span class="tag">${a.action}</span>
+                  <div class="muted">${a.detail || ""} · ${fmtTime(a.created_at)}</div></div>`
+              )
+              .join("")
+          : "<p class='muted'>暂无记录</p>"
+      }</div>
     </div>`;
   $$(".emDec").forEach((btn) => {
     btn.onclick = async () => {
@@ -984,51 +780,15 @@ async function refreshHeirs() {
       refreshHeirs();
     };
   });
-  $$(".bnEdit").forEach((btn) => {
-    btn.onclick = () => {
-      $("#bnEditId").value = btn.dataset.id || "";
-      $("#bnName").value = btn.dataset.name || "";
-      $("#bnRole").value = btn.dataset.role || "heir";
-      $("#bnRelation").value = btn.dataset.relation || "";
-      $("#bnContact").value = btn.dataset.contact || "";
-      $("#bnNote").value = btn.dataset.note || "";
-      $("#bnHint").value = btn.dataset.hint || "";
-      $("#bnAdd").textContent = "更新名册";
-      const cancel = $("#bnCancelEdit");
-      if (cancel) cancel.hidden = false;
-      toast("正在编辑，改完点「更新名册」");
-    };
-  });
-  $$(".bnDel").forEach((btn) => {
-    btn.onclick = async () => {
-      try {
-        await api("/api/beneficiaries/delete", {
-          method: "POST",
-          body: JSON.stringify({ id: Number(btn.dataset.id) }),
-        });
-        toast("已从名册移除");
-        refreshHeirs();
-      } catch (e) {
-        toast(e.message);
-      }
-    };
-  });
 }
 
-let _assetsCache = [];
-let _assetTagFilter = "";
-
-function renderAssetsList() {
-  const items = (_assetsCache || []).filter((it) => {
-    if (!_assetTagFilter) return true;
-    return String(it.tag || "其他") === _assetTagFilter;
-  });
+async function refreshAssets() {
+  const { items } = await api("/api/assets");
   $("#asList").innerHTML =
     items
       .map(
         (it) => `
     <div class="item">
-      <span class="tag">${esc(it.tag || "其他")}</span>
       <span class="tag">${DEPT_SHORT[it.dept] || DEPT_NAME[it.dept] || ""}</span>
       <span class="tag">${it.visibility}</span>
       <strong>${it.platform}</strong>
@@ -1042,83 +802,6 @@ function renderAssetsList() {
       )
       .join("") ||
     "<p class='muted'>暂无备忘。记一笔平台与处置指引就好，不必一次写完。</p>";
-}
-
-async function refreshMedIntents() {
-  const box = $("#medIntentList");
-  if (!box) return;
-  const { items } = await api("/api/hospitals/intents").catch(() => ({ items: [] }));
-  if (!(items || []).length) {
-    box.innerHTML = `<div class="empty calm">还没有就医意向。慢慢筛选医院，想好再留一条即可。</div>`;
-    return;
-  }
-  box.innerHTML = items
-    .map((it) => {
-      const st = it.status || "open";
-      const tone = st === "cancelled" ? "flag-off" : "flag-on";
-      return `<div class="item">
-        <span class="tag ${tone}">${esc(it.status_label || st)}</span>
-        <strong>${esc(it.hospital_name || "未指定医院")}</strong>
-        <div class="muted">${esc(
-          [it.hospital_country, it.hospital_city, it.hospital_dept].filter(Boolean).join(" · ")
-        )}</div>
-        <div class="muted">${esc(it.note || "")} · ${fmtTime(it.created_at)}</div>
-        <div class="row" style="margin-top:8px;gap:8px;flex-wrap:wrap">
-          <button class="btn secondary sm medDetail" type="button" data-id="${it.id}">详情</button>
-          ${
-            st !== "cancelled"
-              ? `<button class="btn ghost sm medCancel" type="button" data-id="${it.id}">撤回</button>`
-              : ""
-          }
-        </div>
-      </div>`;
-    })
-    .join("");
-  $$(".medDetail").forEach((btn) => {
-    btn.onclick = async () => {
-      const r = await api("/api/hospitals/intent?id=" + btn.dataset.id);
-      const it = r.item || {};
-      const detail = $("#medIntentDetail");
-      if (!detail) return;
-      detail.hidden = false;
-      detail.innerHTML = `<strong>${esc(it.hospital_name || "意向详情")}</strong>
-        <div class="muted">${esc(it.status_label || it.status)} · ${fmtTime(it.created_at)}</div>
-        <div class="muted">${esc(
-          [it.hospital_country, it.hospital_city, it.hospital_dept].filter(Boolean).join(" · ")
-        )}</div>
-        <p>${esc(it.note || "无补充说明")}</p>
-        <p class="muted">${esc(it.hospital_tags || "")}</p>`;
-    };
-  });
-  $$(".medCancel").forEach((btn) => {
-    btn.onclick = async () => {
-      try {
-        await api("/api/hospitals/intent/cancel", {
-          method: "POST",
-          body: JSON.stringify({ id: Number(btn.dataset.id) }),
-        });
-        toast("意向已撤回");
-        const detail = $("#medIntentDetail");
-        if (detail) detail.hidden = true;
-        refreshMedIntents();
-      } catch (e) {
-        toast(e.message);
-      }
-    };
-  });
-      <strong>${esc(it.platform)}</strong>
-      <div class="muted">${esc(it.account_hint || "")} · ${esc(it.summary || "")}</div>
-      <div class="muted">处理：${esc(it.dispose_note || "—")}</div>
-    </div>`
-      )
-      .join("") ||
-    `<p class='muted'>${(_assetsCache || []).length ? "该标签下暂无备忘" : "暂无备忘"}</p>`;
-}
-
-async function refreshAssets() {
-  const { items } = await api("/api/assets");
-  _assetsCache = items || [];
-  renderAssetsList();
 }
 
 async function refreshMed(q = "", country = "") {
@@ -1151,10 +834,10 @@ async function refreshMed(q = "", country = "") {
       .map(
         (h) => `
     <div class="item">
-      <span class="tag">${esc(h.country)}</span>
+      <span class="tag">${h.country}</span>
       ${h.intl ? '<span class="tag">国际患者</span>' : ""}
-      <strong>${esc(h.name)}</strong>
-      <div class="muted">${esc(h.city)} · ${esc(h.dept)}<br/>${esc(h.tags || "")}</div>
+      <strong>${h.name}</strong>
+      <div class="muted">${h.city} · ${h.dept}<br/>${h.tags || ""}</div>
       <div class="row"><button class="btn secondary" data-hid="${h.id}">提交就医意向</button></div>
     </div>`
       )
@@ -1173,70 +856,24 @@ async function refreshMed(q = "", country = "") {
       });
       toast("意向已提交");
       refreshMed($("#medQ").value.trim(), $("#medCountry").value);
-      refreshMedIntents();
     };
   });
-  await refreshMedIntents();
 }
 
 async function refreshMember() {
   const { user, ledger } = await api("/api/me");
-  const nudge = user.is_member
-    ? `<div class="ok">会员有效 · 报备频率与冷静期如下，可按需微调。</div>`
-    : `<div class="calm-nudge">尚未开通会员时，仍可盘点交割；开通 ¥365 后，我们按您设定的频率温和守望报备。</div>`;
-  $("#memberBox").innerHTML = `
-    <div class="card">
-      <h3>会员与报备 · 同屏</h3>
-      <p class="muted">¥365/年 · 一天一块钱。会员是否有效、报备频率、冷静期 hours 一眼看清。</p>
-      ${nudge}
-      <div class="stat" style="margin-top:12px">
-        <div class="box"><span class="muted">会员</span><b>${user.is_member ? "有效" : "未开通"}</b></div>
-        <div class="box"><span class="muted">有效期</span><b style="font-size:16px">${
-          user.member_until_iso || "—"
-        }</b></div>
-        <div class="box"><span class="muted">报备频率</span><b style="font-size:16px">${
-          user.checkin_interval_hours || 24
-        }h</b></div>
-        <div class="box"><span class="muted">冷静期</span><b style="font-size:16px">${
-          user.grace_hours || 72
-        }h</b></div>
-      </div>
-      <label class="field" style="margin-top:12px">报备间隔（小时）
-        <input type="number" id="memInterval" min="1" step="1" value="${
-          user.checkin_interval_hours || 24
-        }"/>
-      </label>
-      <label class="field">冷静期（小时）
-        <input type="number" id="memGrace" min="1" step="1" value="${user.grace_hours || 72}"/>
-      </label>
-      <div class="row" style="gap:8px;flex-wrap:wrap;margin-top:8px">
-        <button class="btn secondary" id="saveMemFreq">保存频率</button>
-        <button class="btn" id="payMember">${user.is_member ? "续费一年" : "开通 ¥365"}</button>
-  const expiryTip = user.is_member
-    ? `当前有效至 ${user.member_until_iso || "—"}。到期前可在本页演示续费一年。`
-    : "尚未开通或已失效。可演示开通 ¥365/年，真实支付未接入。";
   $("#memberBox").innerHTML = `
     <div class="card">
       <h3>¥365 / 年 · 一天一块钱</h3>
       <p class="muted">托管电子继承与资产处理方法，并按您设定频率做生存报备守望。</p>
-      <div class="member-expiry ${user.is_member ? "ok" : "soft"}">
-        <strong>${user.is_member ? "会员有效" : "会员未开通 / 已失效"}</strong>
-        <p>${esc(expiryTip)}</p>
-      </div>
       <div class="stat" style="margin-top:12px">
-        <div class="box"><span class="muted">状态</span><b>${user.is_member ? "已开通" : "未开通"}</b></div>
+        <div class="box"><span class="muted">会员</span><b>${user.is_member ? "已开通" : "未开通"}</b></div>
         <div class="box"><span class="muted">有效期</span><b style="font-size:16px">${user.member_until_iso || "—"}</b></div>
       </div>
       <div class="row">
-        <button class="btn" id="payMember">${user.is_member ? "演示续费一年" : "演示开通 ¥365"}</button>
+        <button class="btn" id="payMember">${user.is_member ? "续费一年" : "开通 ¥365"}</button>
         <button class="btn ghost" id="lapseMember">演示：断缴</button>
       </div>
-      <p class="muted" style="margin-top:10px">演示账本入账，不接真实支付通道。</p>
-    </div>
-    <div class="card calm-note">
-      <h3>隐私边界</h3>
-      <p class="muted">旁路托管、不恐吓。查看完整说明与数据边界。</p>
-      <button class="btn ghost" data-go="about" type="button">隐私与审计时间线</button>
     </div>
     <div class="card">
       <h3>账单流水</h3>
@@ -1244,34 +881,14 @@ async function refreshMember() {
         ledger
           .map(
             (l) =>
-              `<div class="item"><span class="tag">${esc(l.kind)}</span><strong>${esc(
-                l.note || l.kind
-              )}</strong><div class="muted">${fmtMoney(l.amount)} · ${fmtTime(
-                l.created_at
-              )}</div></div>`
+              `<div class="item"><span class="tag">${l.kind}</span><strong>${l.note || l.kind}</strong><div class="muted">${fmtMoney(l.amount)} · ${fmtTime(l.created_at)}</div></div>`
           )
           .join("") || "<p class='muted'>暂无</p>"
       }</div>
     </div>`;
-  $("#saveMemFreq").onclick = async () => {
-    try {
-      await api("/api/me", {
-        method: "POST",
-        body: JSON.stringify({
-          checkin_interval_hours: Number($("#memInterval").value || 24),
-          grace_hours: Number($("#memGrace").value || 72),
-        }),
-      });
-      toast("报备频率已保存");
-      refreshMember();
-      refreshHome();
-    } catch (e) {
-      toast(e.message);
-    }
-  };
   $("#payMember").onclick = async () => {
     await api("/api/membership/pay", { method: "POST", body: "{}" });
-    toast(user.is_member ? "演示续费成功" : "演示开通成功");
+    toast("会员已开通（演示）");
     refreshMember();
     refreshHome();
   };
@@ -1297,7 +914,6 @@ async function refreshTravel() {
     <div class="card">
       <h3>差旅费预存</h3>
       <p class="muted">建议 ≥¥${threshold}，上不封顶。会员断缴后未消费余额自动原路退回。</p>
-      <p class="muted">建议 ≥¥2000，上不封顶。会员断缴后未消费余额自动原路退回。本页为演示账本，非真实支付。</p>
       <div class="stat" style="margin-top:12px">
         <div class="box"><span class="muted">余额</span><b>${fmtMoney(fund.balance)}</b></div>
         <div class="box"><span class="muted">门槛</span><b>¥${threshold}</b></div>
@@ -1307,16 +923,11 @@ async function refreshTravel() {
       <label class="field" style="margin-top:12px">充值金额
         <input type="number" id="travelAmt" value="2000" min="1" step="100"/>
       </label>
-      <div class="row" style="gap:8px;flex-wrap:wrap;margin-bottom:8px">
-        <button class="btn ghost sm" type="button" data-travel-amt="2000">¥2000</button>
-        <button class="btn ghost sm" type="button" data-travel-amt="3000">¥3000</button>
-        <button class="btn ghost sm" type="button" data-travel-amt="500">¥500（演示）</button>
-      </div>
-      <button class="btn block" id="travelPay">演示入账并刷新流水</button>
+      <button class="btn block" id="travelPay">预存入账</button>
     </div>
     <div class="card">
       <h3>相关流水</h3>
-      <div class="list" id="travelLedger">${
+      <div class="list">${
         ledger
           .filter((l) => String(l.kind).startsWith("travel") || l.kind === "membership")
           .map((l) => {
@@ -1328,11 +939,6 @@ async function refreshTravel() {
           .join("") || "<p class='muted'>暂无</p>"
       }</div>
     </div>`;
-  $$("[data-travel-amt]").forEach((btn) => {
-    btn.onclick = () => {
-      $("#travelAmt").value = btn.dataset.travelAmt;
-    };
-  });
   $("#travelPay").onclick = async () => {
     const amount = Number($("#travelAmt").value || 0);
     try {
@@ -1340,8 +946,8 @@ async function refreshTravel() {
         method: "POST",
         body: JSON.stringify({ amount, force: amount < 2000 }),
       });
-      toast("演示入账成功，流水已刷新");
-      await refreshTravel();
+      toast("预存成功");
+      refreshTravel();
     } catch (e) {
       toast(e.message);
     }
@@ -1387,15 +993,7 @@ $("#lgAdd").onclick = async () => {
   });
   $("#lgTitle").value = "";
   $("#lgNotes").value = "";
-  try {
-    await api("/api/handover/snapshot", {
-      method: "POST",
-      body: JSON.stringify({ label: "交割变更快照" }),
-    });
-    toast("已写入交割手册，并留了一份快照");
-  } catch (_) {
-    toast("已写入交割手册");
-  }
+  toast("已写入交割手册");
   refreshLegacy();
 };
 
@@ -1426,37 +1024,7 @@ $("#asAdd").onclick = async () => {
   } catch (e) {
     toast(e.message);
   }
-  await api("/api/assets", {
-    method: "POST",
-    body: JSON.stringify({
-      platform: $("#asPlatform").value,
-      account_hint: $("#asHint").value,
-      summary: $("#asSummary").value,
-      dispose_note: $("#asNote").value,
-      dept: $("#asDept").value,
-      tag: $("#asTag")?.value || "其他",
-    }),
-  });
-  toast("备忘已保存");
-  $("#asPlatform").value = "";
-  refreshAssets();
 };
-
-$("#lgFilterApply") &&
-  ($("#lgFilterApply").onclick = () => renderLegacyList(_legacyCache));
-["input", "change"].forEach((ev) => {
-  $("#lgFilterQ")?.addEventListener(ev, () => renderLegacyList(_legacyCache));
-  $("#lgFilterAction")?.addEventListener(ev, () => renderLegacyList(_legacyCache));
-});
-
-$$("#asTagFilter .chip").forEach((chip) => {
-  chip.onclick = () => {
-    $$("#asTagFilter .chip").forEach((c) => c.classList.remove("active"));
-    chip.classList.add("active");
-    _assetTagFilter = chip.dataset.tag || "";
-    renderAssetsList();
-  };
-});
 
 $("#medSearch").onclick = () => refreshMed($("#medQ").value.trim(), $("#medCountry").value);
 
@@ -1567,56 +1135,26 @@ async function refreshAftercare() {
       <div class="muted">${it.visit_pref || ""} ${it.notes || ""}</div>
     </div>`
         )
-  const toneClass = {
-    wait: "status-wait",
-    ready: "status-ready",
-    queued: "status-queued",
-    done: "status-done",
-  };
-  $("#acList").innerHTML = items.length
-    ? items
-        .map((it) => {
-          const tone = toneClass[it.status_tone] || "status-queued";
-          const budget =
-            it.travel_budget_label || "¥" + Number(it.travel_budget || 0).toFixed(0);
-          return `<div class="item">
-      <span class="tag ${tone}">${esc(it.status_label || it.status || "已提交")}</span>
-      <strong>${esc(it.title)}</strong>
-      <div class="muted">${esc(SERVICE_LABEL[it.service_type] || it.service_type)}
-        · ${esc(it.city || "未填城市")}
-        · 差旅预算 ${esc(budget)}
-        · ${esc(it.coop_state || "")}</div>
-      <div class="muted">${esc(it.visit_pref || "")} ${esc(it.notes || "")}</div>
-    </div>`;
-        })
         .join("")
-    : `<div class="empty calm">暂无善后工单。授权视频齐备后，可温和提交。</div>`;
+    : `<div class="empty">暂无善后工单</div>`;
 }
 
-async function refreshAbout() {
-  const { items } = await api("/api/audit").catch(() => ({ items: [] }));
-  const box = $("#auditTimeline");
+async function refreshExecutor() {
+  const { items } = await api("/api/executor-lead").catch(() => ({ items: [] }));
+  const box = $("#exList");
   if (!box) return;
-  if (!(items || []).length) {
-    box.innerHTML = `<div class="empty calm">暂无关键操作。报备、交割变更、工单与授权视频会出现在这里。</div>`;
-    return;
-  }
-  box.innerHTML = `<ol class="timeline-list">${items
-    .map(
-      (a) => `<li>
-      <div class="tl-dot"></div>
-      <div class="tl-body">
-        <strong>${esc(a.label || a.action)}</strong>
-        <div class="muted">${esc(a.detail || "")}</div>
-        <div class="muted">${esc(a.created_at_iso || fmtTime(a.created_at))}</div>
-      </div>
-    </li>`
-    )
-    .join("")}</ol>`;
-}
-
-function avCheckBadge(ok, label) {
-  return `<span class="av-check ${ok ? "yes" : "no"}">${label}${ok ? "已勾" : "未勾"}</span>`;
+  box.innerHTML = (items || []).length
+    ? items
+        .map(
+          (it) => `<div class="item">
+      <span class="tag">已登记</span>
+      <strong>${esc(it.name)}</strong>
+      <div class="muted">${esc(it.city || "")} · ${esc(it.phone || "")}<br/>${esc(it.note || "")}
+        · ${fmtTime(it.created_at)}</div>
+    </div>`
+        )
+        .join("")
+    : `<p class="muted">尚无加盟意向。提交后会在此显示「已登记」。</p>`;
 }
 
 async function refreshAuthVideo() {
@@ -1625,40 +1163,21 @@ async function refreshAuthVideo() {
     .map((s) => `<li><b>${s.title}</b><div class="muted">${s.hint}</div></li>`)
     .join("");
   $("#avStatus").textContent = st.ready
-    ? "授权视频已通过门槛，可去提交善后工单"
+    ? "✅ 授权视频已通过门槛，可去提交善后工单"
     : st.gate || "请上传含三段内容的视频";
   $("#avList").innerHTML = (st.items || []).length
     ? st.items
         .map(
           (it) => `<div class="item">
-      <span class="tag">${esc(it.status)}</span>
-      <strong>${esc(it.original_name || it.filename)}</strong>
-      <div class="av-checks-row">
-        ${avCheckBadge(!!it.has_greeting, "问候")}
-        ${avCheckBadge(!!it.has_authorize, "授权")}
-        ${avCheckBadge(!!it.has_plan, "思路")}
-      </div>
-      <div class="muted">${fmtTime(it.created_at)}</div>
-      <div class="muted">${esc(it.note || "")}</div>
-      <div class="row" style="margin-top:8px">
-        <button type="button" class="btn ghost sm av-reupload">重新上传引导</button>
-      </div>
+      <span class="tag">${it.status}</span>
+      <strong>${it.original_name || it.filename}</strong>
+      <div class="muted">问候${it.has_greeting ? "✓" : "✗"} · 授权${it.has_authorize ? "✓" : "✗"} · 思路${it.has_plan ? "✓" : "✗"}
+        · ${fmtTime(it.created_at)}</div>
+      <div class="muted">${it.note || ""}</div>
     </div>`
         )
         .join("")
-    : `<div class="empty">尚未上传授权视频
-        <div class="row" style="margin-top:8px">
-          <button type="button" class="btn ghost sm av-reupload">去上传</button>
-        </div>
-      </div>`;
-  $$(".av-reupload").forEach((btn) => {
-    btn.onclick = () => {
-      const card = $("#avUploadCard");
-      if (card) card.scrollIntoView({ behavior: "smooth", block: "start" });
-      toast("请勾选三勾后选择视频重新上传");
-      $("#avFile")?.focus();
-    };
-  });
+    : `<div class="empty">尚未上传授权视频</div>`;
 }
 
 $("#avUpload").onclick = async () => {
@@ -1727,166 +1246,45 @@ $("#acAdd").onclick = async () => {
   }
 };
 
-function clearExecutorForm() {
-  $("#exEditId").value = "";
-  $("#exName").value = "";
-  $("#exProvince").value = "";
-  $("#exCity").value = "";
-  $("#exRegion").value = "";
-  $("#exPhone").value = "";
-  $("#exNote").value = "";
-  const reset = $("#exReset");
-  if (reset) reset.hidden = true;
-  $("#exAdd").textContent = "提交加盟意向";
-}
-
-let _executorCache = [];
-
-async function refreshExecutor() {
-  const { items } = await api("/api/executor-leads");
-  _executorCache = items || [];
-  const list = $("#exList");
-  if (!list) return;
-  list.innerHTML = _executorCache.length
-    ? _executorCache
-        .map(
-          (it) => `<div class="item">
-      <strong>${esc(it.name)}</strong>
-      <div class="muted">${esc(it.province || "")} ${esc(it.city || "")} ${esc(it.region || "")}</div>
-      <div class="muted">${esc(it.phone || "")} · ${esc(it.note || "")}</div>
-      <div class="muted">${fmtTime(it.created_at)}</div>
-      <div class="row" style="margin-top:8px">
-        <button type="button" class="btn ghost sm ex-edit" data-id="${it.id}">编辑</button>
-      </div>
-    </div>`
-        )
-        .join("")
-    : `<p class="muted">暂无加盟意向</p>`;
-  $$(".ex-edit").forEach((btn) => {
-    btn.onclick = () => {
-      const it = _executorCache.find((x) => String(x.id) === String(btn.dataset.id));
-      if (!it) return;
-      $("#exEditId").value = String(it.id);
-      $("#exName").value = it.name || "";
-      $("#exProvince").value = it.province || "";
-      $("#exCity").value = it.city || "";
-      $("#exRegion").value = it.region || "";
-      $("#exPhone").value = it.phone || "";
-      $("#exNote").value = it.note || "";
-      $("#exAdd").textContent = "保存修改";
-      const reset = $("#exReset");
-      if (reset) reset.hidden = false;
-      toast("已载入，可修改后保存");
-      $("#exName")?.focus();
-    };
-  });
-}
-
 $("#exAdd").onclick = async () => {
   try {
-    const payload = {
-      name: $("#exName").value,
-      province: $("#exProvince").value,
-      city: $("#exCity").value,
-      region: $("#exRegion").value,
-      phone: $("#exPhone").value,
-      note: $("#exNote").value,
-    };
-    const editId = Number($("#exEditId").value || 0);
-    if (editId) payload.id = editId;
-    const r = await api("/api/executor-lead", {
+    await api("/api/executor-lead", {
       method: "POST",
-      body: JSON.stringify(payload),
+      body: JSON.stringify({
+        name: $("#exName").value,
+        city: $("#exCity").value,
+        phone: $("#exPhone").value,
+        note: $("#exNote").value,
+      }),
     });
     toast("加盟意向已登记");
     $("#exName").value = "";
     $("#exPhone").value = "";
     $("#exNote").value = "";
-    toast(r.updated ? "加盟意向已更新" : "加盟意向已收到");
-    clearExecutorForm();
     refreshExecutor();
   } catch (e) {
     toast(e.message);
   }
 };
 
-function resetBeneForm() {
-  $("#bnEditId").value = "";
-  $("#bnName").value = "";
-  $("#bnRelation").value = "";
-  $("#bnContact").value = "";
-  $("#bnNote").value = "";
-  $("#bnHint").value = "";
-  $("#bnRole").value = "heir";
-  $("#bnAdd").textContent = "保存到名册";
-  const cancel = $("#bnCancelEdit");
-  if (cancel) cancel.hidden = true;
-}
-$("#exReset") &&
-  ($("#exReset").onclick = () => {
-    clearExecutorForm();
-  });
-
-function paintEnvBadge() {
-  const el = $("#envBadge");
-  if (!el) return;
-  const host = location.hostname || "";
-  const isLocal =
-    host === "127.0.0.1" ||
-    host === "localhost" ||
-    host === "0.0.0.0" ||
-    host.endsWith(".local");
-  const isProd = host === "einherit.cn" || host === "www.einherit.cn";
-  if (isLocal) {
-    el.textContent = `本机开发 · ${host || "127.0.0.1"}:${location.port || "8877"}`;
-    el.parentElement?.classList.add("env-dev");
-  } else if (isProd) {
-    el.textContent = "正式环境 · einherit.cn";
-    el.parentElement?.classList.add("env-prod");
-  } else {
-    el.textContent = `当前环境 · ${host || location.origin}`;
-  }
-}
-paintEnvBadge();
-
 $("#bnAdd").onclick = async () => {
   try {
-    const editId = Number($("#bnEditId").value || 0);
-    const payload = {
-      name: $("#bnName").value,
-      role: $("#bnRole").value,
-      relation: $("#bnRelation").value,
-      contact: $("#bnContact").value,
-      note: $("#bnNote").value,
-      passphrase_hint: $("#bnHint").value,
-    };
-    if (editId) {
-      await api("/api/beneficiaries/update", {
-        method: "POST",
-        body: JSON.stringify({ id: editId, ...payload }),
-      });
-      toast("名册已更新");
-    } else {
-      await api("/api/beneficiaries", {
-        method: "POST",
-        body: JSON.stringify(payload),
-      });
-      toast("受益人已保存到名册");
-    }
-    resetBeneForm();
+    await api("/api/beneficiaries", {
+      method: "POST",
+      body: JSON.stringify({
+        name: $("#bnName").value,
+        role: $("#bnRole").value,
+        contact: $("#bnContact").value,
+        note: $("#bnNote").value,
+      }),
+    });
+    toast("受益人已保存");
+    $("#bnName").value = "";
     refreshHeirs();
   } catch (e) {
     toast(e.message);
   }
 };
-
-const bnCancel = $("#bnCancelEdit");
-if (bnCancel) {
-  bnCancel.onclick = () => {
-    resetBeneForm();
-    toast("已取消编辑");
-  };
-}
 
 $("#emReq").onclick = async () => {
   try {
