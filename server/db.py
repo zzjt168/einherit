@@ -1269,15 +1269,13 @@ def handover_checklist(user_id: int = 1) -> dict[str, Any]:
                 "notes": it.get("notes") or "",
                 "dept": it.get("dept") or "",
                 "action": it.get("action") or "",
-            }
-        )
-    progress = legacy_progress(user_id)
                 "beneficiary": it.get("beneficiary") or "",
                 "factory_reset": bool(it.get("factory_reset")),
                 "clear_photos": bool(it.get("clear_photos")),
                 "clear_chats": bool(it.get("clear_chats")),
             }
         )
+    progress = legacy_progress(user_id)
     now = time.time()
     return {
         "brand": "E-Inherit 交割手册",
