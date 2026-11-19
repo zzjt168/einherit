@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import urllib.parse
 import urllib.request
 
 BASE = "http://127.0.0.1:8877"
@@ -521,6 +522,73 @@ def main() -> None:
     assert "legacy_count" in summ["summary"] and "assets_count" in summ["summary"], summ
     pack8 = call("/api/export/pack")
     assert pack8.get("summary", {}).get("text"), pack8
+
+    # Round9 · 五部门缺口深链字段
+    co9 = call("/api/company")
+    for g in co9.get("gaps") or []:
+        assert g.get("go") == "company" and g.get("anchor", "").startswith("dept-"), g
+    nxt9 = call("/api/home-next")
+    if nxt9.get("reason") == "company_gap":
+        assert nxt9.get("dept") or nxt9.get("anchor"), nxt9
+
+    # Round9 · 备忘处置未填角标 + 一键补填
+    draft = call(
+        "/api/assets",
+        {"platform": "自检草稿备忘", "dispose_note": "", "draft": True, "tag": "其他"},
+    )["item"]
+    assert not str(draft.get("dispose_note") or "").strip(), draft
+    pending = call("/api/assets/dispose-pending")
+    assert pending.get("count", 0) >= 1, pending
+    assert any(int(x.get("id") or 0) == int(draft["id"]) for x in pending.get("items") or []), pending
+    filled = call(
+        "/api/assets/dispose",
+        {"id": draft["id"], "dispose_note": "销毁"},
+    )
+    assert filled.get("updated") == 1, filled
+    assert (filled.get("item") or {}).get("dispose_note") == "销毁", filled
+    pending2 = call("/api/assets/dispose-pending")
+    assert not any(int(x.get("id") or 0) == int(draft["id"]) for x in pending2.get("items") or []), pending2
+
+    # Round9 · 报备备用联系人摘要（不改外呼）
+    bk = call("/api/backup-contacts/summary")
+    assert "count" in bk and "names" in bk and "text" in bk, bk
+    assert "外呼" in (bk.get("note") or "") or "只读" in (bk.get("note") or ""), bk
+
+    # Round9 · 会员到期温和提示（先续费，因上文演示断缴过）
+    call("/api/membership/pay", {})
+    gentle = call("/api/membership/gentle")
+    assert "hint" in gentle and "label" in gentle, gentle
+    assert gentle.get("is_member") is True, gentle
+    assert gentle.get("days_left") is not None and int(gentle["days_left"]) >= 0, gentle
+    assert "断缴" not in (gentle.get("hint") or ""), gentle
+    assert "恐吓" not in (gentle.get("hint") or ""), gentle
+
+    # Round9 · 工单城市筛选数据源
+    cities = call("/api/aftercare/cities")
+    assert "cities" in cities and isinstance(cities["cities"], list), cities
+
+    # Round9 · ICU 清册完成度字段
+    icu9 = call("/api/icu-checklist")
+    assert "pct" in icu9 and "progress_label" in icu9, icu9
+    assert 0 <= int(icu9["pct"]) <= 100, icu9
+
+    # Round9 · 快照列表温和对比
+    call("/api/handover/snapshot", {"label": "自检对比A"})
+    call("/api/handover/snapshot", {"label": "自检对比B"})
+    cmp9 = call("/api/snapshots/compare")
+    assert cmp9.get("ready") is True, cmp9
+    assert "delta" in cmp9 and "text" in cmp9, cmp9
+    assert cmp9.get("newer") and cmp9.get("older"), cmp9
+
+    # Round9 · 医旅国家快捷 chip（region，不改医院数据）
+    dom = call("/api/hospitals?" + urllib.parse.urlencode({"region": "国内"}))
+    assert dom.get("items") and all(h.get("country") == "中国" for h in dom["items"]), dom
+    abroad = call("/api/hospitals?" + urllib.parse.urlencode({"region": "国外"}))
+    assert abroad.get("items") and all(h.get("country") != "中国" for h in abroad["items"]), abroad
+
+    # Round9 · 首次引导 API 仍可用（跳过为本机 localStorage）
+    ob9 = call("/api/onboarding")
+    assert "steps" in ob9 and ob9.get("total") == 3, ob9
 
     print("selfcheck OK")
 

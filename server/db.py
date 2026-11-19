@@ -530,15 +530,27 @@ def get_user(user_id: int = 1) -> dict[str, Any]:
         u = row_to_dict(conn.execute("SELECT * FROM users WHERE id=?", (user_id,)).fetchone())
     assert u is not None
     u["backup_contacts"] = json.loads(u["backup_contacts"] or "[]")
-    u["is_member"] = bool(u["member_until"] and u["member_until"] > time.time())
+    now = time.time()
+    u["is_member"] = bool(u["member_until"] and u["member_until"] > now)
     u["member_until_iso"] = (
         time.strftime("%Y-%m-%d", time.localtime(u["member_until"])) if u["member_until"] else None
     )
+    # 会员剩余天数温和提示（禁恐吓断缴文案）
+    if u["is_member"] and u.get("member_until"):
+        days_left = max(0, int((float(u["member_until"]) - now) // 86400))
+        u["member_days_left"] = days_left
+        u["member_gentle_hint"] = (
+            f"演示有效期还剩约 {days_left} 天，按自己节奏续费即可。"
+            if days_left > 0
+            else "演示有效期将满，想续的话随时开通下一年。"
+        )
+    else:
+        u["member_days_left"] = None
+        u["member_gentle_hint"] = "尚未开通会员。一天一块钱，托管交割与报备守望，不着急。"
     interval = float(u["checkin_interval_hours"] or 24) * 3600
     grace = float(u.get("grace_hours") or 72) * 3600
     due = float(u["last_checkin_at"] or 0) + interval
     hard_due = due + grace
-    now = time.time()
     u["checkin_due_at"] = due
     u["checkin_hard_due_at"] = hard_due
     u["grace_hours"] = float(u.get("grace_hours") or 72)
@@ -713,7 +725,11 @@ def normalize_asset_tag(raw: Any) -> str:
 
 def add_asset(user_id: int, payload: dict[str, Any]) -> dict[str, Any]:
     now = time.time()
-    dispose = _normalize_dispose_note(str(payload.get("dispose_note") or ""))
+    # draft=True 允许暂不填处置，供「未填角标 · 一键补填」
+    if payload.get("draft"):
+        dispose = str(payload.get("dispose_note") or "").strip()
+    else:
+        dispose = _normalize_dispose_note(str(payload.get("dispose_note") or ""))
     tag = normalize_asset_tag(payload.get("tag"))
     with connect() as conn:
         cur = conn.execute(
@@ -767,7 +783,15 @@ def company_overview(user_id: int = 1) -> dict[str, Any]:
         }
         depts.append(dept)
         if dept["legacy_count"] + dept["asset_count"] + len(dept["notes"]) == 0:
-            gaps.append({"id": d["id"], "name": d["name"], "short": d.get("short") or d["name"]})
+            gaps.append(
+                {
+                    "id": d["id"],
+                    "name": d["name"],
+                    "short": d.get("short") or d["name"],
+                    "go": "company",
+                    "anchor": f"dept-{d['id']}",
+                }
+            )
     filled = sum(1 for d in depts if d["legacy_count"] + d["asset_count"] + len(d["notes"]) > 0)
     return {
         "depts": depts,
@@ -864,9 +888,17 @@ def set_self_guard(user_id: int, sin_rank: int, checked: bool, note: str = "") -
     return self_guard_state(user_id)
 
 
-def list_hospitals(q: str = "", country: str = "") -> list[dict[str, Any]]:
+def list_hospitals(q: str = "", country: str = "", region: str = "") -> list[dict[str, Any]]:
+    """筛选医院。region=国内|国外 为快捷 chip（不改医院数据）。"""
     sql = "SELECT * FROM hospitals WHERE 1=1"
     args: list[Any] = []
+    region = str(region or "").strip()
+    if region in ("国内", "domestic", "cn"):
+        sql += " AND country=?"
+        args.append("中国")
+    elif region in ("国外", "international", "intl", "overseas"):
+        sql += " AND country<>?"
+        args.append("中国")
     if country:
         sql += " AND country=?"
         args.append(country)
@@ -1486,7 +1518,15 @@ def icu_checklist_state(user_id: int = 1) -> dict[str, Any]:
         key = _icu_pack_key(i, tpl)
         items.append({**tpl, "pack_key": key, "checked": bool(rows.get(key, False))})
     done = sum(1 for it in items if it["checked"])
-    return {"items": items, "done": done, "total": len(items)}
+    total = len(items) or 1
+    pct = int(round(done / total * 100)) if items else 0
+    return {
+        "items": items,
+        "done": done,
+        "total": len(items),
+        "pct": pct,
+        "progress_label": f"急症前清册进度 {done}/{len(items)}",
+    }
 
 
 def set_icu_checklist(user_id: int, pack_key: str, checked: bool) -> dict[str, Any]:
@@ -2547,6 +2587,8 @@ def home_next_step(user_id: int = 1) -> dict[str, Any]:
             "go": "company",
             "cta": "去公司盘点",
             "reason": "company_gap",
+            "dept": g.get("id") or "",
+            "anchor": g.get("anchor") or (f"dept-{g['id']}" if g.get("id") else ""),
         }
     if not heirs:
         return {
@@ -2640,3 +2682,125 @@ def update_legacy_action(user_id: int, item_id: int, action: str) -> dict[str, A
     result = batch_legacy_action(user_id, [item_id], action)
     items = [it for it in result.get("items") or [] if int(it.get("id") or 0) == item_id]
     return {"updated": 1, "action": result.get("action"), "item": items[0] if items else None}
+
+
+# ── Round9 · 交割与日常可用性增量（不改报备外呼 / 断缴退款状态机）──
+
+
+def assets_dispose_pending(user_id: int = 1) -> dict[str, Any]:
+    """无 dispose_note 的备忘（温和角标数据源）。"""
+    items = [
+        a
+        for a in list_assets(user_id)
+        if not str(a.get("dispose_note") or "").strip()
+    ]
+    return {
+        "count": len(items),
+        "items": items,
+        "hint": "有几条备忘还没写处置指引，选销毁 / 转赠 / 变现即可，慢慢来。",
+        "cta": "补填处置",
+    }
+
+
+def set_asset_dispose(user_id: int, asset_id: int, dispose_note: str) -> dict[str, Any]:
+    """一键补填备忘处置指引。"""
+    asset_id = int(asset_id or 0)
+    if asset_id <= 0:
+        raise ValueError("请指定备忘条目")
+    dispose = _normalize_dispose_note(str(dispose_note or ""))
+    with connect() as conn:
+        row = conn.execute(
+            "SELECT id FROM assets WHERE user_id=? AND id=?", (user_id, asset_id)
+        ).fetchone()
+        if not row:
+            raise ValueError("找不到该备忘")
+        conn.execute(
+            "UPDATE assets SET dispose_note=? WHERE user_id=? AND id=?",
+            (dispose, user_id, asset_id),
+        )
+        conn.commit()
+    audit(user_id, "asset.dispose", f"{asset_id}:{dispose}")
+    items = [a for a in list_assets(user_id) if int(a["id"]) == asset_id]
+    return {"updated": 1, "item": items[0] if items else None}
+
+
+def backup_contacts_summary(user_id: int = 1) -> dict[str, Any]:
+    """报备页只读：已登记备用联系人数量与姓名（不改外呼）。"""
+    u = get_user(user_id)
+    contacts = u.get("backup_contacts") or []
+    names = [str(c.get("name") or "").strip() for c in contacts if str(c.get("name") or "").strip()]
+    count = len(contacts)
+    if count == 0:
+        text = "尚未登记备用联系人。报备升级时会先联系您本人。"
+    elif count == 1:
+        text = f"已登记 1 位备用联系人：{names[0] if names else '（未留姓名）'}。"
+    else:
+        shown = "、".join(names[:3]) if names else "（未留姓名）"
+        more = f" 等 {count} 位" if len(names) > 3 else f" · 共 {count} 位"
+        text = f"已登记备用联系人：{shown}{more}。"
+    return {
+        "count": count,
+        "names": names,
+        "text": text,
+        "note": "只读摘要，不改外呼升级流程。",
+        "go": "checkin",
+    }
+
+
+def membership_gentle(user_id: int = 1) -> dict[str, Any]:
+    """会员到期温和提示（剩余天数或演示有效期；禁恐吓断缴文案）。"""
+    u = get_user(user_id)
+    return {
+        "is_member": bool(u.get("is_member")),
+        "member_until_iso": u.get("member_until_iso"),
+        "days_left": u.get("member_days_left"),
+        "hint": u.get("member_gentle_hint") or "",
+        "label": (
+            f"演示有效期 · 还剩约 {u['member_days_left']} 天"
+            if u.get("is_member") and u.get("member_days_left") is not None
+            else ("演示有效期" if u.get("is_member") else "未开通")
+        ),
+    }
+
+
+def aftercare_cities(user_id: int = 1) -> dict[str, Any]:
+    """善后工单已出现过的城市（筛选下拉数据源）。"""
+    jobs = list_aftercare(user_id)
+    seen: list[str] = []
+    for j in jobs:
+        city = str(j.get("city") or "").strip()
+        if city and city not in seen:
+            seen.append(city)
+    return {"cities": seen, "count": len(seen)}
+
+
+def snapshots_compare(user_id: int = 1) -> dict[str, Any]:
+    """最近两次 handover snapshot 条数差（只读温和对比）。"""
+    items = list_snapshots(user_id, limit=2)
+    if len(items) < 2:
+        return {
+            "ready": False,
+            "text": "快照不足两条，暂无可对比。需要时再存一版即可。",
+            "delta": 0,
+            "newer": items[0] if items else None,
+            "older": None,
+        }
+    newer, older = items[0], items[1]
+    cn = int((newer.get("summary") or {}).get("item_count") or 0)
+    co = int((older.get("summary") or {}).get("item_count") or 0)
+    delta = cn - co
+    if delta > 0:
+        text = f"较上一版多 {delta} 条交割待办（{co} → {cn}）。"
+    elif delta < 0:
+        text = f"较上一版少 {abs(delta)} 条交割待办（{co} → {cn}）。"
+    else:
+        text = f"与上一版条数相同（均为 {cn} 条）。"
+    return {
+        "ready": True,
+        "delta": delta,
+        "newer_count": cn,
+        "older_count": co,
+        "text": text,
+        "newer": {"id": newer.get("id"), "label": newer.get("label"), "item_count": cn},
+        "older": {"id": older.get("id"), "label": older.get("label"), "item_count": co},
+    }

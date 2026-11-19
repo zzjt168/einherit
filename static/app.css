@@ -1399,3 +1399,79 @@ body.large-text select { font-size: 1.05em; }
 .tag.status-submitted { background: #f3eee8; color: #5c5044; }
 .wait-remain { color: var(--sage-deep, #3a5548); }
 body.privacy-mode .privacy-hint { opacity: 0.85; }
+
+/* Round9 · 交割与日常可用性 */
+.home-gap-chips {
+  margin: 10px 18px 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+.home-gap-label {
+  font-size: 12px;
+  margin-right: 4px;
+}
+.card.dept-highlight {
+  outline: 2px solid #b7cfc2;
+  background: linear-gradient(180deg, #f7fbf8 0%, var(--card) 70%);
+  transition: outline-color 0.35s ease, background 0.35s ease;
+}
+.gap-empty-tip {
+  margin: 8px 0 4px;
+}
+.note-fold.collapsed {
+  opacity: 0.92;
+}
+.note-expand {
+  margin-top: 4px;
+}
+.tag.dispose-missing-badge {
+  background: #f3eee8;
+  color: #5c5044;
+}
+.as-dispose-fill select {
+  flex: 1;
+  min-width: 120px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--card);
+}
+.member-gentle-tip {
+  margin-top: 12px;
+}
+.member-gentle-tip strong {
+  display: block;
+  margin-bottom: 4px;
+}
+.ac-city-filter {
+  margin: 8px 0;
+}
+.icu-progress {
+  margin: 10px 0 12px;
+}
+.icu-progress-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--muted, #6b7585);
+  margin-bottom: 6px;
+}
+.icu-checklist-ui .icu-check-item {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 10px;
+  align-items: start;
+}
+.icu-checklist-ui .icu-check-item input {
+  grid-row: span 2;
+  margin-top: 4px;
+}
+.snap-compare-tip {
+  margin: 8px 0 10px;
+}
+#medRegionChips {
+  margin-bottom: 10px;
+}
