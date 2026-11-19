@@ -42,16 +42,29 @@ def main() -> None:
 
     company = call("/api/company")
     assert company["progress"]["total"] == 5, company
+    assert "gaps" in company, company
 
     guard = call("/api/self-guard")
     assert len(guard["items"]) == 7, guard
     assert guard["items"][0]["sin"] == "色欲", guard
+    assert [i["sin"] for i in guard["items"]] == [
+        "色欲",
+        "暴食",
+        "贪婪",
+        "懒惰",
+        "暴怒",
+        "嫉妒",
+        "傲慢",
+    ], guard
 
     hand = call("/api/handover")
     assert hand["domain"] == "einherit.cn", hand
+    assert "progress" in hand and "by_action" in hand["progress"], hand
 
     icu = call("/api/icu-pack", {"beneficiary": "自检接收人"})
     assert len(icu["items"]) == 4, icu
+    icu_get = call("/api/icu-pack")
+    assert icu_get.get("ready") is True, icu_get
 
     # 授权说明视频门槛（对标案例：问候+授权+处置思路）
     av = call(
@@ -83,12 +96,38 @@ def main() -> None:
         {"name": "自检加盟", "city": "武汉", "phone": "13800000000"},
     )["item"]
     assert lead["name"] == "自检加盟", lead
+    leads = call("/api/executor-lead")
+    assert any(x.get("name") == "自检加盟" for x in leads.get("items") or []), leads
 
-    assets = call("/api/assets", {"platform": "自检平台"})["item"]
+    assets = call(
+        "/api/assets",
+        {"platform": "自检平台", "dispose_note": "销毁"},
+    )["item"]
     assert assets["platform"] == "自检平台", assets
+    assert "销毁" in (assets.get("dispose_note") or ""), assets
+
+    # 备用联系人可写回
+    me = call(
+        "/api/me",
+        {
+            "backup_contacts": [
+                {"name": "自检备用", "relation": "家人", "phone": "13700000000"}
+            ]
+        },
+    )["user"]
+    assert any(c.get("name") == "自检备用" for c in me.get("backup_contacts") or []), me
+
+    # 医旅意向闭环
+    hospitals = call("/api/hospitals")
+    hid = hospitals["items"][0]["id"]
+    call("/api/hospitals/intent", {"hospital_id": hid, "note": "自检意向"})
+    intents = call("/api/hospitals/intents")
+    assert any(i.get("note") == "自检意向" for i in intents.get("items") or []), intents
 
     refund = call("/api/membership/lapse", {})
     assert "refunded" in refund, refund
+    fund = call("/api/travel-fund")["fund"]
+    assert "threshold" in fund and "last_refund" in fund, fund
 
     b = call(
         "/api/beneficiaries",
@@ -120,6 +159,10 @@ def main() -> None:
     with u2.urlopen(BASE + "/export/handover.html", timeout=5) as r:
         html = r.read().decode()
     assert "交割手册" in html, html[:200]
+
+    with u2.urlopen(BASE + "/export/icu.html", timeout=5) as r:
+        icu_html = r.read().decode()
+    assert "急症前清册" in icu_html or "冷静摘要" in icu_html, icu_html[:200]
 
     h = call("/api/health")
     assert h.get("domain") == "einherit.cn", h

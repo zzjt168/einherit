@@ -60,7 +60,7 @@ function show(id) {
     heirs: refreshHeirs,
     icu: refreshIcu,
     aftercare: refreshAftercare,
-    executor: () => {},
+    executor: refreshExecutor,
   };
   if (loaders[id]) loaders[id]();
 }
@@ -122,7 +122,7 @@ async function doQuickCheckin() {
 async function refreshHome() {
   try {
     const { user } = await api("/api/me");
-    const co = await api("/api/company");
+    const [co, hand] = await Promise.all([api("/api/company"), api("/api/handover")]);
     const pill = $("#memberPill");
     if (user.is_member) {
       pill.className = "pill member";
@@ -141,8 +141,14 @@ async function refreshHome() {
     btn.className = clarity.highlightCta ? "btn sm" : "btn ghost sm";
     btn.onclick = () => doQuickCheckin().catch((e) => toast(e.message));
 
+    const hp = hand.progress || {};
+    const handBit = `交割类型 ${hp.filled_types || 0}/${hp.total_types || 4}`;
+    const gapBit =
+      (co.gaps || []).length > 0
+        ? ` · 还差 ${co.gaps.map((g) => g.short).join("、")}`
+        : "";
     $("#homeHint").textContent =
-      `einherit.cn · 盘点进度 ${co.progress.pct}%（${co.progress.filled}/5 部门）`;
+      `einherit.cn · 盘点 ${co.progress.pct}%（${co.progress.filled}/5）· ${handBit}${gapBit}`;
   } catch (e) {
     $("#homeHint").textContent = "服务未就绪：" + e.message;
     $("#todayTitle").textContent = "报备状态暂不可用";
@@ -338,8 +344,20 @@ async function refreshCheckin() {
   const { user, calls } = await api("/api/checkin/status");
   const clarity = checkinClarity(user);
   const statusHtml = `<div class="status-card tone-${clarity.tone}"><strong>${clarity.title}</strong>${clarity.detail}</div>`;
-  const contacts = (user.backup_contacts || [])
-    .map((c) => `<li>${c.name}（${c.relation}）· ${c.phone}</li>`)
+  const contacts = user.backup_contacts || [];
+  const contactHint =
+    contacts.length === 0
+      ? `<p class="muted">尚未填写备用联系人。报备升级时会先联系您本人，再按序联系备用。</p>`
+      : "";
+  const contactRows = contacts
+    .map(
+      (c, i) => `
+      <div class="item bk-row" data-i="${i}">
+        <label class="field">姓名<input class="bkName" value="${esc(c.name || "")}"/></label>
+        <label class="field">关系<input class="bkRel" value="${esc(c.relation || "备用")}"/></label>
+        <label class="field">电话<input class="bkPhone" value="${esc(c.phone || "")}"/></label>
+      </div>`
+    )
     .join("");
 
   box.innerHTML = `
@@ -363,7 +381,14 @@ async function refreshCheckin() {
       <label class="field">遗产执行人<input id="executorName" value="${user.executor_name || ""}" placeholder="董事会指定 CEO"/></label>
       <button class="btn ghost" id="saveInterval">保存</button>
       <h3 style="margin-top:16px">备用联系人</h3>
-      <ul class="muted">${contacts || "<li>暂无</li>"}</ul>
+      ${contactHint}
+      <div id="bkList">${contactRows || ""}</div>
+      <div class="item" style="margin-top:8px">
+        <label class="field">新增姓名<input id="bkNameNew" placeholder="姓名"/></label>
+        <label class="field">关系<input id="bkRelNew" placeholder="如：配偶" value="备用"/></label>
+        <label class="field">电话<input id="bkPhoneNew" placeholder="手机号"/></label>
+      </div>
+      <button class="btn secondary" id="saveBackup" style="margin-top:8px">保存备用联系人</button>
     </div>
     <div class="card">
       <h3>外呼记录</h3>
@@ -424,6 +449,33 @@ async function refreshCheckin() {
     toast("已保存");
     refreshCheckin();
   };
+  $("#saveBackup").onclick = async () => {
+    try {
+      const list = [];
+      $$("#bkList .bk-row").forEach((row) => {
+        const name = $(".bkName", row).value.trim();
+        const phone = $(".bkPhone", row).value.trim();
+        const relation = $(".bkRel", row).value.trim() || "备用";
+        if (name || phone) list.push({ name, phone, relation });
+      });
+      const nName = $("#bkNameNew").value.trim();
+      const nPhone = $("#bkPhoneNew").value.trim();
+      const nRel = $("#bkRelNew").value.trim() || "备用";
+      if (nName || nPhone) list.push({ name: nName, phone: nPhone, relation: nRel });
+      if (!list.length) {
+        toast("可以先留一位备用联系人姓名与电话");
+        return;
+      }
+      await api("/api/me", {
+        method: "POST",
+        body: JSON.stringify({ backup_contacts: list }),
+      });
+      toast("备用联系人已保存");
+      refreshCheckin();
+    } catch (e) {
+      toast(e.message);
+    }
+  };
 }
 
 async function refreshLegacy() {
@@ -454,17 +506,31 @@ async function refreshLegacy() {
 async function refreshCompany() {
   const data = await api("/api/company");
   const box = $("#companyBox");
+  const gaps = data.gaps || [];
+  const gapHtml = gaps.length
+    ? `<div class="ok" style="margin-top:10px">还差这几块：可先点一下慢慢补。</div>
+       <div class="gap-chips">${gaps
+         .map(
+           (g) =>
+             `<button type="button" class="gap-chip" data-gap="${esc(g.id)}">${esc(g.short)}</button>`
+         )
+         .join("")}
+         <button type="button" class="gap-chip" data-go="legacy">去交割</button>
+         <button type="button" class="gap-chip" data-go="assets">去备忘</button>
+       </div>`
+    : `<div class="ok" style="margin-top:10px">五部门都有内容了，随时可再补细。</div>`;
   box.innerHTML = `
     <div class="card">
       <h3>${data.slogan}</h3>
       <p class="muted">把自己当成无限责任公司运营，降低对死亡话题的抗拒。</p>
       <div class="progress-bar"><i style="width:${data.progress.pct}%"></i></div>
-      <div class="muted">进度 ${data.progress.filled}/5 部门已有内容</div>
+      <div class="muted">进度 ${data.progress.filled}/5 部门已有内容（交割 ${data.depts.reduce((s,d)=>s+d.legacy_count,0)} · 备忘 ${data.depts.reduce((s,d)=>s+d.asset_count,0)}）</div>
+      ${gapHtml}
     </div>
     ${data.depts
       .map(
         (d) => `
-      <div class="card">
+      <div class="card" id="dept-${d.id}">
         <h3>${d.name}</h3>
         <p class="muted">${d.blurb} · ${d.examples}</p>
         <div class="muted">交割 ${d.legacy_count} · 备忘 ${d.asset_count}</div>
@@ -499,10 +565,37 @@ async function refreshCompany() {
       refreshHome();
     };
   });
+  $$("[data-gap]").forEach((btn) => {
+    btn.onclick = () => {
+      const el = document.getElementById("dept-" + btn.dataset.gap);
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+    };
+  });
 }
 
 async function refreshGuard() {
   const data = await api("/api/self-guard");
+  const checked = data.items.filter((it) => it.checked);
+  const review = $("#guardReview");
+  if (review) {
+    review.innerHTML = `
+      <div class="card">
+        <h3>已选动作回顾</h3>
+        <div class="progress-bar"><i style="width:${Math.round(((data.progress.done || 0) / 7) * 100)}%"></i></div>
+        <div class="muted">${data.progress.done || 0}/7 · 危害序固定：色欲→暴食→贪婪→懒惰→暴怒→嫉妒→傲慢</div>
+        <div class="list" style="margin-top:10px">${
+          checked.length
+            ? checked
+                .map(
+                  (it) =>
+                    `<div class="item"><span class="sin-rank">${it.rank}</span><strong>${it.sin}</strong>
+                    <div class="muted">${it.user_note || it.advice}</div></div>`
+                )
+                .join("")
+            : "<p class='muted'>尚未勾选。按危害序逐项看一眼即可，不必一次做完。</p>"
+        }</div>
+      </div>`;
+  }
   $("#guardList").innerHTML = data.items
     .map(
       (it) => `
@@ -522,11 +615,17 @@ async function refreshGuard() {
     .join("");
   $$(".sinCheck").forEach((cb) => {
     cb.onchange = async () => {
+      const item = data.items.find((x) => x.rank === Number(cb.dataset.rank));
       await api("/api/self-guard", {
         method: "POST",
-        body: JSON.stringify({ sin_rank: Number(cb.dataset.rank), checked: cb.checked }),
+        body: JSON.stringify({
+          sin_rank: Number(cb.dataset.rank),
+          checked: cb.checked,
+          note: cb.checked ? (item?.advice || "") : "",
+        }),
       });
       toast(cb.checked ? "已勾选自保" : "已取消");
+      refreshGuard();
     };
   });
 }
@@ -535,6 +634,13 @@ async function refreshHandover() {
   const data = await api("/api/handover");
   const snaps = await api("/api/snapshots").catch(() => ({ items: [] }));
   const exportUrl = API_BASE.replace(/\/$/, "") + "/export/handover.html";
+  const prog = data.progress || { pct: 0, filled_types: 0, total_types: 4, by_action: [] };
+  const byAction = (prog.by_action || [])
+    .map(
+      (b) =>
+        `<div class="row-line"><span>${b.action}</span><span>${b.filled ? "已有安排" : "暂未填写"} · ${b.count} 条</span></div>`
+    )
+    .join("");
   $("#handoverBox").innerHTML = `
     <div class="card">
       <h3>${data.brand}</h3>
@@ -543,9 +649,15 @@ async function refreshHandover() {
         <div class="box"><span class="muted">域名</span><b style="font-size:14px">${data.domain}</b></div>
         <div class="box"><span class="muted">执行人</span><b style="font-size:14px">${data.executor}</b></div>
       </div>
+      <div style="margin-top:12px">
+        <div class="muted">交割完成度（按处置类型）· ${prog.filled_types}/${prog.total_types}</div>
+        <div class="progress-bar"><i style="width:${prog.pct || 0}%"></i></div>
+        <div class="action-progress">${byAction}</div>
+      </div>
       <div class="row" style="margin-top:12px;gap:8px;flex-wrap:wrap">
         <a class="btn" href="${exportUrl}" target="_blank" rel="noopener">打印 / 导出 PDF</a>
         <button class="btn ghost" id="snapHand">保存版本快照</button>
+        <button class="btn ghost" data-go="legacy" type="button">去补交割</button>
       </div>
     </div>
     <div class="list">${
@@ -681,17 +793,42 @@ async function refreshAssets() {
       <span class="tag">${it.visibility}</span>
       <strong>${it.platform}</strong>
       <div class="muted">${it.account_hint || ""} · ${it.summary || ""}</div>
-      <div class="muted">处理：${it.dispose_note || "—"}</div>
+      <div class="muted">处置指引：${
+        it.dispose_note
+          ? esc(it.dispose_note)
+          : "尚未填写 — 选销毁 / 转赠 / 变现即可，慢慢来"
+      }</div>
     </div>`
       )
-      .join("") || "<p class='muted'>暂无备忘</p>";
+      .join("") ||
+    "<p class='muted'>暂无备忘。记一笔平台与处置指引就好，不必一次写完。</p>";
 }
 
 async function refreshMed(q = "", country = "") {
   const qs = new URLSearchParams();
   if (q) qs.set("q", q);
   if (country) qs.set("country", country);
-  const { items } = await api("/api/hospitals?" + qs.toString());
+  const [{ items }, intents] = await Promise.all([
+    api("/api/hospitals?" + qs.toString()),
+    api("/api/hospitals/intents").catch(() => ({ items: [] })),
+  ]);
+  const intentBox = $("#medIntents");
+  if (intentBox) {
+    intentBox.innerHTML =
+      (intents.items || []).length
+        ? intents.items
+            .map(
+              (it) => `
+        <div class="item">
+          <span class="tag">已登记</span>
+          <strong>${esc(it.hospital_name || "未指定医院")}</strong>
+          <div class="muted">${esc(it.hospital_country || "")} ${esc(it.hospital_city || "")}
+            · ${esc(it.note || "")}<br/>${fmtTime(it.created_at)}</div>
+        </div>`
+            )
+            .join("")
+        : "<p class='muted'>还没有意向单。筛选医院后点「提交就医意向」即可。</p>";
+  }
   $("#medList").innerHTML =
     items
       .map(
@@ -708,14 +845,17 @@ async function refreshMed(q = "", country = "") {
 
   $$("#medList [data-hid]").forEach((btn) => {
     btn.onclick = async () => {
+      const note =
+        ($("#medNote") && $("#medNote").value.trim()) || "希望顾问协助评估就医路径";
       await api("/api/hospitals/intent", {
         method: "POST",
         body: JSON.stringify({
           hospital_id: Number(btn.dataset.hid),
-          note: "希望顾问协助评估就医路径",
+          note,
         }),
       });
       toast("意向已提交");
+      refreshMed($("#medQ").value.trim(), $("#medCountry").value);
     };
   });
 }
@@ -757,19 +897,29 @@ async function refreshMember() {
     toast(r.message);
     refreshMember();
     refreshHome();
+    // 退回状态只读展示在差旅页；状态机本身未改
   };
 }
 
 async function refreshTravel() {
   const { fund, ledger } = await api("/api/travel-fund");
+  const threshold = fund.threshold != null ? fund.threshold : 2000;
+  const met = fund.met != null ? fund.met : Number(fund.balance || 0) >= threshold;
+  const lastRefund = fund.last_refund;
+  const refundCard = lastRefund
+    ? `<div class="ok">最近退回状态（只读）：已原路退回 ${fmtMoney(Math.abs(lastRefund.amount))} · ${fmtTime(lastRefund.created_at)}
+        <div class="muted">${esc(lastRefund.note || "")}</div></div>`
+    : `<div class="muted" style="margin-top:8px">断缴后退回状态会显示在这里（只读，不改退款流程）。</div>`;
   $("#travelBox").innerHTML = `
     <div class="card">
       <h3>差旅费预存</h3>
-      <p class="muted">建议 ≥¥2000，上不封顶。会员断缴后未消费余额自动原路退回。</p>
+      <p class="muted">建议 ≥¥${threshold}，上不封顶。会员断缴后未消费余额自动原路退回。</p>
       <div class="stat" style="margin-top:12px">
         <div class="box"><span class="muted">余额</span><b>${fmtMoney(fund.balance)}</b></div>
-        <div class="box"><span class="muted">门槛</span><b>¥2000</b></div>
+        <div class="box"><span class="muted">门槛</span><b>¥${threshold}</b></div>
       </div>
+      ${met ? `<div class="ok">已达到建议门槛，可安心安排上门差旅。</div>` : `<div class="ok">还差一点点到达建议门槛，按自己节奏预存即可。</div>`}
+      ${refundCard}
       <label class="field" style="margin-top:12px">充值金额
         <input type="number" id="travelAmt" value="2000" min="1" step="100"/>
       </label>
@@ -780,10 +930,12 @@ async function refreshTravel() {
       <div class="list">${
         ledger
           .filter((l) => String(l.kind).startsWith("travel") || l.kind === "membership")
-          .map(
-            (l) =>
-              `<div class="item"><span class="tag">${l.kind}</span><strong>${l.note}</strong><div class="muted">${fmtMoney(l.amount)} · ${fmtTime(l.created_at)}</div></div>`
-          )
+          .map((l) => {
+            const isRefund = l.kind === "travel_refund";
+            return `<div class="item ${isRefund ? "ledger-refund" : ""}"><span class="tag">${
+              isRefund ? "已原路退回" : l.kind
+            }</span><strong>${esc(l.note)}</strong><div class="muted">${fmtMoney(l.amount)} · ${fmtTime(l.created_at)}</div></div>`;
+          })
           .join("") || "<p class='muted'>暂无</p>"
       }</div>
     </div>`;
@@ -846,19 +998,32 @@ $("#lgAdd").onclick = async () => {
 };
 
 $("#asAdd").onclick = async () => {
-  await api("/api/assets", {
-    method: "POST",
-    body: JSON.stringify({
-      platform: $("#asPlatform").value,
-      account_hint: $("#asHint").value,
-      summary: $("#asSummary").value,
-      dispose_note: $("#asNote").value,
-      dept: $("#asDept").value,
-    }),
-  });
-  toast("备忘已保存");
-  $("#asPlatform").value = "";
-  refreshAssets();
+  try {
+    const dispose = ($("#asDispose") && $("#asDispose").value) || "";
+    const extra = ($("#asNote") && $("#asNote").value.trim()) || "";
+    if (!dispose) {
+      toast("请先选择处置指引：销毁、转赠或变现");
+      return;
+    }
+    const dispose_note = extra ? `${dispose} · ${extra}` : dispose;
+    await api("/api/assets", {
+      method: "POST",
+      body: JSON.stringify({
+        platform: $("#asPlatform").value,
+        account_hint: $("#asHint").value,
+        summary: $("#asSummary").value,
+        dispose_note,
+        dept: $("#asDept").value,
+      }),
+    });
+    toast("备忘已保存");
+    $("#asPlatform").value = "";
+    if ($("#asNote")) $("#asNote").value = "";
+    if ($("#asDispose")) $("#asDispose").value = "";
+    refreshAssets();
+  } catch (e) {
+    toast(e.message);
+  }
 };
 
 $("#medSearch").onclick = () => refreshMed($("#medQ").value.trim(), $("#medCountry").value);
@@ -871,7 +1036,10 @@ const SERVICE_LABEL = {
 };
 
 async function refreshIcu() {
-  const { pack } = await api("/api/icu-pack");
+  const data = await api("/api/icu-pack");
+  const pack = data.pack || [];
+  const ready = !!data.ready;
+  const exportUrl = API_BASE.replace(/\/$/, "") + "/export/icu.html";
   $("#icuPreview").innerHTML = pack
     .map(
       (p) => `<div class="item">
@@ -881,6 +1049,19 @@ async function refreshIcu() {
     </div>`
     )
     .join("");
+  const exportBox = $("#icuExport");
+  if (exportBox) {
+    exportBox.innerHTML = ready
+      ? `<div class="ok">清册已写入。可打开冷静摘要带走打印。</div>
+         <div class="row" style="gap:8px;flex-wrap:wrap;margin-top:8px">
+           <a class="btn" href="${exportUrl}" target="_blank" rel="noopener">打开 / 打印冷静摘要</a>
+           <button class="btn ghost" data-go="handover" type="button">查看交割手册</button>
+         </div>`
+      : `<div class="muted">生成清册后，这里会出现「打开 / 打印冷静摘要」。</div>
+         <div class="row" style="margin-top:8px">
+           <a class="btn ghost" href="${exportUrl}" target="_blank" rel="noopener">预览摘要模板</a>
+         </div>`;
+  }
 }
 
 async function refreshAftercare() {
@@ -890,20 +1071,57 @@ async function refreshAftercare() {
   ]);
   const gate = playbook.auth_video_gate || {};
   const must = (gate.must_include || []).map((x) => `<li>${x}</li>`).join("");
+  const latest = av.latest || {};
+  const checks = [
+    { key: "greeting", label: "问候", ok: !!(latest.has_greeting || (av.items || []).some((x) => x.has_greeting)) },
+    { key: "authorize", label: "授权", ok: !!(latest.has_authorize || (av.items || []).some((x) => x.has_authorize)) },
+    { key: "plan", label: "思路", ok: !!(latest.has_plan || (av.items || []).some((x) => x.has_plan)) },
+  ];
+  // Prefer ready flags from status when latest missing fields
+  if (av.ready) {
+    checks.forEach((c) => (c.ok = true));
+  } else if (av.items && av.items[0]) {
+    const top = av.items[0];
+    checks[0].ok = !!top.has_greeting;
+    checks[1].ok = !!top.has_authorize;
+    checks[2].ok = !!top.has_plan;
+  }
+  const nextStep = av.ready
+    ? "三勾已齐，可以提交善后工单。"
+    : `下一步：补齐「${checks.filter((c) => !c.ok).map((c) => c.label).join("、") || "授权视频"}」后再提交。`;
+  const gateBox = $("#acAuthGate");
+  if (gateBox) {
+    gateBox.innerHTML = `
+      <h3>授权视频门槛</h3>
+      <p class="muted">${nextStep}</p>
+      <div class="auth-gate">
+        ${checks
+          .map(
+            (c) =>
+              `<div class="gate-cell ${c.ok ? "ok" : "miss"}"><b>${c.ok ? "✓" : "·"}</b>${c.label}</div>`
+          )
+          .join("")}
+      </div>
+      <div class="row" style="margin-top:10px">
+        <button class="btn ghost" data-go="authvideo" type="button">${av.ready ? "查看授权视频" : "去上传授权视频"}</button>
+      </div>`;
+  }
   $("#aftercarePlaybook").innerHTML = `
     <h3>商业拆解（已钉进产品）</h3>
     <p class="muted">${playbook.story}</p>
-    <div class="alert" style="margin-top:10px">
+    <div class="ok" style="margin-top:10px">
       <b>${gate.title || "授权说明视频"}</b>
       <div class="muted">${gate.from_frames || ""}</div>
       <ul class="muted" style="padding-left:1.1em;margin:0.4em 0">${must}</ul>
-      <div>${av.ready ? "✅ 授权视频已就绪，可提交工单" : "⚠ 尚未完成授权视频 — "}
-        <button class="btn ghost sm" data-go="authvideo" type="button">${av.ready ? "查看" : "去上传"}</button>
-      </div>
     </div>
     <ul class="muted" style="padding-left:1.1em;margin:0.6em 0 0">
       ${playbook.frames.map((f) => `<li><b>${f.t}</b> → ${f.map}</li>`).join("")}
     </ul>`;
+  const addBtn = $("#acAdd");
+  if (addBtn) {
+    addBtn.disabled = !av.ready;
+    addBtn.title = av.ready ? "" : "请先完成授权视频三勾";
+  }
   $("#acList").innerHTML = items.length
     ? items
         .map(
@@ -911,7 +1129,7 @@ async function refreshAftercare() {
       <strong>${it.title}</strong>
       <div class="muted">${SERVICE_LABEL[it.service_type] || it.service_type}
         · ${it.city || "未填城市"}
-        · 差旅预算 ¥${fmtMoney(it.travel_budget)}
+        · 差旅预算 ${fmtMoney(it.travel_budget)}
         · ${it.coop_state}
         · ${it.status}</div>
       <div class="muted">${it.visit_pref || ""} ${it.notes || ""}</div>
@@ -919,6 +1137,24 @@ async function refreshAftercare() {
         )
         .join("")
     : `<div class="empty">暂无善后工单</div>`;
+}
+
+async function refreshExecutor() {
+  const { items } = await api("/api/executor-lead").catch(() => ({ items: [] }));
+  const box = $("#exList");
+  if (!box) return;
+  box.innerHTML = (items || []).length
+    ? items
+        .map(
+          (it) => `<div class="item">
+      <span class="tag">已登记</span>
+      <strong>${esc(it.name)}</strong>
+      <div class="muted">${esc(it.city || "")} · ${esc(it.phone || "")}<br/>${esc(it.note || "")}
+        · ${fmtTime(it.created_at)}</div>
+    </div>`
+        )
+        .join("")
+    : `<p class="muted">尚无加盟意向。提交后会在此显示「已登记」。</p>`;
 }
 
 async function refreshAuthVideo() {
@@ -976,7 +1212,7 @@ $("#icuApply").onclick = async () => {
       body: JSON.stringify({ beneficiary: $("#icuBene").value }),
     });
     toast(r.message || "已写入");
-    show("handover");
+    await refreshIcu();
   } catch (e) {
     toast(e.message);
   }
@@ -984,6 +1220,12 @@ $("#icuApply").onclick = async () => {
 
 $("#acAdd").onclick = async () => {
   try {
+    const av = await api("/api/auth-video");
+    if (!av.ready) {
+      toast("请先完成授权视频（问候 / 授权 / 思路）");
+      show("authvideo");
+      return;
+    }
     await api("/api/aftercare", {
       method: "POST",
       body: JSON.stringify({
@@ -1015,9 +1257,11 @@ $("#exAdd").onclick = async () => {
         note: $("#exNote").value,
       }),
     });
-    toast("加盟意向已收到");
+    toast("加盟意向已登记");
     $("#exName").value = "";
     $("#exPhone").value = "";
+    $("#exNote").value = "";
+    refreshExecutor();
   } catch (e) {
     toast(e.message);
   }

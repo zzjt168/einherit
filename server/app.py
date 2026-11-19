@@ -71,6 +71,11 @@ class Handler(BaseHTTPRequestHandler):
             self._send(200, html, "text/html; charset=utf-8")
             return
 
+        if path in ("/export/icu.html", "/export/icu"):
+            html = db.icu_export_html(1).encode("utf-8")
+            self._send(200, html, "text/html; charset=utf-8")
+            return
+
         # static
         rel = "index.html" if path in ("/", "") else path.lstrip("/")
         file_path = (STATIC / rel).resolve()
@@ -200,6 +205,8 @@ class Handler(BaseHTTPRequestHandler):
                 q = (qs.get("q") or [""])[0]
                 country = (qs.get("country") or [""])[0]
                 out = {"items": db.list_hospitals(q=q, country=country)}
+            elif path in ("/api/hospitals/intents", "/api/med-intents"):
+                out = {"items": db.list_med_intents(1)}
             elif path == "/api/checkin/status":
                 out = {
                     "user": db.get_user(1),
@@ -219,7 +226,14 @@ class Handler(BaseHTTPRequestHandler):
                     "playbook": db.aftercare_playbook(),
                 }
             elif path == "/api/icu-pack":
-                out = {"pack": db.ICU_PACK, "count": len(db.ICU_PACK)}
+                out = {
+                    "pack": db.ICU_PACK,
+                    "count": len(db.ICU_PACK),
+                    "ready": db.icu_pack_ready(1),
+                    "items": db.icu_pack_items(1),
+                }
+            elif path in ("/api/executor-lead", "/api/executor-leads"):
+                out = {"items": db.list_executor_leads()}
             elif path == "/api/beneficiaries":
                 out = {"items": db.list_beneficiaries(1)}
             elif path == "/api/emergency":
@@ -252,7 +266,10 @@ class Handler(BaseHTTPRequestHandler):
             if "grace_hours" in payload:
                 fields["grace_hours"] = float(payload["grace_hours"])
             if "backup_contacts" in payload:
-                fields["backup_contacts"] = payload["backup_contacts"]
+                # 温和校验：姓名+电话；空列表表示暂未填写（UI 会提示）
+                fields["backup_contacts"] = db.normalize_backup_contacts(
+                    payload["backup_contacts"]
+                )
             if "name" in payload:
                 fields["name"] = str(payload["name"])
             if "executor_name" in payload:
