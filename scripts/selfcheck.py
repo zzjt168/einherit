@@ -590,6 +590,128 @@ def main() -> None:
     ob9 = call("/api/onboarding")
     assert "steps" in ob9 and ob9.get("total") == 3, ob9
 
+    # Round10 · 交割按部门筛选
+    call(
+        "/api/legacy",
+        {
+            "title": "自检·行政部条目",
+            "category": "其他",
+            "action": "销毁",
+            "dept": "admin",
+        },
+    )
+    by_dept = call("/api/legacy?" + urllib.parse.urlencode({"dept": "admin"}))
+    assert by_dept.get("dept") == "admin", by_dept
+    assert by_dept.get("items") and all(
+        (it.get("dept") or "") == "admin" for it in by_dept["items"]
+    ), by_dept
+
+    # Round10 · 备忘可见性筛选
+    fam = call(
+        "/api/assets",
+        {
+            "platform": "自检家人可见",
+            "dispose_note": "转赠",
+            "visibility": "family",
+            "tag": "其他",
+        },
+    )["item"]
+    assert (fam.get("visibility") or "").lower() == "family", fam
+    vis = call("/api/assets?" + urllib.parse.urlencode({"visibility": "family"}))
+    assert vis.get("visibility") == "family", vis
+    assert vis.get("items") and all(
+        (it.get("visibility") or "").lower() == "family" for it in vis["items"]
+    ), vis
+
+    # Round10 · 报备日历只读
+    cal = call("/api/checkin/calendar?days=14")
+    assert cal.get("days") == 14 and isinstance(cal.get("items"), list), cal
+    assert len(cal["items"]) == 14, cal
+    assert "checked_count" in cal and "text" in cal and "note" in cal, cal
+    assert any(d.get("is_today") for d in cal["items"]), cal
+
+    # Round10 · 差旅流水字段仍可读（折叠为前端）
+    tf10 = call("/api/travel-fund")
+    assert "ledger" in tf10 and isinstance(tf10["ledger"], list), tf10
+
+    # Round10 · 执行人加盟编辑回填（编辑 API）
+    lead10 = call(
+        "/api/executor-lead",
+        {
+            "name": "自检加盟回填",
+            "province": "海南",
+            "city": "海口",
+            "region": "龙华",
+            "phone": "13600000010",
+            "note": "round10",
+        },
+    )["item"]
+    edited = call(
+        "/api/executor-lead",
+        {
+            "id": lead10["id"],
+            "name": "自检加盟回填",
+            "province": "海南",
+            "city": "海口",
+            "region": "美兰",
+            "phone": "13600000010",
+            "note": "round10-edit",
+        },
+    )["item"]
+    assert edited.get("region") == "美兰", edited
+    assert "美兰" in (edited.get("region") or ""), edited
+
+    # Round10 · 手册条目数与导出对齐字段
+    hand10 = call("/api/handover")
+    assert "item_count" in hand10 and hand10["item_count"] >= 1, hand10
+    assert "export_align_note" in hand10 and str(hand10["item_count"]) in hand10[
+        "export_align_note"
+    ], hand10
+
+    # Round10 · 医旅意向按状态筛选
+    hospitals = call("/api/hospitals")["items"]
+    intent10 = call(
+        "/api/hospitals/intent",
+        {"hospital_id": hospitals[0]["id"], "note": "自检状态筛选"},
+    )
+    intent10 = intent10.get("intent") or intent10.get("item")
+    assert intent10 and intent10.get("id"), intent10
+    call(
+        "/api/med-intent/status",
+        {"id": intent10["id"], "status": "contacted"},
+    )
+    contacted = call(
+        "/api/hospitals/intents?" + urllib.parse.urlencode({"status": "contacted"})
+    )
+    assert contacted.get("status") == "contacted", contacted
+    assert contacted.get("items") and all(
+        (it.get("status") or "") == "contacted" for it in contacted["items"]
+    ), contacted
+
+    # Round10 · 自保进度字段
+    guard10 = call("/api/self-guard")
+    assert "progress" in guard10, guard10
+    assert guard10["progress"].get("total") == 7, guard10
+    assert "pct" in guard10["progress"] and "label" in guard10["progress"], guard10
+    assert 0 <= int(guard10["progress"]["pct"]) <= 100, guard10
+
+    # Round10 · 一键自检条数摘要 + health
+    h10 = call("/api/health")
+    assert h10.get("ok") is True and h10.get("domain") == "einherit.cn", h10
+    summary = call("/api/counts-summary")
+    assert "counts" in summary and "text" in summary, summary
+    for key in (
+        "legacy",
+        "assets",
+        "beneficiaries",
+        "med_intents",
+        "executor_leads",
+        "aftercare",
+        "handover_items",
+    ):
+        assert key in summary["counts"], summary
+    assert summary.get("domain") == "einherit.cn", summary
+
     print("selfcheck OK")
 
 

@@ -606,11 +606,18 @@ def update_user(user_id: int, **fields: Any) -> dict[str, Any]:
     return get_user(user_id)
 
 
-def list_legacy(user_id: int = 1) -> list[dict[str, Any]]:
+def list_legacy(user_id: int = 1, dept: str = "") -> list[dict[str, Any]]:
+    dept = str(dept or "").strip()
     with connect() as conn:
-        rows = conn.execute(
-            "SELECT * FROM legacy_items WHERE user_id=? ORDER BY id DESC", (user_id,)
-        ).fetchall()
+        if dept:
+            rows = conn.execute(
+                "SELECT * FROM legacy_items WHERE user_id=? AND dept=? ORDER BY id DESC",
+                (user_id, dept),
+            ).fetchall()
+        else:
+            rows = conn.execute(
+                "SELECT * FROM legacy_items WHERE user_id=? ORDER BY id DESC", (user_id,)
+            ).fetchall()
     return [row_to_dict(r) for r in rows]  # type: ignore[misc]
 
 
@@ -695,11 +702,18 @@ def delete_asset(user_id: int, item_id: int) -> dict[str, Any]:
     return {"ok": True, "id": item_id, "platform": platform}
 
 
-def list_assets(user_id: int = 1) -> list[dict[str, Any]]:
+def list_assets(user_id: int = 1, visibility: str = "") -> list[dict[str, Any]]:
+    vis = str(visibility or "").strip().lower()
     with connect() as conn:
-        rows = conn.execute(
-            "SELECT * FROM assets WHERE user_id=? ORDER BY id DESC", (user_id,)
-        ).fetchall()
+        if vis in ("private", "family"):
+            rows = conn.execute(
+                "SELECT * FROM assets WHERE user_id=? AND lower(visibility)=? ORDER BY id DESC",
+                (user_id, vis),
+            ).fetchall()
+        else:
+            rows = conn.execute(
+                "SELECT * FROM assets WHERE user_id=? ORDER BY id DESC", (user_id,)
+            ).fetchall()
     return [row_to_dict(r) for r in rows]  # type: ignore[misc]
 
 
@@ -873,7 +887,17 @@ def self_guard_state(user_id: int = 1) -> dict[str, Any]:
         st = rows.get(s["rank"]) or {"checked": 0, "note": ""}
         items.append({**s, "checked": bool(st.get("checked")), "user_note": st.get("note") or ""})
     done = sum(1 for i in items if i["checked"])
-    return {"items": items, "progress": {"done": done, "total": 7}}
+    total = 7
+    pct = int(round(100.0 * done / total)) if total else 0
+    return {
+        "items": items,
+        "progress": {
+            "done": done,
+            "total": total,
+            "pct": pct,
+            "label": f"已勾选 {done}/{total}",
+        },
+    }
 
 
 def set_self_guard(user_id: int, sin_rank: int, checked: bool, note: str = "") -> dict[str, Any]:
@@ -932,7 +956,12 @@ def add_med_intent(user_id: int, hospital_id: int | None, note: str) -> dict[str
     return get_med_intent(user_id, int(rid or 0))
 
 
-def list_med_intents(user_id: int = 1, limit: int = 40, include_cancelled: bool = True) -> list[dict[str, Any]]:
+def list_med_intents(
+    user_id: int = 1,
+    limit: int = 40,
+    include_cancelled: bool = True,
+    status: str = "",
+) -> list[dict[str, Any]]:
     with connect() as conn:
         rows = conn.execute(
             "SELECT m.*, h.name AS hospital_name, h.country AS hospital_country, "
@@ -958,6 +987,16 @@ def list_med_intents(user_id: int = 1, limit: int = 40, include_cancelled: bool 
             "cancelled": "已取消",
             "done": "已完成",
         }.get(st, st)
+    want = str(status or "").strip().lower()
+    if want in ("pending", "open", "contacted", "cancelled", "done"):
+        if want == "open":
+            want = "pending"
+        items = [
+            i
+            for i in items
+            if (i.get("status") or "") == want
+            or (want == "pending" and (i.get("status") or "") in ("pending", "open"))
+        ]
     return items
 
 
@@ -1426,6 +1465,10 @@ def handover_checklist(user_id: int = 1) -> dict[str, Any]:
         "export_path": "/export/handover.html",
         "note": "本清单为客观资产交割待办，不依赖情感授权。",
         "share_hint": "仅执行人持有，勿转发至群聊或公开渠道。",
+        "export_align_note": (
+            f"当前手册 {len(todos)} 条，与导出页条目数一致；"
+            "打开打印页即可核对。"
+        ),
     }
 
 
@@ -2803,4 +2846,90 @@ def snapshots_compare(user_id: int = 1) -> dict[str, Any]:
         "text": text,
         "newer": {"id": newer.get("id"), "label": newer.get("label"), "item_count": cn},
         "older": {"id": older.get("id"), "label": older.get("label"), "item_count": co},
+    }
+
+
+def checkin_calendar(user_id: int = 1, days: int = 14) -> dict[str, Any]:
+    """最近 N 天报备日历（只读标记；不改外呼升级）。"""
+    days = max(1, min(int(days or 14), 60))
+    hist = checkin_history(user_id, limit=100)
+    marked: set[str] = set()
+    for it in hist:
+        at = it.get("at")
+        if at is None:
+            continue
+        try:
+            ts = float(at)
+        except (TypeError, ValueError):
+            continue
+        marked.add(time.strftime("%Y-%m-%d", time.localtime(ts)))
+    today = time.localtime()
+    # build from oldest → newest within window
+    day_list: list[dict[str, Any]] = []
+    for i in range(days - 1, -1, -1):
+        t = time.mktime(
+            (
+                today.tm_year,
+                today.tm_mon,
+                today.tm_mday,
+                12,
+                0,
+                0,
+                today.tm_wday,
+                today.tm_yday,
+                today.tm_isdst,
+            )
+        ) - i * 86400
+        local = time.localtime(t)
+        iso = time.strftime("%Y-%m-%d", local)
+        day_list.append(
+            {
+                "date": iso,
+                "label": time.strftime("%m/%d", local),
+                "weekday": "一二三四五六日"[local.tm_wday],
+                "checked": iso in marked,
+                "is_today": i == 0,
+            }
+        )
+    checked_n = sum(1 for d in day_list if d["checked"])
+    return {
+        "days": days,
+        "items": day_list,
+        "checked_count": checked_n,
+        "note": "只读日历：点选日期可看是否有报备记录，不改外呼流程。",
+        "text": f"近 {days} 天有 {checked_n} 天留下了报备。",
+    }
+
+
+def counts_summary(user_id: int = 1) -> dict[str, Any]:
+    """设置页一键自检：关键列表条数摘要（只读）。"""
+    legacy_n = len(list_legacy(user_id))
+    assets_n = len(list_assets(user_id))
+    heirs_n = len(list_beneficiaries(user_id))
+    intents_n = len(list_med_intents(user_id, include_cancelled=True))
+    leads_n = len(list_executor_leads())
+    jobs_n = len(list_aftercare(user_id))
+    guard = self_guard_state(user_id)
+    hand = handover_checklist(user_id)
+    counts = {
+        "legacy": legacy_n,
+        "assets": assets_n,
+        "beneficiaries": heirs_n,
+        "med_intents": intents_n,
+        "executor_leads": leads_n,
+        "aftercare": jobs_n,
+        "self_guard_done": int((guard.get("progress") or {}).get("done") or 0),
+        "handover_items": int(hand.get("item_count") or 0),
+    }
+    text = (
+        f"交割 {counts['legacy']} · 备忘 {counts['assets']} · 受益人 {counts['beneficiaries']} · "
+        f"医旅意向 {counts['med_intents']} · 加盟 {counts['executor_leads']} · "
+        f"善后 {counts['aftercare']} · 自保 {counts['self_guard_done']}/7 · "
+        f"手册条目 {counts['handover_items']}"
+    )
+    return {
+        "counts": counts,
+        "text": text,
+        "note": "温和自检摘要，便于确认本机数据是否就绪。",
+        "domain": "einherit.cn",
     }
