@@ -203,9 +203,14 @@ class Handler(BaseHTTPRequestHandler):
             elif path == "/api/me":
                 out = {"user": db.get_user(1), "ledger": db.recent_ledger(1, 8)}
             elif path == "/api/legacy":
-                out = {"items": db.list_legacy(1)}
+                dept = (qs.get("dept") or [""])[0]
+                out = {"items": db.list_legacy(1, dept=dept), "dept": dept or ""}
             elif path == "/api/assets":
-                out = {"items": db.list_assets(1)}
+                visibility = (qs.get("visibility") or [""])[0]
+                out = {
+                    "items": db.list_assets(1, visibility=visibility),
+                    "visibility": visibility or "",
+                }
             elif path == "/api/hospitals":
                 q = (qs.get("q") or [""])[0]
                 country = (qs.get("country") or [""])[0]
@@ -224,7 +229,11 @@ class Handler(BaseHTTPRequestHandler):
                         "region": region or "",
                     }
             elif path in ("/api/hospitals/intents", "/api/med-intents"):
-                out = {"items": db.list_med_intents(1)}
+                st = (qs.get("status") or [""])[0]
+                out = {
+                    "items": db.list_med_intents(1, status=st),
+                    "status": st or "",
+                }
             elif path == "/api/checkin/status":
                 out = {
                     "user": db.get_user(1),
@@ -233,6 +242,9 @@ class Handler(BaseHTTPRequestHandler):
             elif path == "/api/checkin/history":
                 limit = int((qs.get("limit") or ["20"])[0] or 20)
                 out = {"items": db.checkin_history(1, limit)}
+            elif path == "/api/checkin/calendar":
+                days = int((qs.get("days") or ["14"])[0] or 14)
+                out = db.checkin_calendar(1, days=days)
             elif path == "/api/onboarding":
                 out = db.onboarding_status(1)
             elif path == "/api/travel-fund":
@@ -316,6 +328,8 @@ class Handler(BaseHTTPRequestHandler):
                 out = db.aftercare_cities(1)
             elif path == "/api/snapshots/compare":
                 out = db.snapshots_compare(1)
+            elif path in ("/api/counts-summary", "/api/selfcheck-summary"):
+                out = db.counts_summary(1)
             else:
                 code, body, ctype = json_bytes({"error": "not found"}, 404)
                 self._send(code, body, ctype)

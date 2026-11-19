@@ -1475,3 +1475,60 @@ body.privacy-mode .privacy-hint { opacity: 0.85; }
 #medRegionChips {
   margin-bottom: 10px;
 }
+
+/* Round10 */
+.checkin-cal {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
+  margin: 12px 0 8px;
+}
+.cal-day {
+  appearance: none;
+  border: 1px solid var(--line);
+  background: rgba(255, 252, 247, 0.9);
+  border-radius: 10px;
+  padding: 8px 4px 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  cursor: pointer;
+  color: var(--ink-soft);
+  min-height: 56px;
+}
+.cal-day .cal-wd { font-size: 10px; opacity: 0.8; }
+.cal-day .cal-lb { font-size: 12px; font-weight: 600; color: var(--ink); }
+.cal-day .cal-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: transparent;
+  margin-top: 2px;
+}
+.cal-day.has-check .cal-dot { background: var(--sage); }
+.cal-day.is-today { border-color: var(--sage); background: var(--sage-soft); }
+.cal-day.selected {
+  outline: 2px solid rgba(91, 127, 110, 0.35);
+  outline-offset: 1px;
+}
+.cal-detail { margin: 4px 0 0; }
+.hand-count-tip { margin: 8px 0 4px; }
+.guard-progress-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--ink-soft);
+  margin: 8px 0 6px;
+}
+.env-footer[role="button"]:focus-visible {
+  outline: 2px solid rgba(91, 127, 110, 0.45);
+  outline-offset: 2px;
+}
+.env-footer-detail {
+  margin: 8px 18px 0;
+}
+#travelLedgerMore { margin-top: 10px; }
+#asVisFilterBar, #lgDeptFilterBar, #medIntentStatusBar { margin: 8px 0 10px; }
+.ex-edit { margin-top: 8px; }
