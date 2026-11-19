@@ -277,6 +277,8 @@ class Handler(BaseHTTPRequestHandler):
                 out = {"item": db.get_snapshot(1, sid)}
             elif path == "/api/execution-queue":
                 out = db.execution_queue(1)
+            elif path == "/api/home-next":
+                out = db.home_next_step(1)
             elif path in ("/api/hospitals/intent", "/api/med-intent"):
                 iid = int((qs.get("id") or ["0"])[0] or 0)
                 out = {"item": db.get_med_intent(1, iid)}

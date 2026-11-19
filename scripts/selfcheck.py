@@ -435,6 +435,36 @@ def main() -> None:
         html = r.read().decode()
     assert "仅执行人持有" in html, "handover watermark missing"
 
+    # Round7 · 首页冷静下一步
+    nxt = call("/api/home-next")
+    assert nxt.get("text") and nxt.get("go") and nxt.get("cta"), nxt
+    assert nxt["go"] in ("company", "heirs", "legacy", "handover", "assets"), nxt
+
+    # Round7 · 报备历史只读时间线字段
+    hist7 = call("/api/checkin/history?limit=3")
+    assert "items" in hist7, hist7
+    if hist7["items"]:
+        assert "at" in hist7["items"][0] and "note" in hist7["items"][0], hist7["items"][0]
+
+    # Round7 · 受益人角色字段（角标数据源）
+    b_role = call(
+        "/api/beneficiaries",
+        {"name": "自检角色角标", "role": "executor", "contact": "13600000000"},
+    )["item"]
+    assert b_role.get("role") == "executor", b_role
+    roles = {x.get("role") for x in call("/api/beneficiaries").get("items") or []}
+    assert "executor" in roles, roles
+
+    # Round7 · 设置页环境条同源 health
+    h7 = call("/api/health")
+    assert h7.get("version") and h7.get("domain") == "einherit.cn", h7
+    assert h7.get("server_version"), h7
+
+    # Round7 · 手册预览同源导出
+    with urllib.request.urlopen(BASE + "/export/handover.html", timeout=5) as r:
+        preview = r.read().decode()
+    assert "交割手册" in preview and "einherit.cn" in preview, preview[:240]
+
     print("selfcheck OK")
 
 
