@@ -132,10 +132,61 @@ async function doQuickCheckin() {
   if ($("#checkin").classList.contains("active")) refreshCheckin();
 }
 
+function renderTodayTodos(data) {
+  const box = $("#todayTodosList");
+  if (!box) return;
+  const items = data.items || [];
+  box.innerHTML = items
+    .map((it) => {
+      const mark = it.done ? "已办" : "待办";
+      return `<button type="button" class="todo-item ${it.done ? "done" : ""}" data-go="${esc(it.go)}">
+        <span class="todo-mark">${mark}</span>
+        <span class="todo-body">
+          <strong>${esc(it.title)}</strong>
+          <span class="muted">${esc(it.detail)}</span>
+        </span>
+        <span class="todo-arrow">→</span>
+      </button>`;
+    })
+    .join("");
+}
+
+function escalationReadonlyHtml(user, calls, escMeta) {
+  const state = (escMeta && escMeta.state) || user.escalation_state || "ok";
+  const label =
+    (escMeta && escMeta.label) ||
+    ({
+      ok: "正常",
+      grace: "冷静期内",
+      calling_self: "联系本人中",
+      calling_backup: "联系备用联系人中",
+      manual_review: "人工复核中",
+    }[state] || state);
+  const recent = (calls || []).slice(0, 3);
+  const callHtml = recent.length
+    ? recent
+        .map(
+          (c) =>
+            `<div class="esc-call"><span class="tag">${esc(c.result)}</span> ${esc(c.target)} · ${esc(c.note || "")} · ${fmtTime(c.created_at)}</div>`
+        )
+        .join("")
+    : `<p class="muted" style="margin:0">暂无外呼摘要</p>`;
+  return `<div class="esc-readonly" id="escReadonly">
+    <div class="esc-readonly-label">失联升级状态（只读）</div>
+    <div class="esc-state"><strong>${esc(label)}</strong><span class="muted">${esc(state)}</span></div>
+    <p class="muted">仅展示当前状态与最近外呼摘要，不在此改动升级流程。</p>
+    <div class="esc-calls">${callHtml}</div>
+  </div>`;
+}
+
 async function refreshHome() {
   try {
-    const { user } = await api("/api/me");
-    const [co, hand] = await Promise.all([api("/api/company"), api("/api/handover")]);
+    const [{ user }, co, hand, today] = await Promise.all([
+      api("/api/me"),
+      api("/api/company"),
+      api("/api/handover"),
+      api("/api/today").catch(() => ({ items: [] })),
+    ]);
     const pill = $("#memberPill");
     if (user.is_member) {
       pill.className = "pill member";
@@ -144,16 +195,21 @@ async function refreshHome() {
       pill.className = "pill guest";
       pill.textContent = "未开通会员";
     }
-    const clarity = checkinClarity(user);
     const strip = $("#todayCheckin");
-    strip.className = `today-checkin tone-${clarity.tone}`;
-    $("#todayTitle").textContent = clarity.title;
-    $("#todayDetail").textContent = clarity.detail;
-    const btn = $("#todayCheckinBtn");
-    btn.textContent = clarity.cta;
-    btn.className = clarity.highlightCta ? "btn sm" : "btn ghost sm";
-    btn.onclick = () => doQuickCheckin().catch((e) => toast(e.message));
-
+    if (strip && typeof checkinClarity === "function") {
+      const clarity = checkinClarity(user);
+      strip.className = `today-checkin tone-${clarity.tone}`;
+      const title = $("#todayTitle");
+      const detail = $("#todayDetail");
+      if (title) title.textContent = clarity.title;
+      if (detail) detail.textContent = clarity.detail;
+      const btn = $("#todayCheckinBtn");
+      if (btn) {
+        btn.textContent = clarity.cta;
+        btn.className = clarity.highlightCta ? "btn sm" : "btn ghost sm";
+        btn.onclick = () => doQuickCheckin().catch((e) => toast(e.message));
+      }
+    }
     const hp = hand.progress || {};
     const handBit = `交割类型 ${hp.filled_types || 0}/${hp.total_types || 4}`;
     const gapBit =
@@ -162,20 +218,18 @@ async function refreshHome() {
         : "";
     $("#homeHint").textContent =
       `einherit.cn · 盘点 ${co.progress.pct}%（${co.progress.filled}/5）· ${handBit}${gapBit}`;
-    const overdue = user.checkin_overdue;
-    const grace = user.checkin_in_grace;
-    $("#homeHint").innerHTML = overdue
-      ? `⚠ 报备已过冷静期。将先电话联系您，再联系备用联系人。盘点进度 ${co.progress.pct}%。`
-      : grace
-        ? `⏳ 已过报备点，仍在冷静期（${user.grace_hours}h）。盘点进度 ${co.progress.pct}%。`
-        : `einherit.cn · 盘点进度 ${co.progress.pct}%（${co.progress.filled}/5 部门）· 下次报备 ${fmtTime(user.checkin_due_at)}`;
     fillExportMeta($("#exportMeta"), hand);
     const link = $("#exportHandLink");
     if (link) link.href = exportUrl();
+    if ($("#todayTodosList")) renderTodayTodos(today);
   } catch (e) {
     $("#homeHint").textContent = "服务未就绪：" + e.message;
-    $("#todayTitle").textContent = "报备状态暂不可用";
-    $("#todayDetail").textContent = e.message;
+    const title = $("#todayTitle");
+    const detail = $("#todayDetail");
+    if (title) title.textContent = "报备状态暂不可用";
+    if (detail) detail.textContent = e.message;
+    const box = $("#todayTodosList");
+    if (box) box.innerHTML = `<p class="muted">待办暂不可用</p>`;
   }
 }
 
@@ -381,10 +435,23 @@ async function refreshCheckin() {
         <label class="field">电话<input class="bkPhone" value="${esc(c.phone || "")}"/></label>
       </div>`
     )
+  const [{ user, calls }, today] = await Promise.all([
+    api("/api/checkin/status"),
+    api("/api/today").catch(() => ({ escalation: null })),
+  ]);
+  const statusHtml = user.checkin_overdue
+    ? `<div class="alert">已过冷静期。状态机：calling_self → calling_backup → manual_review（不直接宣布身故）。</div>`
+    : user.checkin_in_grace
+      ? `<div class="alert">已过报备点，仍在冷静期（${user.grace_hours} 小时）。暂不外呼，请尽快打卡。</div>`
+      : `<div class="ok">报备正常。最近一次：${fmtTime(user.last_checkin_at)}</div>`;
+  const contacts = (user.backup_contacts || [])
+    .map((c) => `<li>${c.name}（${c.relation}）· ${c.phone}</li>`)
     .join("");
+  const escCard = escalationReadonlyHtml(user, calls, today.escalation);
 
   box.innerHTML = `
     ${statusHtml}
+    ${escCard}
     <div class="card">
       <h3>一键报备</h3>
       <p class="muted">确认「我还安全」。漏报先进入冷静期；冷静期过后才会联系您本人，再按序联系备用联系人。演示外呼不影响真实通知。</p>
@@ -501,26 +568,21 @@ async function refreshCheckin() {
   };
 }
 
-async function refreshLegacy() {
-  const [{ items }, hand, bene] = await Promise.all([
-    api("/api/legacy"),
-    api("/api/handover"),
-    api("/api/beneficiaries").catch(() => ({ items: [] })),
-  ]);
-  fillExportMeta($("#legacyExportMeta"), hand);
-  const lex = $("#legacyExportLink");
-  if (lex) lex.href = exportUrl();
-  const dl = $("#lgBeneList");
-  if (dl) {
-    dl.innerHTML = (bene.items || [])
-      .map((b) => {
-        const rel = b.relation ? `（${b.relation}）` : "";
-        return `<option value="${esc(b.name)}${esc(rel)}"></option>`;
-      })
-      .join("");
-  }
+let _legacyCache = [];
+
+function renderLegacyList(items) {
+  const q = ($("#lgFilterQ")?.value || "").trim().toLowerCase();
+  const action = $("#lgFilterAction")?.value || "";
+  const filtered = (items || []).filter((it) => {
+    if (action && String(it.action) !== action) return false;
+    if (!q) return true;
+    const blob = [it.title, it.beneficiary, it.notes, it.category, it.action]
+      .join(" ")
+      .toLowerCase();
+    return blob.includes(q);
+  });
   $("#lgList").innerHTML =
-    items
+    filtered
       .map((it) => {
         const who = it.beneficiary
           ? `<div class="device-row"><span class="muted">设备归谁</span><b>${esc(it.beneficiary)}</b></div>`
@@ -545,7 +607,30 @@ async function refreshLegacy() {
       <div class="muted">${esc(it.notes || "")}</div>
     </div>`;
       })
-      .join("") || "<p class='muted'>暂无条目。写清归谁与出厂/清除勾选即可。</p>";
+      .join("") ||
+    `<p class='muted'>${(items || []).length ? "无匹配条目，可放宽筛选" : "暂无条目。写清归谁与出厂/清除勾选即可。"}</p>`;
+}
+
+async function refreshLegacy() {
+  const [{ items }, hand, bene] = await Promise.all([
+    api("/api/legacy"),
+    api("/api/handover"),
+    api("/api/beneficiaries").catch(() => ({ items: [] })),
+  ]);
+  fillExportMeta($("#legacyExportMeta"), hand);
+  const lex = $("#legacyExportLink");
+  if (lex) lex.href = exportUrl();
+  const dl = $("#lgBeneList");
+  if (dl) {
+    dl.innerHTML = (bene.items || [])
+      .map((b) => {
+        const rel = b.relation ? `（${b.relation}）` : "";
+        return `<option value="${esc(b.name)}${esc(rel)}"></option>`;
+      })
+      .join("");
+  }
+  _legacyCache = items || [];
+  renderLegacyList(_legacyCache);
 }
 
 async function refreshCompany() {
@@ -712,6 +797,15 @@ async function refreshHandover() {
     <div class="card export-strip">
       <h3>${esc(data.brand)}</h3>
       <p class="muted">${esc(data.note)}</p>
+  const shareHint = data.share_hint || "仅执行人持有，勿转发至群聊或公开渠道。";
+  $("#handoverBox").innerHTML = `
+    <div class="card">
+      <h3>${data.brand}</h3>
+      <p class="muted">${data.note}</p>
+      <div class="share-note">
+        <strong>分享说明</strong>
+        <p>${esc(shareHint)}</p>
+      </div>
       <div class="stat" style="margin-top:10px">
         <div class="box"><span class="muted">生成时间</span><b style="font-size:14px">${esc(
           data.generated_at_iso || "—"
@@ -728,6 +822,8 @@ async function refreshHandover() {
       <p class="muted" style="margin-top:10px">给谁：${esc(heirsLine)}</p>
       <div class="row" style="margin-top:12px;gap:8px;flex-wrap:wrap">
         <a class="btn" href="${href}" target="_blank" rel="noopener">打开 /export/handover.html</a>
+        <a class="btn" href="${exportUrl}" target="_blank" rel="noopener">打开打印页</a>
+        <button class="btn ghost" id="copyHandLink" type="button">复制手册链接</button>
         <button class="btn ghost" id="snapHand">保存版本快照</button>
         <button class="btn ghost" data-go="legacy" type="button">去补交割</button>
       </div>
@@ -794,6 +890,18 @@ async function refreshHandover() {
       }
     };
   });
+  const copyBtn = $("#copyHandLink");
+  if (copyBtn) {
+    copyBtn.onclick = async () => {
+      const abs = new URL(exportUrl, location.href).href;
+      try {
+        await navigator.clipboard.writeText(abs);
+        toast("已复制手册链接（请仅发给执行人）");
+      } catch {
+        toast(abs);
+      }
+    };
+  }
 }
 
 async function refreshHeirs() {
@@ -907,13 +1015,20 @@ async function refreshHeirs() {
   });
 }
 
-async function refreshAssets() {
-  const { items } = await api("/api/assets");
+let _assetsCache = [];
+let _assetTagFilter = "";
+
+function renderAssetsList() {
+  const items = (_assetsCache || []).filter((it) => {
+    if (!_assetTagFilter) return true;
+    return String(it.tag || "其他") === _assetTagFilter;
+  });
   $("#asList").innerHTML =
     items
       .map(
         (it) => `
     <div class="item">
+      <span class="tag">${esc(it.tag || "其他")}</span>
       <span class="tag">${DEPT_SHORT[it.dept] || DEPT_NAME[it.dept] || ""}</span>
       <span class="tag">${it.visibility}</span>
       <strong>${it.platform}</strong>
@@ -991,6 +1106,19 @@ async function refreshMedIntents() {
       }
     };
   });
+      <strong>${esc(it.platform)}</strong>
+      <div class="muted">${esc(it.account_hint || "")} · ${esc(it.summary || "")}</div>
+      <div class="muted">处理：${esc(it.dispose_note || "—")}</div>
+    </div>`
+      )
+      .join("") ||
+    `<p class='muted'>${(_assetsCache || []).length ? "该标签下暂无备忘" : "暂无备忘"}</p>`;
+}
+
+async function refreshAssets() {
+  const { items } = await api("/api/assets");
+  _assetsCache = items || [];
+  renderAssetsList();
 }
 
 async function refreshMed(q = "", country = "") {
@@ -1084,8 +1212,26 @@ async function refreshMember() {
       <div class="row" style="gap:8px;flex-wrap:wrap;margin-top:8px">
         <button class="btn secondary" id="saveMemFreq">保存频率</button>
         <button class="btn" id="payMember">${user.is_member ? "续费一年" : "开通 ¥365"}</button>
+  const expiryTip = user.is_member
+    ? `当前有效至 ${user.member_until_iso || "—"}。到期前可在本页演示续费一年。`
+    : "尚未开通或已失效。可演示开通 ¥365/年，真实支付未接入。";
+  $("#memberBox").innerHTML = `
+    <div class="card">
+      <h3>¥365 / 年 · 一天一块钱</h3>
+      <p class="muted">托管电子继承与资产处理方法，并按您设定频率做生存报备守望。</p>
+      <div class="member-expiry ${user.is_member ? "ok" : "soft"}">
+        <strong>${user.is_member ? "会员有效" : "会员未开通 / 已失效"}</strong>
+        <p>${esc(expiryTip)}</p>
+      </div>
+      <div class="stat" style="margin-top:12px">
+        <div class="box"><span class="muted">状态</span><b>${user.is_member ? "已开通" : "未开通"}</b></div>
+        <div class="box"><span class="muted">有效期</span><b style="font-size:16px">${user.member_until_iso || "—"}</b></div>
+      </div>
+      <div class="row">
+        <button class="btn" id="payMember">${user.is_member ? "演示续费一年" : "演示开通 ¥365"}</button>
         <button class="btn ghost" id="lapseMember">演示：断缴</button>
       </div>
+      <p class="muted" style="margin-top:10px">演示账本入账，不接真实支付通道。</p>
     </div>
     <div class="card calm-note">
       <h3>隐私边界</h3>
@@ -1125,7 +1271,7 @@ async function refreshMember() {
   };
   $("#payMember").onclick = async () => {
     await api("/api/membership/pay", { method: "POST", body: "{}" });
-    toast("会员已开通（演示）");
+    toast(user.is_member ? "演示续费成功" : "演示开通成功");
     refreshMember();
     refreshHome();
   };
@@ -1151,6 +1297,7 @@ async function refreshTravel() {
     <div class="card">
       <h3>差旅费预存</h3>
       <p class="muted">建议 ≥¥${threshold}，上不封顶。会员断缴后未消费余额自动原路退回。</p>
+      <p class="muted">建议 ≥¥2000，上不封顶。会员断缴后未消费余额自动原路退回。本页为演示账本，非真实支付。</p>
       <div class="stat" style="margin-top:12px">
         <div class="box"><span class="muted">余额</span><b>${fmtMoney(fund.balance)}</b></div>
         <div class="box"><span class="muted">门槛</span><b>¥${threshold}</b></div>
@@ -1160,11 +1307,16 @@ async function refreshTravel() {
       <label class="field" style="margin-top:12px">充值金额
         <input type="number" id="travelAmt" value="2000" min="1" step="100"/>
       </label>
-      <button class="btn block" id="travelPay">预存入账</button>
+      <div class="row" style="gap:8px;flex-wrap:wrap;margin-bottom:8px">
+        <button class="btn ghost sm" type="button" data-travel-amt="2000">¥2000</button>
+        <button class="btn ghost sm" type="button" data-travel-amt="3000">¥3000</button>
+        <button class="btn ghost sm" type="button" data-travel-amt="500">¥500（演示）</button>
+      </div>
+      <button class="btn block" id="travelPay">演示入账并刷新流水</button>
     </div>
     <div class="card">
       <h3>相关流水</h3>
-      <div class="list">${
+      <div class="list" id="travelLedger">${
         ledger
           .filter((l) => String(l.kind).startsWith("travel") || l.kind === "membership")
           .map((l) => {
@@ -1176,6 +1328,11 @@ async function refreshTravel() {
           .join("") || "<p class='muted'>暂无</p>"
       }</div>
     </div>`;
+  $$("[data-travel-amt]").forEach((btn) => {
+    btn.onclick = () => {
+      $("#travelAmt").value = btn.dataset.travelAmt;
+    };
+  });
   $("#travelPay").onclick = async () => {
     const amount = Number($("#travelAmt").value || 0);
     try {
@@ -1183,8 +1340,8 @@ async function refreshTravel() {
         method: "POST",
         body: JSON.stringify({ amount, force: amount < 2000 }),
       });
-      toast("预存成功");
-      refreshTravel();
+      toast("演示入账成功，流水已刷新");
+      await refreshTravel();
     } catch (e) {
       toast(e.message);
     }
@@ -1269,7 +1426,37 @@ $("#asAdd").onclick = async () => {
   } catch (e) {
     toast(e.message);
   }
+  await api("/api/assets", {
+    method: "POST",
+    body: JSON.stringify({
+      platform: $("#asPlatform").value,
+      account_hint: $("#asHint").value,
+      summary: $("#asSummary").value,
+      dispose_note: $("#asNote").value,
+      dept: $("#asDept").value,
+      tag: $("#asTag")?.value || "其他",
+    }),
+  });
+  toast("备忘已保存");
+  $("#asPlatform").value = "";
+  refreshAssets();
 };
+
+$("#lgFilterApply") &&
+  ($("#lgFilterApply").onclick = () => renderLegacyList(_legacyCache));
+["input", "change"].forEach((ev) => {
+  $("#lgFilterQ")?.addEventListener(ev, () => renderLegacyList(_legacyCache));
+  $("#lgFilterAction")?.addEventListener(ev, () => renderLegacyList(_legacyCache));
+});
+
+$$("#asTagFilter .chip").forEach((chip) => {
+  chip.onclick = () => {
+    $$("#asTagFilter .chip").forEach((c) => c.classList.remove("active"));
+    chip.classList.add("active");
+    _assetTagFilter = chip.dataset.tag || "";
+    renderAssetsList();
+  };
+});
 
 $("#medSearch").onclick = () => refreshMed($("#medQ").value.trim(), $("#medCountry").value);
 
@@ -1428,22 +1615,8 @@ async function refreshAbout() {
     .join("")}</ol>`;
 }
 
-async function refreshExecutor() {
-  const { items } = await api("/api/executor-lead").catch(() => ({ items: [] }));
-  const box = $("#exList");
-  if (!box) return;
-  box.innerHTML = (items || []).length
-    ? items
-        .map(
-          (it) => `<div class="item">
-      <span class="tag">已登记</span>
-      <strong>${esc(it.name)}</strong>
-      <div class="muted">${esc(it.city || "")} · ${esc(it.phone || "")}<br/>${esc(it.note || "")}
-        · ${fmtTime(it.created_at)}</div>
-    </div>`
-        )
-        .join("")
-    : `<p class="muted">尚无加盟意向。提交后会在此显示「已登记」。</p>`;
+function avCheckBadge(ok, label) {
+  return `<span class="av-check ${ok ? "yes" : "no"}">${label}${ok ? "已勾" : "未勾"}</span>`;
 }
 
 async function refreshAuthVideo() {
@@ -1452,21 +1625,40 @@ async function refreshAuthVideo() {
     .map((s) => `<li><b>${s.title}</b><div class="muted">${s.hint}</div></li>`)
     .join("");
   $("#avStatus").textContent = st.ready
-    ? "✅ 授权视频已通过门槛，可去提交善后工单"
+    ? "授权视频已通过门槛，可去提交善后工单"
     : st.gate || "请上传含三段内容的视频";
   $("#avList").innerHTML = (st.items || []).length
     ? st.items
         .map(
           (it) => `<div class="item">
-      <span class="tag">${it.status}</span>
-      <strong>${it.original_name || it.filename}</strong>
-      <div class="muted">问候${it.has_greeting ? "✓" : "✗"} · 授权${it.has_authorize ? "✓" : "✗"} · 思路${it.has_plan ? "✓" : "✗"}
-        · ${fmtTime(it.created_at)}</div>
-      <div class="muted">${it.note || ""}</div>
+      <span class="tag">${esc(it.status)}</span>
+      <strong>${esc(it.original_name || it.filename)}</strong>
+      <div class="av-checks-row">
+        ${avCheckBadge(!!it.has_greeting, "问候")}
+        ${avCheckBadge(!!it.has_authorize, "授权")}
+        ${avCheckBadge(!!it.has_plan, "思路")}
+      </div>
+      <div class="muted">${fmtTime(it.created_at)}</div>
+      <div class="muted">${esc(it.note || "")}</div>
+      <div class="row" style="margin-top:8px">
+        <button type="button" class="btn ghost sm av-reupload">重新上传引导</button>
+      </div>
     </div>`
         )
         .join("")
-    : `<div class="empty">尚未上传授权视频</div>`;
+    : `<div class="empty">尚未上传授权视频
+        <div class="row" style="margin-top:8px">
+          <button type="button" class="btn ghost sm av-reupload">去上传</button>
+        </div>
+      </div>`;
+  $$(".av-reupload").forEach((btn) => {
+    btn.onclick = () => {
+      const card = $("#avUploadCard");
+      if (card) card.scrollIntoView({ behavior: "smooth", block: "start" });
+      toast("请勾选三勾后选择视频重新上传");
+      $("#avFile")?.focus();
+    };
+  });
 }
 
 $("#avUpload").onclick = async () => {
@@ -1535,21 +1727,83 @@ $("#acAdd").onclick = async () => {
   }
 };
 
+function clearExecutorForm() {
+  $("#exEditId").value = "";
+  $("#exName").value = "";
+  $("#exProvince").value = "";
+  $("#exCity").value = "";
+  $("#exRegion").value = "";
+  $("#exPhone").value = "";
+  $("#exNote").value = "";
+  const reset = $("#exReset");
+  if (reset) reset.hidden = true;
+  $("#exAdd").textContent = "提交加盟意向";
+}
+
+let _executorCache = [];
+
+async function refreshExecutor() {
+  const { items } = await api("/api/executor-leads");
+  _executorCache = items || [];
+  const list = $("#exList");
+  if (!list) return;
+  list.innerHTML = _executorCache.length
+    ? _executorCache
+        .map(
+          (it) => `<div class="item">
+      <strong>${esc(it.name)}</strong>
+      <div class="muted">${esc(it.province || "")} ${esc(it.city || "")} ${esc(it.region || "")}</div>
+      <div class="muted">${esc(it.phone || "")} · ${esc(it.note || "")}</div>
+      <div class="muted">${fmtTime(it.created_at)}</div>
+      <div class="row" style="margin-top:8px">
+        <button type="button" class="btn ghost sm ex-edit" data-id="${it.id}">编辑</button>
+      </div>
+    </div>`
+        )
+        .join("")
+    : `<p class="muted">暂无加盟意向</p>`;
+  $$(".ex-edit").forEach((btn) => {
+    btn.onclick = () => {
+      const it = _executorCache.find((x) => String(x.id) === String(btn.dataset.id));
+      if (!it) return;
+      $("#exEditId").value = String(it.id);
+      $("#exName").value = it.name || "";
+      $("#exProvince").value = it.province || "";
+      $("#exCity").value = it.city || "";
+      $("#exRegion").value = it.region || "";
+      $("#exPhone").value = it.phone || "";
+      $("#exNote").value = it.note || "";
+      $("#exAdd").textContent = "保存修改";
+      const reset = $("#exReset");
+      if (reset) reset.hidden = false;
+      toast("已载入，可修改后保存");
+      $("#exName")?.focus();
+    };
+  });
+}
+
 $("#exAdd").onclick = async () => {
   try {
-    await api("/api/executor-lead", {
+    const payload = {
+      name: $("#exName").value,
+      province: $("#exProvince").value,
+      city: $("#exCity").value,
+      region: $("#exRegion").value,
+      phone: $("#exPhone").value,
+      note: $("#exNote").value,
+    };
+    const editId = Number($("#exEditId").value || 0);
+    if (editId) payload.id = editId;
+    const r = await api("/api/executor-lead", {
       method: "POST",
-      body: JSON.stringify({
-        name: $("#exName").value,
-        city: $("#exCity").value,
-        phone: $("#exPhone").value,
-        note: $("#exNote").value,
-      }),
+      body: JSON.stringify(payload),
     });
     toast("加盟意向已登记");
     $("#exName").value = "";
     $("#exPhone").value = "";
     $("#exNote").value = "";
+    toast(r.updated ? "加盟意向已更新" : "加盟意向已收到");
+    clearExecutorForm();
     refreshExecutor();
   } catch (e) {
     toast(e.message);
@@ -1568,6 +1822,32 @@ function resetBeneForm() {
   const cancel = $("#bnCancelEdit");
   if (cancel) cancel.hidden = true;
 }
+$("#exReset") &&
+  ($("#exReset").onclick = () => {
+    clearExecutorForm();
+  });
+
+function paintEnvBadge() {
+  const el = $("#envBadge");
+  if (!el) return;
+  const host = location.hostname || "";
+  const isLocal =
+    host === "127.0.0.1" ||
+    host === "localhost" ||
+    host === "0.0.0.0" ||
+    host.endsWith(".local");
+  const isProd = host === "einherit.cn" || host === "www.einherit.cn";
+  if (isLocal) {
+    el.textContent = `本机开发 · ${host || "127.0.0.1"}:${location.port || "8877"}`;
+    el.parentElement?.classList.add("env-dev");
+  } else if (isProd) {
+    el.textContent = "正式环境 · einherit.cn";
+    el.parentElement?.classList.add("env-prod");
+  } else {
+    el.textContent = `当前环境 · ${host || location.origin}`;
+  }
+}
+paintEnvBadge();
 
 $("#bnAdd").onclick = async () => {
   try {
