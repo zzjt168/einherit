@@ -60,6 +60,8 @@ def main() -> None:
     hand = call("/api/handover")
     assert hand["domain"] == "einherit.cn", hand
     assert "progress" in hand and "by_action" in hand["progress"], hand
+    assert "item_count" in hand and "generated_at" in hand, hand
+    assert "heirs" in hand, hand
 
     icu = call("/api/icu-pack", {"beneficiary": "自检接收人"})
     assert len(icu["items"]) == 4, icu
@@ -90,6 +92,8 @@ def main() -> None:
         },
     )["item"]
     assert job["title"] == "自检上门清数据", job
+    assert job.get("status_label") in ("可执行", "已提交", "待授权", "已完成"), job
+    assert "travel_budget_label" in job or job.get("travel_budget") == 2000, job
 
     lead = call(
         "/api/executor-lead",
@@ -124,6 +128,20 @@ def main() -> None:
     intents = call("/api/hospitals/intents")
     assert any(i.get("note") == "自检意向" for i in intents.get("items") or []), intents
 
+    # 医旅意向详情 + 撤回
+    hospitals = call("/api/hospitals")
+    hid = hospitals["items"][0]["id"]
+    intent = call(
+        "/api/hospitals/intent", {"hospital_id": hid, "note": "自检医旅意向"}
+    )["intent"]
+    assert intent.get("status") == "open", intent
+    intents = call("/api/hospitals/intents")
+    assert any(i.get("id") == intent["id"] for i in intents.get("items") or []), intents
+    detail = call(f"/api/hospitals/intent?id={intent['id']}")
+    assert detail["item"]["id"] == intent["id"], detail
+    cancelled = call("/api/hospitals/intent/cancel", {"id": intent["id"]})["intent"]
+    assert cancelled.get("status") == "cancelled", cancelled
+
     refund = call("/api/membership/lapse", {})
     assert "refunded" in refund, refund
     fund = call("/api/travel-fund")["fund"]
@@ -131,9 +149,24 @@ def main() -> None:
 
     b = call(
         "/api/beneficiaries",
-        {"name": "自检受益人", "role": "heir", "contact": "13900000000"},
+        {
+            "name": "自检受益人",
+            "role": "heir",
+            "relation": "子女",
+            "contact": "13900000000",
+            "passphrase_hint": "生日后四位提示",
+        },
     )["item"]
     assert b["name"] == "自检受益人", b
+    assert b.get("relation") == "子女", b
+    assert "生日" in (b.get("passphrase_hint") or ""), b
+
+    updated = call(
+        "/api/beneficiaries/update",
+        {"id": b["id"], "name": "自检受益人·改", "relation": "长子"},
+    )["item"]
+    assert updated["name"] == "自检受益人·改", updated
+    assert updated.get("relation") == "长子", updated
 
     em = call(
         "/api/emergency/request",
@@ -149,6 +182,19 @@ def main() -> None:
 
     snap = call("/api/handover/snapshot", {"label": "自检快照"})["item"]
     assert "自检" in snap["label"] or snap["label"], snap
+    assert "summary" in snap and "item_count" in snap["summary"], snap
+    snaps = call("/api/snapshots")
+    assert snaps.get("latest"), snaps
+    snap_one = call(f"/api/snapshot?id={snap['id']}")
+    assert snap_one["item"]["id"] == snap["id"], snap_one
+
+    audit = call("/api/audit")
+    assert any(a.get("label") for a in audit.get("items") or []), audit
+
+    # 会员与报备同屏字段
+    me = call("/api/me")["user"]
+    assert "checkin_interval_hours" in me and "grace_hours" in me, me
+    assert "is_member" in me, me
 
     learn = call("/api/learnings")
     assert learn.get("adopted_now"), learn
@@ -159,6 +205,7 @@ def main() -> None:
     with u2.urlopen(BASE + "/export/handover.html", timeout=5) as r:
         html = r.read().decode()
     assert "交割手册" in html, html[:200]
+    assert "条目" in html or "生成" in html, html[:300]
 
     with u2.urlopen(BASE + "/export/icu.html", timeout=5) as r:
         icu_html = r.read().decode()
