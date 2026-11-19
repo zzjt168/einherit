@@ -14,7 +14,7 @@
   <meta name="description" content="电子继承 App E-Inherit · einherit.cn · 个人公司化生命资产盘点与交割手册"/>
   <title>电子继承 App · E-Inherit</title>
   <link rel="icon" href="favicon.svg"/>
-  <link rel="stylesheet" href="app.css?v=20261119a"/>
+  <link rel="stylesheet" href="app.css?v=20261119m"/>
   <link rel="manifest" href="manifest.webmanifest"/>
 </head>
 <body>
@@ -236,6 +236,7 @@
   <section class="panel" id="guard">
     <div class="panel-head"><button class="back" data-go="home">←</button><h2>自保建议</h2></div>
     <div class="card"><p class="muted">七宗罪按危害程度排序：色欲 → 暴食 → 贪婪 → 懒惰 → 暴怒 → 嫉妒 → 傲慢。勾选表示已纳入个人自保动作。</p></div>
+    <div id="guardReview"></div>
     <div class="list" id="guardList"></div>
   </section>
 
@@ -255,7 +256,15 @@
           <option value="board">董事会/决策触发类(执行人 分配 报备)</option>
         </select>
       </label>
-      <label class="field">处理方法<textarea id="asNote" rows="2"></textarea></label>
+      <label class="field">处置指引
+        <select id="asDispose">
+          <option value="">请选择…</option>
+          <option value="销毁">销毁</option>
+          <option value="转赠">转赠</option>
+          <option value="变现">变现</option>
+        </select>
+      </label>
+      <label class="field">补充说明（可选）<textarea id="asNote" rows="2" placeholder="例如：出厂后交给配偶；私钥位置只写指引"></textarea></label>
       <button class="btn block" id="asAdd">保存备忘</button>
     </div>
     <div class="list" id="asList"></div>
@@ -275,7 +284,12 @@
           <option>新加坡</option>
         </select>
       </label>
+      <label class="field">意向备注（提交时带上）<input id="medNote" placeholder="希望顾问协助评估就医路径"/></label>
       <button class="btn block" id="medSearch">筛选医院</button>
+    </div>
+    <div class="card" id="medIntentsBox">
+      <h3>我的就医意向</h3>
+      <div class="list" id="medIntents"></div>
     </div>
     <div class="list" id="medList"></div>
   </section>
@@ -292,6 +306,9 @@
 
   <section class="panel" id="handover">
     <div class="panel-head"><button class="back" data-go="home">←</button><h2>交割手册</h2></div>
+    <div class="card calm-note">
+      <p class="muted">冷手册：给执行人的客观待办清单（打印/快照）。区域加盟意向请走「执行人加盟」，勿与此页混淆。</p>
+    </div>
     <div id="handoverBox"></div>
   </section>
 
@@ -327,9 +344,10 @@
     <div class="panel-head"><button class="back" data-go="home">←</button><h2>急症前清册</h2></div>
     <div class="card">
       <h3>进 ICU / 入院前一键写入</h3>
-      <p class="muted">对标真实病友场景：先清相册与聊天，再写设备出厂与虚拟资产处置。写入后可在「交割手册」查看。</p>
+      <p class="muted">对标真实病友场景：先清相册与聊天，再写设备出厂与虚拟资产处置。写入后可打开冷静摘要带走打印。</p>
       <label class="field">指定接收人（可选）<input id="icuBene" placeholder="家人 / 执行人"/></label>
       <button class="btn block" id="icuApply">生成急症前清册（4条）</button>
+      <div id="icuExport" class="icu-export"></div>
     </div>
     <div class="list" id="icuPreview"></div>
   </section>
@@ -357,6 +375,7 @@
 
   <section class="panel" id="aftercare">
     <div class="panel-head"><button class="back" data-go="home">←</button><h2>电子数据善后</h2></div>
+    <div class="card" id="acAuthGate"></div>
     <div class="card" id="aftercarePlaybook"></div>
     <div class="card">
       <h3>新建善后工单</h3>
@@ -396,13 +415,17 @@
   <section class="panel" id="executor">
     <div class="panel-head"><button class="back" data-go="home">←</button><h2>执行人加盟</h2></div>
     <div class="card">
-      <h3>区域善后执行意向</h3>
-      <p class="muted">评论区常见「本地需要人吗」——先收意向，再人工审核培训与合规。</p>
+      <h3>区域善后 · 热意向登记</h3>
+      <p class="muted">本地想参与上门善后？留下意向即可，我们再人工审核培训与合规。交割冷手册请走「交割手册」入口。</p>
       <label class="field">姓名<input id="exName" placeholder="真实姓名"/></label>
       <label class="field">城市<input id="exCity" placeholder="可服务城市"/></label>
       <label class="field">联系方式<input id="exPhone" placeholder="手机号"/></label>
       <label class="field">说明<textarea id="exNote" rows="2" placeholder="从业背景 / 可服务时段"></textarea></label>
       <button class="btn block" id="exAdd">提交加盟意向</button>
+    </div>
+    <div class="card">
+      <h3>已登记意向</h3>
+      <div class="list" id="exList"></div>
     </div>
   </section>
 </div>
@@ -415,6 +438,6 @@
 </nav>
 
 <div class="toast" id="toast"></div>
-<script src="app.js?v=20261119a"></script>
+<script src="app.js?v=20261119m"></script>
 </body>
 </html>

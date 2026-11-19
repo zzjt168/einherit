@@ -475,9 +475,40 @@ def get_user(user_id: int = 1) -> dict[str, Any]:
     return u
 
 
+def normalize_backup_contacts(raw: Any) -> list[dict[str, str]]:
+    """温和校验备用联系人：姓名+电话；缺省返回空列表并可由调用方提示。"""
+    if raw is None:
+        return []
+    if isinstance(raw, str):
+        try:
+            raw = json.loads(raw or "[]")
+        except json.JSONDecodeError as e:
+            raise ValueError("备用联系人格式不正确") from e
+    if not isinstance(raw, list):
+        raise ValueError("备用联系人须为列表")
+    out: list[dict[str, str]] = []
+    for c in raw:
+        if not isinstance(c, dict):
+            continue
+        name = str(c.get("name") or "").strip()
+        phone = str(c.get("phone") or "").strip()
+        relation = str(c.get("relation") or "备用").strip() or "备用"
+        if not name and not phone:
+            continue
+        if not name or not phone:
+            raise ValueError("备用联系人请同时填写姓名与电话（先本人报备，再通知备用）")
+        digits = "".join(ch for ch in phone if ch.isdigit())
+        if len(digits) < 6:
+            raise ValueError("备用联系人电话看起来不完整，请再核对一下")
+        out.append({"name": name, "relation": relation, "phone": phone})
+    return out
+
+
 def update_user(user_id: int, **fields: Any) -> dict[str, Any]:
     if "backup_contacts" in fields and not isinstance(fields["backup_contacts"], str):
-        fields["backup_contacts"] = json.dumps(fields["backup_contacts"], ensure_ascii=False)
+        fields["backup_contacts"] = json.dumps(
+            normalize_backup_contacts(fields["backup_contacts"]), ensure_ascii=False
+        )
     keys = ", ".join(f"{k}=?" for k in fields)
     vals = list(fields.values()) + [user_id]
     with connect() as conn:
@@ -529,8 +560,26 @@ def list_assets(user_id: int = 1) -> list[dict[str, Any]]:
     return [row_to_dict(r) for r in rows]  # type: ignore[misc]
 
 
+DISPOSE_GUIDES = ("销毁", "转赠", "变现")
+
+
+def _normalize_dispose_note(raw: str) -> str:
+    """引导三类处置：销毁 / 转赠 / 变现；允许「类型 · 补充」。"""
+    text = str(raw or "").strip()
+    if not text:
+        raise ValueError("请选择处置指引：销毁、转赠或变现（可再写一句补充）")
+    head = text.split("·", 1)[0].strip()
+    if head not in DISPOSE_GUIDES and text not in DISPOSE_GUIDES:
+        # 兼容旧自由文本：若含关键词则保留，否则要求重选
+        if any(k in text for k in DISPOSE_GUIDES):
+            return text
+        raise ValueError("处置指引请选：销毁、转赠或变现")
+    return text
+
+
 def add_asset(user_id: int, payload: dict[str, Any]) -> dict[str, Any]:
     now = time.time()
+    dispose = _normalize_dispose_note(str(payload.get("dispose_note") or ""))
     with connect() as conn:
         cur = conn.execute(
             "INSERT INTO assets (user_id, platform, account_hint, summary, dispose_note, visibility, dept, created_at) "
@@ -540,7 +589,7 @@ def add_asset(user_id: int, payload: dict[str, Any]) -> dict[str, Any]:
                 payload.get("platform", "").strip() or "未命名平台",
                 payload.get("account_hint", ""),
                 payload.get("summary", ""),
-                payload.get("dispose_note", ""),
+                dispose,
                 payload.get("visibility", "private"),
                 payload.get("dept", "finance"),
                 now,
@@ -571,18 +620,21 @@ def company_overview(user_id: int = 1) -> dict[str, Any]:
     by_legacy = {r["dept"]: r["c"] for r in legacy}
     by_assets = {r["dept"]: r["c"] for r in assets}
     depts = []
+    gaps = []
     for d in DEPTS:
-        depts.append(
-            {
-                **d,
-                "legacy_count": by_legacy.get(d["id"], 0),
-                "asset_count": by_assets.get(d["id"], 0),
-                "notes": [n for n in notes if n and n.get("dept") == d["id"]],
-            }
-        )
+        dept = {
+            **d,
+            "legacy_count": by_legacy.get(d["id"], 0),
+            "asset_count": by_assets.get(d["id"], 0),
+            "notes": [n for n in notes if n and n.get("dept") == d["id"]],
+        }
+        depts.append(dept)
+        if dept["legacy_count"] + dept["asset_count"] + len(dept["notes"]) == 0:
+            gaps.append({"id": d["id"], "name": d["name"], "short": d.get("short") or d["name"]})
     filled = sum(1 for d in depts if d["legacy_count"] + d["asset_count"] + len(d["notes"]) > 0)
     return {
         "depts": depts,
+        "gaps": gaps,
         "progress": {"filled": filled, "total": 5, "pct": int(filled / 5 * 100)},
         "slogan": "生成我的个人公司年度报告 · 个人生命资产盘点",
     }
@@ -656,13 +708,37 @@ def add_med_intent(user_id: int, hospital_id: int | None, note: str) -> dict[str
     return row_to_dict(row)  # type: ignore[return-value]
 
 
+def list_med_intents(user_id: int = 1, limit: int = 30) -> list[dict[str, Any]]:
+    with connect() as conn:
+        rows = conn.execute(
+            "SELECT m.*, h.name AS hospital_name, h.country AS hospital_country, h.city AS hospital_city "
+            "FROM med_intents m LEFT JOIN hospitals h ON h.id = m.hospital_id "
+            "WHERE m.user_id=? ORDER BY m.id DESC LIMIT ?",
+            (user_id, limit),
+        ).fetchall()
+    return [row_to_dict(r) for r in rows]  # type: ignore[misc]
+
+
 def get_travel(user_id: int = 1) -> dict[str, Any]:
     with connect() as conn:
         row = row_to_dict(
             conn.execute("SELECT * FROM travel_fund WHERE user_id=?", (user_id,)).fetchone()
         )
     if not row:
-        return {"user_id": user_id, "balance": 0.0, "updated_at": time.time()}
+        row = {"user_id": user_id, "balance": 0.0, "updated_at": time.time()}
+    balance = float(row.get("balance") or 0)
+    threshold = 2000.0
+    last_refund = None
+    with connect() as conn:
+        refund_row = conn.execute(
+            "SELECT * FROM ledger WHERE user_id=? AND kind='travel_refund' ORDER BY id DESC LIMIT 1",
+            (user_id,),
+        ).fetchone()
+        if refund_row:
+            last_refund = row_to_dict(refund_row)
+    row["threshold"] = threshold
+    row["met"] = balance >= threshold
+    row["last_refund"] = last_refund
     return row
 
 
@@ -799,6 +875,43 @@ def recent_calls(user_id: int = 1, limit: int = 20) -> list[dict[str, Any]]:
     return [row_to_dict(r) for r in rows]  # type: ignore[misc]
 
 
+def _action_bucket(action: str) -> str:
+    a = str(action or "")
+    if "转赠" in a:
+        return "转赠"
+    if "销售" in a or "变现" in a:
+        return "变现"
+    if "销毁" in a:
+        return "销毁"
+    if "清除" in a:
+        return "清除"
+    return "其他"
+
+
+def legacy_progress(user_id: int = 1) -> dict[str, Any]:
+    """按处置类型统计交割条目完成度（有条目=已填该桶）。"""
+    items = list_legacy(user_id)
+    buckets = ["销毁", "变现", "转赠", "清除"]
+    counts = {b: 0 for b in buckets}
+    for it in items:
+        b = _action_bucket(it.get("action"))
+        if b in counts:
+            counts[b] += 1
+        else:
+            counts.setdefault("其他", 0)
+            counts["其他"] += 1
+    filled = sum(1 for b in buckets if counts.get(b, 0) > 0)
+    total = len(buckets)
+    by_action = [{"action": b, "count": counts[b], "filled": counts[b] > 0} for b in buckets]
+    return {
+        "total_items": len(items),
+        "by_action": by_action,
+        "filled_types": filled,
+        "total_types": total,
+        "pct": int(filled / total * 100) if total else 0,
+    }
+
+
 def handover_checklist(user_id: int = 1) -> dict[str, Any]:
     """Inherit 交割待办：给执行人的冷手册摘要。"""
     u = get_user(user_id)
@@ -820,14 +933,17 @@ def handover_checklist(user_id: int = 1) -> dict[str, Any]:
                 "ops": bits,
                 "notes": it.get("notes") or "",
                 "dept": it.get("dept") or "",
+                "action": it.get("action") or "",
             }
         )
+    progress = legacy_progress(user_id)
     return {
         "brand": "E-Inherit 交割手册",
         "domain": "einherit.cn",
         "executor": u.get("executor_name") or "（未指定执行人）",
         "member": u.get("is_member"),
         "todos": todos,
+        "progress": progress,
         "note": "本清单为客观资产交割待办，不依赖情感授权。",
     }
 
@@ -840,7 +956,19 @@ def apply_icu_pack(user_id: int = 1, beneficiary: str = "") -> list[dict[str, An
         if beneficiary:
             payload["beneficiary"] = beneficiary
         created.append(add_legacy(user_id, payload))
+    audit(user_id, "icu.pack", f"count={len(created)}")
     return created
+
+
+def icu_pack_items(user_id: int = 1) -> list[dict[str, Any]]:
+    """从交割条目中挑出急症清册模板标题（已写入则可导出摘要）。"""
+    titles = {t["title"] for t in ICU_PACK}
+    return [it for it in list_legacy(user_id) if it.get("title") in titles]
+
+
+def icu_pack_ready(user_id: int = 1) -> bool:
+    found = {it["title"] for it in icu_pack_items(user_id)}
+    return all(t["title"] in found for t in ICU_PACK)
 
 
 def list_aftercare(user_id: int = 1) -> list[dict[str, Any]]:
@@ -898,6 +1026,14 @@ def add_executor_lead(payload: dict[str, Any]) -> dict[str, Any]:
         rid = cur.lastrowid
         row = conn.execute("SELECT * FROM executor_leads WHERE id=?", (rid,)).fetchone()
     return row_to_dict(row)  # type: ignore[return-value]
+
+
+def list_executor_leads(limit: int = 30) -> list[dict[str, Any]]:
+    with connect() as conn:
+        rows = conn.execute(
+            "SELECT * FROM executor_leads ORDER BY id DESC LIMIT ?", (limit,)
+        ).fetchall()
+    return [row_to_dict(r) for r in rows]  # type: ignore[misc]
 
 
 def aftercare_playbook() -> dict[str, Any]:
@@ -1132,6 +1268,51 @@ th,td{{border:1px solid #ccc;padding:8px;text-align:left}} th{{background:#f5f5f
 </body></html>"""
 
 
+def icu_export_html(user_id: int = 1) -> str:
+    """急症前冷静摘要页：入院前可打开/打印带走。"""
+    u = get_user(user_id)
+    items = icu_pack_items(user_id)
+    ready = icu_pack_ready(user_id)
+    # 若尚未写入，仍展示模板预览（只读说明）
+    source = items if items else [
+        {
+            "title": t["title"],
+            "action": t["action"],
+            "notes": t.get("notes") or "",
+            "beneficiary": "",
+            "dept": t.get("dept") or "",
+        }
+        for t in ICU_PACK
+    ]
+    rows = "".join(
+        f"<tr><td>{_esc(i.get('title'))}</td><td>{_esc(i.get('action'))}</td>"
+        f"<td>{_esc(i.get('beneficiary') or '—')}</td><td>{_esc(i.get('notes'))}</td></tr>"
+        for i in source
+    )
+    when = time.strftime("%Y-%m-%d %H:%M", time.localtime())
+    status = "已写入交割手册，可带走打印" if ready else "预览模板（生成清册后将带入您的安排）"
+    return f"""<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="utf-8"/>
+<title>急症前清册摘要 · {_esc(u.get('name') or '主人')}</title>
+<style>
+body{{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;margin:24px;color:#1a1a1a;line-height:1.55}}
+h1{{font-size:22px;margin:0 0 8px}} .meta{{color:#666;font-size:13px;margin-bottom:16px}}
+.calm{{background:#f3f7f4;border:1px solid #d5e4da;border-radius:10px;padding:12px 14px;margin-bottom:18px;font-size:13px;color:#2f4f3e}}
+table{{border-collapse:collapse;width:100%;font-size:13px}}
+th,td{{border:1px solid #ccc;padding:8px;text-align:left}} th{{background:#f5f5f5}}
+.disclaimer{{margin-top:24px;font-size:12px;color:#888}}
+@media print{{button{{display:none}}}}
+</style></head><body>
+<button onclick="window.print()">打印 / 另存 PDF</button>
+<h1>急症前清册 · 冷静摘要</h1>
+<div class="meta">主人：{_esc(u.get('name'))} · 执行人：{_esc(u.get('executor_name') or '未指定')} · 导出：{when}</div>
+<div class="calm">{_esc(status)} · 按自己的节奏安排即可，不必一次做完。</div>
+<table><thead><tr><th>事项</th><th>处置</th><th>接收人</th><th>备注</th></tr></thead>
+<tbody>{rows}</tbody></table>
+<p class="disclaimer">本页为入院前带走的冷静摘要，不构成医疗或法律文书；完整交割见「交割手册」。</p>
+</body></html>"""
+
+
 def _esc(s: Any) -> str:
     return (
         str(s or "")
@@ -1179,8 +1360,10 @@ def open_source_learnings() -> dict[str, Any]:
             "交割手册版本快照 handover_snapshots",
             "审计日志 audit_log",
             "可打印交割手册 /export/handover.html",
+            "急症前冷静摘要 /export/icu.html",
             "置顶大脑图谱 mindmap（主人放射+长子资产树）",
             "授权说明视频门槛（问候+对我司授权+处置思路）",
+            "医旅意向列表 · 执行人加盟已登记回显",
         ],
     }
 
