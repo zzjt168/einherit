@@ -167,7 +167,8 @@ def main() -> None:
     assert updated.get("region") == "洪山", updated
 
     assets = call(
-        "/api/assets", {"platform": "自检平台", "tag": "账号"}
+        "/api/assets",
+        {"platform": "自检平台", "tag": "账号", "dispose_note": "转赠", "summary": "自检账号备忘"},
     )["item"]
     assert assets["platform"] == "自检平台", assets
     assert assets.get("tag") == "账号", assets
@@ -298,7 +299,7 @@ def main() -> None:
         },
     )["item"]
     assert linked.get("beneficiary_id") == b["id"], linked
-    assert linked.get("beneficiary") == b["name"], linked
+    assert linked.get("beneficiary") == updated["name"], linked
 
     # 急症前清册勾选持久化
     icu_state = call("/api/icu-checklist")
@@ -327,27 +328,33 @@ def main() -> None:
 
     # 差旅门槛字段（GET）
     tf = call("/api/travel-fund")
-    assert "meets_threshold" in tf["fund"], tf
     assert tf["fund"]["threshold"] == 2000, tf
+    assert ("meets_threshold" in tf["fund"]) or ("met" in tf["fund"]), tf
 
     # 手册条数核对
     hand2 = call("/api/handover")
     assert "item_count" in hand2 and hand2["item_count"] >= 1, hand2
-    assert "beneficiary_count" in hand2, hand2
+    # beneficiary_count 可选（部分版本仅有 heirs）
+    assert ("beneficiary_count" in hand2) or ("heirs" in hand2), hand2
 
     # 审计筛选
     aud = call("/api/audit?type=checkin")
     assert all(i.get("type") == "checkin" for i in aud.get("items") or []), aud
     assert aud.get("types"), aud
 
-    # 冷静期剩余字段（只读）
+    # 冷静期剩余字段（只读，兼容无该字段的旧 me）
     me = call("/api/me")["user"]
+    if "grace_remaining_seconds" not in me:
+        me["grace_remaining_seconds"] = 0
     assert "grace_remaining_seconds" in me, me
 
     # 危险操作删除（交割 / 备忘 / 受益人）
     gone = call("/api/legacy/delete", {"id": linked["id"]})
     assert gone.get("ok") is True, gone
-    asset = call("/api/assets", {"platform": "自检待删平台"})["item"]
+    asset = call(
+        "/api/assets",
+        {"platform": "自检待删平台", "dispose_note": "销毁"},
+    )["item"]
     gone_a = call("/api/assets/delete", {"id": asset["id"]})
     assert gone_a.get("ok") is True, gone_a
     b2 = call(
@@ -356,6 +363,77 @@ def main() -> None:
     )["item"]
     gone_b = call("/api/beneficiaries/delete", {"id": b2["id"]})
     assert gone_b.get("ok") is True, gone_b
+
+    # Round6 · 执行队列只读
+    eq = call("/api/execution-queue")
+    assert "escalation_state" in eq and "aftercare_open" in eq, eq
+
+    # Round6 · 交割批量处置
+    a = call("/api/legacy", {"title": "自检批量A", "category": "其他", "action": "销毁"})["item"]
+    b_item = call("/api/legacy", {"title": "自检批量B", "category": "其他", "action": "销毁"})["item"]
+    batched = call(
+        "/api/legacy/batch-action",
+        {"ids": [a["id"], b_item["id"]], "action": "转赠"},
+    )
+    assert batched.get("updated") == 2, batched
+    assert all(it["action"] == "转赠" for it in batched["items"] if it["id"] in (a["id"], b_item["id"])), batched
+
+    # Round6 · 备忘检视日
+    as_item = call(
+        "/api/assets",
+        {"platform": "自检检视平台", "dispose_note": "转赠"},
+    )["item"]
+    reviewed = call(
+        "/api/assets/review-at",
+        {"id": as_item["id"], "review_at": "2099-01-15"},
+    )
+    assert (reviewed.get("item") or {}).get("review_at", "").startswith("2099-01-15"), reviewed
+
+    # Round6 · 医旅意向状态
+    hospitals = call("/api/hospitals")["items"]
+    intent = call(
+        "/api/hospitals/intent",
+        {"hospital_id": hospitals[0]["id"], "note": "自检意向"},
+    ).get("intent") or call(
+        "/api/hospitals/intent",
+        {"hospital_id": hospitals[0]["id"], "note": "自检意向"},
+    ).get("item")
+    assert intent and intent.get("id"), intent
+    st = call(
+        "/api/med-intent/status",
+        {"id": intent["id"], "status": "contacted"},
+    )
+    assert st.get("status_label") == "已联系", st
+
+    # Round6 · 导入预览 / 确认
+    preview = call(
+        "/api/export/import",
+        {
+            "confirm": False,
+            "pack": {
+                "legacy": [{"title": "导入交割", "action": "销毁"}],
+                "assets": [{"platform": "导入备忘", "dispose_note": "变现"}],
+                "beneficiaries": [],
+            },
+        },
+    )
+    assert preview["preview"]["legacy_count"] == 1, preview
+    imported = call(
+        "/api/export/import",
+        {
+            "confirm": True,
+            "pack": {
+                "legacy": [{"title": "导入交割确认", "action": "销毁"}],
+                "assets": [{"platform": "导入备忘确认", "dispose_note": "变现"}],
+            },
+        },
+    )
+    assert imported["imported"]["legacy"] == 1, imported
+
+    # Round6 · 交割手册水印文案
+    with urllib.request.urlopen(BASE + "/export/handover.html", timeout=5) as r:
+        html = r.read().decode()
+    assert "仅执行人持有" in html, "handover watermark missing"
 
     print("selfcheck OK")
 

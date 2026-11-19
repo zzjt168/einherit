@@ -209,9 +209,6 @@ class Handler(BaseHTTPRequestHandler):
             elif path == "/api/hospitals":
                 q = (qs.get("q") or [""])[0]
                 country = (qs.get("country") or [""])[0]
-                out = {"items": db.list_hospitals(q=q, country=country)}
-            elif path in ("/api/hospitals/intents", "/api/med-intents"):
-                out = {"items": db.list_med_intents(1)}
                 hid = (qs.get("id") or [""])[0]
                 if hid:
                     item = db.get_hospital(int(hid))
@@ -222,6 +219,8 @@ class Handler(BaseHTTPRequestHandler):
                     out = {"item": item}
                 else:
                     out = {"items": db.list_hospitals(q=q, country=country)}
+            elif path in ("/api/hospitals/intents", "/api/med-intents"):
+                out = {"items": db.list_med_intents(1)}
             elif path == "/api/checkin/status":
                 out = {
                     "user": db.get_user(1),
@@ -254,7 +253,6 @@ class Handler(BaseHTTPRequestHandler):
                 }
             elif path in ("/api/executor-lead", "/api/executor-leads"):
                 out = {"items": db.list_executor_leads()}
-                out = {"pack": db.ICU_PACK, "count": len(db.ICU_PACK)}
             elif path == "/api/icu-checklist":
                 out = db.icu_checklist_state(1)
             elif path == "/api/beneficiaries":
@@ -277,8 +275,8 @@ class Handler(BaseHTTPRequestHandler):
             elif path == "/api/snapshot":
                 sid = int((qs.get("id") or ["0"])[0] or 0)
                 out = {"item": db.get_snapshot(1, sid)}
-            elif path in ("/api/hospitals/intents", "/api/med-intents"):
-                out = {"items": db.list_med_intents(1)}
+            elif path == "/api/execution-queue":
+                out = db.execution_queue(1)
             elif path in ("/api/hospitals/intent", "/api/med-intent"):
                 iid = int((qs.get("id") or ["0"])[0] or 0)
                 out = {"item": db.get_med_intent(1, iid)}
@@ -329,11 +327,39 @@ class Handler(BaseHTTPRequestHandler):
         if path == "/api/legacy":
             return {"item": db.add_legacy(1, payload)}
 
+        if path == "/api/legacy/batch-action":
+            return db.batch_legacy_action(
+                1,
+                list(payload.get("ids") or []),
+                str(payload.get("action") or ""),
+            )
+
         if path == "/api/legacy/delete":
             return db.delete_legacy(1, int(payload.get("id") or 0))
 
         if path == "/api/assets":
             return {"item": db.add_asset(1, payload)}
+
+        if path == "/api/assets/review-at":
+            return db.set_asset_review_at(
+                1,
+                int(payload.get("id") or 0),
+                str(payload.get("review_at") or ""),
+            )
+
+        if path == "/api/med-intent/status":
+            return db.set_med_intent_status(
+                1,
+                int(payload.get("id") or 0),
+                str(payload.get("status") or ""),
+            )
+
+        if path == "/api/export/import":
+            return db.import_export_pack(
+                1,
+                dict(payload.get("pack") or payload),
+                confirm=bool(payload.get("confirm")),
+            )
 
         if path == "/api/assets/delete":
             return db.delete_asset(1, int(payload.get("id") or 0))
