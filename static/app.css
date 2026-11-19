@@ -1194,9 +1194,11 @@ button.btn:disabled {
 }
 .contact-edit:last-of-type { border-bottom: none; }
 .checkin-hist strong { font-size: 14px; }
+.chip:hover {
+  border-color: var(--sage);
+  color: var(--sage-deep);
   transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
-.chip:hover { border-color: var(--sage); color: var(--sage-deep); }
 .chip.active {
   background: var(--sage-soft);
   border-color: var(--sage);
@@ -1333,3 +1335,25 @@ body.large-text select { font-size: 1.05em; }
 .tag.status-contacted { background: #e6f0ea; color: #2f5d45; }
 .tag.status-cancelled { background: #eee; color: #666; }
 .btn.sm { padding: 4px 10px; font-size: 13px; }
+
+/* Round7 · 温和增量 */
+.home-next {
+  margin: 10px 16px 0;
+}
+.home-next .btn { margin-left: auto; }
+.lg-action-filters { margin: 8px 0 4px; }
+.role-badge { font-weight: 600; }
+.tag.role-heir { background: #e6f0ea; color: #2f5d45; }
+.tag.role-family { background: #e8eef5; color: #3d556e; }
+.tag.role-executor { background: #f3eee8; color: #5c5044; }
+.tag.role-trustee { background: #eef3f0; color: #3a5548; }
+.hand-preview-frame {
+  width: 100%;
+  min-height: 320px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #fff;
+}
+.med-fav { border-color: #c5d7cb; }
+.tag.fav-tag { background: var(--sage-soft); color: var(--sage-deep); }
+#settingsEnvCard .stat { gap: 8px; }

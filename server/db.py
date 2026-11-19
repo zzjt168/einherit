@@ -2444,3 +2444,43 @@ def import_export_pack(user_id: int, pack: dict[str, Any], *, confirm: bool = Fa
         "imported": {"legacy": n_l, "assets": n_a, "beneficiaries": n_b},
         "message": "演示导入完成，请在对应列表查看。",
     }
+
+
+def home_next_step(user_id: int = 1) -> dict[str, Any]:
+    """首页一条冷静下一步（只读聚合；不改报备/退款状态机）。"""
+    co = company_overview(user_id)
+    hand = handover_checklist(user_id)
+    heirs = list_beneficiaries(user_id)
+    gaps = co.get("gaps") or []
+    if gaps:
+        g = gaps[0]
+        short = g.get("short") or g.get("name") or "某一部门"
+        return {
+            "text": f"下一步可以补一下「{short}」盘点，写一条就好，不急。",
+            "go": "company",
+            "cta": "去公司盘点",
+            "reason": "company_gap",
+        }
+    if not heirs:
+        return {
+            "text": "盘点有了起点。可以先记下一位受益人，方便交割时对照。",
+            "go": "heirs",
+            "cta": "去受益人名册",
+            "reason": "no_beneficiary",
+        }
+    prog = hand.get("progress") or {}
+    filled = int(prog.get("filled_types") or 0)
+    total = int(prog.get("total_types") or 4)
+    if filled < total:
+        return {
+            "text": "受益人已就绪。可按销毁 / 变现 / 转赠补一条交割安排。",
+            "go": "legacy",
+            "cta": "去交割",
+            "reason": "handover_incomplete",
+        }
+    return {
+        "text": "五部门、交割与受益人都有了着落。需要时打开手册预览即可。",
+        "go": "handover",
+        "cta": "打开交割手册",
+        "reason": "steady",
+    }
