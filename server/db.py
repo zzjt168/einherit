@@ -719,19 +719,52 @@ def delete_asset(user_id: int, item_id: int) -> dict[str, Any]:
     return {"ok": True, "id": item_id, "platform": platform}
 
 
-def list_assets(user_id: int = 1, visibility: str = "") -> list[dict[str, Any]]:
+def list_assets(
+    user_id: int = 1, visibility: str = "", sort: str = ""
+) -> list[dict[str, Any]]:
     vis = str(visibility or "").strip().lower()
+    sort_key = str(sort or "").strip().lower()
+    order = "id DESC"
+    if sort_key in ("due", "review_at", "review"):
+        # 有 review_at 的置顶，再按检视日升序（将到期靠前）
+        order = (
+            "CASE WHEN review_at IS NULL OR trim(review_at)='' THEN 1 ELSE 0 END ASC, "
+            "review_at ASC, id DESC"
+        )
     with connect() as conn:
         if vis in ("private", "family"):
             rows = conn.execute(
-                "SELECT * FROM assets WHERE user_id=? AND lower(visibility)=? ORDER BY id DESC",
+                f"SELECT * FROM assets WHERE user_id=? AND lower(visibility)=? ORDER BY {order}",
                 (user_id, vis),
             ).fetchall()
         else:
             rows = conn.execute(
-                "SELECT * FROM assets WHERE user_id=? ORDER BY id DESC", (user_id,)
+                f"SELECT * FROM assets WHERE user_id=? ORDER BY {order}",
+                (user_id,),
             ).fetchall()
     return [row_to_dict(r) for r in rows]  # type: ignore[misc]
+
+
+def assets_due_partition(
+    user_id: int = 1, visibility: str = ""
+) -> dict[str, Any]:
+    """备忘：有 review_at 的「将到期」区 + 其余（冷静分区，不恐吓）。"""
+    items = list_assets(user_id, visibility=visibility, sort="due")
+    due: list[dict[str, Any]] = []
+    rest: list[dict[str, Any]] = []
+    for it in items:
+        if str(it.get("review_at") or "").strip():
+            due.append(it)
+        else:
+            rest.append(it)
+    return {
+        "items": items,
+        "due_soon": due,
+        "rest": rest,
+        "due_count": len(due),
+        "sort": "due",
+        "note": "有检视日的备忘已置顶；按自己节奏看看即可。",
+    }
 
 
 DISPOSE_GUIDES = ("销毁", "转赠", "变现")
@@ -929,8 +962,13 @@ def set_self_guard(user_id: int, sin_rank: int, checked: bool, note: str = "") -
     return self_guard_state(user_id)
 
 
-def list_hospitals(q: str = "", country: str = "", region: str = "") -> list[dict[str, Any]]:
-    """筛选医院。region=国内|国外 为快捷 chip（不改医院数据）。"""
+def list_hospitals(
+    q: str = "",
+    country: str = "",
+    region: str = "",
+    intl: str | int | bool | None = None,
+) -> list[dict[str, Any]]:
+    """筛选医院。region=国内|国外；intl=1 仅国际患者友好（不改医院数据）。"""
     sql = "SELECT * FROM hospitals WHERE 1=1"
     args: list[Any] = []
     region = str(region or "").strip()
@@ -943,6 +981,14 @@ def list_hospitals(q: str = "", country: str = "", region: str = "") -> list[dic
     if country:
         sql += " AND country=?"
         args.append(country)
+    intl_on = False
+    if isinstance(intl, bool):
+        intl_on = intl
+    else:
+        raw = str(intl or "").strip().lower()
+        intl_on = raw in ("1", "true", "yes", "intl", "on")
+    if intl_on:
+        sql += " AND intl=1"
     if q:
         sql += " AND (name LIKE ? OR city LIKE ? OR dept LIKE ? OR tags LIKE ?)"
         like = f"%{q}%"
@@ -2464,6 +2510,14 @@ DEFAULT_MINDMAP: dict[str, Any] = {
 }
 
 
+def _mindmap_has_saved(user_id: int = 1) -> bool:
+    with connect() as conn:
+        row = conn.execute(
+            "SELECT 1 AS ok FROM mindmap WHERE user_id=?", (user_id,)
+        ).fetchone()
+    return bool(row)
+
+
 def get_mindmap(user_id: int = 1) -> dict[str, Any]:
     with connect() as conn:
         row = conn.execute("SELECT payload FROM mindmap WHERE user_id=?", (user_id,)).fetchone()
@@ -2477,6 +2531,18 @@ def get_mindmap(user_id: int = 1) -> dict[str, Any]:
     out = dict(DEFAULT_MINDMAP)
     out.update(data)
     return out
+
+
+def mindmap_payload(user_id: int = 1) -> dict[str, Any]:
+    """图谱 + 空态元数据（未保存自定义时 empty=true，便于前端引导）。"""
+    has_saved = _mindmap_has_saved(user_id)
+    return {
+        "map": get_mindmap(user_id),
+        "has_saved": has_saved,
+        "empty": not has_saved,
+        "empty_hint": "还没有保存过自己的图谱。可以先从盘点或受益人关系开始，再回来改节点。",
+        "cta": {"go": "company", "label": "先去公司盘点"},
+    }
 
 
 def save_mindmap(user_id: int, payload: dict[str, Any]) -> dict[str, Any]:

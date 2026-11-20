@@ -830,6 +830,114 @@ def main() -> None:
     for c in summary11["cards"]:
         assert "label" in c and "count" in c, c
 
+    # Round12 · 交割批量处置仍可用（全选为前端，API 不变）
+    a12 = call(
+        "/api/legacy",
+        {"title": "自检·全选A", "category": "其他", "action": "销毁"},
+    )["item"]
+    b12 = call(
+        "/api/legacy",
+        {"title": "自检·全选B", "category": "其他", "action": "销毁"},
+    )["item"]
+    batched12 = call(
+        "/api/legacy/batch-action",
+        {"ids": [a12["id"], b12["id"]], "action": "转赠"},
+    )
+    assert batched12.get("updated") == 2, batched12
+
+    # Round12 · 备忘到期排序 / 将到期分区
+    due_item = call(
+        "/api/assets",
+        {"platform": "自检将到期平台", "dispose_note": "销毁"},
+    )["item"]
+    reviewed12 = call(
+        "/api/assets/review-at",
+        {"id": due_item["id"], "review_at": "2099-06-01"},
+    )
+    assert (reviewed12.get("item") or {}).get("review_at", "").startswith(
+        "2099-06-01"
+    ), reviewed12
+    due_list = call("/api/assets?" + urllib.parse.urlencode({"sort": "due"}))
+    assert due_list.get("sort") == "due", due_list
+    assert "due_soon" in due_list and "due_count" in due_list, due_list
+    assert any(
+        int(it.get("id") or 0) == int(due_item["id"]) for it in due_list["due_soon"]
+    ), due_list
+
+    # Round12 · 差旅最近退款字段仍可读（只读卡数据源）
+    tf12 = call("/api/travel-fund")["fund"]
+    assert "last_refund" in tf12, tf12
+
+    # Round12 · 善后工单联系窗口回显字段
+    call(
+        "/api/auth-video",
+        {
+            "demo": True,
+            "has_greeting": True,
+            "has_authorize": True,
+            "has_plan": True,
+            "note": "round12",
+        },
+    )
+    job12 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·联系窗口回显",
+            "service_type": "delete_data",
+            "city": "海口",
+            "contact_window": "周末下午",
+            "travel_budget": 2000,
+        },
+    )
+    job12 = job12.get("item") or job12.get("job") or job12
+    assert job12.get("contact_window") == "周末下午", job12
+    jobs12 = call("/api/aftercare")["items"]
+    assert any(
+        int(it.get("id") or 0) == int(job12["id"])
+        and it.get("contact_window") == "周末下午"
+        for it in jobs12
+    ), jobs12
+
+    # Round12 · 大脑图谱空态元数据
+    mm12 = call("/api/mindmap")
+    assert "map" in mm12 and "empty" in mm12 and "has_saved" in mm12, mm12
+    assert "empty_hint" in mm12 and "cta" in mm12, mm12
+    assert isinstance(mm12["empty"], bool) and isinstance(mm12["has_saved"], bool), mm12
+
+    # Round12 · ICU 写入仍可用（软横幅为前端）
+    icu12 = call("/api/icu-pack", {"beneficiary": "自检ICU接收人"})
+    assert len(icu12.get("items") or icu12.get("pack") or []) >= 1 or icu12.get(
+        "ready"
+    ) is not None, icu12
+
+    # Round12 · 快照只读对比加强（无 restore API）
+    call("/api/handover/snapshot", {"label": "自检对照甲"})
+    call("/api/handover/snapshot", {"label": "自检对照乙"})
+    cmp12 = call("/api/snapshots/compare")
+    assert "text" in cmp12 and "ready" in cmp12, cmp12
+    assert "newer" in cmp12 and "older" in cmp12, cmp12
+
+    # Round12 · 医院国际患者筛选
+    intl_hosp = call("/api/hospitals?" + urllib.parse.urlencode({"intl": "1"}))
+    assert intl_hosp.get("intl") == "1", intl_hosp
+    assert intl_hosp.get("items") and all(
+        int(h.get("intl") or 0) == 1 for h in intl_hosp["items"]
+    ), intl_hosp
+    all_hosp = call("/api/hospitals")
+    assert len(all_hosp["items"]) >= len(intl_hosp["items"]), (
+        len(all_hosp["items"]),
+        len(intl_hosp["items"]),
+    )
+
+    # Round12 · 隐私页静态可读（关于页按钮目标）
+    with urllib.request.urlopen(BASE + "/privacy.html", timeout=5) as r:
+        privacy_html = r.read().decode()
+    assert "einherit.cn" in privacy_html or "隐私" in privacy_html, privacy_html[:200]
+
+    # Round12 · 会员状态可读（首页 pill 可点为前端）
+    me12 = call("/api/me")["user"]
+    assert "is_member" in me12, me12
+
     print("selfcheck OK")
 
 

@@ -212,14 +212,29 @@ class Handler(BaseHTTPRequestHandler):
                 }
             elif path == "/api/assets":
                 visibility = (qs.get("visibility") or [""])[0]
-                out = {
-                    "items": db.list_assets(1, visibility=visibility),
-                    "visibility": visibility or "",
-                }
+                sort = (qs.get("sort") or [""])[0]
+                if str(sort or "").strip().lower() in ("due", "review_at", "review"):
+                    part = db.assets_due_partition(1, visibility=visibility)
+                    out = {
+                        "items": part["items"],
+                        "due_soon": part["due_soon"],
+                        "rest": part["rest"],
+                        "due_count": part["due_count"],
+                        "sort": part["sort"],
+                        "note": part["note"],
+                        "visibility": visibility or "",
+                    }
+                else:
+                    out = {
+                        "items": db.list_assets(1, visibility=visibility, sort=sort),
+                        "visibility": visibility or "",
+                        "sort": sort or "",
+                    }
             elif path == "/api/hospitals":
                 q = (qs.get("q") or [""])[0]
                 country = (qs.get("country") or [""])[0]
                 region = (qs.get("region") or [""])[0]
+                intl = (qs.get("intl") or [""])[0]
                 hid = (qs.get("id") or [""])[0]
                 if hid:
                     item = db.get_hospital(int(hid))
@@ -230,8 +245,11 @@ class Handler(BaseHTTPRequestHandler):
                     out = {"item": item}
                 else:
                     out = {
-                        "items": db.list_hospitals(q=q, country=country, region=region),
+                        "items": db.list_hospitals(
+                            q=q, country=country, region=region, intl=intl
+                        ),
                         "region": region or "",
+                        "intl": str(intl or ""),
                     }
             elif path in ("/api/hospitals/intents", "/api/med-intents"):
                 st = (qs.get("status") or [""])[0]
@@ -312,7 +330,7 @@ class Handler(BaseHTTPRequestHandler):
             elif path == "/api/learnings":
                 out = db.open_source_learnings()
             elif path == "/api/mindmap":
-                out = {"map": db.get_mindmap(1)}
+                out = db.mindmap_payload(1)
             elif path == "/api/auth-video":
                 out = db.auth_video_status(1)
             elif path == "/api/today":
