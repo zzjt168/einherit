@@ -1532,3 +1532,111 @@ body.privacy-mode .privacy-hint { opacity: 0.85; }
 #travelLedgerMore { margin-top: 10px; }
 #asVisFilterBar, #lgDeptFilterBar, #medIntentStatusBar { margin: 8px 0 10px; }
 .ex-edit { margin-top: 8px; }
+
+/* Round11 · 用得下去与信任闭环 */
+#lgSearchBox { margin: 8px 0 10px; }
+.threshold-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 0 4px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: rgba(255, 252, 247, 0.9);
+  font-size: 13px;
+  color: var(--ink-soft);
+}
+.threshold-badge.is-met {
+  background: var(--sage-soft);
+  border-color: #d5e4da;
+  color: var(--sage-deep);
+}
+.threshold-badge-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #d5e4da;
+  color: var(--sage-deep);
+  font-weight: 700;
+  font-size: 13px;
+}
+.threshold-badge-mark.soft {
+  background: #efe8dc;
+  color: #6b5a3a;
+}
+.av-complete-banner {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  margin: 0 0 12px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: rgba(255, 252, 247, 0.95);
+}
+.av-complete-banner.is-ready {
+  background: var(--sage-soft);
+  border-color: #d5e4da;
+}
+.av-complete-check {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #d5e4da;
+  color: var(--sage-deep);
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.av-complete-check.soft {
+  background: #efe8dc;
+  color: #6b5a3a;
+}
+.print-check-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+}
+.print-check-row {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 8px 10px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: rgba(255, 252, 247, 0.8);
+}
+.print-check-row.ok {
+  background: var(--sage-soft);
+  border-color: #d5e4da;
+}
+.print-check-mark {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #efe8dc;
+  color: #6b5a3a;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.print-check-row.ok .print-check-mark {
+  background: #d5e4da;
+  color: var(--sage-deep);
+}
+.data-volume-stat .box b {
+  color: var(--ink);
+}
+.med-note-expand { margin-top: 4px; }
+#settingsIntervalCard, #checkinIntervalCard { margin-top: 10px; }
+#handPrintChecklist { margin-top: 10px; }
+#settingsDataVolumeCard { margin-top: 10px; }

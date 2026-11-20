@@ -204,7 +204,12 @@ class Handler(BaseHTTPRequestHandler):
                 out = {"user": db.get_user(1), "ledger": db.recent_ledger(1, 8)}
             elif path == "/api/legacy":
                 dept = (qs.get("dept") or [""])[0]
-                out = {"items": db.list_legacy(1, dept=dept), "dept": dept or ""}
+                q = (qs.get("q") or [""])[0]
+                out = {
+                    "items": db.list_legacy(1, dept=dept, q=q),
+                    "dept": dept or "",
+                    "q": q or "",
+                }
             elif path == "/api/assets":
                 visibility = (qs.get("visibility") or [""])[0]
                 out = {
@@ -330,6 +335,13 @@ class Handler(BaseHTTPRequestHandler):
                 out = db.snapshots_compare(1)
             elif path in ("/api/counts-summary", "/api/selfcheck-summary"):
                 out = db.counts_summary(1)
+            elif path in ("/api/checkin/interval", "/api/me/interval"):
+                out = db.checkin_readable(1)
+            elif path in ("/api/aftercare/budget-hint", "/api/travel-fund/budget-hint"):
+                budget = float((qs.get("budget") or ["0"])[0] or 0)
+                out = db.aftercare_budget_hint(1, budget)
+            elif path in ("/api/handover/print-checklist", "/api/handover/preflight"):
+                out = db.handover_print_checklist(1)
             else:
                 code, body, ctype = json_bytes({"error": "not found"}, 404)
                 self._send(code, body, ctype)
@@ -360,8 +372,19 @@ class Handler(BaseHTTPRequestHandler):
                 return {"user": db.update_user(1, **fields)}
             return {"user": db.get_user(1)}
 
+        if path in ("/api/checkin/interval", "/api/me/interval"):
+            # 只写间隔；不改外呼升级机
+            return db.set_checkin_interval(
+                1, float(payload.get("interval_hours") or payload.get("hours") or 24)
+            )
+
         if path == "/api/legacy":
             return {"item": db.add_legacy(1, payload)}
+
+        if path in ("/api/aftercare/budget-hint", "/api/travel-fund/budget-hint"):
+            return db.aftercare_budget_hint(
+                1, float(payload.get("budget") or payload.get("travel_budget") or 0)
+            )
 
         if path == "/api/legacy/batch-action":
             return db.batch_legacy_action(
