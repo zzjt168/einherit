@@ -720,9 +720,13 @@ def delete_asset(user_id: int, item_id: int) -> dict[str, Any]:
 
 
 def list_assets(
-    user_id: int = 1, visibility: str = "", sort: str = ""
+    user_id: int = 1,
+    visibility: str = "",
+    sort: str = "",
+    dept: str = "",
 ) -> list[dict[str, Any]]:
     vis = str(visibility or "").strip().lower()
+    dept = str(dept or "").strip()
     sort_key = str(sort or "").strip().lower()
     order = "id DESC"
     if sort_key in ("due", "review_at", "review"):
@@ -732,24 +736,24 @@ def list_assets(
             "review_at ASC, id DESC"
         )
     with connect() as conn:
+        clauses = ["user_id=?"]
+        args: list[Any] = [user_id]
         if vis in ("private", "family"):
-            rows = conn.execute(
-                f"SELECT * FROM assets WHERE user_id=? AND lower(visibility)=? ORDER BY {order}",
-                (user_id, vis),
-            ).fetchall()
-        else:
-            rows = conn.execute(
-                f"SELECT * FROM assets WHERE user_id=? ORDER BY {order}",
-                (user_id,),
-            ).fetchall()
+            clauses.append("lower(visibility)=?")
+            args.append(vis)
+        if dept:
+            clauses.append("dept=?")
+            args.append(dept)
+        sql = f"SELECT * FROM assets WHERE {' AND '.join(clauses)} ORDER BY {order}"
+        rows = conn.execute(sql, args).fetchall()
     return [row_to_dict(r) for r in rows]  # type: ignore[misc]
 
 
 def assets_due_partition(
-    user_id: int = 1, visibility: str = ""
+    user_id: int = 1, visibility: str = "", dept: str = ""
 ) -> dict[str, Any]:
     """备忘：有 review_at 的「将到期」区 + 其余（冷静分区，不恐吓）。"""
-    items = list_assets(user_id, visibility=visibility, sort="due")
+    items = list_assets(user_id, visibility=visibility, sort="due", dept=dept)
     due: list[dict[str, Any]] = []
     rest: list[dict[str, Any]] = []
     for it in items:
@@ -1420,13 +1424,39 @@ def lapse_membership(user_id: int = 1) -> dict[str, Any]:
     }
 
 
+LEDGER_KIND_LABELS = {
+    "membership": "会员年费",
+    "travel_deposit": "差旅预存",
+    "travel_refund": "差旅退回",
+    "checkin": "生存报备",
+}
+
+
+def ledger_kind_label(kind: str) -> str:
+    k = str(kind or "").strip()
+    if k in LEDGER_KIND_LABELS:
+        return LEDGER_KIND_LABELS[k]
+    if k.startswith("travel"):
+        return "差旅相关"
+    if not k:
+        return "其他流水"
+    return k
+
+
 def recent_ledger(user_id: int = 1, limit: int = 20) -> list[dict[str, Any]]:
     with connect() as conn:
         rows = conn.execute(
             "SELECT * FROM ledger WHERE user_id=? ORDER BY id DESC LIMIT ?",
             (user_id, limit),
         ).fetchall()
-    return [row_to_dict(r) for r in rows]  # type: ignore[misc]
+    out: list[dict[str, Any]] = []
+    for r in rows:
+        item = row_to_dict(r)
+        if not item:
+            continue
+        item["kind_label"] = ledger_kind_label(str(item.get("kind") or ""))
+        out.append(item)
+    return out
 
 
 def recent_calls(user_id: int = 1, limit: int = 20) -> list[dict[str, Any]]:
@@ -1451,6 +1481,26 @@ def _action_bucket(action: str) -> str:
     return "其他"
 
 
+def legacy_action_counts(user_id: int = 1) -> dict[str, Any]:
+    """交割列表只读小计：销毁 / 变现 / 转赠（及清除）。"""
+    items = list_legacy(user_id)
+    buckets = ["销毁", "变现", "转赠", "清除"]
+    counts = {b: 0 for b in buckets}
+    for it in items:
+        b = _action_bucket(it.get("action"))
+        if b in counts:
+            counts[b] += 1
+    return {
+        "destroy": counts["销毁"],
+        "sale": counts["变现"],
+        "gift": counts["转赠"],
+        "clear": counts["清除"],
+        "total": len(items),
+        "by_action": [{"action": b, "count": counts[b]} for b in buckets],
+        "label": "当前列表只读小计",
+    }
+
+
 def legacy_progress(user_id: int = 1) -> dict[str, Any]:
     """按处置类型统计交割条目完成度（有条目=已填该桶）。"""
     items = list_legacy(user_id)
@@ -1472,6 +1522,12 @@ def legacy_progress(user_id: int = 1) -> dict[str, Any]:
         "filled_types": filled,
         "total_types": total,
         "pct": int(filled / total * 100) if total else 0,
+        "action_counts": {
+            "destroy": counts["销毁"],
+            "sale": counts["变现"],
+            "gift": counts["转赠"],
+            "clear": counts["清除"],
+        },
     }
 
 
@@ -1678,12 +1734,23 @@ def _aftercare_status_meta(row: dict[str, Any], ready: bool) -> dict[str, str]:
     return {"status_key": "submitted", "status_label": "已提交", "status_tone": "queued"}
 
 
-def list_aftercare(user_id: int = 1) -> list[dict[str, Any]]:
+def list_aftercare(
+    user_id: int = 1, service_type: str = ""
+) -> list[dict[str, Any]]:
     ready = auth_video_ready(user_id)
+    st = str(service_type or "").strip()
     with connect() as conn:
-        rows = conn.execute(
-            "SELECT * FROM aftercare_jobs WHERE user_id=? ORDER BY id DESC", (user_id,)
-        ).fetchall()
+        if st:
+            rows = conn.execute(
+                "SELECT * FROM aftercare_jobs WHERE user_id=? AND service_type=? "
+                "ORDER BY id DESC",
+                (user_id, st),
+            ).fetchall()
+        else:
+            rows = conn.execute(
+                "SELECT * FROM aftercare_jobs WHERE user_id=? ORDER BY id DESC",
+                (user_id,),
+            ).fetchall()
     out: list[dict[str, Any]] = []
     for r in rows:
         item = row_to_dict(r)
@@ -1932,11 +1999,20 @@ def recent_audit(
     return items
 
 
-def list_beneficiaries(user_id: int = 1) -> list[dict[str, Any]]:
+def list_beneficiaries(user_id: int = 1, role: str = "") -> list[dict[str, Any]]:
+    role = str(role or "").strip().lower()
     with connect() as conn:
-        rows = conn.execute(
-            "SELECT * FROM beneficiaries WHERE user_id=? ORDER BY id DESC", (user_id,)
-        ).fetchall()
+        if role:
+            rows = conn.execute(
+                "SELECT * FROM beneficiaries WHERE user_id=? AND lower(role)=? "
+                "ORDER BY id DESC",
+                (user_id, role),
+            ).fetchall()
+        else:
+            rows = conn.execute(
+                "SELECT * FROM beneficiaries WHERE user_id=? ORDER BY id DESC",
+                (user_id,),
+            ).fetchall()
     return [row_to_dict(r) for r in rows]  # type: ignore[misc]
 
 
@@ -2468,6 +2544,18 @@ def auth_video_status(user_id: int = 1) -> dict[str, Any]:
             c["done"] = True
             c["demo_checked"] = True
     done_n = sum(1 for c in checklist if c.get("done"))
+    missing = [
+        {"key": c["key"], "label": c["label"]}
+        for c in checklist
+        if not c.get("done")
+    ]
+    missing_labels = [m["label"] for m in missing]
+    if ready:
+        missing_text = "三项已齐备，可按自己的节奏提交善后工单。"
+    elif missing_labels:
+        missing_text = "还差：" + "、".join(missing_labels) + "。补齐后即可提交。"
+    else:
+        missing_text = "三项齐备后即可提交善后工单。"
     return {
         "ready": ready,
         "complete": ready,
@@ -2477,6 +2565,9 @@ def auth_video_status(user_id: int = 1) -> dict[str, Any]:
         "items": items,
         "latest": latest,
         "checklist": checklist,
+        "missing": missing,
+        "missing_labels": missing_labels,
+        "missing_text": missing_text,
         "gate": "未完成授权视频前，不可提交善后工单",
     }
 

@@ -938,6 +938,138 @@ def main() -> None:
     me12 = call("/api/me")["user"]
     assert "is_member" in me12, me12
 
+    # Round13 · 交割动作统计条（只读小计）
+    lg13 = call("/api/legacy")
+    assert "action_counts" in lg13, lg13
+    acounts = lg13["action_counts"]
+    assert "destroy" in acounts and "sale" in acounts and "gift" in acounts, acounts
+    assert "by_action" in acounts and "total" in acounts, acounts
+    call(
+        "/api/legacy",
+        {"title": "自检·动作统计销毁", "category": "其他", "action": "销毁"},
+    )
+    call(
+        "/api/legacy",
+        {"title": "自检·动作统计变现", "category": "其他", "action": "销售变现"},
+    )
+    call(
+        "/api/legacy",
+        {"title": "自检·动作统计转赠", "category": "其他", "action": "销毁数据后转赠"},
+    )
+    lg13b = call("/api/legacy")["action_counts"]
+    assert lg13b["destroy"] >= 1 and lg13b["sale"] >= 1 and lg13b["gift"] >= 1, lg13b
+
+    # Round13 · 备忘部门筛选
+    as_dept = call(
+        "/api/assets",
+        {
+            "platform": "自检部门平台",
+            "dispose_note": "销毁",
+            "dept": "finance",
+        },
+    )["item"]
+    assert as_dept.get("dept") == "finance", as_dept
+    by_as_dept = call("/api/assets?" + urllib.parse.urlencode({"dept": "finance"}))
+    assert by_as_dept.get("dept") == "finance", by_as_dept
+    assert by_as_dept.get("items") and all(
+        (it.get("dept") or "") == "finance" for it in by_as_dept["items"]
+    ), by_as_dept
+
+    # Round13 · 报备仍可用（下一步 chip 为前端）
+    call("/api/checkin", {})
+    ck13 = call("/api/checkin/status")
+    assert "user" in ck13, ck13
+
+    # Round13 · 会员账单 kind 中文标签
+    me13 = call("/api/me")
+    assert me13.get("ledger"), me13
+    for row in me13["ledger"]:
+        assert "kind_label" in row and str(row["kind_label"]).strip(), row
+    assert any(
+        r.get("kind") == "membership" and "会员" in str(r.get("kind_label") or "")
+        for r in me13["ledger"]
+    ), me13["ledger"][:3]
+
+    # Round13 · 差旅充值快捷金额数据源（演示预存仍可用）
+    tf13 = call("/api/travel-fund", {"amount": 3000})["fund"]
+    assert tf13["balance"] >= 3000, tf13
+    tf13b = call("/api/travel-fund", {"amount": 5000})["fund"]
+    assert tf13b["balance"] >= 5000, tf13b
+
+    # Round13 · 工单按服务类型筛选
+    call(
+        "/api/auth-video",
+        {
+            "demo": True,
+            "has_greeting": True,
+            "has_authorize": True,
+            "has_plan": True,
+            "note": "round13",
+        },
+    )
+    job13 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·类型筛选上门",
+            "service_type": "field_visit",
+            "city": "三亚",
+            "travel_budget": 2000,
+        },
+    )
+    job13 = job13.get("item") or job13.get("job") or job13
+    assert job13.get("service_type") == "field_visit", job13
+    by_type = call(
+        "/api/aftercare?" + urllib.parse.urlencode({"service_type": "field_visit"})
+    )
+    assert by_type.get("service_type") == "field_visit", by_type
+    assert by_type.get("items") and all(
+        it.get("service_type") == "field_visit" for it in by_type["items"]
+    ), by_type
+    del_only = call(
+        "/api/aftercare?" + urllib.parse.urlencode({"service_type": "delete_data"})
+    )
+    assert all(
+        it.get("service_type") == "delete_data" for it in del_only.get("items") or []
+    ), del_only
+
+    # Round13 · 授权视频缺失项提示字段
+    av13 = call("/api/auth-video")
+    assert "missing" in av13 and "missing_text" in av13, av13
+    assert "missing_labels" in av13, av13
+    assert isinstance(av13["missing"], list), av13
+    if av13.get("ready") or av13.get("complete"):
+        assert av13["missing"] == [] or av13.get("missing_labels") == [], av13
+    else:
+        assert len(av13["missing"]) >= 1, av13
+
+    # Round13 · 受益人角色筛选
+    call(
+        "/api/beneficiaries",
+        {"name": "自检角色筛选继承人", "role": "heir", "contact": "13300000013"},
+    )
+    call(
+        "/api/beneficiaries",
+        {"name": "自检角色筛选家属", "role": "family", "contact": "13300000014"},
+    )
+    heirs13 = call("/api/beneficiaries?" + urllib.parse.urlencode({"role": "heir"}))
+    assert heirs13.get("role") == "heir", heirs13
+    assert heirs13.get("items") and all(
+        str(it.get("role") or "").lower() == "heir" for it in heirs13["items"]
+    ), heirs13
+    fam13 = call("/api/beneficiaries?" + urllib.parse.urlencode({"role": "family"}))
+    assert fam13.get("role") == "family", fam13
+    assert fam13.get("items") and all(
+        str(it.get("role") or "").lower() == "family" for it in fam13["items"]
+    ), fam13
+
+    # Round13 · 手册分享提示常驻（share_hint）
+    hand13 = call("/api/handover")
+    assert "share_hint" in hand13 and str(hand13["share_hint"]).strip(), hand13
+
+    # Round13 · 设置重置偏好为前端 localStorage；设置相关 API 仍可读
+    summary13 = call("/api/counts-summary")
+    assert "cards" in summary13, summary13
+
     print("selfcheck OK")
 
 
