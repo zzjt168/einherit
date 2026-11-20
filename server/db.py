@@ -606,8 +606,11 @@ def update_user(user_id: int, **fields: Any) -> dict[str, Any]:
     return get_user(user_id)
 
 
-def list_legacy(user_id: int = 1, dept: str = "") -> list[dict[str, Any]]:
+def list_legacy(
+    user_id: int = 1, dept: str = "", q: str = ""
+) -> list[dict[str, Any]]:
     dept = str(dept or "").strip()
+    q = str(q or "").strip().lower()
     with connect() as conn:
         if dept:
             rows = conn.execute(
@@ -618,7 +621,21 @@ def list_legacy(user_id: int = 1, dept: str = "") -> list[dict[str, Any]]:
             rows = conn.execute(
                 "SELECT * FROM legacy_items WHERE user_id=? ORDER BY id DESC", (user_id,)
             ).fetchall()
-    return [row_to_dict(r) for r in rows]  # type: ignore[misc]
+    items = [row_to_dict(r) for r in rows]  # type: ignore[misc]
+    if not q:
+        return items
+    out: list[dict[str, Any]] = []
+    for it in items:
+        hay = " ".join(
+            [
+                str(it.get("title") or ""),
+                str(it.get("beneficiary") or ""),
+                str(it.get("notes") or ""),
+            ]
+        ).lower()
+        if q in hay:
+            out.append(it)
+    return out
 
 
 def _resolve_legacy_beneficiary(
@@ -2399,12 +2416,17 @@ def auth_video_status(user_id: int = 1) -> dict[str, Any]:
             "demo_checked": bool(latest and latest.get("has_plan")),
         },
     ]
-    if auth_video_ready(user_id):
+    ready = auth_video_ready(user_id)
+    if ready:
         for c in checklist:
             c["done"] = True
             c["demo_checked"] = True
+    done_n = sum(1 for c in checklist if c.get("done"))
     return {
-        "ready": auth_video_ready(user_id),
+        "ready": ready,
+        "complete": ready,
+        "complete_label": "三项齐备，可提交善后工单" if ready else "三项齐备后即可提交善后工单",
+        "progress": {"done": done_n, "total": 3},
         "script": AUTH_VIDEO_SCRIPT,
         "items": items,
         "latest": latest,
@@ -2932,4 +2954,115 @@ def counts_summary(user_id: int = 1) -> dict[str, Any]:
         "text": text,
         "note": "温和自检摘要，便于确认本机数据是否就绪。",
         "domain": "einherit.cn",
+        "cards": [
+            {"key": "legacy", "label": "交割", "count": counts["legacy"]},
+            {"key": "assets", "label": "备忘", "count": counts["assets"]},
+            {"key": "beneficiaries", "label": "受益人", "count": counts["beneficiaries"]},
+            {"key": "aftercare", "label": "工单", "count": counts["aftercare"]},
+        ],
+    }
+
+
+# ── Round11 · 用得下去与信任闭环（不改报备外呼 / 断缴退款状态机）──
+
+
+def set_checkin_interval(user_id: int, hours: float) -> dict[str, Any]:
+    """只写报备间隔小时数；不触碰外呼升级机。"""
+    hours = float(hours or 0)
+    if hours < 1:
+        raise ValueError("报备间隔至少 1 小时")
+    if hours > 24 * 30:
+        raise ValueError("报备间隔请控制在 30 天以内")
+    user = update_user(user_id, checkin_interval_hours=hours)
+    readable = checkin_readable(user_id)
+    return {
+        "user": user,
+        "interval_hours": float(user.get("checkin_interval_hours") or hours),
+        "readable": readable.get("readable") or "",
+        "note": "已更新报备间隔；外呼升级流程未改动。",
+    }
+
+
+def aftercare_budget_hint(user_id: int, budget: float = 0) -> dict[str, Any]:
+    """单笔工单预算相对差旅预存余额的温和对照（不改退款）。"""
+    fund = get_travel(user_id)
+    balance = float(fund.get("balance") or 0)
+    threshold = float(fund.get("threshold") or 2000)
+    budget = max(0.0, float(budget or 0))
+    within = budget <= balance if budget > 0 else True
+    if budget <= 0:
+        tone = "soft"
+        text = (
+            f"当前预存余额 ¥{balance:.0f}（建议门槛 ¥{threshold:.0f}）。"
+            "填写单笔差旅预算后，可对照是否在余额内。"
+        )
+    elif within:
+        tone = "ok"
+        text = (
+            f"本笔预算 ¥{budget:.0f}，相对预存余额 ¥{balance:.0f} 在可对照范围内。"
+            "按自己节奏安排即可。"
+        )
+    else:
+        tone = "care"
+        text = (
+            f"本笔预算 ¥{budget:.0f}，略高于当前预存余额 ¥{balance:.0f}。"
+            "可先调低预算，或到差旅页温和补存；退款流程不变。"
+        )
+    return {
+        "balance": balance,
+        "threshold": threshold,
+        "budget": budget,
+        "within_balance": within,
+        "meets_threshold": bool(fund.get("meets_threshold") or fund.get("met")),
+        "tone": tone,
+        "text": text,
+        "note": "只读对照提示，不改断缴退款状态机。",
+    }
+
+
+def handover_print_checklist(user_id: int = 1) -> dict[str, Any]:
+    """手册打印前只读检查：执行人、条目数、受益人数。"""
+    hand = handover_checklist(user_id)
+    u = get_user(user_id)
+    executor_raw = str(u.get("executor_name") or "").strip()
+    executor_filled = bool(executor_raw)
+    item_count = int(hand.get("item_count") or 0)
+    beneficiary_count = int(hand.get("beneficiary_count") or len(hand.get("heirs") or []))
+    items = [
+        {
+            "key": "executor",
+            "label": "执行人",
+            "ok": executor_filled,
+            "value": executor_raw if executor_filled else "尚未填写",
+            "hint": "已填写执行人" if executor_filled else "可到报备页填写遗产执行人",
+        },
+        {
+            "key": "items",
+            "label": "交割条目",
+            "ok": item_count > 0,
+            "value": f"{item_count} 条",
+            "hint": "已有交割条目" if item_count > 0 else "可到交割页先写一条安排",
+        },
+        {
+            "key": "beneficiaries",
+            "label": "受益人",
+            "ok": beneficiary_count > 0,
+            "value": f"{beneficiary_count} 人",
+            "hint": "名册已有人" if beneficiary_count > 0 else "可到受益人名册添加一位",
+        },
+    ]
+    ready_n = sum(1 for it in items if it["ok"])
+    return {
+        "items": items,
+        "ready_count": ready_n,
+        "total": len(items),
+        "executor_filled": executor_filled,
+        "item_count": item_count,
+        "beneficiary_count": beneficiary_count,
+        "export_path": hand.get("export_path") or "/export/handover.html",
+        "text": (
+            f"打印前检查：执行人{'已填' if executor_filled else '未填'} · "
+            f"条目 {item_count} · 受益人 {beneficiary_count}"
+        ),
+        "note": "只读清单，便于导出前温和核对；不改交割内容。",
     }

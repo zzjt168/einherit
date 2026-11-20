@@ -712,6 +712,124 @@ def main() -> None:
         assert key in summary["counts"], summary
     assert summary.get("domain") == "einherit.cn", summary
 
+    # Round11 · 交割搜索（标题/接收人）
+    search_item = call(
+        "/api/legacy",
+        {
+            "title": "自检·搜索关键词甲",
+            "category": "其他",
+            "action": "销毁",
+            "beneficiary": "搜索接收人乙",
+        },
+    )["item"]
+    by_title = call(
+        "/api/legacy?" + urllib.parse.urlencode({"q": "搜索关键词甲"})
+    )
+    assert by_title.get("q") == "搜索关键词甲", by_title
+    assert by_title.get("items") and any(
+        int(it.get("id") or 0) == int(search_item["id"]) for it in by_title["items"]
+    ), by_title
+    by_bene = call(
+        "/api/legacy?" + urllib.parse.urlencode({"q": "搜索接收人乙"})
+    )
+    assert by_bene.get("items") and any(
+        int(it.get("id") or 0) == int(search_item["id"]) for it in by_bene["items"]
+    ), by_bene
+
+    # Round11 · 受益人挂接快捷选（beneficiary_id）
+    b11 = call(
+        "/api/beneficiaries",
+        {"name": "自检挂接受益人", "role": "heir", "contact": "13400000011"},
+    )["item"]
+    linked11 = call(
+        "/api/legacy",
+        {
+            "title": "自检·挂接受益人条目",
+            "category": "其他",
+            "action": "转赠",
+            "beneficiary_id": b11["id"],
+        },
+    )["item"]
+    assert linked11.get("beneficiary_id") == b11["id"], linked11
+    assert linked11.get("beneficiary") == b11["name"], linked11
+
+    # Round11 · 报备间隔可调（只写 interval）
+    interval_get = call("/api/checkin/interval")
+    assert "interval_hours" in interval_get and "readable" in interval_get, interval_get
+    prev_hours = float(interval_get.get("interval_hours") or 24)
+    new_hours = 36 if prev_hours != 36 else 48
+    interval_set = call("/api/checkin/interval", {"interval_hours": new_hours})
+    assert float(interval_set.get("interval_hours") or 0) == float(new_hours), interval_set
+    assert "外呼" in (interval_set.get("note") or "") or "间隔" in (
+        interval_set.get("note") or ""
+    ), interval_set
+    again = call("/api/checkin/interval")
+    assert float(again.get("interval_hours") or 0) == float(new_hours), again
+    # restore gentle default-ish
+    call("/api/checkin/interval", {"interval_hours": prev_hours})
+
+    # Round11 · 差旅门槛达标字段（徽标数据源）
+    tf11 = call("/api/travel-fund")["fund"]
+    assert "meets_threshold" in tf11 or "met" in tf11, tf11
+    assert tf11.get("threshold") == 2000, tf11
+
+    # Round11 · 工单差旅预算对照提示（上文演示断缴后退款，先补存再对照）
+    call("/api/membership/pay", {})
+    call("/api/travel-fund", {"amount": 2000})
+    hint_ok = call(
+        "/api/aftercare/budget-hint?" + urllib.parse.urlencode({"budget": "100"})
+    )
+    assert "text" in hint_ok and "tone" in hint_ok and "balance" in hint_ok, hint_ok
+    assert hint_ok.get("within_balance") is True, hint_ok
+    assert hint_ok.get("tone") == "ok", hint_ok
+    hint_zero = call("/api/aftercare/budget-hint?" + urllib.parse.urlencode({"budget": "0"}))
+    assert hint_zero.get("tone") == "soft", hint_zero
+    hint_hi = call(
+        "/api/aftercare/budget-hint",
+        {"budget": 999999},
+    )
+    assert hint_hi.get("within_balance") is False, hint_hi
+    assert hint_hi.get("tone") in ("care", "soft"), hint_hi
+    assert "退款" in (hint_hi.get("note") or "") or "对照" in (hint_hi.get("text") or ""), hint_hi
+
+    # Round11 · 授权视频完成态字段
+    av11 = call("/api/auth-video")
+    assert "complete" in av11 and "complete_label" in av11, av11
+    assert "progress" in av11 and av11["progress"].get("total") == 3, av11
+    if av11.get("ready"):
+        assert av11.get("complete") is True, av11
+
+    # Round11 · 紧急取用列表可读（空态为前端）
+    em11 = call("/api/emergency")
+    assert "items" in em11 and isinstance(em11["items"], list), em11
+
+    # Round11 · 手册打印前检查清单
+    pre = call("/api/handover/print-checklist")
+    assert "items" in pre and len(pre["items"]) == 3, pre
+    assert "executor_filled" in pre and "item_count" in pre, pre
+    assert "beneficiary_count" in pre and "text" in pre, pre
+    keys = {it.get("key") for it in pre["items"]}
+    assert keys == {"executor", "items", "beneficiaries"}, pre
+
+    # Round11 · 医旅意向备注字段（展开为前端）
+    hospitals = call("/api/hospitals")["items"]
+    long_note = "自检医旅长备注·" + ("温和说明。" * 8)
+    intent11 = call(
+        "/api/hospitals/intent",
+        {"hospital_id": hospitals[0]["id"], "note": long_note},
+    )
+    intent11 = intent11.get("intent") or intent11.get("item")
+    assert intent11 and len(str(intent11.get("note") or "")) > 40, intent11
+
+    # Round11 · 设置·数据体量一览（counts-summary cards）
+    summary11 = call("/api/counts-summary")
+    assert "cards" in summary11 and isinstance(summary11["cards"], list), summary11
+    assert len(summary11["cards"]) >= 4, summary11
+    card_keys = {c.get("key") for c in summary11["cards"]}
+    assert {"legacy", "assets", "beneficiaries", "aftercare"} <= card_keys, summary11
+    for c in summary11["cards"]:
+        assert "label" in c and "count" in c, c
+
     print("selfcheck OK")
 
 
