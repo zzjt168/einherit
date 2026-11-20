@@ -1640,3 +1640,53 @@ body.privacy-mode .privacy-hint { opacity: 0.85; }
 #settingsIntervalCard, #checkinIntervalCard { margin-top: 10px; }
 #handPrintChecklist { margin-top: 10px; }
 #settingsDataVolumeCard { margin-top: 10px; }
+
+/* Round12 · 完成感与少踩坑 */
+.lg-select-all-row {
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 8px 0 4px;
+  align-items: center;
+}
+.member-pill-clickable {
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.member-pill-clickable:hover,
+.member-pill-clickable:focus-visible {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(42, 51, 64, 0.12);
+  outline: none;
+}
+.as-due-soon {
+  margin: 8px 0 10px;
+}
+.as-due-soon .as-due-list {
+  margin-top: 8px;
+}
+.travel-last-refund {
+  margin-top: 10px;
+  border-color: #d5e4da;
+  background: linear-gradient(180deg, #f7fbf8 0%, var(--card, #fff) 70%);
+}
+.ac-contact-window {
+  margin-top: 4px;
+}
+.brain-empty-tip {
+  margin: 0 0 12px;
+}
+.snap-compare-panel {
+  margin-top: 10px;
+}
+.snap-compare-detail {
+  margin-top: 10px;
+}
+#medIntlChipBar {
+  margin: 8px 0 10px;
+}
+.about-privacy-btn {
+  margin-top: 12px;
+}
+.about-privacy-hint {
+  margin-top: 8px;
+}
