@@ -1690,3 +1690,60 @@ body.privacy-mode .privacy-hint { opacity: 0.85; }
 .about-privacy-hint {
   margin-top: 8px;
 }
+
+/* Round13 · 温和增量 */
+.lg-action-stats {
+  margin: 8px 16px 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #f5f8f6 0%, #fff 80%);
+  border: 1px solid var(--line, #e2e8e4);
+}
+.lg-action-stats-label {
+  font-size: 13px;
+  color: var(--muted, #6b7585);
+  margin-bottom: 8px;
+}
+.lg-action-stats-row {
+  gap: 8px;
+}
+.lg-action-stats-row .box b {
+  font-size: 16px;
+}
+#asDeptFilterBar,
+#acTypeFilterBar,
+#bnRoleFilterBar,
+#travelQuickAmts {
+  margin: 8px 0 10px;
+}
+.checkin-next-chips {
+  margin: 8px 16px 0;
+  align-items: center;
+}
+.checkin-next-label {
+  font-size: 13px;
+  margin-right: 4px;
+}
+.av-missing-tip {
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: #f7f9f8;
+  border: 1px solid var(--line, #e2e8e4);
+}
+.av-missing-list {
+  margin: 6px 0 0;
+  padding-left: 1.2em;
+  color: var(--ink, #2a3340);
+  line-height: 1.6;
+}
+.share-hint-bar {
+  margin: 8px 16px 0;
+  display: block;
+}
+.share-hint-bar[hidden] {
+  display: none;
+}
+#resetPrefsCard {
+  margin-top: 10px;
+}

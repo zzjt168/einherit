@@ -209,12 +209,16 @@ class Handler(BaseHTTPRequestHandler):
                     "items": db.list_legacy(1, dept=dept, q=q),
                     "dept": dept or "",
                     "q": q or "",
+                    "action_counts": db.legacy_action_counts(1),
                 }
             elif path == "/api/assets":
                 visibility = (qs.get("visibility") or [""])[0]
                 sort = (qs.get("sort") or [""])[0]
+                dept = (qs.get("dept") or [""])[0]
                 if str(sort or "").strip().lower() in ("due", "review_at", "review"):
-                    part = db.assets_due_partition(1, visibility=visibility)
+                    part = db.assets_due_partition(
+                        1, visibility=visibility, dept=dept
+                    )
                     out = {
                         "items": part["items"],
                         "due_soon": part["due_soon"],
@@ -223,12 +227,16 @@ class Handler(BaseHTTPRequestHandler):
                         "sort": part["sort"],
                         "note": part["note"],
                         "visibility": visibility or "",
+                        "dept": dept or "",
                     }
                 else:
                     out = {
-                        "items": db.list_assets(1, visibility=visibility, sort=sort),
+                        "items": db.list_assets(
+                            1, visibility=visibility, sort=sort, dept=dept
+                        ),
                         "visibility": visibility or "",
                         "sort": sort or "",
+                        "dept": dept or "",
                     }
             elif path == "/api/hospitals":
                 q = (qs.get("q") or [""])[0]
@@ -279,9 +287,11 @@ class Handler(BaseHTTPRequestHandler):
             elif path == "/api/handover":
                 out = db.handover_checklist(1)
             elif path == "/api/aftercare":
+                stype = (qs.get("service_type") or [""])[0]
                 out = {
-                    "items": db.list_aftercare(1),
+                    "items": db.list_aftercare(1, service_type=stype),
                     "playbook": db.aftercare_playbook(),
+                    "service_type": stype or "",
                 }
             elif path == "/api/icu-pack":
                 out = {
@@ -295,7 +305,11 @@ class Handler(BaseHTTPRequestHandler):
             elif path == "/api/icu-checklist":
                 out = db.icu_checklist_state(1)
             elif path == "/api/beneficiaries":
-                out = {"items": db.list_beneficiaries(1)}
+                role = (qs.get("role") or [""])[0]
+                out = {
+                    "items": db.list_beneficiaries(1, role=role),
+                    "role": role or "",
+                }
             elif path == "/api/emergency":
                 out = {"items": db.list_emergency(1)}
             elif path == "/api/audit":
