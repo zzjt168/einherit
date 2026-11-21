@@ -1921,3 +1921,99 @@ body.privacy-mode .privacy-hint { opacity: 0.85; }
 #backupExportCard {
   margin-top: 10px;
 }
+
+/* Round15 · 安心闭环 */
+.todo-item {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  padding: 0;
+  overflow: hidden;
+}
+.todo-check {
+  display: grid;
+  place-items: center;
+  padding: 0 10px;
+  border-right: 1px solid var(--line, #e2e8e4);
+  background: #fafcfb;
+  cursor: pointer;
+}
+.todo-go {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-align: left;
+  padding: 10px 12px;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  min-width: 0;
+}
+.lg-missing-bene-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 8px 0 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: #f7f9f8;
+  border: 1px solid var(--line, #e2e8e4);
+}
+.lg-missing-bene-bar[hidden] {
+  display: none;
+}
+.benefit-rows {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+}
+.benefit-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--line, #e2e8e4);
+  background: #fff;
+}
+.benefit-row.ready {
+  background: #f5f9f6;
+}
+.benefit-mark {
+  flex: 0 0 auto;
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--gold-soft, #f3e8d5);
+  color: #6b5a3a;
+}
+.benefit-row.ready .benefit-mark {
+  background: var(--sage-soft, #e6f0ea);
+  color: var(--sage-deep, #2f5d45);
+}
+.benefit-body {
+  flex: 1;
+  min-width: 0;
+}
+.soft-banner-cta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.av-script-copy-bar {
+  margin-top: 4px;
+}
+.large-text-preview {
+  margin: 8px 0 0;
+  font-size: 13px;
+  line-height: 1.45;
+}
+#asReviewCalCard {
+  margin-bottom: 10px;
+}
+#medIntentSearchBox {
+  margin-bottom: 10px;
+}

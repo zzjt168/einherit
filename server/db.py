@@ -1029,6 +1029,7 @@ def list_med_intents(
     limit: int = 40,
     include_cancelled: bool = True,
     status: str = "",
+    q: str = "",
 ) -> list[dict[str, Any]]:
     with connect() as conn:
         rows = conn.execute(
@@ -1064,6 +1065,20 @@ def list_med_intents(
             for i in items
             if (i.get("status") or "") == want
             or (want == "pending" and (i.get("status") or "") in ("pending", "open"))
+        ]
+    needle = str(q or "").strip().lower()
+    if needle:
+        items = [
+            i
+            for i in items
+            if needle
+            in " ".join(
+                [
+                    str(i.get("hospital_name") or ""),
+                    str(i.get("hospital_city") or ""),
+                    str(i.get("note") or ""),
+                ]
+            ).lower()
         ]
     return items
 
@@ -3424,4 +3439,153 @@ def handover_print_checklist(user_id: int = 1) -> dict[str, Any]:
             f"条目 {item_count} · 受益人 {beneficiary_count}"
         ),
         "note": "只读清单，便于导出前温和核对；不改交割内容。",
+    }
+
+
+# ── Round15 · 安心闭环与少打断（不改报备外呼 / 断缴退款状态机）──
+
+
+def legacy_missing_beneficiary(user_id: int = 1) -> dict[str, Any]:
+    """交割条目中尚未指定接收人的冷静汇总。"""
+    items = [
+        it
+        for it in list_legacy(user_id)
+        if not str(it.get("beneficiary") or "").strip()
+        and not int(it.get("beneficiary_id") or 0)
+    ]
+    n = len(items)
+    return {
+        "count": n,
+        "items": items,
+        "hint": (
+            f"有 {n} 条交割安排还没写接收人。慢慢补上即可，不着急。"
+            if n
+            else "交割条目都已指定接收人，或还没有条目。"
+        ),
+        "cta": "筛出未指定",
+        "note": "只读汇总，便于补全；不改交割状态机。",
+    }
+
+
+def assets_review_calendar(user_id: int = 1, days: int = 14) -> dict[str, Any]:
+    """近 N 天有 review_at 的备忘日期温和标记（对标报备日历）。"""
+    days = max(1, min(int(days or 14), 60))
+    today = time.localtime()
+    today_mid = time.mktime(
+        (
+            today.tm_year,
+            today.tm_mon,
+            today.tm_mday,
+            12,
+            0,
+            0,
+            today.tm_wday,
+            today.tm_yday,
+            today.tm_isdst,
+        )
+    )
+    window_start = time.strftime(
+        "%Y-%m-%d", time.localtime(today_mid - (days - 1) * 86400)
+    )
+    window_end = time.strftime("%Y-%m-%d", today)
+    marked: dict[str, list[dict[str, Any]]] = {}
+    for it in list_assets(user_id):
+        raw = str(it.get("review_at") or "").strip()
+        if not raw:
+            continue
+        day = raw[:10]
+        if len(day) < 10:
+            continue
+        if day < window_start or day > window_end:
+            continue
+        marked.setdefault(day, []).append(
+            {
+                "id": it.get("id"),
+                "platform": it.get("platform") or "",
+                "review_at": raw,
+            }
+        )
+    day_list: list[dict[str, Any]] = []
+    for i in range(days - 1, -1, -1):
+        t = today_mid - i * 86400
+        local = time.localtime(t)
+        iso = time.strftime("%Y-%m-%d", local)
+        hits = marked.get(iso) or []
+        day_list.append(
+            {
+                "date": iso,
+                "label": time.strftime("%m/%d", local),
+                "weekday": "一二三四五六日"[local.tm_wday],
+                "has_review": bool(hits),
+                "review_count": len(hits),
+                "items": hits,
+                "is_today": i == 0,
+            }
+        )
+    marked_n = sum(1 for d in day_list if d["has_review"])
+    return {
+        "days": days,
+        "items": day_list,
+        "marked_count": marked_n,
+        "note": "只读日历：有检视日的备忘会温和标出，按自己节奏看看即可。",
+        "text": f"近 {days} 天有 {marked_n} 天安排了备忘检视。",
+    }
+
+
+def membership_benefits(user_id: int = 1) -> dict[str, Any]:
+    """会员页只读：报备 / 差旅门槛 / 手册导出 三行是否就绪。"""
+    u = get_user(user_id)
+    fund = get_travel(user_id)
+    hand = handover_checklist(user_id)
+    ck_ok = not bool(u.get("checkin_overdue")) and not bool(u.get("checkin_in_grace"))
+    travel_ok = bool(fund.get("meets_threshold") or fund.get("met"))
+    export_ok = int(hand.get("item_count") or 0) > 0
+    rows = [
+        {
+            "key": "checkin",
+            "label": "生存报备",
+            "ready": ck_ok,
+            "detail": (
+                "报备节奏正常"
+                if ck_ok
+                else (
+                    "报备点已过，仍在冷静期"
+                    if u.get("checkin_in_grace")
+                    else "报备稍有延迟，点一下「我已安全」即可"
+                )
+            ),
+            "go": "checkin",
+        },
+        {
+            "key": "travel",
+            "label": "差旅门槛",
+            "ready": travel_ok,
+            "detail": (
+                f"预存已达建议门槛（余额 ¥{float(fund.get('balance') or 0):.0f}）"
+                if travel_ok
+                else f"预存余额 ¥{float(fund.get('balance') or 0):.0f}，建议 ≥¥{float(fund.get('threshold') or 2000):.0f}"
+            ),
+            "go": "travel",
+        },
+        {
+            "key": "handover_export",
+            "label": "手册导出",
+            "ready": export_ok,
+            "detail": (
+                f"交割手册可导出（{int(hand.get('item_count') or 0)} 条）"
+                if export_ok
+                else "还没有交割条目，写一条后即可导出"
+            ),
+            "go": "handover",
+            "export_path": hand.get("export_path") or "/export/handover.html",
+        },
+    ]
+    ready_n = sum(1 for r in rows if r["ready"])
+    return {
+        "is_member": bool(u.get("is_member")),
+        "rows": rows,
+        "ready_count": ready_n,
+        "total": len(rows),
+        "text": f"会员权益对照：{ready_n}/{len(rows)} 项就绪",
+        "note": "只读对照，不改报备外呼与断缴退款流程。",
     }
