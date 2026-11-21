@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 import json
+import re
 import sqlite3
 import time
 from pathlib import Path
@@ -1134,11 +1135,23 @@ def get_travel(user_id: int = 1) -> dict[str, Any]:
     return row
 
 
-def add_ledger(user_id: int, kind: str, amount: float, note: str = "") -> None:
+def add_ledger(
+    user_id: int,
+    kind: str,
+    amount: float,
+    note: str = "",
+    aftercare_id: int | None = None,
+) -> None:
+    note_out = str(note or "").strip()
+    aid = int(aftercare_id or 0)
+    if aid > 0:
+        tag = f"[aftercare:#{aid}]"
+        if tag not in note_out:
+            note_out = f"{note_out} · {tag}".strip(" ·") if note_out else tag
     with connect() as conn:
         conn.execute(
             "INSERT INTO ledger (user_id, kind, amount, note, created_at) VALUES (?,?,?,?,?)",
-            (user_id, kind, amount, note, time.time()),
+            (user_id, kind, amount, note_out, time.time()),
         )
         conn.commit()
 
@@ -1247,11 +1260,12 @@ def onboarding_status(user_id: int = 1) -> dict[str, Any]:
 
 
 def export_data_pack(user_id: int = 1) -> dict[str, Any]:
-    """一键导出：交割 + 备忘 + 受益人脱敏 JSON（演示包）。"""
+    """一键导出：交割 + 备忘 + 受益人 + 工单摘要脱敏 JSON（演示包）。"""
     u = get_user(user_id)
     legacy = list_legacy(user_id)
     assets = list_assets(user_id)
     bene = list_beneficiaries(user_id)
+    jobs = list_aftercare(user_id)
 
     def mask_phone(p: str) -> str:
         s = str(p or "").strip()
@@ -1325,21 +1339,51 @@ def export_data_pack(user_id: int = 1) -> dict[str, Any]:
             }
             for b in bene
         ],
-        "notice": "演示导出包：联系方式已脱敏；不含完整密码/私钥。",
+        "aftercare_jobs": [
+            {
+                "id": j.get("id"),
+                "title": j.get("title"),
+                "service_type": j.get("service_type"),
+                "city": j.get("city") or "",
+                "status": j.get("status"),
+                "status_label": j.get("status_label") or "",
+                "phase_label": j.get("phase_label") or "",
+                "travel_budget": j.get("travel_budget"),
+            }
+            for j in jobs
+        ],
+        "notice": (
+            "演示导出包：联系方式已脱敏；不含完整密码/私钥。"
+            "本机备份级，非云同步。"
+        ),
+        "backup_note": "演示级本机备份，温和说明：非云同步，请自行妥善保存。",
         "summary": {
             "legacy_count": len(legacy),
             "assets_count": len(assets),
             "beneficiaries_count": len(bene),
+            "aftercare_count": len(jobs),
             "backup_contacts_count": len(u.get("backup_contacts") or []),
             "exported_at": time.strftime("%Y-%m-%dT%H:%M:%S", time.localtime()),
             "domain": "einherit.cn",
             "text": (
                 f"电子继承导出摘要 · 交割 {len(legacy)} · 备忘 {len(assets)} · "
-                f"受益人 {len(bene)} · 备用联系人 {len(u.get('backup_contacts') or [])} · "
+                f"受益人 {len(bene)} · 工单 {len(jobs)} · "
+                f"备用联系人 {len(u.get('backup_contacts') or [])} · "
                 f"einherit.cn · {time.strftime('%Y-%m-%d %H:%M', time.localtime())}"
             ),
         },
     }
+
+
+def export_backup_pack(user_id: int = 1) -> dict[str, Any]:
+    """设置页一键备份：交割+备忘+受益人+工单摘要（演示级，非云同步）。"""
+    pack = export_data_pack(user_id)
+    pack["kind"] = "local_backup"
+    pack["backup_note"] = (
+        pack.get("backup_note")
+        or "演示级本机备份，温和说明：非云同步，请自行妥善保存。"
+    )
+    return pack
 
 
 def export_pack_summary(user_id: int = 1) -> dict[str, Any]:
@@ -1429,7 +1473,20 @@ LEDGER_KIND_LABELS = {
     "travel_deposit": "差旅预存",
     "travel_refund": "差旅退回",
     "checkin": "生存报备",
+    "aftercare_budget": "善后差旅预留",
 }
+
+_AFTERCARE_REF_RE = re.compile(r"\[aftercare:#(\d+)\]")
+
+
+def _parse_aftercare_ref(note: str) -> int | None:
+    m = _AFTERCARE_REF_RE.search(str(note or ""))
+    if not m:
+        return None
+    try:
+        return int(m.group(1))
+    except (TypeError, ValueError):
+        return None
 
 
 def ledger_kind_label(kind: str) -> str:
@@ -1455,6 +1512,17 @@ def recent_ledger(user_id: int = 1, limit: int = 20) -> list[dict[str, Any]]:
         if not item:
             continue
         item["kind_label"] = ledger_kind_label(str(item.get("kind") or ""))
+        aid = _parse_aftercare_ref(str(item.get("note") or ""))
+        if aid:
+            item["aftercare_id"] = aid
+            item["order_ref"] = aid
+            item["order_id"] = aid
+            item["has_aftercare_ref"] = True
+        else:
+            item["aftercare_id"] = None
+            item["order_ref"] = None
+            item["order_id"] = None
+            item["has_aftercare_ref"] = False
         out.append(item)
     return out
 
@@ -1588,7 +1656,43 @@ def handover_checklist(user_id: int = 1) -> dict[str, Any]:
             f"当前手册 {len(todos)} 条，与导出页条目数一致；"
             "打开打印页即可核对。"
         ),
+        "by_dept": _handover_by_dept(todos),
     }
+
+
+def _handover_by_dept(todos: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """交割手册按五部门折叠分组（只读预览）。"""
+    buckets: dict[str, list[dict[str, Any]]] = {d["id"]: [] for d in DEPTS}
+    other: list[dict[str, Any]] = []
+    for t in todos:
+        did = str(t.get("dept") or "").strip()
+        if did in buckets:
+            buckets[did].append(t)
+        else:
+            other.append(t)
+    out: list[dict[str, Any]] = []
+    for d in DEPTS:
+        items = buckets[d["id"]]
+        out.append(
+            {
+                "id": d["id"],
+                "name": d["name"],
+                "short": d.get("short") or d["name"],
+                "count": len(items),
+                "items": items,
+            }
+        )
+    if other:
+        out.append(
+            {
+                "id": "other",
+                "name": "未归类",
+                "short": "未归类",
+                "count": len(other),
+                "items": other,
+            }
+        )
+    return out
 
 
 def icu_pack_generated(user_id: int = 1) -> bool:
@@ -1603,6 +1707,7 @@ def today_todos(user_id: int = 1) -> dict[str, Any]:
     u = get_user(user_id)
     hand = handover_checklist(user_id)
     open_count = len(hand.get("todos") or [])
+    ck = checkin_readable(user_id)
     if u.get("checkin_overdue"):
         checkin_label = "报备稍有延迟"
         checkin_done = False
@@ -1624,6 +1729,8 @@ def today_todos(user_id: int = 1) -> dict[str, Any]:
                 "done": checkin_done,
                 "detail": checkin_label,
                 "go": "checkin",
+                "countdown_label": ck.get("countdown_label") or "",
+                "hours_remaining": ck.get("hours_remaining"),
             },
             {
                 "key": "icu",
@@ -1721,17 +1828,62 @@ def icu_pack_ready(user_id: int = 1) -> bool:
     return all(t["title"] in found for t in ICU_PACK)
 
 
-def _aftercare_status_meta(row: dict[str, Any], ready: bool) -> dict[str, str]:
-    """冷静状态标签：待授权 / 可执行 / 已提交（不恐吓）。"""
+AFTERCARE_PHASES = [
+    {"key": "pending_auth", "label": "待授权"},
+    {"key": "executable", "label": "可执行"},
+    {"key": "in_progress", "label": "进行中"},
+    {"key": "done", "label": "完成"},
+]
+
+
+def _aftercare_status_meta(row: dict[str, Any], ready: bool) -> dict[str, Any]:
+    """冷静状态标签：待授权 / 可执行 / 已提交（不恐吓）。阶段条只读映射，不改状态机。"""
     raw = str(row.get("status") or "queued")
     coop = str(row.get("coop_state") or "pending")
     if raw in ("done", "completed", "closed"):
-        return {"status_key": "done", "status_label": "已完成", "status_tone": "done"}
-    if not ready or raw in ("draft", "pending_auth"):
-        return {"status_key": "pending_auth", "status_label": "待授权", "status_tone": "wait"}
-    if coop == "cooperative" or raw in ("ready", "executable"):
-        return {"status_key": "executable", "status_label": "可执行", "status_tone": "ready"}
-    return {"status_key": "submitted", "status_label": "已提交", "status_tone": "queued"}
+        meta = {"status_key": "done", "status_label": "已完成", "status_tone": "done"}
+        phase_key = "done"
+    elif not ready or raw in ("draft", "pending_auth"):
+        meta = {
+            "status_key": "pending_auth",
+            "status_label": "待授权",
+            "status_tone": "wait",
+        }
+        phase_key = "pending_auth"
+    elif coop == "cooperative" or raw in ("ready", "executable"):
+        meta = {
+            "status_key": "executable",
+            "status_label": "可执行",
+            "status_tone": "ready",
+        }
+        phase_key = "executable"
+    elif raw in ("in_progress", "running", "active") or coop == "in_progress":
+        meta = {
+            "status_key": "submitted",
+            "status_label": "进行中",
+            "status_tone": "queued",
+        }
+        phase_key = "in_progress"
+    else:
+        # queued / submitted → 阶段条「进行中」
+        meta = {
+            "status_key": "submitted",
+            "status_label": "已提交",
+            "status_tone": "queued",
+        }
+        phase_key = "in_progress"
+    phase_idx = next(
+        (i for i, p in enumerate(AFTERCARE_PHASES) if p["key"] == phase_key), 0
+    )
+    meta.update(
+        {
+            "phase_key": phase_key,
+            "phase_label": AFTERCARE_PHASES[phase_idx]["label"],
+            "phase_index": phase_idx,
+            "phases": list(AFTERCARE_PHASES),
+        }
+    )
+    return meta
 
 
 def list_aftercare(
@@ -1760,6 +1912,10 @@ def list_aftercare(
         item["travel_budget_label"] = f"¥{float(item.get('travel_budget') or 0):.0f}"
         out.append(item)
     return out
+
+
+def aftercare_phases() -> list[dict[str, str]]:
+    return list(AFTERCARE_PHASES)
 
 
 def add_aftercare(user_id: int, payload: dict[str, Any]) -> dict[str, Any]:
@@ -1799,7 +1955,17 @@ def add_aftercare(user_id: int, payload: dict[str, Any]) -> dict[str, Any]:
     item = row_to_dict(row)
     assert item is not None
     item.update(_aftercare_status_meta(item, True))
-    item["travel_budget_label"] = f"¥{float(item.get('travel_budget') or 0):.0f}"
+    budget = float(item.get("travel_budget") or 0)
+    item["travel_budget_label"] = f"¥{budget:.0f}"
+    # 差旅流水可选挂工单引用（只写 ledger 备注标签，不改退款机）
+    if budget > 0 and rid:
+        add_ledger(
+            user_id,
+            "aftercare_budget",
+            0.0,
+            f"善后工单差旅预留 · {title}",
+            aftercare_id=int(rid),
+        )
     return item
 
 
@@ -2517,7 +2683,20 @@ def save_auth_video(
 
 def auth_video_status(user_id: int = 1) -> dict[str, Any]:
     items = list_auth_videos(user_id)
+    # 门槛通过的最新一条标「当前生效」（只读标注，不改门槛算法）
+    current_id = None
+    for it in items:
+        passed = bool(
+            it.get("has_greeting") and it.get("has_authorize") and it.get("has_plan")
+        ) and str(it.get("status") or "") != "rejected"
+        it["threshold_passed"] = passed
+        it["current_active"] = False
+        if passed and current_id is None:
+            current_id = it.get("id")
+            it["current_active"] = True
+            it["active_label"] = "当前生效"
     latest = items[0] if items else None
+    active = next((x for x in items if x.get("current_active")), None)
     checklist = [
         {
             "key": "greeting",
@@ -2564,6 +2743,8 @@ def auth_video_status(user_id: int = 1) -> dict[str, Any]:
         "script": AUTH_VIDEO_SCRIPT,
         "items": items,
         "latest": latest,
+        "current_active_id": current_id,
+        "current_active": active,
         "checklist": checklist,
         "missing": missing,
         "missing_labels": missing_labels,
@@ -2882,6 +3063,22 @@ def checkin_readable(user_id: int = 1) -> dict[str, Any]:
     last_iso = (
         time.strftime("%Y-%m-%d %H:%M", time.localtime(last_at)) if last_at else "尚未报备"
     )
+    now = time.time()
+    remaining_sec = max(0.0, next_at - now) if next_at else 0.0
+    hours_remaining = remaining_sec / 3600.0
+    if not last_at:
+        countdown_label = "完成一次报备后，这里会显示下次温和倒计时"
+        due_soon = False
+    elif next_at and remaining_sec <= 0:
+        countdown_label = "已到建议报备点，可按自己节奏完成"
+        due_soon = True
+    elif hours_remaining >= 1:
+        countdown_label = f"还可等约 {int(hours_remaining)} 小时"
+        due_soon = False
+    else:
+        mins = max(1, int(remaining_sec / 60))
+        countdown_label = f"还可等约 {mins} 分钟"
+        due_soon = True
     return {
         "interval_hours": interval,
         "grace_hours": float(u.get("grace_hours") or 72),
@@ -2889,9 +3086,14 @@ def checkin_readable(user_id: int = 1) -> dict[str, Any]:
         "next_suggested_at": next_at,
         "last_checkin_label": last_iso,
         "next_suggested_label": next_iso,
+        "hours_remaining": round(hours_remaining, 2),
+        "seconds_remaining": int(remaining_sec),
+        "countdown_label": countdown_label,
+        "due_soon": due_soon,
         "readable": (
             f"当前间隔 {interval:g} 小时；最近一次 {last_iso}；"
-            f"下次建议约在 {next_iso}。只读说明，不改外呼流程。"
+            f"下次建议约在 {next_iso}。{countdown_label}。"
+            "只读说明，不改外呼流程。"
         ),
     }
 
