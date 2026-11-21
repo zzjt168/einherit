@@ -1168,6 +1168,79 @@ def main() -> None:
     pack14 = call("/api/export/pack")
     assert "aftercare_jobs" in pack14, pack14
 
+    # Round15 · 首页今日待办数据源
+    today15 = call("/api/today")
+    assert "items" in today15 and len(today15["items"]) >= 3, today15
+    assert all("key" in x and "title" in x for x in today15["items"]), today15
+
+    # Round15 · 交割缺接收人汇总
+    miss_lg = call(
+        "/api/legacy",
+        {"title": "自检·无接收人条目", "category": "其他", "action": "销毁", "beneficiary": ""},
+    )["item"]
+    pending_bene = call("/api/legacy/missing-beneficiary")
+    assert pending_bene.get("count", 0) >= 1, pending_bene
+    assert any(
+        int(x.get("id") or 0) == int(miss_lg["id"]) for x in pending_bene.get("items") or []
+    ), pending_bene
+
+    # Round15 · 备忘复习到期日历
+    as_rev = call(
+        "/api/assets",
+        {
+            "platform": "自检检视日历平台",
+            "dispose_note": "转赠",
+            "draft": True,
+            "dept": "admin",
+        },
+    )["item"]
+    import time as _time
+
+    rev_day = _time.strftime(
+        "%Y-%m-%d", _time.localtime(_time.time() - 2 * 86400)
+    )
+    call("/api/assets/review-at", {"id": as_rev["id"], "review_at": rev_day})
+    rev_cal = call("/api/assets/review-calendar?days=14")
+    assert "items" in rev_cal and len(rev_cal["items"]) == 14, rev_cal
+    assert any(d.get("date") == rev_day and d.get("has_review") for d in rev_cal["items"]), rev_cal
+
+    # Round15 · 报备历史可读（折叠为前端）
+    hist15 = call("/api/checkin/history?limit=30")
+    assert "items" in hist15, hist15
+
+    # Round15 · 会员权益对照卡
+    bene15 = call("/api/membership/benefits")
+    assert "rows" in bene15 and len(bene15["rows"]) == 3, bene15
+    keys15 = {r.get("key") for r in bene15["rows"]}
+    assert keys15 == {"checkin", "travel", "handover_export"}, bene15
+    assert all("ready" in r and "label" in r for r in bene15["rows"]), bene15
+
+    # Round15 · 授权视频脚本可复制数据源
+    av15 = call("/api/auth-video")
+    assert "script" in av15 and len(av15["script"]) >= 3, av15
+    assert all(s.get("title") and s.get("hint") for s in av15["script"]), av15
+
+    # Round15 · 急症清册写入后手册仍可读（CTA 为前端）
+    hand15 = call("/api/handover")
+    assert int(hand15.get("item_count") or 0) >= 1, hand15
+
+    # Round15 · 医旅意向按医院名搜索
+    hospitals15 = call("/api/hospitals")["items"]
+    assert hospitals15, hospitals15
+    hid15 = hospitals15[0]["id"]
+    call(
+        "/api/hospitals/intent",
+        {"hospital_id": hid15, "note": "自检·意向搜索"},
+    )
+    hname = (hospitals15[0].get("name") or "")[:2]
+    found15 = call("/api/hospitals/intents?" + urllib.parse.urlencode({"q": hname or "自检"}))
+    assert "items" in found15 and "q" in found15, found15
+    assert found15.get("q") == (hname or "自检"), found15
+    assert len(found15["items"]) >= 1, found15
+
+    # Round15 · 设置大字号为前端 localStorage；会员/今日 API 仍可读
+    assert bene15.get("total") == 3, bene15
+
     print("selfcheck OK")
 
 

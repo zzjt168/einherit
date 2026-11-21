@@ -261,9 +261,11 @@ class Handler(BaseHTTPRequestHandler):
                     }
             elif path in ("/api/hospitals/intents", "/api/med-intents"):
                 st = (qs.get("status") or [""])[0]
+                q_intent = (qs.get("q") or [""])[0]
                 out = {
-                    "items": db.list_med_intents(1, status=st),
+                    "items": db.list_med_intents(1, status=st, q=q_intent),
                     "status": st or "",
+                    "q": q_intent or "",
                 }
             elif path == "/api/checkin/status":
                 out = {
@@ -378,6 +380,22 @@ class Handler(BaseHTTPRequestHandler):
                 out = db.aftercare_budget_hint(1, budget)
             elif path in ("/api/handover/print-checklist", "/api/handover/preflight"):
                 out = db.handover_print_checklist(1)
+            elif path in (
+                "/api/legacy/missing-beneficiary",
+                "/api/legacy/bene-pending",
+            ):
+                out = db.legacy_missing_beneficiary(1)
+            elif path in (
+                "/api/assets/review-calendar",
+                "/api/assets/review-cal",
+            ):
+                days = int((qs.get("days") or ["14"])[0] or 14)
+                out = db.assets_review_calendar(1, days=days)
+            elif path in (
+                "/api/membership/benefits",
+                "/api/membership/readiness",
+            ):
+                out = db.membership_benefits(1)
             else:
                 code, body, ctype = json_bytes({"error": "not found"}, 404)
                 self._send(code, body, ctype)
