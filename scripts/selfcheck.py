@@ -1070,6 +1070,104 @@ def main() -> None:
     summary13 = call("/api/counts-summary")
     assert "cards" in summary13, summary13
 
+    # Round14 · 下次报备倒计时只读
+    ck14 = call("/api/checkin/readable")
+    assert "countdown_label" in ck14 and str(ck14["countdown_label"]).strip(), ck14
+    assert "hours_remaining" in ck14, ck14
+    st14 = call("/api/checkin/status")
+    assert "countdown" in st14 and st14["countdown"].get("countdown_label"), st14
+    today14 = call("/api/today")
+    ck_item = next((x for x in today14.get("items") or [] if x.get("key") == "checkin"), None)
+    assert ck_item and "countdown_label" in ck_item, today14
+
+    # Round14 · 手册按部门分组预览
+    hand14 = call("/api/handover")
+    assert "by_dept" in hand14 and isinstance(hand14["by_dept"], list), hand14
+    assert len(hand14["by_dept"]) >= 5, hand14
+    assert all("id" in g and "items" in g and "count" in g for g in hand14["by_dept"]), hand14
+
+    # Round14 · 善后工单阶段条（只读映射）
+    call(
+        "/api/auth-video",
+        {
+            "demo": True,
+            "has_greeting": True,
+            "has_authorize": True,
+            "has_plan": True,
+            "note": "round14",
+        },
+    )
+    job14 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·阶段条工单",
+            "service_type": "delete_data",
+            "city": "海口",
+            "travel_budget": 500,
+        },
+    )
+    job14 = job14.get("item") or job14.get("job") or job14
+    assert job14.get("phase_key") and job14.get("phase_label"), job14
+    assert "phases" in job14 and len(job14["phases"]) == 4, job14
+    ac14 = call("/api/aftercare")
+    assert "phases" in ac14 and len(ac14["phases"]) == 4, ac14
+    assert any(it.get("phase_label") for it in ac14.get("items") or []), ac14
+
+    # Round14 · 授权视频「当前生效」
+    av14 = call("/api/auth-video")
+    assert "current_active_id" in av14, av14
+    assert av14.get("items"), av14
+    actives = [it for it in av14["items"] if it.get("current_active")]
+    assert len(actives) == 1, av14["items"][:3]
+    assert actives[0].get("threshold_passed") is True, actives[0]
+    assert actives[0].get("id") == av14.get("current_active_id"), actives[0]
+
+    # Round14 · 五部门进度（首页环数据源）
+    co14 = call("/api/company")
+    assert co14["progress"]["total"] == 5, co14
+    assert "filled" in co14["progress"], co14
+
+    # Round14 · 备忘缺处置指引汇总
+    as_miss = call(
+        "/api/assets",
+        {
+            "platform": "自检未处置平台",
+            "dispose_note": "",
+            "draft": True,
+            "dept": "admin",
+        },
+    )["item"]
+    pending14 = call("/api/assets/dispose-pending")
+    assert pending14.get("count", 0) >= 1, pending14
+    assert any(int(x.get("id") or 0) == int(as_miss["id"]) for x in pending14.get("items") or []), pending14
+
+    # Round14 · 差旅流水跳转关联工单（aftercare 引用）
+    tf14 = call("/api/travel-fund")
+    led14 = tf14.get("ledger") or []
+    me14 = call("/api/me")
+    all_led = list(led14) + list(me14.get("ledger") or [])
+    linked = [
+        x
+        for x in all_led
+        if x.get("aftercare_id") or x.get("has_aftercare_ref") or x.get("order_ref")
+    ]
+    assert linked, {"ledger": all_led[:5], "job": job14}
+    assert any(int(x.get("aftercare_id") or x.get("order_ref") or 0) == int(job14["id"]) for x in linked), linked
+
+    # Round14 · 紧急取用列表仍可读（醒目卡为前端）
+    em14 = call("/api/emergency")
+    assert "items" in em14, em14
+
+    # Round14 · 设置·一键导出备份 JSON
+    bak = call("/api/export/backup")
+    assert bak.get("kind") == "local_backup", bak
+    assert "legacy_items" in bak and "assets" in bak and "beneficiaries" in bak, bak
+    assert "aftercare_jobs" in bak, bak
+    assert "backup_note" in bak and "非云同步" in str(bak.get("backup_note") or ""), bak
+    assert "aftercare_count" in (bak.get("summary") or {}), bak
+    pack14 = call("/api/export/pack")
+    assert "aftercare_jobs" in pack14, pack14
+
     print("selfcheck OK")
 
 

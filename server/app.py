@@ -269,6 +269,7 @@ class Handler(BaseHTTPRequestHandler):
                 out = {
                     "user": db.get_user(1),
                     "calls": db.recent_calls(1, 10),
+                    "countdown": db.checkin_readable(1),
                 }
             elif path == "/api/checkin/history":
                 limit = int((qs.get("limit") or ["20"])[0] or 20)
@@ -292,6 +293,7 @@ class Handler(BaseHTTPRequestHandler):
                     "items": db.list_aftercare(1, service_type=stype),
                     "playbook": db.aftercare_playbook(),
                     "service_type": stype or "",
+                    "phases": db.aftercare_phases(),
                 }
             elif path == "/api/icu-pack":
                 out = {
@@ -355,6 +357,8 @@ class Handler(BaseHTTPRequestHandler):
                 out = {"tags": list(db.ASSET_TAGS)}
             elif path == "/api/export/pack":
                 out = db.export_data_pack(1)
+            elif path in ("/api/export/backup", "/api/backup/export"):
+                out = db.export_backup_pack(1)
             elif path == "/api/assets/dispose-pending":
                 out = db.assets_dispose_pending(1)
             elif path == "/api/backup-contacts/summary":
