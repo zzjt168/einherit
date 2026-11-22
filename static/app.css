@@ -2017,3 +2017,49 @@ body.privacy-mode .privacy-hint { opacity: 0.85; }
 #medIntentSearchBox {
   margin-bottom: 10px;
 }
+
+/* Round16 · 温和增量 */
+.home-health-badge {
+  margin: 10px 16px 0;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: #f3eee6;
+  color: #6b5a3a;
+  font-size: 14px;
+  line-height: 1.45;
+}
+.home-health-badge[hidden] { display: none; }
+.home-health-badge.is-soft {
+  border: 1px solid #e6dccf;
+}
+.lg-empty-guide .row {
+  justify-content: flex-start;
+}
+.backup-missing-cta {
+  margin: 10px 0;
+}
+.card.backup-focus {
+  outline: 2px solid var(--sage, #5b7f6e);
+  outline-offset: 2px;
+  transition: outline-color 0.3s ease;
+}
+.ac-auth-disable-reason {
+  margin: 8px 0 0;
+  font-size: 13px;
+  line-height: 1.45;
+}
+.hand-executor-missing {
+  margin: 0 0 12px;
+}
+.med-fav-list-card {
+  margin-bottom: 12px;
+}
+.settings-systemd-note {
+  font-size: 13px;
+}
+.as-to-legacy {
+  margin-top: 2px;
+}
+.ac-unreachable-cta {
+  align-items: center;
+}

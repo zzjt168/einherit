@@ -1241,6 +1241,84 @@ def main() -> None:
     # Round15 · 设置大字号为前端 localStorage；会员/今日 API 仍可读
     assert bene15.get("total") == 3, bene15
 
+    # Round16 · 首页健康角标数据源
+    h16 = call("/api/health")
+    assert h16.get("ok") is True and h16.get("version") and h16.get("server_version"), h16
+    assert h16.get("domain") == "einherit.cn", h16
+
+    # Round16 · 交割空列表引导（列表 API；空态 CTA 为前端）
+    lg16 = call("/api/legacy")
+    assert "items" in lg16, lg16
+
+    # Round16 · 备忘→交割一键带入数据源
+    as16 = call(
+        "/api/assets",
+        {
+            "platform": "自检·写入交割平台",
+            "dispose_note": "销毁",
+            "dept": "admin",
+            "summary": "round16 带入",
+        },
+    )["item"]
+    assert as16.get("platform") == "自检·写入交割平台", as16
+    assert as16.get("dept") == "admin", as16
+
+    # Round16 · 报备备用联系人摘要（缺备用 CTA 为前端）
+    bk16 = call("/api/backup-contacts/summary")
+    assert "count" in bk16 and "text" in bk16, bk16
+
+    # Round16 · 差旅余额不足开单对照（确认框为前端）
+    hint16 = call(
+        "/api/aftercare/budget-hint",
+        {"budget": 999999},
+    )
+    assert hint16.get("within_balance") is False, hint16
+    assert "text" in hint16 and "tone" in hint16, hint16
+
+    # Round16 · 善后失联态可写（去报备深链为前端）
+    call(
+        "/api/auth-video",
+        {
+            "demo": True,
+            "has_greeting": True,
+            "has_authorize": True,
+            "has_plan": True,
+            "note": "round16",
+        },
+    )
+    job16 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·失联转报备",
+            "service_type": "delete_data",
+            "city": "海口",
+            "travel_budget": 500,
+            "coop_state": "unreachable",
+        },
+    )
+    job16 = job16.get("item") or job16.get("job") or job16
+    assert job16.get("coop_state") == "unreachable", job16
+
+    # Round16 · 授权视频未通过说明字段
+    av16 = call("/api/auth-video")
+    assert "missing_text" in av16 or "complete_label" in av16, av16
+    assert "ready" in av16, av16
+
+    # Round16 · 手册导出前缺执行人检查
+    pre16 = call("/api/handover/print-checklist")
+    assert "executor_filled" in pre16 and "items" in pre16, pre16
+
+    # Round16 · 医旅医院详情（收藏为前端 localStorage）
+    hospitals16 = call("/api/hospitals")["items"]
+    assert hospitals16, hospitals16
+    detail16 = call(f"/api/hospitals?id={hospitals16[0]['id']}")
+    assert detail16["item"]["id"] == hospitals16[0]["id"], detail16
+    assert detail16["item"].get("name"), detail16
+
+    # Round16 · 设置·服务版本与自启说明数据源
+    assert h16.get("version") == "0.5.0", h16
+    assert h16.get("server_version"), h16
+
     print("selfcheck OK")
 
 
