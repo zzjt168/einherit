@@ -2063,3 +2063,75 @@ body.privacy-mode .privacy-hint { opacity: 0.85; }
 .ac-unreachable-cta {
   align-items: center;
 }
+
+/* Round17 · 温和增量 */
+.home-health-ok-badge {
+  margin: 8px 16px 0;
+  padding: 6px 12px;
+  border-radius: 999px;
+  display: inline-block;
+  background: #e8f0eb;
+  color: #3d5c4a;
+  font-size: 12px;
+  line-height: 1.4;
+  letter-spacing: 0.01em;
+}
+.home-health-ok-badge[hidden] { display: none; }
+.home-health-ok-badge.is-ok {
+  border: 1px solid #d2e2d8;
+}
+.lg-bene-chip-bar {
+  margin: 8px 0 4px;
+}
+.as-copy-btn {
+  margin-top: 6px;
+}
+.backup-ready-mark {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 10px 0;
+  padding: 10px 12px;
+  border-radius: 12px;
+}
+.backup-ready-check {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--sage-soft, #d7e6dc);
+  color: var(--sage-deep, #3d5c4a);
+  font-size: 13px;
+  font-weight: 600;
+}
+.tf-ledger-kind-bar {
+  margin: 8px 0 10px;
+}
+.ac-balance-compare {
+  margin: 6px 0 10px;
+  font-size: 13px;
+  line-height: 1.45;
+}
+.av-rerecord-guide {
+  margin: 0 0 12px;
+}
+.card.av-upload-focus {
+  outline: 2px solid var(--sage, #5b7f6e);
+  outline-offset: 2px;
+  transition: outline-color 0.3s ease;
+}
+.med-fav-entry {
+  margin-bottom: 12px;
+}
+.med-fav-entry-body {
+  margin-top: 10px;
+}
+.med-fav-entry-body[hidden] { display: none; }
+.settings-prod-host-card .settings-prod-host-note {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--ink, #2c3631);
+}
