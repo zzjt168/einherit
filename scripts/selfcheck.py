@@ -1319,6 +1319,77 @@ def main() -> None:
     assert h16.get("version") == "0.5.0", h16
     assert h16.get("server_version"), h16
 
+    # Round17 · 首页服务正常轻提示数据源
+    h17 = call("/api/health")
+    assert h17.get("ok") is True and h17.get("version"), h17
+    assert h17.get("domain") == "einherit.cn", h17
+
+    # Round17 · 交割按接收人筛选（chip 为前端；API 提供 beneficiary）
+    lg17 = call(
+        "/api/legacy",
+        {
+            "title": "自检·接收人筛选",
+            "category": "其他",
+            "action": "销毁",
+            "beneficiary": "自检接收人甲",
+        },
+    )["item"]
+    assert lg17.get("beneficiary") == "自检接收人甲", lg17
+    lg17_list = call("/api/legacy")
+    assert any(
+        (x.get("title") == "自检·接收人筛选" and x.get("beneficiary") == "自检接收人甲")
+        for x in (lg17_list.get("items") or [])
+    ), lg17_list
+
+    # Round17 · 备忘一键再录数据源
+    as17 = call(
+        "/api/assets",
+        {
+            "platform": "自检·再录平台",
+            "summary": "round17 再录",
+            "dispose_note": "转赠",
+            "dept": "admin",
+        },
+    )["item"]
+    assert as17.get("platform") == "自检·再录平台", as17
+    assert as17.get("dispose_note") == "转赠", as17
+    assert as17.get("dept") == "admin", as17
+
+    # Round17 · 报备备用齐全绿勾数据源
+    bk17 = call("/api/backup-contacts/summary")
+    assert "count" in bk17 and "text" in bk17, bk17
+
+    # Round17 · 差旅流水按类型筛选（只读；kind 可区分）
+    tf17 = call("/api/travel-fund")
+    assert "ledger" in tf17 and "fund" in tf17, tf17
+    for row in tf17.get("ledger") or []:
+        assert "kind" in row, row
+
+    # Round17 · 善后开单旁余额对照
+    hint17 = call("/api/aftercare/budget-hint?budget=2000")
+    assert "balance" in hint17 and "budget" in hint17, hint17
+    assert "text" in hint17 and "within_balance" in hint17, hint17
+
+    # Round17 · 授权视频重录引导字段
+    av17 = call("/api/auth-video")
+    assert "ready" in av17 and "items" in av17, av17
+
+    # Round17 · 手册导出成功回执依赖导出页与打印检查
+    hand17 = call("/api/handover")
+    assert hand17.get("domain") == "einherit.cn", hand17
+    pre17 = call("/api/handover/print-checklist")
+    assert "executor_filled" in pre17, pre17
+
+    # Round17 · 医旅收藏列表入口（收藏为前端 localStorage；医院列表可读）
+    hospitals17 = call("/api/hospitals")["items"]
+    assert hospitals17 and hospitals17[0].get("id"), hospitals17
+    detail17 = call(f"/api/hospitals?id={hospitals17[0]['id']}")
+    assert detail17["item"]["id"] == hospitals17[0]["id"], detail17
+
+    # Round17 · 设置·生产主机只读条（域名来自 health）
+    assert h17.get("domain") == "einherit.cn", h17
+    assert h17.get("version") == "0.5.0", h17
+
     print("selfcheck OK")
 
 
