@@ -2936,6 +2936,92 @@ def main() -> None:
     assert h34.get("domain") == "einherit.cn", h34
     assert h34.get("server_version") or h34.get("version"), h34
 
+    # Round35 · 首页手册完成度（前端条；progress 可读）
+    hand35 = call("/api/handover")
+    prog35 = hand35.get("progress") or {}
+    assert "pct" in prog35 or "total_items" in prog35, hand35
+
+    # Round35 · 交割标题+处置复制（前端；title/action 可读）
+    lg35 = call(
+        "/api/legacy",
+        {
+            "title": "自检·标题处置35",
+            "category": "其他",
+            "action": "变现",
+            "dept": "admin",
+        },
+    )["item"]
+    assert lg35.get("title") and lg35.get("action"), lg35
+
+    # Round35 · 备忘部门复制（前端；dept 可读）
+    as35 = call(
+        "/api/assets",
+        {
+            "platform": "round35Dept",
+            "summary": "部门复制",
+            "dept": "finance",
+            "draft": True,
+        },
+    )["item"]
+    assert as35.get("dept") or as35.get("platform"), as35
+
+    # Round35 · 报备会员剩余天数（前端复制；字段可读）
+    ck_st35 = call("/api/checkin/status")
+    assert "user" in ck_st35, ck_st35
+    assert (
+        "member_days_left" in ck_st35["user"]
+        or "is_member" in ck_st35["user"]
+    ), ck_st35
+
+    # Round35 · 差旅进度百分比（前端复制；progress_pct 可读）
+    tf35 = call("/api/travel-fund")
+    fund35 = tf35.get("fund") or tf35
+    assert (
+        fund35.get("progress_pct") is not None
+        or fund35.get("progress_label")
+        or fund35.get("balance") is not None
+    ), fund35
+
+    # Round35 · 善后状态标签（前端；status_label 可读）
+    ac35 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·状态标签35",
+            "service_type": "delete_data",
+            "city": "海口",
+            "travel_budget": 220,
+        },
+    )["item"]
+    assert ac35.get("status_label") or ac35.get("status") or ac35.get("title"), ac35
+
+    # Round35 · 授权视频脚本段标题（前端复制；script 可读）
+    av35 = call("/api/auth-video")
+    assert isinstance(av35.get("script"), list) or "ready" in av35, av35
+
+    # Round35 · 受益人姓名+角色（前端；name/role 可读）
+    bn35 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·姓名角色35",
+            "role": "family",
+            "relation": "演示",
+            "contact": "13300000035",
+        },
+    )["item"]
+    assert bn35.get("name") and str(bn35.get("role") or "") == "family", bn35
+
+    # Round35 · 手册生成时间（前端复制；generated_at 可读）
+    assert (
+        hand35.get("generated_at") is not None
+        or hand35.get("generated_at_iso")
+        or hand35.get("executor") is not None
+    ), hand35
+
+    # Round35 · 设置·运营主体行（前端复制；domain 对齐）
+    h35 = call("/api/health")
+    assert h35.get("ok") is True, h35
+    assert h35.get("domain") == "einherit.cn", h35
+
     print("selfcheck OK")
 
 

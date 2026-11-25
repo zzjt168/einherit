@@ -3624,3 +3624,90 @@ body.privacy-mode .privacy-hint { opacity: 0.85; }
   font-weight: 600;
   color: var(--sage-deep, #2f5d45);
 }
+
+/* Round35 · 温和增量 */
+.home-hand-progress-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 10px 0 12px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: linear-gradient(160deg, #f4f7f5 0%, #fff 75%);
+  border: 1px solid var(--line, #e2e8e4);
+}
+.home-hand-progress-bar[hidden] {
+  display: none;
+}
+.home-hand-mark {
+  font-weight: 600;
+  color: var(--sage-deep, #2f5d45);
+  font-size: 13px;
+}
+.home-hand-sub {
+  flex: 1;
+  min-width: 8em;
+  font-size: 12px;
+}
+.lg-copy-title-action {
+  margin-top: 8px;
+  margin-left: 6px;
+}
+.as-copy-dept {
+  margin-top: 8px;
+  margin-left: 6px;
+}
+.checkin-member-days-copy {
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #f5f8f6;
+}
+.checkin-member-days-copy-line {
+  margin: 0 0 8px;
+}
+.travel-progress-copy {
+  margin: 8px 0 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #f5f8f6;
+}
+.travel-progress-copy-line {
+  margin: 0 0 8px;
+}
+.ac-copy-status {
+  margin-top: 8px;
+  margin-left: 6px;
+}
+.av-script-titles-copy {
+  margin: 8px 0 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #f5f8f6;
+}
+.av-script-titles-copy-line {
+  margin: 0 0 8px;
+}
+.bn-copy-name-role {
+  margin-top: 8px;
+  margin-left: 6px;
+}
+.hand-generated-at-copy {
+  margin: 8px 0 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #f5f8f6;
+}
+.hand-generated-at-copy-line {
+  margin: 0 0 8px;
+}
+.legal-entity-copy-card .legal-entity-copy-preview {
+  margin: 8px 0 10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: #f5f8f6;
+  word-break: break-word;
+  font-weight: 600;
+  color: var(--sage-deep, #2f5d45);
+}
