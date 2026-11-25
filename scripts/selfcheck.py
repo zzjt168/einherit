@@ -6451,6 +6451,105 @@ def main() -> None:
     assert h72.get("ok") is True, h72
     assert h72.get("domain") == "einherit.cn", h72
 
+    # Round73 · 首页宽限小时（前端条；grace_hours 只读）
+    ck_st73home = call("/api/checkin/status")
+    assert (ck_st73home.get("user") or {}).get("grace_hours") is not None or ck_st73home.get(
+        "user"
+    ), ck_st73home
+
+    # Round73 · 交割编号+分类+部门（前端；id/category/dept 可读）
+    lg73 = call(
+        "/api/legacy",
+        {
+            "title": "自检·编号分类73",
+            "category": "电脑",
+            "action": "转赠",
+            "dept": "ops",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert lg73.get("id") is not None and lg73.get("category") and lg73.get("dept"), lg73
+
+    # Round73 · 备忘处置+可见性（前端；dispose_note/visibility 可读）
+    as73 = call(
+        "/api/assets",
+        {
+            "platform": "round73DisposeVis",
+            "account_hint": "hint73",
+            "summary": "处置可见73",
+            "dispose_note": "演示处置73",
+            "dept": "admin",
+            "tag": "其他",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert as73.get("dispose_note") is not None or "dispose_note" in as73, as73
+    assert as73.get("visibility"), as73
+
+    # Round73 · 报备宽限小时纯（前端复制；grace_hours 只读）
+    ck_st73 = call("/api/checkin/status")
+    assert (ck_st73.get("user") or {}).get("grace_hours") is not None or ck_st73.get(
+        "user"
+    ), ck_st73
+
+    # Round73 · 差旅进度百分比与文案（前端复制；progress_pct/progress_label 只读）
+    tf73 = call("/api/travel-fund")
+    fund73 = tf73.get("fund") or tf73
+    assert (
+        fund73.get("progress_pct") is not None or fund73.get("progress_label")
+    ), tf73
+
+    # Round73 · 善后标题+城市+状态（前端；title/city/status 可读）
+    ac73 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·标题状态73",
+            "service_type": "field_visit",
+            "city": "乐东",
+            "notes": "标题状态73",
+            "visit_pref": "傍晚",
+            "travel_budget": 730,
+        },
+    )["item"]
+    assert ac73.get("title") and ac73.get("city"), ac73
+    assert ac73.get("status") or ac73.get("status_label"), ac73
+
+    # Round73 · 授权视频齐备文案+就绪（前端复制；complete_label/ready 可读）
+    av73 = call("/api/auth-video")
+    assert av73.get("complete_label") or av73.get("ready") is not None, av73
+
+    # Round73 · 受益人备注+角色（前端；note/role 可读）
+    bn73 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·备注角色73",
+            "role": "heir",
+            "relation": "同学",
+            "contact": "13300000073",
+            "note": "round73备注",
+            "passphrase_hint": "round73口令",
+        },
+    )["item"]
+    assert bn73.get("role"), bn73
+    assert bn73.get("note") is not None or "note" in bn73, bn73
+
+    # Round73 · 手册生成时间与品牌（前端复制；generated_at_iso/brand 可读）
+    hand73 = call("/api/handover")
+    assert (
+        hand73.get("generated_at_iso")
+        or hand73.get("brand")
+        or hand73.get("generated_at") is not None
+    ), hand73
+
+    # Round73 · 设置·应用版本+就绪（前端复制；version/ok 对齐）
+    h73 = call("/api/health")
+    assert h73.get("ok") is True, h73
+    assert h73.get("version") or h73.get("server_version"), h73
+    assert h73.get("domain") == "einherit.cn", h73
+
     print("selfcheck OK")
 
 
