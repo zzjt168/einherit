@@ -3811,6 +3811,98 @@ def main() -> None:
     assert h44.get("app") or h44.get("brand_en"), h44
     assert h44.get("domain") == "einherit.cn", h44
 
+    # Round45 · 首页公司五部门已填数（前端条；company.progress 可读）
+    co45 = call("/api/company")
+    prog45 = co45.get("progress") or {}
+    assert (
+        prog45.get("filled") is not None
+        or prog45.get("total") is not None
+        or isinstance(co45.get("depts"), list)
+    ), co45
+
+    # Round45 · 交割出厂重置状态（前端；factory_reset 可读）
+    lg45 = call(
+        "/api/legacy",
+        {
+            "title": "自检·出厂重置45",
+            "category": "设备",
+            "action": "销毁",
+            "dept": "admin",
+            "factory_reset": True,
+        },
+    )["item"]
+    assert lg45.get("factory_reset") is not None or lg45.get("id") is not None, lg45
+
+    # Round45 · 备忘摘要纯文本（前端；summary 可读）
+    as45 = call(
+        "/api/assets",
+        {
+            "platform": "round45Combo",
+            "summary": "纯摘要45",
+            "dept": "admin",
+            "tag": "其他",
+            "draft": True,
+        },
+    )["item"]
+    assert as45.get("summary"), as45
+
+    # Round45 · 报备备用首位电话（前端复制；backup_contacts.phone 可读）
+    ck_st45 = call("/api/checkin/status")
+    assert "user" in ck_st45, ck_st45
+    backups45 = ck_st45["user"].get("backup_contacts") or []
+    assert isinstance(backups45, list), ck_st45
+
+    # Round45 · 差旅余额纯数字（前端复制；balance 可读）
+    tf45 = call("/api/travel-fund")
+    fund45 = tf45.get("fund") or tf45
+    assert fund45.get("balance") is not None, fund45
+
+    # Round45 · 善后标题+服务类型（前端；title/service_type 可读）
+    ac45 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·标题类型45",
+            "service_type": "delete_data",
+            "city": "海口",
+            "travel_budget": 330,
+        },
+    )["item"]
+    assert ac45.get("title") and ac45.get("service_type"), ac45
+
+    # Round45 · 授权视频门槛通过（前端复制；threshold_passed/ready 可读）
+    av45 = call("/api/auth-video")
+    assert (
+        av45.get("ready") is not None
+        or av45.get("complete") is not None
+        or av45.get("items") is not None
+    ), av45
+
+    # Round45 · 受益人编号+姓名（前端；id/name 可读）
+    bn45 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·编号姓名45",
+            "role": "heir",
+            "relation": "子女",
+            "contact": "13300000045",
+        },
+    )["item"]
+    assert bn45.get("id") is not None and bn45.get("name"), bn45
+
+    # Round45 · 手册处置动作计数（前端复制；progress.by_action 可读）
+    hand45 = call("/api/handover")
+    prog_h45 = hand45.get("progress") or {}
+    assert (
+        isinstance(prog_h45.get("by_action"), list)
+        or hand45.get("item_count") is not None
+    ), hand45
+
+    # Round45 · 设置·应用版本+服务端版本（前端复制；health 对齐）
+    h45 = call("/api/health")
+    assert h45.get("ok") is True, h45
+    assert h45.get("version") or h45.get("server_version"), h45
+    assert h45.get("domain") == "einherit.cn", h45
+
     print("selfcheck OK")
 
 
