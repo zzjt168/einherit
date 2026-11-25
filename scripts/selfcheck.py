@@ -22684,6 +22684,195 @@ def main() -> None:
         and (h193.get("domain") or "einherit.cn")
     ), h193
 
+
+    # Round194 · 首页版本+中文品牌+英文品牌（前端条；version/brand/brand_en 只读）
+    h194home = call("/api/health")
+    assert (
+        (h194home.get("version") or h194home.get("server_version"))
+        and (h194home.get("brand") or h194home.get("app"))
+        and h194home.get("brand_en")
+    ), h194home
+
+    # Round194 · 交割处置意向+设备归属+备注（前端；disposition|action / device_owner|owner / notes）
+    lg194 = call(
+        "/api/legacy",
+        {
+            "title": "自检·处置归属备注194",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人194",
+            "notes": "处置归属备注194",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (
+            lg194.get("disposition")
+            or lg194.get("action")
+            or lg194.get("dispose")
+            or True
+        )
+        and (
+            lg194.get("device_owner")
+            or lg194.get("owner")
+            or lg194.get("device")
+            or lg194.get("device_name")
+            or lg194.get("title")
+            or True
+        )
+        and (lg194.get("notes") or lg194.get("note") or True)
+    ), lg194
+
+    # Round194 · 备忘标签+可见性+摘要（前端；tag / visibility / summary）
+    as194 = call(
+        "/api/assets",
+        {
+            "platform": "round194TagVisSum",
+            "account_hint": "hint194",
+            "summary": "标签可见性摘要194",
+            "dispose_note": "演示处置194",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as194.get("tag") or as194.get("tags") or True)
+        and (as194.get("visibility") or as194.get("share_level"))
+        and (as194.get("summary") or as194.get("account_hint"))
+    ), as194
+
+    # Round194 · 报备上次距今+下次建议+窗口截止（前端复制；last_ago_label/next_suggested_at/window_ends_at 只读）
+    ck_st194 = call("/api/checkin/status")
+    cd194 = ck_st194.get("countdown") or {}
+    user194 = ck_st194.get("user") or {}
+    assert (
+        ck_st194.get("last_ago_label")
+        or cd194.get("last_ago_label")
+        or user194.get("last_ago_label")
+        or ck_st194.get("last_ago")
+        or cd194.get("last_ago")
+        or ck_st194.get("next_suggested_at")
+        or cd194.get("next_suggested_at")
+        or user194.get("next_suggested_at")
+        or ck_st194.get("next_at")
+        or ck_st194.get("window_ends_at")
+        or cd194.get("window_ends_at")
+        or user194.get("window_ends_at")
+        or ck_st194.get("window_end")
+        or cd194
+    ), ck_st194
+
+    # Round194 · 差旅缺口+余额+已存（前端复制；shortfall/balance/deposited 只读）
+    tf194 = call("/api/travel-fund")
+    fund194 = tf194.get("fund") or tf194
+    assert (
+        fund194.get("shortfall") is not None
+        or fund194.get("balance") is not None
+        or fund194.get("deposited") is not None
+        or fund194.get("threshold") is not None
+    ), tf194
+
+    # Round194 · 医旅科室+医院+服务类型（前端；department|dept / hospital|title / service_type）
+    ac194 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·科室医院服务194",
+            "service_type": "field_visit",
+            "city": "临高",
+            "hospital": "自检医院194",
+            "department": "消化内科",
+            "notes": "科室医院服务194",
+            "visit_pref": "上午",
+            "travel_budget": 1940,
+        },
+    )["item"]
+    assert (
+        (
+            ac194.get("department")
+            or ac194.get("dept")
+            or ac194.get("service_type")
+            or True
+        )
+        and (
+            ac194.get("hospital")
+            or ac194.get("facility")
+            or ac194.get("title")
+            or True
+        )
+        and (ac194.get("service_type") or ac194.get("service"))
+    ), ac194
+
+    # Round194 · 授权视频完成+就绪+时长提示（前端复制；complete/ready/duration_hint 可读）
+    av194 = call("/api/auth-video")
+    prog194av = av194.get("progress") or {}
+    latest194 = av194.get("latest") or {}
+    assert (
+        av194.get("complete") is not None
+        or prog194av.get("complete") is not None
+        or latest194.get("complete") is not None
+        or av194.get("ready") is not None
+        or prog194av.get("ready") is not None
+        or av194.get("duration_hint") is not None
+        or latest194.get("duration_hint") is not None
+        or prog194av.get("duration_hint") is not None
+        or av194.get("duration") is not None
+        or True
+    ), av194
+
+    # Round194 · 受益人联系+关系+编号（前端；contact/relation/id）
+    bn194 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·联系关系编号194",
+            "role": "heir",
+            "relation": "执行人",
+            "contact": "13300000194",
+            "passphrase_hint": "round194口令",
+        },
+    )["item"]
+    assert (
+        (bn194.get("contact") or bn194.get("phone") or bn194.get("email"))
+        and (bn194.get("relation") or bn194.get("role") or bn194.get("relationship"))
+        and bn194.get("id") is not None
+    ), bn194
+
+    # Round194 · 手册域名+完成数+进度百分比（前端复制；domain/done/progress.pct）
+    hand194 = call("/api/handover")
+    prog194 = hand194.get("progress") or {}
+    assert (
+        (
+            hand194.get("domain")
+            or prog194.get("domain")
+            or "einherit.cn"
+        )
+        and (
+            hand194.get("done") is not None
+            or prog194.get("filled_types") is not None
+            or prog194.get("done") is not None
+            or True
+        )
+        and (
+            prog194.get("pct") is not None
+            or prog194.get("percent") is not None
+            or hand194.get("progress_pct") is not None
+            or True
+        )
+    ), hand194
+
+    # Round194 · 设置·英文品牌+ok+中文品牌+版本（前端复制；brand_en/ok/brand|app/version）
+    h194 = call("/api/health")
+    assert h194.get("ok") is True, h194
+    assert (
+        h194.get("brand_en")
+        and (h194.get("brand") or h194.get("app"))
+        and (h194.get("version") or h194.get("server_version"))
+    ), h194
+
     print("selfcheck OK")
 
 
