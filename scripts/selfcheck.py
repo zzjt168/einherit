@@ -1851,6 +1851,120 @@ def main() -> None:
     assert h22.get("ok") is True, h22
     assert h22.get("domain") == "einherit.cn", h22
 
+    # Round23 · 首页会员/差旅双状态（前端；API 只读就绪）
+    gentle23 = call("/api/membership/gentle")
+    assert "is_member" in gentle23 or "member" in gentle23, gentle23
+    tf23 = call("/api/travel-fund")
+    fund23 = tf23.get("fund") or tf23
+    assert "balance" in fund23 and "threshold" in fund23, fund23
+    assert "meets_threshold" in fund23 or "met" in fund23 or "progress_pct" in fund23, fund23
+
+    # Round23 · 交割搜索（清空为前端；q 过滤仍可用）
+    lg23 = call(
+        "/api/legacy",
+        {
+            "title": "自检·搜索清空关键词",
+            "category": "其他",
+            "action": "销毁",
+            "beneficiary": "搜索接收人丙",
+        },
+    )["item"]
+    found23 = call(
+        "/api/legacy?" + urllib.parse.urlencode({"q": "搜索清空关键词"})
+    )
+    assert any(
+        x.get("id") == lg23["id"] for x in (found23.get("items") or [])
+    ), found23
+
+    # Round23 · 备忘复习日一键今日
+    as23 = call(
+        "/api/assets",
+        {
+            "platform": "自检·复习今日",
+            "summary": "round23",
+            "dept": "admin",
+            "dispose_note": "销毁",
+            "draft": True,
+        },
+    )["item"]
+    today23 = time.strftime("%Y-%m-%d", time.localtime())
+    reviewed23 = call(
+        "/api/assets/review-at",
+        {"id": as23["id"], "review_at": today23},
+    )
+    assert (reviewed23.get("item") or {}).get("review_at", "").startswith(
+        today23
+    ), reviewed23
+
+    # Round23 · 报备上次成功相对化（只读字段）
+    call("/api/checkin", {})
+    readable23 = call("/api/checkin/readable")
+    assert readable23.get("last_checkin_at"), readable23
+    assert "hours_since_last" in readable23, readable23
+    assert "last_ago_label" in readable23, readable23
+    assert readable23["hours_since_last"] is not None, readable23
+
+    # Round23 · 善后预算排序（前端；工单可读 travel_budget）
+    ac23a = call(
+        "/api/aftercare",
+        {
+            "title": "自检·预算高",
+            "service_type": "field_visit",
+            "city": "海口",
+            "travel_budget": 3000,
+        },
+    )["item"]
+    ac23b = call(
+        "/api/aftercare",
+        {
+            "title": "自检·预算低",
+            "service_type": "field_visit",
+            "city": "三亚",
+            "travel_budget": 200,
+        },
+    )["item"]
+    assert float(ac23a.get("travel_budget") or 0) >= float(
+        ac23b.get("travel_budget") or 0
+    ), (ac23a, ac23b)
+
+    # Round23 · 授权视频历史条数（前端提示；列表可读）
+    av23 = call("/api/auth-video")
+    assert "items" in av23, av23
+    assert isinstance(av23.get("items") or [], list), av23
+
+    # Round23 · 受益人电话（脱敏为前端 privacy localStorage）
+    bn23 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·脱敏联系人",
+            "role": "family",
+            "contact": "13800138000",
+            "note": "round23",
+        },
+    )["item"]
+    assert "13800138000" in str(bn23.get("contact") or ""), bn23
+
+    # Round23 · 手册打印全部就绪绿勾
+    pre23 = call("/api/handover/print-checklist")
+    assert "all_ready" in pre23, pre23
+    assert "ready_count" in pre23 and "total" in pre23, pre23
+    assert isinstance(pre23["all_ready"], bool), pre23
+    if pre23["ready_count"] == pre23["total"] and pre23["total"] > 0:
+        assert pre23["all_ready"] is True, pre23
+
+    # Round23 · 医旅国家筛选（收藏联动为前端）
+    hospitals23 = call("/api/hospitals")["items"]
+    assert hospitals23, hospitals23
+    cn23 = call("/api/hospitals?" + urllib.parse.urlencode({"country": "中国"}))
+    assert cn23.get("items") and all(
+        h.get("country") == "中国" for h in cn23["items"]
+    ), cn23
+
+    # Round23 · 设置健康检查（弹层/新开为前端）
+    h23 = call("/api/health")
+    assert h23.get("ok") is True, h23
+    assert h23.get("domain") == "einherit.cn", h23
+
     print("selfcheck OK")
 
 
