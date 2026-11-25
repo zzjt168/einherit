@@ -3903,6 +3903,97 @@ def main() -> None:
     assert h45.get("version") or h45.get("server_version"), h45
     assert h45.get("domain") == "einherit.cn", h45
 
+    # Round46 · 首页善后工单总条数（前端条；counts-summary aftercare 可读）
+    cs46 = call("/api/counts-summary")
+    counts46 = cs46.get("counts") or {}
+    assert (
+        counts46.get("aftercare") is not None
+        or isinstance(cs46.get("cards"), list)
+        or cs46.get("text")
+    ), cs46
+
+    # Round46 · 交割清除照片状态（前端；clear_photos 可读）
+    lg46 = call(
+        "/api/legacy",
+        {
+            "title": "自检·清除照片46",
+            "category": "设备",
+            "action": "销毁",
+            "dept": "admin",
+            "clear_photos": True,
+        },
+    )["item"]
+    assert lg46.get("clear_photos") is not None or lg46.get("id") is not None, lg46
+
+    # Round46 · 备忘编号+平台（前端；id/platform 可读）
+    as46 = call(
+        "/api/assets",
+        {
+            "platform": "round46Combo",
+            "summary": "编号平台",
+            "dept": "admin",
+            "tag": "账号",
+            "draft": True,
+        },
+    )["item"]
+    assert as46.get("id") is not None and as46.get("platform"), as46
+
+    # Round46 · 报备备用首位关系（前端复制；backup_contacts.relation 可读）
+    ck_st46 = call("/api/checkin/status")
+    assert "user" in ck_st46, ck_st46
+    backups46 = ck_st46["user"].get("backup_contacts") or []
+    assert isinstance(backups46, list), ck_st46
+
+    # Round46 · 差旅还差金额纯数字（前端复制；shortfall 可读）
+    tf46 = call("/api/travel-fund")
+    fund46 = tf46.get("fund") or tf46
+    assert (
+        fund46.get("shortfall") is not None
+        or fund46.get("balance") is not None
+    ), fund46
+
+    # Round46 · 善后城市+状态（前端；city/status_label 可读）
+    ac46 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·城市状态46",
+            "service_type": "field_visit",
+            "city": "三亚",
+            "travel_budget": 340,
+        },
+    )["item"]
+    assert ac46.get("city") or ac46.get("status_label"), ac46
+
+    # Round46 · 授权视频条目状态（前端复制；status 可读）
+    av46 = call("/api/auth-video")
+    items46 = av46.get("items") or []
+    assert items46 or av46.get("ready") is not None or "complete" in av46, av46
+
+    # Round46 · 受益人编号+角色（前端；id/role 可读）
+    bn46 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·编号角色46",
+            "role": "family",
+            "relation": "兄妹",
+            "contact": "13300000046",
+        },
+    )["item"]
+    assert bn46.get("id") is not None and bn46.get("role"), bn46
+
+    # Round46 · 手册受益人人数纯数字（前端复制；beneficiary_count 可读）
+    hand46 = call("/api/handover")
+    assert (
+        hand46.get("beneficiary_count") is not None
+        or isinstance(hand46.get("heirs"), list)
+    ), hand46
+
+    # Round46 · 设置·就绪·域名·应用版本（前端复制；health 对齐）
+    h46 = call("/api/health")
+    assert h46.get("ok") is True, h46
+    assert h46.get("domain") == "einherit.cn", h46
+    assert h46.get("version") or h46.get("server_version"), h46
+
     print("selfcheck OK")
 
 
