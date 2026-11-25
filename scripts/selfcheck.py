@@ -14152,6 +14152,152 @@ def main() -> None:
         and h140.get("brand_en")
     ), h140
 
+    # Round141 · 首页版本+中文品牌+就绪（前端条；version/brand|app/ok 只读）
+    h141home = call("/api/health")
+    assert (
+        (h141home.get("version") or h141home.get("server_version"))
+        and (h141home.get("brand") or h141home.get("app"))
+        and h141home.get("ok") is True
+    ), h141home
+
+    # Round141 · 交割标题+设备归属+编号（前端；title / device_owner|beneficiary|dept / id）
+    lg141 = call(
+        "/api/legacy",
+        {
+            "title": "自检·标题归属编号141",
+            "category": "硬盘",
+            "action": "销毁",
+            "dept": "ops",
+            "beneficiary": "自检受益人141",
+            "notes": "标题归属编号141",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        lg141.get("title")
+        and (
+            lg141.get("device_owner")
+            or lg141.get("beneficiary")
+            or lg141.get("dept")
+        )
+        and lg141.get("id") is not None
+    ), lg141
+
+    # Round141 · 备忘处置说明+标签+标题（前端；dispose_note / tag / title|platform）
+    as141 = call(
+        "/api/assets",
+        {
+            "platform": "round141DispTagTitle",
+            "account_hint": "hint141",
+            "summary": "处置标签标题141",
+            "dispose_note": "演示处置141",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        as141.get("dispose_note")
+        and as141.get("tag")
+        and (as141.get("title") or as141.get("platform"))
+    ), as141
+
+    # Round141 · 报备窗口截止+下次建议（前端复制；window_ends_at/next_suggested_at 只读）
+    ck_st141 = call("/api/checkin/status")
+    cd141 = ck_st141.get("countdown") or {}
+    user141 = ck_st141.get("user") or {}
+    assert (
+        cd141.get("window_ends_at") is not None
+        or user141.get("checkin_due_at") is not None
+        or cd141.get("next_suggested_at") is not None
+        or cd141
+    ), ck_st141
+
+    # Round141 · 差旅门槛+余额+已存（前端复制；threshold/balance/deposited|balance 只读）
+    tf141 = call("/api/travel-fund")
+    fund141 = tf141.get("fund") or tf141
+    assert (
+        fund141.get("threshold") is not None
+        or fund141.get("balance") is not None
+        or fund141.get("deposited") is not None
+    ), tf141
+
+    # Round141 · 善后城市+医院+服务类型（前端；city / hospital|title / service_type）
+    ac141 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·城市医院服务141",
+            "service_type": "phone_assist",
+            "city": "白沙",
+            "notes": "城市医院服务141",
+            "visit_pref": "午前",
+            "travel_budget": 1410,
+        },
+    )["item"]
+    assert (
+        ac141.get("city")
+        and (ac141.get("hospital") or ac141.get("title"))
+        and (ac141.get("service_type") or ac141.get("service"))
+    ), ac141
+
+    # Round141 · 授权视频标题+缺失+时长（前端复制；title|latest/missing/duration_hint 可读）
+    av141 = call("/api/auth-video")
+    latest141 = av141.get("latest") or {}
+    prog141av = av141.get("progress") or {}
+    assert (
+        av141.get("title")
+        or latest141.get("original_name")
+        or av141.get("missing") is not None
+        or av141.get("duration_hint")
+        or prog141av.get("duration_hint")
+    ), av141
+
+    # Round141 · 受益人口令+联系+姓名（前端；passphrase_hint/contact/name 可读）
+    bn141 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·口令联系141",
+            "role": "heir",
+            "relation": "姻亲",
+            "contact": "13300000141",
+            "passphrase_hint": "round141口令",
+        },
+    )["item"]
+    assert (
+        bn141.get("passphrase_hint")
+        and bn141.get("contact")
+        and bn141.get("name")
+    ), bn141
+
+    # Round141 · 手册章节+完成+域名（前端复制；sections|total_types/done|filled_types/domain）
+    hand141 = call("/api/handover")
+    prog141 = hand141.get("progress") or {}
+    assert (
+        (
+            hand141.get("sections") is not None
+            or prog141.get("total_types") is not None
+            or hand141.get("section_count") is not None
+        )
+        and (
+            hand141.get("done") is not None
+            or prog141.get("filled_types") is not None
+            or prog141.get("done") is not None
+        )
+        and hand141.get("domain")
+    ), hand141
+
+    # Round141 · 设置·域名+中文品牌+版本+就绪（前端复制；domain/brand|app/version/ok）
+    h141 = call("/api/health")
+    assert h141.get("ok") is True, h141
+    assert (
+        h141.get("domain")
+        and (h141.get("brand") or h141.get("app"))
+        and (h141.get("version") or h141.get("server_version"))
+    ), h141
+
     print("selfcheck OK")
 
 
