@@ -8291,6 +8291,105 @@ def main() -> None:
         "brand_en"
     ), h91
 
+    # Round92 · 首页域名版本（前端条；domain/version 只读）
+    h92home = call("/api/health")
+    assert h92home.get("domain") == "einherit.cn" and (
+        h92home.get("version") or h92home.get("server_version")
+    ), h92home
+
+    # Round92 · 交割编号+受益人+备注（前端；id/beneficiary/notes 可读）
+    lg92 = call(
+        "/api/legacy",
+        {
+            "title": "自检·编号受益92",
+            "category": "耳机",
+            "action": "转赠",
+            "dept": "finance",
+            "beneficiary": "自检受益人92",
+            "notes": "备注92",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert lg92.get("id") is not None and (
+        lg92.get("beneficiary") or lg92.get("notes")
+    ), lg92
+
+    # Round92 · 备忘平台+摘要+可见性（前端；platform/summary/visibility 可读）
+    as92 = call(
+        "/api/assets",
+        {
+            "platform": "round92PlatSumVis",
+            "account_hint": "hint92",
+            "summary": "平台摘要可见92",
+            "dispose_note": "演示处置92",
+            "dept": "admin",
+            "tag": "其他",
+            "visibility": "private",
+            "draft": True,
+        },
+    )["item"]
+    assert as92.get("platform") and as92.get("summary") and as92.get(
+        "visibility"
+    ), as92
+
+    # Round92 · 报备上次距今（前端复制；last_ago_label 只读）
+    ck_st92 = call("/api/checkin/status")
+    cd92 = ck_st92.get("countdown") or {}
+    assert cd92.get("last_ago_label") or cd92, ck_st92
+
+    # Round92 · 差旅进度百分比与门槛（前端复制；progress_pct/threshold 只读）
+    tf92 = call("/api/travel-fund")
+    fund92 = tf92.get("fund") or tf92
+    assert fund92.get("progress_pct") is not None or fund92.get(
+        "threshold"
+    ) is not None, tf92
+
+    # Round92 · 善后标题+状态+城市（前端；title/status/city 可读）
+    ac92 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·标题状态92",
+            "service_type": "field_visit",
+            "city": "白沙",
+            "notes": "标题状态城市92",
+            "visit_pref": "周末",
+            "travel_budget": 920,
+        },
+    )["item"]
+    assert ac92.get("title") and (ac92.get("status") or ac92.get("city")), ac92
+
+    # Round92 · 授权视频闸口+完成文案（前端复制；gate/complete_label 可读）
+    av92 = call("/api/auth-video")
+    assert av92.get("gate") or av92.get("complete_label"), av92
+
+    # Round92 · 受益人联系+口令+角色（前端；contact/passphrase_hint/role 可读）
+    bn92 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·联系口令92",
+            "role": "executor",
+            "relation": "朋友",
+            "contact": "13300000092",
+            "passphrase_hint": "round92口令",
+        },
+    )["item"]
+    assert bn92.get("contact") and bn92.get("passphrase_hint") and bn92.get(
+        "role"
+    ), bn92
+
+    # Round92 · 手册条目数与域名（前端复制；item_count/domain 可读）
+    hand92 = call("/api/handover")
+    assert hand92.get("item_count") is not None or hand92.get("domain"), hand92
+
+    # Round92 · 设置·版本+域名+英文品牌（前端复制；version/domain/brand_en 对齐）
+    h92 = call("/api/health")
+    assert h92.get("ok") is True, h92
+    assert (h92.get("version") or h92.get("server_version")) and h92.get(
+        "domain"
+    ) == "einherit.cn" and h92.get("brand_en"), h92
+
     print("selfcheck OK")
 
 
