@@ -2173,3 +2173,60 @@ body.privacy-mode .privacy-hint { opacity: 0.85; }
   white-space: pre-wrap;
   word-break: break-word;
 }
+
+/* Round19 · 温和增量 */
+.home-legacy-progress {
+  margin: 6px 16px 0;
+  font-size: 13px;
+  line-height: 1.4;
+}
+.lg-missing-factory-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 8px 0 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: #f7f9f8;
+  border: 1px solid var(--line, #e2e8e4);
+}
+.lg-missing-factory-bar[hidden] {
+  display: none;
+}
+.as-due-today {
+  margin-bottom: 10px;
+}
+.as-due-today .as-due-today-list {
+  margin-top: 8px;
+}
+.tag.review-today {
+  background: var(--sage-soft, #e6f0ea);
+  color: var(--sage-deep, #2f5d45);
+}
+.member-travel-peer {
+  margin: 10px 0 4px;
+  font-size: 13px;
+  line-height: 1.4;
+}
+.ac-empty-dual {
+  padding: 12px 4px;
+}
+.av-active-summary {
+  margin: 10px 0 12px;
+}
+.av-active-line {
+  margin: 6px 0 0;
+  font-size: 14px;
+}
+.hand-export-count-hint {
+  margin: 10px 0 12px;
+  padding: 10px 12px;
+  border-radius: 12px;
+}
+.med-no-result-comfort {
+  margin: 4px 0 8px;
+}
+.settings-last-opened-card {
+  margin-top: 10px;
+}

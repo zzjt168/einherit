@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import time
 import urllib.parse
 import urllib.request
 
@@ -1482,6 +1483,96 @@ def main() -> None:
     assert h18.get("ok") is True, h18
     assert h18.get("domain") == "einherit.cn", h18
     assert h18.get("version") == "0.5.0", h18
+
+    # Round19 · 首页交割进度（counts.legacy_filled / legacy）
+    summary19 = call("/api/counts-summary")
+    assert "counts" in summary19, summary19
+    assert "legacy" in summary19["counts"], summary19
+    assert "legacy_filled" in summary19["counts"], summary19
+    assert summary19["counts"]["legacy_filled"] <= summary19["counts"]["legacy"], summary19
+
+    # Round19 · 交割缺出厂重置汇总
+    lg19_dev = call(
+        "/api/legacy",
+        {
+            "title": "自检·平板设备",
+            "category": "电子设备",
+            "action": "转赠",
+            "factory_reset": False,
+        },
+    )["item"]
+    assert lg19_dev.get("factory_reset") in (0, False, None), lg19_dev
+    miss_fr = call("/api/legacy/missing-factory-reset")
+    assert "count" in miss_fr and "items" in miss_fr and "hint" in miss_fr, miss_fr
+    assert miss_fr["count"] >= 1, miss_fr
+    assert any(x.get("id") == lg19_dev["id"] for x in miss_fr["items"]), miss_fr
+
+    # Round19 · 备忘复习到期今日区数据源
+    as19 = call(
+        "/api/assets",
+        {
+            "platform": "自检·今日复习",
+            "summary": "round19",
+            "dispose_note": "销毁",
+            "draft": True,
+        },
+    )["item"]
+    today19 = time.strftime("%Y-%m-%d", time.localtime())
+    reviewed19 = call(
+        "/api/assets/review-at",
+        {"id": as19["id"], "review_at": today19},
+    )
+    assert (reviewed19.get("item") or {}).get("review_at", "").startswith(today19), reviewed19
+    due19 = call("/api/assets?" + urllib.parse.urlencode({"sort": "due"}))
+    assert "due_soon" in due19 or any(
+        str(x.get("review_at") or "").startswith(today19)
+        for x in (due19.get("items") or [])
+    ), due19
+
+    # Round19 · 报备间隔保存回执数据源（只写 interval）
+    prev_iv = call("/api/checkin/interval")
+    prev_hours = float(prev_iv.get("interval_hours") or 24)
+    set_iv = call("/api/checkin/interval", {"interval_hours": prev_hours})
+    assert "interval_hours" in set_iv, set_iv
+    call("/api/checkin/interval", {"interval_hours": prev_hours})
+
+    # Round19 · 会员页差旅门槛同行数据源
+    tf19 = call("/api/travel-fund")
+    assert "fund" in tf19 and "threshold" in tf19["fund"], tf19
+    assert tf19["fund"]["threshold"] == 2000, tf19
+    assert "balance" in tf19["fund"], tf19
+
+    # Round19 · 善后空列表依赖列表可读
+    ac19 = call("/api/aftercare")
+    assert "items" in ac19, ac19
+
+    # Round19 · 授权视频当前生效三勾字段
+    av19 = call("/api/auth-video")
+    assert "items" in av19 and "current_active_id" in av19, av19
+    if av19.get("current_active_id"):
+        actives19 = [it for it in av19["items"] if it.get("current_active")]
+        assert actives19, av19
+        a0 = actives19[0]
+        assert "has_greeting" in a0 and "has_authorize" in a0 and "has_plan" in a0, a0
+
+    # Round19 · 手册导出条目数与列表一致
+    hand19 = call("/api/handover")
+    assert "item_count" in hand19, hand19
+    assert "export_align_note" in hand19, hand19
+    assert str(hand19["item_count"]) in hand19["export_align_note"], hand19
+
+    # Round19 · 医旅搜索无结果依赖医院列表可读
+    hospitals19 = call("/api/hospitals")["items"]
+    assert isinstance(hospitals19, list), hospitals19
+    empty_q = call(
+        "/api/hospitals?" + urllib.parse.urlencode({"q": "绝对不存在的医院名xyzzy999"})
+    )
+    assert "items" in empty_q, empty_q
+
+    # Round19 · 设置·上次同步本机时间为前端 localStorage；health 仍可读
+    h19 = call("/api/health")
+    assert h19.get("ok") is True, h19
+    assert h19.get("domain") == "einherit.cn", h19
 
     print("selfcheck OK")
 

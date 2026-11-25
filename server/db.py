@@ -3338,7 +3338,10 @@ def checkin_calendar(user_id: int = 1, days: int = 14) -> dict[str, Any]:
 
 def counts_summary(user_id: int = 1) -> dict[str, Any]:
     """设置页一键自检：关键列表条数摘要（只读）。"""
-    legacy_n = len(list_legacy(user_id))
+    legacy_items = list_legacy(user_id)
+    legacy_n = len(legacy_items)
+    # 已填处置：有处置动作的交割条目（冷静进度，供首页一句）
+    legacy_filled = sum(1 for it in legacy_items if str(it.get("action") or "").strip())
     assets_n = len(list_assets(user_id))
     heirs_n = len(list_beneficiaries(user_id))
     intents_n = len(list_med_intents(user_id, include_cancelled=True))
@@ -3348,6 +3351,7 @@ def counts_summary(user_id: int = 1) -> dict[str, Any]:
     hand = handover_checklist(user_id)
     counts = {
         "legacy": legacy_n,
+        "legacy_filled": legacy_filled,
         "assets": assets_n,
         "beneficiaries": heirs_n,
         "med_intents": intents_n,
@@ -3506,6 +3510,36 @@ def legacy_missing_beneficiary(user_id: int = 1) -> dict[str, Any]:
         ),
         "cta": "筛出未指定",
         "note": "只读汇总，便于补全；不改交割状态机。",
+    }
+
+
+def _legacy_is_device(it: dict[str, Any]) -> bool:
+    """设备类交割条目：类别或标题含「设备」等关键词。"""
+    cat = str(it.get("category") or "")
+    title = str(it.get("title") or "")
+    blob = cat + " " + title
+    keys = ("设备", "手机", "电脑", "平板", "笔记本", "iPhone", "iPad", "Mac")
+    return any(k in blob for k in keys)
+
+
+def legacy_missing_factory_reset(user_id: int = 1) -> dict[str, Any]:
+    """设备类交割条目未勾出厂重置的冷静汇总（不恐吓）。"""
+    items = [
+        it
+        for it in list_legacy(user_id)
+        if _legacy_is_device(it) and not it.get("factory_reset")
+    ]
+    n = len(items)
+    return {
+        "count": n,
+        "items": items,
+        "hint": (
+            f"有 {n} 条设备安排还没勾选出厂重置。需要时补上即可。"
+            if n
+            else "设备类条目已勾选出厂重置，或暂无设备条目。"
+        ),
+        "cta": "筛出未勾选",
+        "note": "只读汇总；不改交割 / 外呼 / 退款状态机。",
     }
 
 
