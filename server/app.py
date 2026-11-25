@@ -500,6 +500,16 @@ class Handler(BaseHTTPRequestHandler):
                 str(payload.get("dispose_note") or ""),
             )
 
+        if path == "/api/assets/update":
+            # 温和更新备忘字段；目前支持 visibility（private/family）
+            if "visibility" in payload:
+                return db.set_asset_visibility(
+                    1,
+                    int(payload.get("id") or 0),
+                    str(payload.get("visibility") or ""),
+                )
+            raise ValueError("请指定要更新的字段（如 visibility）")
+
         if path == "/api/med-intent/status":
             return db.set_med_intent_status(
                 1,
