@@ -391,6 +391,16 @@ class Handler(BaseHTTPRequestHandler):
             ):
                 out = db.legacy_missing_factory_reset(1)
             elif path in (
+                "/api/legacy/missing-clear-media",
+                "/api/legacy/clear-media-pending",
+            ):
+                out = db.legacy_missing_clear_media(1)
+            elif path in (
+                "/api/aftercare/open-budget-sum",
+                "/api/aftercare/budget-sum",
+            ):
+                out = db.aftercare_open_budget_sum(1)
+            elif path in (
                 "/api/assets/review-calendar",
                 "/api/assets/review-cal",
             ):
