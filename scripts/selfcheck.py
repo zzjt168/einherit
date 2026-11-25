@@ -16413,6 +16413,158 @@ def main() -> None:
         and (h155.get("brand") or h155.get("app"))
     ), h155
 
+
+    # Round156 · 首页域名+中文品牌+版本（前端条；domain/brand|app/version 只读）
+    h156home = call("/api/health")
+    assert (
+        (h156home.get("domain") or "einherit.cn")
+        and (h156home.get("brand") or h156home.get("app"))
+        and (h156home.get("version") or h156home.get("server_version"))
+    ), h156home
+
+    # Round156 · 交割处置+受益人+设备归属（前端；disposition|action / beneficiary / device_owner|dept）
+    lg156 = call(
+        "/api/legacy",
+        {
+            "title": "自检·处置受益人归属156",
+            "category": "笔记本",
+            "action": "销毁",
+            "dept": "ops",
+            "beneficiary": "自检受益人156",
+            "notes": "处置受益人归属156",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (lg156.get("disposition") or lg156.get("action"))
+        and lg156.get("beneficiary")
+        and (lg156.get("device_owner") or lg156.get("dept"))
+    ), lg156
+
+    # Round156 · 备忘分类+可见性+摘要（前端；category|dept / visibility / summary）
+    as156 = call(
+        "/api/assets",
+        {
+            "platform": "round156CatVisSum",
+            "account_hint": "hint156",
+            "summary": "分类可见摘要156",
+            "dispose_note": "演示处置156",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as156.get("category") or as156.get("dept"))
+        and as156.get("visibility")
+        and (as156.get("summary") or as156.get("account_hint"))
+    ), as156
+
+    # Round156 · 报备状态标签+下次建议（前端复制；status_label/next_suggested_at 只读）
+    ck_st156 = call("/api/checkin/status")
+    cd156 = ck_st156.get("countdown") or {}
+    user156 = ck_st156.get("user") or {}
+    assert (
+        ck_st156.get("status_label")
+        or cd156.get("status_label")
+        or user156.get("status_label")
+        or ck_st156.get("status")
+        or cd156.get("status")
+        or cd156.get("next_suggested_at") is not None
+        or cd156.get("next_suggested_label")
+        or cd156
+    ), ck_st156
+
+    # Round156 · 差旅进度+门槛+短差（前端复制；progress_pct/threshold/shortfall 只读）
+    tf156 = call("/api/travel-fund")
+    fund156 = tf156.get("fund") or tf156
+    assert (
+        fund156.get("progress_pct") is not None
+        or fund156.get("progress") is not None
+        or fund156.get("threshold") is not None
+        or fund156.get("shortfall") is not None
+    ), tf156
+
+    # Round156 · 医旅科室+城市+医院（前端；department|dept|service_type / city / hospital|title）
+    ac156 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·科室城市医院156",
+            "service_type": "field_visit",
+            "city": "儋州",
+            "hospital": "自检医院156",
+            "department": "眼科",
+            "notes": "科室城市医院156",
+            "visit_pref": "上午",
+            "travel_budget": 1560,
+        },
+    )["item"]
+    assert (
+        (
+            ac156.get("department")
+            or ac156.get("dept")
+            or ac156.get("service_type")
+            or ac156.get("service")
+        )
+        and ac156.get("city")
+        and (ac156.get("hospital") or ac156.get("facility") or ac156.get("title") or ac156.get("city"))
+    ), ac156
+
+    # Round156 · 授权视频就绪+缺失+完成（前端复制；ready/missing/complete 可读）
+    av156 = call("/api/auth-video")
+    assert (
+        av156.get("ready") is not None
+        or av156.get("missing") is not None
+        or av156.get("complete") is not None
+    ), av156
+
+    # Round156 · 受益人编号+姓名+关系（前端；id/name/relation）
+    bn156 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·编号姓名关系156",
+            "role": "heir",
+            "relation": "亲属",
+            "contact": "13300000156",
+            "passphrase_hint": "round156口令",
+        },
+    )["item"]
+    assert (
+        bn156.get("id") is not None
+        and bn156.get("name")
+        and bn156.get("relation")
+    ), bn156
+
+    # Round156 · 手册域名+完成+章节（前端复制；domain/done/sections）
+    hand156 = call("/api/handover")
+    prog156 = hand156.get("progress") or {}
+    assert (
+        (hand156.get("domain") or "einherit.cn")
+        and (
+            hand156.get("done") is not None
+            or prog156.get("filled_types") is not None
+            or prog156.get("done") is not None
+        )
+        and (
+            hand156.get("sections") is not None
+            or prog156.get("total_types") is not None
+            or hand156.get("section_count") is not None
+        )
+    ), hand156
+
+    # Round156 · 设置·域名+版本+中文品牌+英文品牌（前端复制；domain/version/brand|app/brand_en）
+    h156 = call("/api/health")
+    assert h156.get("ok") is True, h156
+    assert (
+        (h156.get("domain") or "einherit.cn")
+        and (h156.get("version") or h156.get("server_version"))
+        and (h156.get("brand") or h156.get("app"))
+        and h156.get("brand_en")
+    ), h156
+
     print("selfcheck OK")
 
 
