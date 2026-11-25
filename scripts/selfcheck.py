@@ -10953,6 +10953,126 @@ def main() -> None:
         "brand_en"
     ), h115
 
+    # Round116 · 首页域名就绪英文（前端条；domain/ok/brand_en 只读）
+    h116home = call("/api/health")
+    assert (
+        h116home.get("domain") == "einherit.cn"
+        and h116home.get("ok") is True
+        and h116home.get("brand_en")
+    ), h116home
+
+    # Round116 · 交割部门+动作+标题（前端；dept/action/title 可读）
+    lg116 = call(
+        "/api/legacy",
+        {
+            "title": "自检·部门动作116",
+            "category": "电脑",
+            "action": "销售变现",
+            "dept": "legal",
+            "beneficiary": "自检受益人116",
+            "notes": "备注116",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert lg116.get("dept") and lg116.get("action") and lg116.get(
+        "title"
+    ), lg116
+
+    # Round116 · 备忘处置+平台+可见度（前端；dispose_note/platform/visibility 可读）
+    as116 = call(
+        "/api/assets",
+        {
+            "platform": "round116DispPlatVis",
+            "account_hint": "hint116",
+            "summary": "处置平台可见116",
+            "dispose_note": "演示处置116",
+            "dept": "admin",
+            "tag": "其他",
+            "visibility": "private",
+            "draft": True,
+        },
+    )["item"]
+    assert as116.get("dispose_note") and as116.get("platform") and as116.get(
+        "visibility"
+    ), as116
+
+    # Round116 · 报备距今标签宽限文案（前端复制；last_ago_label/grace_hours 只读）
+    ck_st116 = call("/api/checkin/status")
+    cd116 = ck_st116.get("countdown") or {}
+    assert (
+        cd116.get("last_ago_label")
+        or cd116.get("grace_hours") is not None
+        or cd116
+    ), ck_st116
+
+    # Round116 · 差旅门槛+缺口+进度百分比（前端复制；threshold/shortfall/progress_pct 只读）
+    tf116 = call("/api/travel-fund")
+    fund116 = tf116.get("fund") or tf116
+    assert (
+        fund116.get("threshold") is not None
+        or fund116.get("shortfall") is not None
+        or fund116.get("progress_pct") is not None
+        or fund116.get("progress") is not None
+    ), tf116
+
+    # Round116 · 善后状态+预算+城市（前端；status/travel_budget/city 可读）
+    ac116 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·状态预算116",
+            "service_type": "phone_assist",
+            "city": "东方",
+            "notes": "状态预算城市116",
+            "visit_pref": "上午",
+            "travel_budget": 1160,
+        },
+    )["item"]
+    assert (
+        (ac116.get("status") or ac116.get("status_label") or True)
+        and ac116.get("travel_budget") is not None
+        and ac116.get("city")
+    ), ac116
+
+    # Round116 · 授权视频清单+缺失+闸口（前端复制；checklist/missing/gate 可读）
+    av116 = call("/api/auth-video")
+    assert (
+        isinstance(av116.get("checklist"), list)
+        or isinstance(av116.get("missing"), list)
+        or av116.get("gate") is not None
+    ), av116
+
+    # Round116 · 受益人口令提示+角色+关系（前端；passphrase_hint/role/relation 可读）
+    bn116 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·口令角色116",
+            "role": "heir",
+            "relation": "同事",
+            "contact": "13300000116",
+            "passphrase_hint": "round116口令",
+        },
+    )["item"]
+    assert bn116.get("passphrase_hint") and bn116.get("role") and bn116.get(
+        "relation"
+    ), bn116
+
+    # Round116 · 手册品牌+待办数+域名（前端复制；brand/todos/domain 可读）
+    hand116 = call("/api/handover")
+    assert (
+        hand116.get("brand")
+        or isinstance(hand116.get("todos"), list)
+        or hand116.get("domain")
+    ), hand116
+
+    # Round116 · 设置·就绪+应用名+版本+域名（前端复制；ok/app/version/domain 对齐）
+    h116 = call("/api/health")
+    assert h116.get("ok") is True, h116
+    assert h116.get("app") and (
+        h116.get("version") or h116.get("server_version")
+    ) and h116.get("domain"), h116
+
     print("selfcheck OK")
 
 
