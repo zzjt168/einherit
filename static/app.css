@@ -6004,3 +6004,39 @@ body.privacy-mode .privacy-hint { opacity: 0.85; }
   margin: 8px 0 10px; padding: 8px 10px; border-radius: 8px; background: #f5f8f6;
   word-break: break-word; font-weight: 600; color: var(--sage-deep, #2f5d45);
 }
+
+
+/* Round72 · 温和增量 */
+.home-is-member-days-bar {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  margin: 10px 0 12px; padding: 12px 14px; border-radius: 12px;
+  background: linear-gradient(160deg, #eef4f1 0%, #fff 75%);
+  border: 1px solid var(--line, #e2e8e4);
+}
+.home-is-member-days-bar[hidden] { display: none; }
+.home-is-member-days-mark { font-weight: 600; color: var(--sage-deep, #2f5d45); font-size: 13px; }
+.home-is-member-days-sub { flex: 1; min-width: 8em; font-size: 12px; }
+.lg-copy-category-beneficiary { margin-top: 8px; margin-left: 6px; }
+.as-copy-id-platform-tag { margin-top: 8px; margin-left: 6px; }
+.checkin-member-days-left-plain-copy {
+  margin-top: 10px; padding: 10px 12px; border-radius: 10px; background: #f5f8f6;
+}
+.checkin-member-days-left-plain-copy-line { margin: 0 0 8px; }
+.travel-balance-threshold-plain-copy {
+  margin: 8px 0 10px; padding: 10px 12px; border-radius: 10px; background: #f5f8f6;
+}
+.travel-balance-threshold-plain-copy-line { margin: 0 0 8px; }
+.ac-copy-phase-budget { margin-top: 8px; margin-left: 6px; }
+.av-gate-label-ready-copy {
+  margin: 8px 0 10px; padding: 10px 12px; border-radius: 10px; background: #f5f8f6;
+}
+.av-gate-label-ready-copy-line { margin: 0 0 8px; }
+.bn-copy-id-name-contact { margin-top: 8px; margin-left: 6px; }
+.hand-item-count-brand-copy {
+  margin: 8px 0 12px; padding: 10px 12px; border-radius: 10px; background: #f5f8f6;
+}
+.hand-item-count-brand-copy-line { margin: 0 0 8px; }
+.ok-domain-r72-copy-card .ok-domain-r72-copy-preview {
+  margin: 8px 0 10px; padding: 8px 10px; border-radius: 8px; background: #f5f8f6;
+  word-break: break-word; font-weight: 600; color: var(--sage-deep, #2f5d45);
+}
