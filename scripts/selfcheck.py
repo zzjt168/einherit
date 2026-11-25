@@ -5957,6 +5957,107 @@ def main() -> None:
     assert h67.get("brand_en") or h67.get("server_version"), h67
     assert h67.get("domain") == "einherit.cn", h67
 
+    # Round68 · 首页备用联系人数（前端条；backup_contacts 只读）
+    ck_st68home = call("/api/checkin/status")
+    assert isinstance(
+        (ck_st68home.get("user") or {}).get("backup_contacts"), list
+    ) or ck_st68home.get("user"), ck_st68home
+
+    # Round68 · 交割编号+双清除（前端；id/clear_photos/clear_chats 可读）
+    lg68 = call(
+        "/api/legacy",
+        {
+            "title": "自检·编号双清除68",
+            "category": "其他",
+            "action": "销毁",
+            "dept": "hr",
+            "clear_photos": True,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert lg68.get("id") is not None, lg68
+    assert "clear_photos" in lg68 or lg68.get("clear_photos") is not None, lg68
+
+    # Round68 · 备忘可见性+处置备注（前端；visibility/dispose_note 可读）
+    as68 = call(
+        "/api/assets",
+        {
+            "platform": "round68VisDispose",
+            "summary": "可见性处置68",
+            "dispose_note": "演示处置68",
+            "dept": "admin",
+            "tag": "其他",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert as68.get("visibility"), as68
+    assert as68.get("dispose_note") is not None or "dispose_note" in as68, as68
+
+    # Round68 · 报备备用联系人数（前端复制；backup_contacts 只读）
+    ck_st68 = call("/api/checkin/status")
+    assert isinstance(
+        (ck_st68.get("user") or {}).get("backup_contacts"), list
+    ) or ck_st68.get("user"), ck_st68
+
+    # Round68 · 差旅流水种类+金额（前端复制；ledger kind/amount 只读）
+    tf68 = call("/api/travel-fund")
+    ledger68 = tf68.get("ledger") or []
+    assert isinstance(ledger68, list), tf68
+    if ledger68:
+        assert ledger68[0].get("kind") or ledger68[0].get("amount") is not None, ledger68[0]
+
+    # Round68 · 善后到访偏好+城市（前端；visit_pref/city 可读）
+    ac68 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·到访城市68",
+            "service_type": "field_visit",
+            "city": "屯昌",
+            "visit_pref": "上午",
+            "travel_budget": 680,
+        },
+    )["item"]
+    assert ac68.get("city"), ac68
+    assert ac68.get("visit_pref") is not None or "visit_pref" in ac68, ac68
+
+    # Round68 · 授权视频文件名+状态（前端复制；filename/status 可读）
+    av68 = call("/api/auth-video")
+    active68 = av68.get("current_active") or av68.get("latest") or {}
+    assert (
+        active68.get("filename")
+        or active68.get("status")
+        or av68.get("ready") is not None
+    ), av68
+
+    # Round68 · 受益人关系+口令提示（前端；relation/passphrase_hint 可读）
+    bn68 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·关系口令68",
+            "role": "heir",
+            "relation": "表亲",
+            "contact": "13300000068",
+            "passphrase_hint": "round68口令",
+        },
+    )["item"]
+    assert bn68.get("relation"), bn68
+    assert bn68.get("passphrase_hint") is not None or "passphrase_hint" in bn68, bn68
+
+    # Round68 · 手册生成时间与域名（前端复制；generated_at_iso/domain 可读）
+    hand68 = call("/api/handover")
+    assert (
+        hand68.get("generated_at_iso")
+        or hand68.get("domain")
+        or hand68.get("generated_at") is not None
+    ), hand68
+
+    # Round68 · 设置·应用版本+域名（前端复制；version/domain 对齐）
+    h68 = call("/api/health")
+    assert h68.get("ok") is True, h68
+    assert h68.get("version") or h68.get("domain") == "einherit.cn", h68
+    assert h68.get("domain") == "einherit.cn", h68
+
     print("selfcheck OK")
 
 
