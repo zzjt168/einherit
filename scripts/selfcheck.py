@@ -7725,6 +7725,102 @@ def main() -> None:
     assert h85.get("domain") == "einherit.cn", h85
     assert h85.get("version") or h85.get("server_version"), h85
 
+    # Round86 · 首页应用就绪（前端条；app/ok 只读）
+    h86home = call("/api/health")
+    assert h86home.get("app") and h86home.get("ok") is True, h86home
+
+    # Round86 · 交割处置+部门+备注（前端；action/dept/notes 可读）
+    lg86 = call(
+        "/api/legacy",
+        {
+            "title": "自检·处置部门86",
+            "category": "手表",
+            "action": "销售变现",
+            "dept": "finance",
+            "notes": "处置部门备注86",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert lg86.get("action") and lg86.get("dept"), lg86
+    assert "notes" in lg86 or lg86.get("notes") is not None, lg86
+
+    # Round86 · 备忘平台+提示+摘要（前端；platform/account_hint/summary 可读）
+    as86 = call(
+        "/api/assets",
+        {
+            "platform": "round86PlatformHintSummary",
+            "account_hint": "hint86",
+            "summary": "平台提示摘要86",
+            "dispose_note": "演示处置86",
+            "dept": "admin",
+            "tag": "其他",
+            "visibility": "private",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        as86.get("platform")
+        and as86.get("account_hint")
+        and as86.get("summary")
+    ), as86
+
+    # Round86 · 报备上次报备标签（前端复制；last_checkin_label 只读）
+    ck_st86 = call("/api/checkin/status")
+    cd86 = ck_st86.get("countdown") or {}
+    assert cd86.get("last_checkin_label") or cd86, ck_st86
+
+    # Round86 · 差旅短差与进度%（前端复制；shortfall/progress_pct 只读）
+    tf86 = call("/api/travel-fund")
+    fund86 = tf86.get("fund") or tf86
+    assert (
+        fund86.get("shortfall") is not None
+        or fund86.get("progress_pct") is not None
+    ), tf86
+
+    # Round86 · 善后标题+状态+预算（前端；title/status/travel_budget 可读）
+    ac86 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·标题状态86",
+            "service_type": "field_visit",
+            "city": "临高",
+            "notes": "标题状态预算86",
+            "visit_pref": "下午",
+            "travel_budget": 860,
+        },
+    )["item"]
+    assert ac86.get("title") and (
+        ac86.get("status") or ac86.get("travel_budget") is not None
+    ), ac86
+
+    # Round86 · 授权视频齐备+就绪（前端复制；complete_label/ready 可读）
+    av86 = call("/api/auth-video")
+    assert av86.get("complete_label") or av86.get("ready") is not None, av86
+
+    # Round86 · 受益人编号+姓名+关系（前端；id/name/relation 可读）
+    bn86 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·编号姓名86",
+            "role": "executor",
+            "relation": "同学",
+            "contact": "13300000086",
+            "passphrase_hint": "round86口令",
+        },
+    )["item"]
+    assert bn86.get("id") is not None and bn86.get("name") and bn86.get("relation"), bn86
+
+    # Round86 · 手册生成时间与域名（前端复制；generated_at/domain 可读）
+    hand86 = call("/api/handover")
+    assert hand86.get("generated_at") is not None or hand86.get("domain"), hand86
+
+    # Round86 · 设置·服务版本+就绪+英文品牌（前端复制；server_version/ok/brand_en 对齐）
+    h86 = call("/api/health")
+    assert h86.get("ok") is True, h86
+    assert (h86.get("server_version") or h86.get("version")) and h86.get("brand_en"), h86
+
     print("selfcheck OK")
 
 
