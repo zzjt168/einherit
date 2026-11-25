@@ -4925,7 +4925,7 @@ body.privacy-mode .privacy-hint { opacity: 0.85; }
 .hand-heirs-names-copy-line {
   margin: 0 0 8px;
 }
-.version-domain-copy-card .version-domain-copy-preview {
+.app-ver-domain-r68-copy-card .app-ver-domain-r68-copy-preview {
   margin: 8px 0 10px;
   padding: 8px 10px;
   border-radius: 8px;
@@ -5857,6 +5857,42 @@ body.privacy-mode .privacy-hint { opacity: 0.85; }
 }
 .hand-item-pct-copy-line { margin: 0 0 8px; }
 .en-server-copy-card .en-server-copy-preview {
+  margin: 8px 0 10px; padding: 8px 10px; border-radius: 8px; background: #f5f8f6;
+  word-break: break-word; font-weight: 600; color: var(--sage-deep, #2f5d45);
+}
+
+
+/* Round68 · 温和增量 */
+.home-backup-count-bar {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  margin: 10px 0 12px; padding: 12px 14px; border-radius: 12px;
+  background: linear-gradient(160deg, #eef4f1 0%, #fff 75%);
+  border: 1px solid var(--line, #e2e8e4);
+}
+.home-backup-count-bar[hidden] { display: none; }
+.home-backup-count-mark { font-weight: 600; color: var(--sage-deep, #2f5d45); font-size: 13px; }
+.home-backup-count-sub { flex: 1; min-width: 8em; font-size: 12px; }
+.lg-copy-id-clear-both { margin-top: 8px; margin-left: 6px; }
+.as-copy-vis-dispose { margin-top: 8px; margin-left: 6px; }
+.checkin-backup-count-copy {
+  margin-top: 10px; padding: 10px 12px; border-radius: 10px; background: #f5f8f6;
+}
+.checkin-backup-count-copy-line { margin: 0 0 8px; }
+.travel-ledger-kind-amount-copy {
+  margin: 8px 0 10px; padding: 10px 12px; border-radius: 10px; background: #f5f8f6;
+}
+.travel-ledger-kind-amount-copy-line { margin: 0 0 8px; }
+.ac-copy-visit-city { margin-top: 8px; margin-left: 6px; }
+.av-filename-status-copy {
+  margin: 8px 0 10px; padding: 10px 12px; border-radius: 10px; background: #f5f8f6;
+}
+.av-filename-status-copy-line { margin: 0 0 8px; }
+.bn-copy-relation-passphrase { margin-top: 8px; margin-left: 6px; }
+.hand-generated-domain-copy {
+  margin: 8px 0 12px; padding: 10px 12px; border-radius: 10px; background: #f5f8f6;
+}
+.hand-generated-domain-copy-line { margin: 0 0 8px; }
+.app-ver-domain-r68-copy-card .app-ver-domain-r68-copy-preview {
   margin: 8px 0 10px; padding: 8px 10px; border-radius: 8px; background: #f5f8f6;
   word-break: break-word; font-weight: 600; color: var(--sage-deep, #2f5d45);
 }
