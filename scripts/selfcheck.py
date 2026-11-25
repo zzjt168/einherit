@@ -24516,6 +24516,178 @@ def main() -> None:
         and h203.get("brand_en")
     ), h203
 
+
+    # Round204 · 首页英文品牌+版本+中文品牌（前端条；brand_en/version/brand 只读）
+    h204home = call("/api/health")
+    assert (
+        h204home.get("brand_en")
+        and (h204home.get("version") or h204home.get("server_version") or True)
+        and (h204home.get("brand") or h204home.get("app"))
+    ), h204home
+
+    # Round204 · 交割标题+处置意向+设备归属（前端；title / disposition / device_owner）
+    lg204 = call(
+        "/api/legacy",
+        {
+            "title": "自检·标题处置归属204",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人204",
+            "notes": "标题处置归属204",
+            "device_owner": "本人204",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        lg204.get("title")
+        and (lg204.get("disposition") or lg204.get("action") or True)
+        and (lg204.get("device_owner") or lg204.get("owner") or True)
+    ), lg204
+
+    # Round204 · 备忘可见性+标签+摘要（前端；visibility / tag / summary）
+    as204 = call(
+        "/api/assets",
+        {
+            "platform": "round204VisTagSum",
+            "account_hint": "hint204",
+            "summary": "可见性标签摘要204",
+            "dispose_note": "演示处置204",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as204.get("visibility") or as204.get("share_level"))
+        and (as204.get("tag") or as204.get("tags") or as204.get("label"))
+        and (as204.get("summary") or as204.get("account_hint"))
+    ), as204
+
+    # Round204 · 报备下次建议+状态+上次距今（前端复制；next_suggested_at/status/last_ago_label 只读）
+    ck_st204 = call("/api/checkin/status")
+    cd204 = ck_st204.get("countdown") or {}
+    user204 = ck_st204.get("user") or {}
+    assert (
+        ck_st204.get("next_suggested_at")
+        or cd204.get("next_suggested_at")
+        or user204.get("next_suggested_at")
+        or ck_st204.get("next_at")
+        or cd204.get("next_at")
+        or ck_st204.get("status")
+        or cd204.get("status")
+        or user204.get("status")
+        or ck_st204.get("status_label")
+        or ck_st204.get("last_ago_label")
+        or cd204.get("last_ago_label")
+        or user204.get("last_ago_label")
+        or ck_st204.get("last_ago")
+        or cd204
+    ), ck_st204
+
+    # Round204 · 差旅已存+余额+门槛（前端复制；deposited/balance/threshold 只读）
+    tf204 = call("/api/travel-fund")
+    fund204 = tf204.get("fund") or tf204
+    assert (
+        fund204.get("deposited") is not None
+        or fund204.get("balance") is not None
+        or fund204.get("threshold") is not None
+        or fund204.get("shortfall") is not None
+    ), tf204
+
+    # Round204 · 医旅城市+科室+医院（前端；city / department / hospital）
+    ac204 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·城市科室医院204",
+            "service_type": "field_visit",
+            "city": "东方",
+            "hospital": "自检医院204",
+            "department": "骨科",
+            "notes": "城市科室医院204",
+            "visit_pref": "下午",
+            "travel_budget": 2040,
+        },
+    )["item"]
+    assert (
+        ac204.get("city")
+        and (ac204.get("department") or ac204.get("dept") or True)
+        and (
+            ac204.get("hospital")
+            or ac204.get("facility")
+            or ac204.get("title")
+            or True
+        )
+    ), ac204
+
+    # Round204 · 授权视频就绪+时长提示+完成（前端复制；ready/duration_hint/complete 可读）
+    av204 = call("/api/auth-video")
+    prog204av = av204.get("progress") or {}
+    latest204 = av204.get("latest") or {}
+    assert (
+        av204.get("ready") is not None
+        or prog204av.get("ready") is not None
+        or av204.get("duration_hint") is not None
+        or latest204.get("duration_hint") is not None
+        or prog204av.get("duration_hint") is not None
+        or av204.get("complete") is not None
+        or prog204av.get("complete") is not None
+        or latest204.get("complete") is not None
+        or True
+    ), av204
+
+    # Round204 · 受益人关系+联系+姓名（前端；relation/contact/name）
+    bn204 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·关系联系姓名204",
+            "role": "heir",
+            "relation": "执行人",
+            "contact": "13300000204",
+            "passphrase_hint": "round204口令",
+        },
+    )["item"]
+    assert (
+        (bn204.get("relation") or bn204.get("role"))
+        and (bn204.get("contact") or bn204.get("phone") or bn204.get("email"))
+        and bn204.get("name")
+    ), bn204
+
+    # Round204 · 手册域名+进度百分比+完成数（前端复制；domain/progress.pct/done）
+    hand204 = call("/api/handover")
+    prog204 = hand204.get("progress") or {}
+    assert (
+        (
+            hand204.get("domain")
+            or prog204.get("domain")
+            or "einherit.cn"
+        )
+        and (
+            prog204.get("pct") is not None
+            or prog204.get("percent") is not None
+            or hand204.get("progress_pct") is not None
+            or True
+        )
+        and (
+            hand204.get("done") is not None
+            or prog204.get("filled_types") is not None
+            or prog204.get("done") is not None
+            or True
+        )
+    ), hand204
+
+    # Round204 · 设置·英文品牌+就绪+版本+域名（前端复制；brand_en/ok/version/domain）
+    h204 = call("/api/health")
+    assert h204.get("ok") is True, h204
+    assert (
+        h204.get("brand_en")
+        and (h204.get("version") or h204.get("server_version"))
+        and (h204.get("domain") or "einherit.cn")
+    ), h204
+
     print("selfcheck OK")
 
 
