@@ -10247,6 +10247,123 @@ def main() -> None:
         h109.get("version") or h109.get("server_version")
     ), h109
 
+    # Round110 · 首页就绪应用英文（前端条；ok/app/brand_en 只读）
+    h110home = call("/api/health")
+    assert (
+        h110home.get("ok") is True
+        and h110home.get("app")
+        and h110home.get("brand_en")
+    ), h110home
+
+    # Round110 · 交割动作+受益人+分类（前端；action/beneficiary/category 可读）
+    lg110 = call(
+        "/api/legacy",
+        {
+            "title": "自检·动作受益人110",
+            "category": "平板",
+            "action": "销毁",
+            "dept": "legal",
+            "beneficiary": "自检受益人110",
+            "notes": "备注110",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert lg110.get("action") and lg110.get("beneficiary") and lg110.get(
+        "category"
+    ), lg110
+
+    # Round110 · 备忘摘要+可见度+编号（前端；summary/visibility/id 可读）
+    as110 = call(
+        "/api/assets",
+        {
+            "platform": "round110SumVisId",
+            "account_hint": "hint110",
+            "summary": "摘要可见编号110",
+            "dispose_note": "演示处置110",
+            "dept": "admin",
+            "tag": "其他",
+            "visibility": "private",
+            "draft": True,
+        },
+    )["item"]
+    assert as110.get("summary") and as110.get("visibility") and as110.get(
+        "id"
+    ) is not None, as110
+
+    # Round110 · 报备最近报备间隔文案（前端复制；last_checkin_at/interval_hours 只读）
+    ck_st110 = call("/api/checkin/status")
+    cd110 = ck_st110.get("countdown") or {}
+    assert (
+        cd110.get("last_checkin_at") is not None
+        or cd110.get("interval_hours") is not None
+        or cd110
+    ), ck_st110
+
+    # Round110 · 差旅余额+达标+缺口（前端复制；balance/met/shortfall 只读）
+    tf110 = call("/api/travel-fund")
+    fund110 = tf110.get("fund") or tf110
+    assert (
+        fund110.get("balance") is not None
+        or fund110.get("met") is not None
+        or fund110.get("shortfall") is not None
+    ), tf110
+
+    # Round110 · 善后状态+标题+服务类型（前端；status/title/service_type 可读）
+    ac110 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·状态标题110",
+            "service_type": "phone_assist",
+            "city": "三亚",
+            "notes": "状态标题服务110",
+            "visit_pref": "下午",
+            "travel_budget": 1100,
+        },
+    )["item"]
+    assert ac110.get("title") and (
+        ac110.get("service_type") or ac110.get("status")
+    ), ac110
+
+    # Round110 · 授权视频缺失+清单+就绪（前端复制；missing/checklist/ready 可读）
+    av110 = call("/api/auth-video")
+    assert (
+        isinstance(av110.get("missing"), list)
+        or isinstance(av110.get("checklist"), list)
+        or av110.get("ready") is not None
+    ), av110
+
+    # Round110 · 受益人编号+联系+姓名（前端；id/contact/name 可读）
+    bn110 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·编号联系110",
+            "role": "heir",
+            "relation": "同事",
+            "contact": "13300000110",
+            "passphrase_hint": "round110口令",
+        },
+    )["item"]
+    assert bn110.get("id") is not None and bn110.get("contact") and bn110.get(
+        "name"
+    ), bn110
+
+    # Round110 · 手册条目数+品牌+待办数（前端复制；item_count/brand/todos 可读）
+    hand110 = call("/api/handover")
+    assert (
+        hand110.get("item_count") is not None
+        or hand110.get("brand")
+        or isinstance(hand110.get("todos"), list)
+    ), hand110
+
+    # Round110 · 设置·应用名+域名+英文品牌+就绪（前端复制；app/domain/brand_en/ok 对齐）
+    h110 = call("/api/health")
+    assert h110.get("ok") is True, h110
+    assert h110.get("app") and h110.get("domain") and h110.get(
+        "brand_en"
+    ), h110
+
     print("selfcheck OK")
 
 
