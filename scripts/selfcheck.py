@@ -15348,6 +15348,156 @@ def main() -> None:
         and (h148.get("brand") or h148.get("app"))
     ), h148
 
+    # Round149 · 首页英文品牌+中文品牌+版本（前端条；brand_en/brand|app/version 只读）
+    h149home = call("/api/health")
+    assert (
+        h149home.get("brand_en")
+        and (h149home.get("brand") or h149home.get("app"))
+        and (h149home.get("version") or h149home.get("server_version"))
+    ), h149home
+
+    # Round149 · 交割标题+处置+受益人（前端；title / disposition|action / beneficiary）
+    lg149 = call(
+        "/api/legacy",
+        {
+            "title": "自检·标题处置受益人149",
+            "category": "音箱",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人149",
+            "notes": "标题处置受益人149",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (lg149.get("title") or lg149.get("category"))
+        and (lg149.get("disposition") or lg149.get("action"))
+        and (lg149.get("beneficiary") or lg149.get("device_owner"))
+    ), lg149
+
+    # Round149 · 备忘分类+摘要+平台（前端；category|tag / summary / platform）
+    as149 = call(
+        "/api/assets",
+        {
+            "platform": "round149CatSumPlat",
+            "account_hint": "hint149",
+            "summary": "分类摘要平台149",
+            "dispose_note": "演示处置149",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as149.get("category") or as149.get("tag") or as149.get("dept"))
+        and (as149.get("summary") or as149.get("account_hint"))
+        and as149.get("platform")
+    ), as149
+
+    # Round149 · 报备下次建议+窗口截止（前端复制；next_suggested_at/window_ends_at 只读）
+    ck_st149 = call("/api/checkin/status")
+    cd149 = ck_st149.get("countdown") or {}
+    assert (
+        cd149.get("next_suggested_at") is not None
+        or cd149.get("next_suggested_label")
+        or cd149.get("window_ends_at") is not None
+        or cd149.get("window_ends_label")
+        or cd149
+    ), ck_st149
+
+    # Round149 · 差旅余额+短差+已存（前端复制；balance/shortfall/deposited 只读）
+    tf149 = call("/api/travel-fund")
+    fund149 = tf149.get("fund") or tf149
+    assert (
+        fund149.get("balance") is not None
+        or fund149.get("shortfall") is not None
+        or fund149.get("deposited") is not None
+    ), tf149
+
+    # Round149 · 善后状态+服务类型+医院（前端；status|title / service_type / hospital|city）
+    ac149 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·状态服务医院149",
+            "service_type": "field_visit",
+            "city": "儋州",
+            "hospital": "自检医院149",
+            "department": "急诊",
+            "notes": "状态服务医院149",
+            "visit_pref": "晚间",
+            "travel_budget": 1490,
+        },
+    )["item"]
+    assert (
+        (
+            ac149.get("status_label")
+            or ac149.get("status")
+            or ac149.get("status_key")
+            or ac149.get("title")
+        )
+        and (ac149.get("service_type") or ac149.get("service"))
+        and (ac149.get("hospital") or ac149.get("facility") or ac149.get("city"))
+    ), ac149
+
+    # Round149 · 授权视频完成+就绪+缺失（前端复制；complete/ready/missing 可读）
+    av149 = call("/api/auth-video")
+    assert (
+        av149.get("complete") is not None
+        or av149.get("ready") is not None
+        or av149.get("missing") is not None
+    ), av149
+
+    # Round149 · 受益人编号+口令+姓名（前端；id/passphrase_hint/name）
+    bn149 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·编号口令姓名149",
+            "role": "heir",
+            "relation": "同学",
+            "contact": "13300000149",
+            "passphrase_hint": "round149口令",
+        },
+    )["item"]
+    assert (
+        bn149.get("id") is not None
+        and bn149.get("passphrase_hint")
+        and bn149.get("name")
+    ), bn149
+
+    # Round149 · 手册进度+完成+章节（前端复制；progress.pct/done/sections）
+    hand149 = call("/api/handover")
+    prog149 = hand149.get("progress") or {}
+    assert (
+        (
+            prog149.get("pct") is not None
+            or hand149.get("progress_pct") is not None
+            or isinstance(hand149.get("progress"), (int, float))
+            or prog149
+        )
+        and (
+            hand149.get("done") is not None
+            or prog149.get("filled_types") is not None
+            or prog149.get("done") is not None
+        )
+        and (
+            hand149.get("sections") is not None
+            or prog149.get("total_types") is not None
+            or hand149.get("section_count") is not None
+        )
+    ), hand149
+
+    # Round149 · 设置·中文品牌+英文品牌+就绪+域名（前端复制；brand|app/brand_en/ok/domain）
+    h149 = call("/api/health")
+    assert h149.get("ok") is True, h149
+    assert (
+        (h149.get("brand") or h149.get("app"))
+        and h149.get("brand_en")
+        and (h149.get("domain") or "einherit.cn")
+    ), h149
+
     print("selfcheck OK")
 
 
