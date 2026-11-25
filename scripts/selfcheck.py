@@ -2464,6 +2464,83 @@ def main() -> None:
     assert h28.get("domain") == "einherit.cn", h28
     assert h28.get("version"), h28
 
+    # Round29 · 首页执行人就绪（前端条；executor_name 可读）
+    me29 = call("/api/me")["user"]
+    assert "executor_name" in me29, me29
+
+    # Round29 · 交割接收人复制（前端；beneficiary 可读）
+    lg29 = call(
+        "/api/legacy",
+        {
+            "title": "自检·接收人复制",
+            "category": "其他",
+            "action": "转赠",
+            "beneficiary": "round29接收人",
+        },
+    )["item"]
+    assert "round29" in str(lg29.get("beneficiary") or ""), lg29
+
+    # Round29 · 备忘可见性计数（前端；visibility 可读）
+    as29 = call(
+        "/api/assets",
+        {
+            "platform": "round29Vis",
+            "summary": "可见性",
+            "dept": "admin",
+            "dispose_note": "销毁",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert str(as29.get("visibility") or ""), as29
+
+    # Round29 · 报备执行人姓名复制（前端；字段可读）
+    assert me29.get("executor_name") is not None or "executor_name" in me29, me29
+
+    # Round29 · 差旅最近流水相对时间（前端；ledger 可读）
+    tf29 = call("/api/travel-fund")
+    assert isinstance(tf29.get("ledger"), list) or "fund" in tf29, tf29
+
+    # Round29 · 善后缺备注角标（前端；可写无 notes）
+    ac29 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·待补备注",
+            "service_type": "field_visit",
+            "city": "海口",
+            "travel_budget": 400,
+            "notes": "",
+        },
+    )["item"]
+    assert ac29.get("title"), ac29
+    assert not str(ac29.get("notes") or "").strip(), ac29
+
+    # Round29 · 授权视频门槛进度（前端；greeting/authorize/plan 可读）
+    av29 = call("/api/auth-video")
+    assert "ready" in av29, av29
+
+    # Round29 · 受益人角色筛选（前端；role 可读）
+    bn29 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·角色筛",
+            "role": "executor",
+            "relation": "演示",
+            "contact": "13700000029",
+        },
+    )["item"]
+    assert str(bn29.get("role") or "") == "executor", bn29
+
+    # Round29 · 手册执行人复制（前端；handover.executor 可读）
+    hand29 = call("/api/handover")
+    assert "executor" in hand29, hand29
+
+    # Round29 · 设置·今日服务状态行（前端复制；health 对齐）
+    h29 = call("/api/health")
+    assert h29.get("ok") is True, h29
+    assert h29.get("domain") == "einherit.cn", h29
+    assert h29.get("version"), h29
+
     print("selfcheck OK")
 
 
