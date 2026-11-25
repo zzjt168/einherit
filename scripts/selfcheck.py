@@ -13862,6 +13862,153 @@ def main() -> None:
         and h138.get("brand_en")
     ), h138
 
+    # Round139 · 首页中文品牌+域名+版本（前端条；brand|app/domain/version 只读）
+    h139home = call("/api/health")
+    assert (
+        (h139home.get("brand") or h139home.get("app"))
+        and h139home.get("domain")
+        and (h139home.get("version") or h139home.get("server_version"))
+    ), h139home
+
+    # Round139 · 交割处置+状态+标题（前端；disposition|action / status / title）
+    lg139 = call(
+        "/api/legacy",
+        {
+            "title": "自检·处置状态标题139",
+            "category": "相机",
+            "action": "销毁",
+            "dept": "ops",
+            "beneficiary": "自检受益人139",
+            "notes": "处置状态标题139",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (lg139.get("disposition") or lg139.get("action"))
+        and (
+            lg139.get("status_label")
+            or lg139.get("status")
+            or lg139.get("status_key")
+            or lg139.get("title")
+        )
+        and lg139.get("title")
+    ), lg139
+
+    # Round139 · 备忘摘要+平台+分类（前端；summary / platform / category|tag）
+    as139 = call(
+        "/api/assets",
+        {
+            "platform": "round139SumPlatCat",
+            "account_hint": "hint139",
+            "summary": "摘要平台分类139",
+            "dispose_note": "演示处置139",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        as139.get("summary")
+        and as139.get("platform")
+        and (as139.get("category") or as139.get("tag"))
+    ), as139
+
+    # Round139 · 报备窗口截止+距上次（前端复制；window_ends_at/last_ago_label 只读）
+    ck_st139 = call("/api/checkin/status")
+    cd139 = ck_st139.get("countdown") or {}
+    user139 = ck_st139.get("user") or {}
+    assert (
+        cd139.get("window_ends_at") is not None
+        or user139.get("checkin_due_at") is not None
+        or cd139.get("last_ago_label")
+        or ck_st139.get("last_ago_label")
+        or cd139
+    ), ck_st139
+
+    # Round139 · 差旅已存+短差+达标（前端复制；deposited|balance/shortfall/met 只读）
+    tf139 = call("/api/travel-fund")
+    fund139 = tf139.get("fund") or tf139
+    assert (
+        fund139.get("deposited") is not None
+        or fund139.get("balance") is not None
+        or fund139.get("shortfall") is not None
+        or fund139.get("met") is not None
+    ), tf139
+
+    # Round139 · 善后编号+科室+服务类型（前端；id / department|service_type / service_type）
+    ac139 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·编号科室服务139",
+            "service_type": "phone_assist",
+            "city": "保亭",
+            "notes": "编号科室服务139",
+            "visit_pref": "午间",
+            "travel_budget": 1390,
+        },
+    )["item"]
+    assert (
+        ac139.get("id") is not None
+        and (
+            ac139.get("department")
+            or ac139.get("service_type")
+            or ac139.get("service")
+        )
+        and (ac139.get("service_type") or ac139.get("service"))
+    ), ac139
+
+    # Round139 · 授权视频完成+缺失+标题（前端复制；complete/missing/title|latest 可读）
+    av139 = call("/api/auth-video")
+    latest139 = av139.get("latest") or {}
+    assert (
+        av139.get("complete") is not None
+        or av139.get("missing") is not None
+        or av139.get("title")
+        or latest139.get("original_name")
+    ), av139
+
+    # Round139 · 受益人关系+姓名+口令（前端；relation/name/passphrase_hint 可读）
+    bn139 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·关系姓名139",
+            "role": "heir",
+            "relation": "发小",
+            "contact": "13300000139",
+            "passphrase_hint": "round139口令",
+        },
+    )["item"]
+    assert (
+        bn139.get("relation")
+        and bn139.get("name")
+        and bn139.get("passphrase_hint")
+    ), bn139
+
+    # Round139 · 手册品牌+进度+章节（前端复制；brand/progress.pct/sections|total_types）
+    hand139 = call("/api/handover")
+    prog139 = hand139.get("progress") or {}
+    assert (
+        (hand139.get("brand") or hand139.get("domain"))
+        and (prog139.get("pct") is not None or hand139.get("progress_pct") is not None)
+        and (
+            hand139.get("sections") is not None
+            or prog139.get("total_types") is not None
+            or hand139.get("section_count") is not None
+        )
+    ), hand139
+
+    # Round139 · 设置·中文品牌+英文品牌+域名+就绪（前端复制；brand|app/brand_en/domain/ok）
+    h139 = call("/api/health")
+    assert h139.get("ok") is True, h139
+    assert (
+        (h139.get("brand") or h139.get("app"))
+        and h139.get("brand_en")
+        and h139.get("domain")
+    ), h139
+
     print("selfcheck OK")
 
 
