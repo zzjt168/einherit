@@ -12379,6 +12379,127 @@ def main() -> None:
         and (h127.get("version") or h127.get("server_version"))
     ), h127
 
+    # Round128 · 首页就绪+应用+域名（前端条；ok/app/domain 只读）
+    h128home = call("/api/health")
+    assert (
+        h128home.get("ok") is True
+        and h128home.get("app")
+        and h128home.get("domain") == "einherit.cn"
+    ), h128home
+
+    # Round128 · 交割标题+受益人+分类（前端；title/beneficiary/category 可读）
+    lg128 = call(
+        "/api/legacy",
+        {
+            "title": "自检·标题受益人128",
+            "category": "平板",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人128",
+            "notes": "标题受益人分类128",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert lg128.get("title") and lg128.get("beneficiary") and lg128.get(
+        "category"
+    ), lg128
+
+    # Round128 · 备忘平台+标签+可见性（前端；platform/tag/visibility 可读）
+    as128 = call(
+        "/api/assets",
+        {
+            "platform": "round128PlatTagVis",
+            "account_hint": "hint128",
+            "summary": "平台标签可见性128",
+            "dispose_note": "演示处置128",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "private",
+            "draft": True,
+        },
+    )["item"]
+    assert as128.get("platform") and as128.get("tag") and as128.get(
+        "visibility"
+    ), as128
+
+    # Round128 · 报备剩余小时+间隔（前端复制；hours_remaining/interval_hours 只读）
+    ck_st128 = call("/api/checkin/status")
+    cd128 = ck_st128.get("countdown") or {}
+    assert (
+        cd128.get("hours_remaining") is not None
+        or cd128.get("interval_hours") is not None
+        or cd128
+    ), ck_st128
+
+    # Round128 · 差旅缺口+进度+门槛（前端复制；shortfall/progress_pct/threshold 只读）
+    tf128 = call("/api/travel-fund")
+    fund128 = tf128.get("fund") or tf128
+    assert (
+        fund128.get("shortfall") is not None
+        or fund128.get("progress_pct") is not None
+        or fund128.get("threshold") is not None
+    ), tf128
+
+    # Round128 · 善后拜访+标题+服务（前端；visit_pref/title/service_type 可读）
+    ac128 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·拜访标题128",
+            "service_type": "phone_assist",
+            "city": "琼海",
+            "notes": "拜访标题服务128",
+            "visit_pref": "傍晚",
+            "travel_budget": 1280,
+        },
+    )["item"]
+    assert (
+        (ac128.get("visit_pref") or ac128.get("visit"))
+        and ac128.get("title")
+        and (ac128.get("service_type") or ac128.get("service"))
+    ), ac128
+
+    # Round128 · 授权视频闸口+就绪+清单（前端复制；ready/missing/checklist 可读）
+    av128 = call("/api/auth-video")
+    assert (
+        av128.get("ready") is not None
+        or isinstance(av128.get("missing"), list)
+        or isinstance(av128.get("checklist"), list)
+    ), av128
+
+    # Round128 · 受益人联系+关系+口令（前端；contact/relation/passphrase_hint 可读）
+    bn128 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·联系关系128",
+            "role": "heir",
+            "relation": "邻居",
+            "contact": "13300000128",
+            "passphrase_hint": "round128口令",
+        },
+    )["item"]
+    assert bn128.get("contact") and bn128.get("relation") and bn128.get(
+        "passphrase_hint"
+    ), bn128
+
+    # Round128 · 手册待办+域名+品牌（前端复制；todos/domain/brand 可读）
+    hand128 = call("/api/handover")
+    assert (
+        isinstance(hand128.get("todos"), list)
+        or hand128.get("domain")
+        or hand128.get("brand")
+    ), hand128
+
+    # Round128 · 设置·就绪+英文+域名+应用（前端复制；ok/brand_en/domain/app 对齐）
+    h128 = call("/api/health")
+    assert h128.get("ok") is True, h128
+    assert (
+        h128.get("brand_en")
+        and h128.get("domain")
+        and h128.get("app")
+    ), h128
+
     print("selfcheck OK")
 
 
