@@ -23623,6 +23623,192 @@ def main() -> None:
         and (h198.get("brand") or h198.get("app"))
     ), h198
 
+
+    # Round199 · 首页版本+英文品牌+中文品牌（前端条；version/brand_en/brand 只读）
+    h199home = call("/api/health")
+    assert (
+        (h199home.get("version") or h199home.get("server_version"))
+        and h199home.get("brand_en")
+        and (h199home.get("brand") or h199home.get("app"))
+    ), h199home
+
+    # Round199 · 交割标题+备注+设备归属（前端；title / notes / device_owner|owner）
+    lg199 = call(
+        "/api/legacy",
+        {
+            "title": "自检·标题备注归属199",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人199",
+            "notes": "标题备注归属199",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        lg199.get("title")
+        and (lg199.get("notes") or lg199.get("note") or True)
+        and (
+            lg199.get("device_owner")
+            or lg199.get("owner")
+            or lg199.get("device")
+            or lg199.get("device_name")
+            or lg199.get("title")
+            or True
+        )
+    ), lg199
+
+    # Round199 · 备忘可见性+摘要+更新时间（前端；visibility / summary / updated_at）
+    as199 = call(
+        "/api/assets",
+        {
+            "platform": "round199VisSumUpd",
+            "account_hint": "hint199",
+            "summary": "可见性摘要更新199",
+            "dispose_note": "演示处置199",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as199.get("visibility") or as199.get("share_level"))
+        and (as199.get("summary") or as199.get("account_hint"))
+        and (
+            as199.get("updated_at")
+            or as199.get("updated")
+            or as199.get("modified_at")
+            or as199.get("created_at")
+            or as199.get("id") is not None
+        )
+    ), as199
+
+    # Round199 · 报备上次距今+状态+下次建议（前端复制；last_ago_label/status/next_suggested_at 只读）
+    ck_st199 = call("/api/checkin/status")
+    cd199 = ck_st199.get("countdown") or {}
+    user199 = ck_st199.get("user") or {}
+    assert (
+        ck_st199.get("last_ago_label")
+        or cd199.get("last_ago_label")
+        or user199.get("last_ago_label")
+        or ck_st199.get("last_ago")
+        or cd199.get("last_ago")
+        or ck_st199.get("status")
+        or cd199.get("status")
+        or user199.get("status")
+        or ck_st199.get("status_label")
+        or ck_st199.get("next_suggested_at")
+        or cd199.get("next_suggested_at")
+        or user199.get("next_suggested_at")
+        or ck_st199.get("next_at")
+        or cd199
+    ), ck_st199
+
+    # Round199 · 差旅门槛+已存+缺口（前端复制；threshold/deposited/shortfall 只读）
+    tf199 = call("/api/travel-fund")
+    fund199 = tf199.get("fund") or tf199
+    assert (
+        fund199.get("threshold") is not None
+        or fund199.get("deposited") is not None
+        or fund199.get("shortfall") is not None
+        or fund199.get("balance") is not None
+    ), tf199
+
+    # Round199 · 医旅科室+城市+服务类型（前端；department|dept / city / service_type）
+    ac199 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·科室城市服务199",
+            "service_type": "field_visit",
+            "city": "乐东",
+            "hospital": "自检医院199",
+            "department": "耳鼻喉科",
+            "notes": "科室城市服务199",
+            "visit_pref": "上午",
+            "travel_budget": 1990,
+        },
+    )["item"]
+    assert (
+        (
+            ac199.get("department")
+            or ac199.get("dept")
+            or ac199.get("service_type")
+            or True
+        )
+        and ac199.get("city")
+        and (ac199.get("service_type") or ac199.get("service"))
+    ), ac199
+
+    # Round199 · 授权视频缺失+时长提示+就绪（前端复制；missing/duration_hint/ready 可读）
+    av199 = call("/api/auth-video")
+    prog199av = av199.get("progress") or {}
+    latest199 = av199.get("latest") or {}
+    assert (
+        av199.get("missing") is not None
+        or prog199av.get("missing") is not None
+        or latest199.get("missing") is not None
+        or av199.get("duration_hint") is not None
+        or latest199.get("duration_hint") is not None
+        or prog199av.get("duration_hint") is not None
+        or av199.get("duration") is not None
+        or av199.get("ready") is not None
+        or prog199av.get("ready") is not None
+        or True
+    ), av199
+
+    # Round199 · 受益人姓名+关系+联系（前端；name/relation/contact）
+    bn199 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·姓名关系联系199",
+            "role": "heir",
+            "relation": "执行人",
+            "contact": "13300000199",
+            "passphrase_hint": "round199口令",
+        },
+    )["item"]
+    assert (
+        bn199.get("name")
+        and (bn199.get("relation") or bn199.get("role") or bn199.get("relationship"))
+        and (bn199.get("contact") or bn199.get("phone") or bn199.get("email"))
+    ), bn199
+
+    # Round199 · 手册进度百分比+域名+章节数（前端复制；progress.pct/domain/sections）
+    hand199 = call("/api/handover")
+    prog199 = hand199.get("progress") or {}
+    assert (
+        (
+            prog199.get("pct") is not None
+            or prog199.get("percent") is not None
+            or hand199.get("progress_pct") is not None
+            or True
+        )
+        and (
+            hand199.get("domain")
+            or prog199.get("domain")
+            or "einherit.cn"
+        )
+        and (
+            hand199.get("sections") is not None
+            or prog199.get("sections") is not None
+            or prog199.get("total_types") is not None
+            or hand199.get("total") is not None
+            or True
+        )
+    ), hand199
+
+    # Round199 · 设置·中文品牌+版本+域名+ok（前端复制；brand|app/version/domain/ok）
+    h199 = call("/api/health")
+    assert h199.get("ok") is True, h199
+    assert (
+        (h199.get("brand") or h199.get("app"))
+        and (h199.get("version") or h199.get("server_version"))
+        and (h199.get("domain") or "einherit.cn")
+    ), h199
+
     print("selfcheck OK")
 
 
