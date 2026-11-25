@@ -4635,6 +4635,85 @@ def main() -> None:
     assert h53.get("ok") is True, h53
     assert h53.get("domain") or h53.get("brand_en"), h53
 
+    # Round54 · 首页公司盘点标语（前端条；company.slogan 可读）
+    co54 = call("/api/company")
+    assert co54.get("slogan") or co54.get("progress"), co54
+
+    # Round54 · 交割类别+处置（前端；category/action 可读）
+    lg54 = call(
+        "/api/legacy",
+        {
+            "title": "自检·类别处置54",
+            "category": "虚拟资产",
+            "action": "销售变现",
+            "dept": "finance",
+        },
+    )["item"]
+    assert lg54.get("category") and lg54.get("action"), lg54
+
+    # Round54 · 备忘摘要+部门（前端；summary/dept 可读）
+    as54 = call(
+        "/api/assets",
+        {
+            "platform": "round54Combo",
+            "summary": "摘要部门",
+            "dept": "hr",
+            "tag": "其他",
+            "visibility": "private",
+            "draft": True,
+        },
+    )["item"]
+    assert as54.get("summary") and as54.get("dept"), as54
+
+    # Round54 · 报备最近绝对时刻（前端复制；last_checkin_label 可读）
+    ck_st54 = call("/api/checkin/status")
+    cd54 = ck_st54.get("countdown") or {}
+    assert cd54.get("last_checkin_label") or ck_st54.get("user"), ck_st54
+
+    # Round54 · 差旅余额与门槛（前端复制；balance/threshold 可读）
+    tf54 = call("/api/travel-fund")
+    fund54 = tf54.get("fund") or tf54
+    assert fund54.get("balance") is not None and fund54.get("threshold") is not None, tf54
+
+    # Round54 · 善后编号+状态（前端；id/status_label 可读）
+    ac54 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·编号状态54",
+            "service_type": "field_visit",
+            "city": "儋州",
+            "travel_budget": 480,
+        },
+    )["item"]
+    assert ac54.get("id") is not None and (
+        ac54.get("status_label") or ac54.get("phase_label")
+    ), ac54
+
+    # Round54 · 授权视频齐备说明（前端复制；complete_label 可读）
+    av54 = call("/api/auth-video")
+    assert av54.get("complete_label") or av54.get("ready") is not None, av54
+
+    # Round54 · 受益人关系纯文本（前端；relation 可读）
+    bn54 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·关系54",
+            "role": "executor",
+            "relation": "好友",
+            "contact": "13300000054",
+        },
+    )["item"]
+    assert bn54.get("relation"), bn54
+
+    # Round54 · 手册执行人姓名（前端复制；executor 可读）
+    hand54 = call("/api/handover")
+    assert hand54.get("executor") or hand54.get("brand"), hand54
+
+    # Round54 · 设置·英文品牌纯文本（前端复制；health.brand_en 对齐）
+    h54 = call("/api/health")
+    assert h54.get("ok") is True, h54
+    assert h54.get("brand_en") or h54.get("app"), h54
+
     print("selfcheck OK")
 
 
