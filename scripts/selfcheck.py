@@ -10596,6 +10596,126 @@ def main() -> None:
         "app"
     ), h112
 
+    # Round113 · 首页英文版本就绪（前端条；brand_en/version/ok 只读）
+    h113home = call("/api/health")
+    assert (
+        h113home.get("brand_en")
+        and (h113home.get("version") or h113home.get("server_version"))
+        and h113home.get("ok") is True
+    ), h113home
+
+    # Round113 · 交割标题+分类+编号（前端；title/category/id 可读）
+    lg113 = call(
+        "/api/legacy",
+        {
+            "title": "自检·标题分类113",
+            "category": "手表",
+            "action": "转赠",
+            "dept": "legal",
+            "beneficiary": "自检受益人113",
+            "notes": "备注113",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert lg113.get("title") and lg113.get("category") and lg113.get(
+        "id"
+    ) is not None, lg113
+
+    # Round113 · 备忘标签+可见度+提示（前端；tag/visibility/account_hint 可读）
+    as113 = call(
+        "/api/assets",
+        {
+            "platform": "round113TagVisHint",
+            "account_hint": "hint113",
+            "summary": "标签可见提示113",
+            "dispose_note": "演示处置113",
+            "dept": "admin",
+            "tag": "其他",
+            "visibility": "private",
+            "draft": True,
+        },
+    )["item"]
+    assert as113.get("tag") and as113.get("visibility") and as113.get(
+        "account_hint"
+    ), as113
+
+    # Round113 · 报备剩余秒数文案（前端复制；seconds_remaining 只读）
+    ck_st113 = call("/api/checkin/status")
+    cd113 = ck_st113.get("countdown") or {}
+    assert (
+        cd113.get("seconds_remaining") is not None
+        or cd113.get("hours_remaining") is not None
+        or cd113
+    ), ck_st113
+
+    # Round113 · 差旅缺口+进度百分比+达标（前端复制；shortfall/progress_pct/met 只读）
+    tf113 = call("/api/travel-fund")
+    fund113 = tf113.get("fund") or tf113
+    assert (
+        fund113.get("shortfall") is not None
+        or fund113.get("progress_pct") is not None
+        or fund113.get("progress") is not None
+        or fund113.get("met") is not None
+    ), tf113
+
+    # Round113 · 善后服务类型+城市+标题（前端；service_type/city/title 可读）
+    ac113 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·服务城市113",
+            "service_type": "field_visit",
+            "city": "琼海",
+            "notes": "服务城市标题113",
+            "visit_pref": "上午",
+            "travel_budget": 1130,
+        },
+    )["item"]
+    assert ac113.get("service_type") and ac113.get("city") and ac113.get(
+        "title"
+    ), ac113
+
+    # Round113 · 授权视频完成+闸口+清单（前端复制；complete/gate/checklist 可读）
+    av113 = call("/api/auth-video")
+    assert (
+        av113.get("complete") is not None
+        or av113.get("gate") is not None
+        or isinstance(av113.get("checklist"), list)
+    ), av113
+
+    # Round113 · 受益人姓名+联系+编号（前端；name/contact/id 可读）
+    bn113 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·姓名联系113",
+            "role": "executor",
+            "relation": "同事",
+            "contact": "13300000113",
+            "passphrase_hint": "round113口令",
+        },
+    )["item"]
+    assert bn113.get("name") and bn113.get("contact") and bn113.get(
+        "id"
+    ) is not None, bn113
+
+    # Round113 · 手册待办数+导出路径+条目数（前端复制；todos/export_path/item_count 可读）
+    hand113 = call("/api/handover")
+    assert (
+        isinstance(hand113.get("todos"), list)
+        or hand113.get("export_path")
+        or hand113.get("item_count") is not None
+    ), hand113
+
+    # Round113 · 设置·版本+就绪+域名+英文品牌（前端复制；version/ok/domain/brand_en 对齐）
+    h113 = call("/api/health")
+    assert h113.get("ok") is True, h113
+    assert (
+        (h113.get("version") or h113.get("server_version"))
+        and h113.get("domain")
+        and h113.get("brand_en")
+    ), h113
+
     print("selfcheck OK")
 
 
