@@ -13142,6 +13142,141 @@ def main() -> None:
         and h133.get("brand_en")
     ), h133
 
+    # Round134 · 首页中文+英文+版本（前端条；app|brand/brand_en/version 只读）
+    h134home = call("/api/health")
+    assert (
+        (h134home.get("brand") or h134home.get("app"))
+        and h134home.get("brand_en")
+        and (h134home.get("version") or h134home.get("server_version"))
+    ), h134home
+
+    # Round134 · 交割受益人+处置+归属（前端；beneficiary / action|disposition / device_owner|dept）
+    lg134 = call(
+        "/api/legacy",
+        {
+            "title": "自检·受益人归属134",
+            "category": "显示器",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人134",
+            "notes": "受益人处置归属134",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert lg134.get("beneficiary") and (
+        lg134.get("disposition") or lg134.get("action")
+    ) and (
+        lg134.get("device_owner")
+        or lg134.get("beneficiary")
+        or lg134.get("dept")
+    ), lg134
+
+    # Round134 · 备忘标题+摘要+可见性（前端；platform|title / summary / visibility）
+    as134 = call(
+        "/api/assets",
+        {
+            "platform": "round134TitleSumVis",
+            "account_hint": "hint134",
+            "summary": "标题摘要可见性134",
+            "dispose_note": "演示处置134",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as134.get("title") or as134.get("platform"))
+        and as134.get("summary")
+        and as134.get("visibility")
+    ), as134
+
+    # Round134 · 报备下次建议+距上次（前端复制；next_suggested_at/last_ago_label 只读）
+    ck_st134 = call("/api/checkin/status")
+    cd134 = ck_st134.get("countdown") or {}
+    assert (
+        cd134.get("next_suggested_at") is not None
+        or cd134.get("last_ago_label")
+        or cd134
+    ), ck_st134
+
+    # Round134 · 差旅余额+门槛+达标（前端复制；balance/threshold/met 只读）
+    tf134 = call("/api/travel-fund")
+    fund134 = tf134.get("fund") or tf134
+    assert (
+        fund134.get("balance") is not None
+        or fund134.get("threshold") is not None
+        or fund134.get("met") is not None
+    ), tf134
+
+    # Round134 · 善后科室+服务+编号（前端；department|service_type / service_type / id）
+    ac134 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·科室服务134",
+            "service_type": "phone_assist",
+            "city": "临高",
+            "notes": "科室服务编号134",
+            "visit_pref": "傍晚",
+            "travel_budget": 1340,
+        },
+    )["item"]
+    assert (
+        (
+            ac134.get("department")
+            or ac134.get("service_type")
+            or ac134.get("service")
+        )
+        and (ac134.get("service_type") or ac134.get("service"))
+        and ac134.get("id") is not None
+    ), ac134
+
+    # Round134 · 授权视频就绪+完成+时长（前端复制；ready/complete/progress 可读）
+    av134 = call("/api/auth-video")
+    prog134av = av134.get("progress") or {}
+    assert (
+        av134.get("ready") is not None
+        or av134.get("complete") is not None
+        or prog134av
+        or av134.get("duration_hint")
+    ), av134
+
+    # Round134 · 受益人姓名+口令+联系（前端；name/passphrase_hint/contact 可读）
+    bn134 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·姓名口令134",
+            "role": "heir",
+            "relation": "战友",
+            "contact": "13300000134",
+            "passphrase_hint": "round134口令",
+        },
+    )["item"]
+    assert bn134.get("name") and bn134.get(
+        "passphrase_hint"
+    ) and bn134.get("contact"), bn134
+
+    # Round134 · 手册品牌+完成+进度（前端复制；brand/filled_types|done/progress.pct）
+    hand134 = call("/api/handover")
+    prog134 = hand134.get("progress") or {}
+    assert (
+        hand134.get("brand")
+        or hand134.get("done") is not None
+        or prog134.get("filled_types") is not None
+        or prog134.get("pct") is not None
+    ), hand134
+
+    # Round134 · 设置·中文品牌+就绪+域名+版本（前端复制；app|brand/ok/domain/version）
+    h134 = call("/api/health")
+    assert h134.get("ok") is True, h134
+    assert (
+        (h134.get("brand") or h134.get("app"))
+        and h134.get("domain")
+        and (h134.get("version") or h134.get("server_version"))
+    ), h134
+
     print("selfcheck OK")
 
 
