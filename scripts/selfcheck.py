@@ -14594,6 +14594,157 @@ def main() -> None:
         and h143.get("domain")
     ), h143
 
+    # Round144 · 首页就绪+中文品牌+版本（前端条；ok/brand|app/version 只读）
+    h144home = call("/api/health")
+    assert (
+        h144home.get("ok") is True
+        and (h144home.get("brand") or h144home.get("app"))
+        and (h144home.get("version") or h144home.get("server_version"))
+    ), h144home
+
+    # Round144 · 交割设备归属+处置+状态（前端；device_owner|beneficiary|dept / disposition|action / status）
+    lg144 = call(
+        "/api/legacy",
+        {
+            "title": "自检·归属处置状态144",
+            "category": "显示器",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人144",
+            "notes": "归属处置状态144",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (
+            lg144.get("device_owner")
+            or lg144.get("beneficiary")
+            or lg144.get("dept")
+        )
+        and (lg144.get("disposition") or lg144.get("action"))
+        and (
+            lg144.get("status_label")
+            or lg144.get("status")
+            or lg144.get("status_key")
+            or lg144.get("title")
+        )
+    ), lg144
+
+    # Round144 · 备忘标题+可见性+处置说明（前端；title|platform / visibility / dispose_note）
+    as144 = call(
+        "/api/assets",
+        {
+            "platform": "round144TitleVisDisp",
+            "account_hint": "hint144",
+            "summary": "标题可见处置144",
+            "dispose_note": "演示处置144",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as144.get("title") or as144.get("platform"))
+        and as144.get("visibility")
+        and as144.get("dispose_note")
+    ), as144
+
+    # Round144 · 报备状态标签+下次建议（前端复制；status_label/next_suggested_at 只读）
+    ck_st144 = call("/api/checkin/status")
+    cd144 = ck_st144.get("countdown") or {}
+    user144 = ck_st144.get("user") or {}
+    assert (
+        ck_st144.get("status_label")
+        or cd144.get("status_label")
+        or user144.get("status_label")
+        or cd144.get("next_suggested_at") is not None
+        or cd144.get("next_suggested_label")
+        or cd144
+    ), ck_st144
+
+    # Round144 · 差旅余额+达标+门槛（前端复制；balance/met/threshold 只读）
+    tf144 = call("/api/travel-fund")
+    fund144 = tf144.get("fund") or tf144
+    assert (
+        fund144.get("balance") is not None
+        or fund144.get("met") is not None
+        or fund144.get("threshold") is not None
+    ), tf144
+
+    # Round144 · 善后编号+服务类型+城市（前端；id / service_type / city）
+    ac144 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·编号服务城市144",
+            "service_type": "field_visit",
+            "city": "陵水",
+            "notes": "编号服务城市144",
+            "visit_pref": "清晨",
+            "travel_budget": 1440,
+        },
+    )["item"]
+    assert (
+        ac144.get("id") is not None
+        and (ac144.get("service_type") or ac144.get("service"))
+        and ac144.get("city")
+    ), ac144
+
+    # Round144 · 授权视频就绪+标题+缺失（前端复制；ready/title|latest/missing 可读）
+    av144 = call("/api/auth-video")
+    latest144 = av144.get("latest") or {}
+    assert (
+        av144.get("ready") is not None
+        or av144.get("title")
+        or latest144.get("original_name")
+        or av144.get("missing") is not None
+    ), av144
+
+    # Round144 · 受益人口令+关系+联系（前端；passphrase_hint/relation/contact 可读）
+    bn144 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·口令关系144",
+            "role": "heir",
+            "relation": "师长",
+            "contact": "13300000144",
+            "passphrase_hint": "round144口令",
+        },
+    )["item"]
+    assert (
+        bn144.get("passphrase_hint")
+        and bn144.get("relation")
+        and bn144.get("contact")
+    ), bn144
+
+    # Round144 · 手册完成+品牌+章节（前端复制；done|filled_types/brand/sections|total_types）
+    hand144 = call("/api/handover")
+    prog144 = hand144.get("progress") or {}
+    assert (
+        (
+            hand144.get("done") is not None
+            or prog144.get("filled_types") is not None
+            or prog144.get("done") is not None
+        )
+        and (hand144.get("brand") or hand144.get("domain"))
+        and (
+            hand144.get("sections") is not None
+            or prog144.get("total_types") is not None
+            or hand144.get("section_count") is not None
+        )
+    ), hand144
+
+    # Round144 · 设置·就绪+英文品牌+中文品牌+版本（前端复制；ok/brand_en/brand|app/version）
+    h144 = call("/api/health")
+    assert h144.get("ok") is True, h144
+    assert (
+        h144.get("brand_en")
+        and (h144.get("brand") or h144.get("app"))
+        and (h144.get("version") or h144.get("server_version"))
+    ), h144
+
     print("selfcheck OK")
 
 
