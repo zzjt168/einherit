@@ -3626,6 +3626,89 @@ def main() -> None:
     assert h42.get("app") or h42.get("brand_en"), h42
     assert h42.get("domain") == "einherit.cn", h42
 
+    # Round43 · 首页数据体量（前端条；counts-summary 可读）
+    cs43 = call("/api/counts-summary")
+    assert cs43.get("text") or cs43.get("counts"), cs43
+
+    # Round43 · 交割部门+处置（前端；dept/action 可读）
+    lg43 = call(
+        "/api/legacy",
+        {
+            "title": "自检·部门处置43",
+            "category": "其他",
+            "action": "变现",
+            "dept": "finance",
+        },
+    )["item"]
+    assert lg43.get("dept") and lg43.get("action"), lg43
+
+    # Round43 · 备忘部门+标签（前端；dept/tag 可读）
+    as43 = call(
+        "/api/assets",
+        {
+            "platform": "round43Combo",
+            "summary": "部门标签",
+            "dept": "finance",
+            "tag": "账号",
+            "draft": True,
+        },
+    )["item"]
+    assert as43.get("dept") and as43.get("tag"), as43
+
+    # Round43 · 报备备用首位姓名（前端复制；backup_contacts 可读）
+    ck_st43 = call("/api/checkin/status")
+    assert "user" in ck_st43, ck_st43
+    backups43 = ck_st43["user"].get("backup_contacts") or []
+    assert isinstance(backups43, list), ck_st43
+
+    # Round43 · 差旅最近流水关联善后编号（前端复制；ledger aftercare_id 可读）
+    tf43 = call("/api/travel-fund")
+    ledger43 = tf43.get("ledger") or []
+    assert isinstance(ledger43, list), tf43
+
+    # Round43 · 善后服务类型（前端；service_type 可读）
+    ac43 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·服务类型43",
+            "service_type": "field_visit",
+            "city": "海口",
+            "travel_budget": 310,
+        },
+    )["item"]
+    assert ac43.get("service_type"), ac43
+
+    # Round43 · 授权视频原文件名（前端复制；items/original_name 可读）
+    av43 = call("/api/auth-video")
+    assert (
+        av43.get("items") is not None
+        or av43.get("current_active") is not None
+        or "ready" in av43
+    ), av43
+
+    # Round43 · 受益人姓名+联系（前端；name/contact 可读）
+    bn43 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·姓名联系43",
+            "role": "family",
+            "relation": "配偶",
+            "contact": "13300000043",
+        },
+    )["item"]
+    assert bn43.get("name") and bn43.get("contact"), bn43
+
+    # Round43 · 手册会员状态（前端复制；member 可读）
+    hand43 = call("/api/handover")
+    assert "member" in hand43 or hand43.get("domain"), hand43
+
+    # Round43 · 设置·英文品牌·域名·服务端版本（前端复制；health 对齐）
+    h43 = call("/api/health")
+    assert h43.get("ok") is True, h43
+    assert h43.get("brand_en") or h43.get("app"), h43
+    assert h43.get("domain") == "einherit.cn", h43
+    assert h43.get("server_version") or h43.get("version"), h43
+
     print("selfcheck OK")
 
 
