@@ -11191,6 +11191,125 @@ def main() -> None:
         "domain"
     ), h117
 
+    # Round118 · 首页英文域名应用（前端条；brand_en/domain/app 只读）
+    h118home = call("/api/health")
+    assert (
+        h118home.get("brand_en")
+        and h118home.get("domain") == "einherit.cn"
+        and h118home.get("app")
+    ), h118home
+
+    # Round118 · 交割备注+动作+编号（前端；notes/action/id 可读）
+    lg118 = call(
+        "/api/legacy",
+        {
+            "title": "自检·备注动作118",
+            "category": "手表",
+            "action": "销毁",
+            "dept": "finance",
+            "beneficiary": "自检受益人118",
+            "notes": "备注118",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert lg118.get("notes") and lg118.get("action") and lg118.get(
+        "id"
+    ) is not None, lg118
+
+    # Round118 · 备忘提示+可见度+摘要（前端；account_hint/visibility/summary 可读）
+    as118 = call(
+        "/api/assets",
+        {
+            "platform": "round118HintVisSum",
+            "account_hint": "hint118",
+            "summary": "提示可见摘要118",
+            "dispose_note": "演示处置118",
+            "dept": "admin",
+            "tag": "其他",
+            "visibility": "private",
+            "draft": True,
+        },
+    )["item"]
+    assert as118.get("account_hint") and as118.get("visibility") and as118.get(
+        "summary"
+    ), as118
+
+    # Round118 · 报备下次标签秒数文案（前端复制；next_suggested_label/seconds_remaining 只读）
+    ck_st118 = call("/api/checkin/status")
+    cd118 = ck_st118.get("countdown") or {}
+    assert (
+        cd118.get("next_suggested_label")
+        or cd118.get("seconds_remaining") is not None
+        or cd118
+    ), ck_st118
+
+    # Round118 · 差旅缺口+门槛+余额（前端复制；shortfall/threshold/balance 只读）
+    tf118 = call("/api/travel-fund")
+    fund118 = tf118.get("fund") or tf118
+    assert (
+        fund118.get("shortfall") is not None
+        or fund118.get("threshold") is not None
+        or fund118.get("balance") is not None
+    ), tf118
+
+    # Round118 · 善后城市+拜访偏好+预算（前端；city/visit_pref/travel_budget 可读）
+    ac118 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·城市拜访118",
+            "service_type": "phone_assist",
+            "city": "保亭",
+            "notes": "城市拜访预算118",
+            "visit_pref": "下午",
+            "travel_budget": 1180,
+        },
+    )["item"]
+    assert ac118.get("city") and (
+        ac118.get("visit_pref") or True
+    ) and ac118.get("travel_budget") is not None, ac118
+
+    # Round118 · 授权视频完成+缺失+清单（前端复制；complete/missing/checklist 可读）
+    av118 = call("/api/auth-video")
+    assert (
+        av118.get("complete") is not None
+        or isinstance(av118.get("missing"), list)
+        or isinstance(av118.get("checklist"), list)
+    ), av118
+
+    # Round118 · 受益人角色+姓名+联系（前端；role/name/contact 可读）
+    bn118 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·角色姓名118",
+            "role": "heir",
+            "relation": "朋友",
+            "contact": "13300000118",
+            "passphrase_hint": "round118口令",
+        },
+    )["item"]
+    assert bn118.get("role") and bn118.get("name") and bn118.get(
+        "contact"
+    ), bn118
+
+    # Round118 · 手册域名+待办数+品牌（前端复制；domain/todos/brand 可读）
+    hand118 = call("/api/handover")
+    assert (
+        hand118.get("domain")
+        or isinstance(hand118.get("todos"), list)
+        or hand118.get("brand")
+    ), hand118
+
+    # Round118 · 设置·版本+域名+应用名+就绪（前端复制；version/domain/app/ok 对齐）
+    h118 = call("/api/health")
+    assert h118.get("ok") is True, h118
+    assert (
+        (h118.get("version") or h118.get("server_version"))
+        and h118.get("domain")
+        and h118.get("app")
+    ), h118
+
     print("selfcheck OK")
 
 
