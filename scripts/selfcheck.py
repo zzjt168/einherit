@@ -9670,6 +9670,118 @@ def main() -> None:
         "domain"
     ), h104
 
+    # Round105 · 首页域名就绪应用（前端条；domain/ok/app 只读）
+    h105home = call("/api/health")
+    assert h105home.get("domain") == "einherit.cn" and h105home.get(
+        "ok"
+    ) is True and h105home.get("app"), h105home
+
+    # Round105 · 交割备注+标题+分类（前端；notes/title/category 可读）
+    lg105 = call(
+        "/api/legacy",
+        {
+            "title": "自检·备注标题105",
+            "category": "耳机",
+            "action": "转赠",
+            "dept": "finance",
+            "beneficiary": "自检受益人105",
+            "notes": "备注105",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert lg105.get("notes") and lg105.get("title") and lg105.get(
+        "category"
+    ), lg105
+
+    # Round105 · 备忘处置+摘要+标签（前端；dispose_note/summary/tag 可读）
+    as105 = call(
+        "/api/assets",
+        {
+            "platform": "round105DispSumTag",
+            "account_hint": "hint105",
+            "summary": "处置摘要标签105",
+            "dispose_note": "演示处置105",
+            "dept": "admin",
+            "tag": "其他",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert as105.get("dispose_note") and as105.get("summary") and as105.get(
+        "tag"
+    ), as105
+
+    # Round105 · 报备可读文案（前端复制；readable 只读）
+    ck_st105 = call("/api/checkin/status")
+    cd105 = ck_st105.get("countdown") or {}
+    assert cd105.get("readable") or cd105, ck_st105
+
+    # Round105 · 差旅缺口+余额+进度百分比（前端复制；shortfall/balance/progress_pct 只读）
+    tf105 = call("/api/travel-fund")
+    fund105 = tf105.get("fund") or tf105
+    assert (
+        fund105.get("shortfall") is not None
+        or fund105.get("balance") is not None
+        or fund105.get("progress_pct") is not None
+        or fund105.get("progress") is not None
+    ), tf105
+
+    # Round105 · 善后编号+拜访偏好+状态（前端；id/visit_pref/status 可读）
+    ac105 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·拜访状态105",
+            "service_type": "field_visit",
+            "city": "万宁",
+            "notes": "编号拜访状态105",
+            "visit_pref": "晚上",
+            "travel_budget": 1050,
+        },
+    )["item"]
+    assert ac105.get("id") is not None and (
+        ac105.get("visit_pref") or ac105.get("status")
+    ), ac105
+
+    # Round105 · 授权视频完成+就绪+闸口（前端复制；complete/ready/gate 可读）
+    av105 = call("/api/auth-video")
+    assert (
+        av105.get("complete") is not None
+        or av105.get("ready") is not None
+        or av105.get("gate")
+    ), av105
+
+    # Round105 · 受益人角色+口令提示+编号（前端；role/passphrase_hint/id 可读）
+    bn105 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·角色口令105",
+            "role": "executor",
+            "relation": "亲属",
+            "contact": "13300000105",
+            "passphrase_hint": "round105口令",
+        },
+    )["item"]
+    assert bn105.get("role") and bn105.get("passphrase_hint") and bn105.get(
+        "id"
+    ) is not None, bn105
+
+    # Round105 · 手册待办数+品牌+域名（前端复制；todos/brand/domain 可读）
+    hand105 = call("/api/handover")
+    assert (
+        isinstance(hand105.get("todos"), list)
+        or hand105.get("brand")
+        or hand105.get("domain")
+    ), hand105
+
+    # Round105 · 设置·域名+英文品牌+就绪+版本（前端复制；domain/brand_en/ok/version 对齐）
+    h105 = call("/api/health")
+    assert h105.get("ok") is True, h105
+    assert h105.get("domain") and h105.get("brand_en") and (
+        h105.get("version") or h105.get("server_version")
+    ), h105
+
     print("selfcheck OK")
 
 
