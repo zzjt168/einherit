@@ -7546,3 +7546,38 @@ body.privacy-mode .privacy-hint { opacity: 0.85; }
   margin: 8px 0 10px; padding: 8px 10px; border-radius: 8px; background: #f5f8f6;
   word-break: break-word; font-weight: 600; color: var(--sage-deep, #2f5d45);
 }
+
+/* Round115 · 温和增量 */
+.home-version-brand-en-app-calm-bar-r115 {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  margin: 10px 0 12px; padding: 12px 14px; border-radius: 12px;
+  background: linear-gradient(160deg, #eef5f3 0%, #fff 75%);
+  border: 1px solid var(--line, #e2e8e4);
+}
+.home-version-brand-en-app-calm-bar-r115[hidden] { display: none; }
+.home-version-brand-en-app-calm-bar-r115-mark { font-weight: 600; color: var(--sage-deep, #2f5d45); font-size: 13px; }
+.home-version-brand-en-app-calm-bar-r115-sub { flex: 1; min-width: 8em; font-size: 12px; }
+.lg-copy-category-id-notes { margin-top: 8px; margin-left: 6px; }
+.as-copy-summary-tag-hint { margin-top: 8px; margin-left: 6px; }
+.checkin-last-label-hours-plain-r115-copy {
+  margin-top: 10px; padding: 10px 12px; border-radius: 10px; background: #f5f8f6;
+}
+.checkin-last-label-hours-plain-r115-copy-line { margin: 0 0 8px; }
+.travel-shortfall-balance-met-plain-r115-copy {
+  margin: 8px 0 10px; padding: 10px 12px; border-radius: 10px; background: #f5f8f6;
+}
+.travel-shortfall-balance-met-plain-r115-copy-line { margin: 0 0 8px; }
+.ac-copy-visit-city-service { margin-top: 8px; margin-left: 6px; }
+.av-gate-ready-checklist-copy {
+  margin: 8px 0 10px; padding: 10px 12px; border-radius: 10px; background: #f5f8f6;
+}
+.av-gate-ready-checklist-copy-line { margin: 0 0 8px; }
+.bn-copy-contact-id-role { margin-top: 8px; margin-left: 6px; }
+.hand-item-count-export-brand-copy {
+  margin: 8px 0 12px; padding: 10px 12px; border-radius: 10px; background: #f5f8f6;
+}
+.hand-item-count-export-brand-copy-line { margin: 0 0 8px; }
+.domain-ok-app-brand-en-r115-copy-card .domain-ok-app-brand-en-r115-copy-preview {
+  margin: 8px 0 10px; padding: 8px 10px; border-radius: 8px; background: #f5f8f6;
+  word-break: break-word; font-weight: 600; color: var(--sage-deep, #2f5d45);
+}

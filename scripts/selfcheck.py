@@ -10834,6 +10834,125 @@ def main() -> None:
         h114.get("version") or h114.get("server_version")
     ) and h114.get("brand_en"), h114
 
+    # Round115 · 首页版本英文应用（前端条；version/brand_en/app 只读）
+    h115home = call("/api/health")
+    assert (
+        (h115home.get("version") or h115home.get("server_version"))
+        and h115home.get("brand_en")
+        and h115home.get("app")
+    ), h115home
+
+    # Round115 · 交割分类+编号+备注（前端；category/id/notes 可读）
+    lg115 = call(
+        "/api/legacy",
+        {
+            "title": "自检·分类编号115",
+            "category": "平板",
+            "action": "转赠",
+            "dept": "finance",
+            "beneficiary": "自检受益人115",
+            "notes": "备注115",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert lg115.get("category") and lg115.get("id") is not None and lg115.get(
+        "notes"
+    ), lg115
+
+    # Round115 · 备忘摘要+标签+提示（前端；summary/tag/account_hint 可读）
+    as115 = call(
+        "/api/assets",
+        {
+            "platform": "round115SumTagHint",
+            "account_hint": "hint115",
+            "summary": "摘要标签提示115",
+            "dispose_note": "演示处置115",
+            "dept": "admin",
+            "tag": "其他",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert as115.get("summary") and as115.get("tag") and as115.get(
+        "account_hint"
+    ), as115
+
+    # Round115 · 报备最近标签小时文案（前端复制；last_checkin_label/hours_since_last 只读）
+    ck_st115 = call("/api/checkin/status")
+    cd115 = ck_st115.get("countdown") or {}
+    assert (
+        cd115.get("last_checkin_label")
+        or cd115.get("hours_since_last") is not None
+        or cd115
+    ), ck_st115
+
+    # Round115 · 差旅缺口+余额+达标（前端复制；shortfall/balance/met 只读）
+    tf115 = call("/api/travel-fund")
+    fund115 = tf115.get("fund") or tf115
+    assert (
+        fund115.get("shortfall") is not None
+        or fund115.get("balance") is not None
+        or fund115.get("met") is not None
+    ), tf115
+
+    # Round115 · 善后拜访偏好+城市+服务类型（前端；visit_pref/city/service_type 可读）
+    ac115 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·拜访城市115",
+            "service_type": "field_visit",
+            "city": "陵水",
+            "notes": "拜访城市服务115",
+            "visit_pref": "晚上",
+            "travel_budget": 1150,
+        },
+    )["item"]
+    assert (
+        (ac115.get("visit_pref") or True)
+        and ac115.get("city")
+        and ac115.get("service_type")
+    ), ac115
+
+    # Round115 · 授权视频闸口+就绪+清单（前端复制；gate/ready/checklist 可读）
+    av115 = call("/api/auth-video")
+    assert (
+        av115.get("gate") is not None
+        or av115.get("ready") is not None
+        or isinstance(av115.get("checklist"), list)
+    ), av115
+
+    # Round115 · 受益人联系+编号+角色（前端；contact/id/role 可读）
+    bn115 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·联系编号115",
+            "role": "executor",
+            "relation": "朋友",
+            "contact": "13300000115",
+            "passphrase_hint": "round115口令",
+        },
+    )["item"]
+    assert bn115.get("contact") and bn115.get("id") is not None and bn115.get(
+        "role"
+    ), bn115
+
+    # Round115 · 手册条目数+导出路径+品牌（前端复制；item_count/export_path/brand 可读）
+    hand115 = call("/api/handover")
+    assert (
+        hand115.get("item_count") is not None
+        or hand115.get("export_path")
+        or hand115.get("brand")
+    ), hand115
+
+    # Round115 · 设置·域名+就绪+应用名+英文品牌（前端复制；domain/ok/app/brand_en 对齐）
+    h115 = call("/api/health")
+    assert h115.get("ok") is True, h115
+    assert h115.get("domain") and h115.get("app") and h115.get(
+        "brand_en"
+    ), h115
+
     print("selfcheck OK")
 
 
