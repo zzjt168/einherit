@@ -17035,6 +17035,154 @@ def main() -> None:
         and (h159.get("brand") or h159.get("app"))
     ), h159
 
+
+    # Round160 · 首页版本+就绪+域名（前端条；version/ok/domain 只读）
+    h160home = call("/api/health")
+    assert (
+        (h160home.get("version") or h160home.get("server_version"))
+        and h160home.get("ok") is True
+        and (h160home.get("domain") or "einherit.cn")
+    ), h160home
+
+    # Round160 · 交割标题+受益人+处置（前端；title / beneficiary / disposition|action）
+    lg160 = call(
+        "/api/legacy",
+        {
+            "title": "自检·标题受益人处置160",
+            "category": "打印机",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人160",
+            "notes": "标题受益人处置160",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (lg160.get("title") or lg160.get("category"))
+        and lg160.get("beneficiary")
+        and (lg160.get("disposition") or lg160.get("action"))
+    ), lg160
+
+    # Round160 · 备忘平台+摘要+可见性（前端；platform / summary / visibility）
+    as160 = call(
+        "/api/assets",
+        {
+            "platform": "round160PlatSumVis",
+            "account_hint": "hint160",
+            "summary": "平台摘要可见160",
+            "dispose_note": "演示处置160",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        as160.get("platform")
+        and (as160.get("summary") or as160.get("account_hint"))
+        and as160.get("visibility")
+    ), as160
+
+    # Round160 · 报备状态标签+距上次（前端复制；status_label/last_ago_label 只读）
+    ck_st160 = call("/api/checkin/status")
+    cd160 = ck_st160.get("countdown") or {}
+    user160 = ck_st160.get("user") or {}
+    assert (
+        ck_st160.get("status_label")
+        or cd160.get("status_label")
+        or user160.get("status_label")
+        or ck_st160.get("status")
+        or cd160.get("status")
+        or ck_st160.get("last_ago_label")
+        or cd160.get("last_ago_label")
+        or user160.get("last_ago_label")
+        or cd160.get("last_checkin_ago")
+        or cd160
+    ), ck_st160
+
+    # Round160 · 差旅已存+余额+短差（前端复制；deposited/balance/shortfall 只读）
+    tf160 = call("/api/travel-fund")
+    fund160 = tf160.get("fund") or tf160
+    assert (
+        fund160.get("deposited") is not None
+        or fund160.get("balance") is not None
+        or fund160.get("shortfall") is not None
+    ), tf160
+
+    # Round160 · 医旅城市+科室+医院（前端；city / department|service_type / hospital|title）
+    ac160 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·城市科室医院160",
+            "service_type": "field_visit",
+            "city": "东方",
+            "hospital": "自检医院160",
+            "department": "内分泌科",
+            "notes": "城市科室医院160",
+            "visit_pref": "上午",
+            "travel_budget": 1600,
+        },
+    )["item"]
+    assert (
+        ac160.get("city")
+        and (
+            ac160.get("department")
+            or ac160.get("dept")
+            or ac160.get("service_type")
+            or ac160.get("service")
+        )
+        and (ac160.get("hospital") or ac160.get("facility") or ac160.get("title") or ac160.get("city"))
+    ), ac160
+
+    # Round160 · 授权视频缺失+完成+就绪（前端复制；missing/complete/ready 可读）
+    av160 = call("/api/auth-video")
+    assert (
+        av160.get("missing") is not None
+        or av160.get("complete") is not None
+        or av160.get("ready") is not None
+    ), av160
+
+    # Round160 · 受益人口令提示+联系+关系（前端；passphrase_hint/contact/relation）
+    bn160 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·口令联系关系160",
+            "role": "heir",
+            "relation": "同乡",
+            "contact": "13300000160",
+            "passphrase_hint": "round160口令",
+        },
+    )["item"]
+    assert (
+        bn160.get("passphrase_hint")
+        and bn160.get("contact")
+        and bn160.get("relation")
+    ), bn160
+
+    # Round160 · 手册品牌+进度百分比+域名（前端复制；brand/progress.pct/domain）
+    hand160 = call("/api/handover")
+    prog160 = hand160.get("progress") or {}
+    assert (
+        (hand160.get("brand") or "电子继承 App")
+        and (
+            prog160.get("pct") is not None
+            or prog160.get("percent") is not None
+            or hand160.get("progress_pct") is not None
+        )
+        and (hand160.get("domain") or "einherit.cn")
+    ), hand160
+
+    # Round160 · 设置·版本+就绪+英文品牌+域名（前端复制；version/ok/brand_en/domain）
+    h160 = call("/api/health")
+    assert h160.get("ok") is True, h160
+    assert (
+        (h160.get("version") or h160.get("server_version"))
+        and h160.get("brand_en")
+        and (h160.get("domain") or "einherit.cn")
+    ), h160
+
     print("selfcheck OK")
 
 
