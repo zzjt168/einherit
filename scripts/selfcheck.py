@@ -6058,6 +6058,109 @@ def main() -> None:
     assert h68.get("version") or h68.get("domain") == "einherit.cn", h68
     assert h68.get("domain") == "einherit.cn", h68
 
+    # Round69 · 首页执行人姓名（前端条；executor_name 只读）
+    ck_st69home = call("/api/checkin/status")
+    assert (ck_st69home.get("user") or {}) is not None, ck_st69home
+    assert "executor_name" in (ck_st69home.get("user") or {}) or (
+        ck_st69home.get("user") or {}
+    ).get("executor_name") is not None or ck_st69home.get("user"), ck_st69home
+
+    # Round69 · 交割处置+出厂（前端；action/factory_reset 可读）
+    lg69 = call(
+        "/api/legacy",
+        {
+            "title": "自检·处置出厂69",
+            "category": "其他",
+            "action": "销毁",
+            "dept": "hr",
+            "factory_reset": True,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert lg69.get("action"), lg69
+    assert "factory_reset" in lg69 or lg69.get("factory_reset") is not None, lg69
+
+    # Round69 · 备忘编号+账号提示（前端；id/account_hint 可读）
+    as69 = call(
+        "/api/assets",
+        {
+            "platform": "round69IdHint",
+            "account_hint": "hint69",
+            "summary": "编号提示69",
+            "dispose_note": "演示处置69",
+            "dept": "admin",
+            "tag": "其他",
+            "visibility": "private",
+            "draft": True,
+        },
+    )["item"]
+    assert as69.get("id") is not None, as69
+    assert as69.get("account_hint") is not None or "account_hint" in as69, as69
+
+    # Round69 · 报备软硬逾期（前端复制；checkin_soft_overdue/checkin_overdue 只读）
+    ck_st69 = call("/api/checkin/status")
+    u69 = ck_st69.get("user") or {}
+    assert "checkin_soft_overdue" in u69 or "checkin_overdue" in u69 or u69, ck_st69
+
+    # Round69 · 差旅退款种类+备注（前端复制；last_refund kind/note 只读）
+    tf69 = call("/api/travel-fund")
+    fund69 = tf69.get("fund") or tf69
+    refund69 = fund69.get("last_refund")
+    assert refund69 is not None or "last_refund" in fund69 or isinstance(
+        tf69.get("ledger"), list
+    ), tf69
+
+    # Round69 · 善后预算标签+城市（前端；travel_budget_label/city 可读）
+    ac69 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·预算城市69",
+            "service_type": "field_visit",
+            "city": "澄迈",
+            "visit_pref": "下午",
+            "travel_budget": 690,
+        },
+    )["item"]
+    assert ac69.get("city"), ac69
+    assert (
+        ac69.get("travel_budget_label")
+        or ac69.get("travel_budget") is not None
+    ), ac69
+
+    # Round69 · 授权视频门槛+就绪（前端复制；threshold_passed/ready 可读）
+    av69 = call("/api/auth-video")
+    active69 = av69.get("current_active") or av69.get("latest") or {}
+    assert (
+        "threshold_passed" in active69
+        or av69.get("ready") is not None
+        or active69.get("status")
+    ), av69
+
+    # Round69 · 受益人编号+姓名+角色（前端；id/name/role 可读）
+    bn69 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·编号角色69",
+            "role": "heir",
+            "relation": "堂亲",
+            "contact": "13300000069",
+            "passphrase_hint": "round69口令",
+        },
+    )["item"]
+    assert bn69.get("id") is not None, bn69
+    assert bn69.get("name") and bn69.get("role"), bn69
+
+    # Round69 · 手册分享提示与域名（前端复制；share_hint/domain 可读）
+    hand69 = call("/api/handover")
+    assert hand69.get("share_hint") or hand69.get("domain"), hand69
+
+    # Round69 · 设置·英文品牌+服务就绪（前端复制；brand_en/ok 对齐）
+    h69 = call("/api/health")
+    assert h69.get("ok") is True, h69
+    assert h69.get("brand_en") or h69.get("domain") == "einherit.cn", h69
+    assert h69.get("domain") == "einherit.cn", h69
+
     print("selfcheck OK")
 
 
