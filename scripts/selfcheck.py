@@ -14449,6 +14449,151 @@ def main() -> None:
         and (h142.get("version") or h142.get("server_version"))
     ), h142
 
+    # Round143 · 首页中文品牌+版本+英文品牌（前端条；brand|app/version/brand_en 只读）
+    h143home = call("/api/health")
+    assert (
+        (h143home.get("brand") or h143home.get("app"))
+        and (h143home.get("version") or h143home.get("server_version"))
+        and h143home.get("brand_en")
+    ), h143home
+
+    # Round143 · 交割编号+标题+处置（前端；id / title / disposition|action）
+    lg143 = call(
+        "/api/legacy",
+        {
+            "title": "自检·编号标题处置143",
+            "category": "耳机",
+            "action": "销毁",
+            "dept": "ops",
+            "beneficiary": "自检受益人143",
+            "notes": "编号标题处置143",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        lg143.get("id") is not None
+        and lg143.get("title")
+        and (lg143.get("disposition") or lg143.get("action"))
+    ), lg143
+
+    # Round143 · 备忘平台+摘要+标签（前端；platform / summary / tag）
+    as143 = call(
+        "/api/assets",
+        {
+            "platform": "round143PlatSumTag",
+            "account_hint": "hint143",
+            "summary": "平台摘要标签143",
+            "dispose_note": "演示处置143",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        as143.get("platform")
+        and as143.get("summary")
+        and as143.get("tag")
+    ), as143
+
+    # Round143 · 报备下次建议+窗口截止（前端复制；next_suggested_at/window_ends_at 只读）
+    ck_st143 = call("/api/checkin/status")
+    cd143 = ck_st143.get("countdown") or {}
+    user143 = ck_st143.get("user") or {}
+    assert (
+        cd143.get("next_suggested_at") is not None
+        or cd143.get("next_suggested_label")
+        or cd143.get("window_ends_at") is not None
+        or user143.get("checkin_due_at") is not None
+        or cd143
+    ), ck_st143
+
+    # Round143 · 差旅短差+门槛+进度（前端复制；shortfall/threshold/progress_pct 只读）
+    tf143 = call("/api/travel-fund")
+    fund143 = tf143.get("fund") or tf143
+    assert (
+        fund143.get("shortfall") is not None
+        or fund143.get("threshold") is not None
+        or fund143.get("progress_pct") is not None
+        or fund143.get("progress") is not None
+    ), tf143
+
+    # Round143 · 善后服务类型+医院+科室（前端；service_type / hospital|title / department|service_type）
+    ac143 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·服务医院科室143",
+            "service_type": "phone_assist",
+            "city": "东方",
+            "notes": "服务医院科室143",
+            "visit_pref": "黄昏",
+            "travel_budget": 1430,
+        },
+    )["item"]
+    assert (
+        (ac143.get("service_type") or ac143.get("service"))
+        and (ac143.get("hospital") or ac143.get("title"))
+        and (
+            ac143.get("department")
+            or ac143.get("service_type")
+            or ac143.get("service")
+        )
+    ), ac143
+
+    # Round143 · 授权视频时长+完成+标题（前端复制；duration_hint/complete/title|latest 可读）
+    av143 = call("/api/auth-video")
+    latest143 = av143.get("latest") or {}
+    prog143av = av143.get("progress") or {}
+    assert (
+        av143.get("duration_hint")
+        or prog143av.get("duration_hint")
+        or av143.get("complete") is not None
+        or av143.get("title")
+        or latest143.get("original_name")
+    ), av143
+
+    # Round143 · 受益人姓名+关系+编号（前端；name/relation/id 可读）
+    bn143 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·姓名关系143",
+            "role": "heir",
+            "relation": "搭档",
+            "contact": "13300000143",
+            "passphrase_hint": "round143口令",
+        },
+    )["item"]
+    assert (
+        bn143.get("name")
+        and bn143.get("relation")
+        and bn143.get("id") is not None
+    ), bn143
+
+    # Round143 · 手册域名+章节+进度（前端复制；domain/sections|total_types/progress.pct）
+    hand143 = call("/api/handover")
+    prog143 = hand143.get("progress") or {}
+    assert (
+        hand143.get("domain")
+        and (
+            hand143.get("sections") is not None
+            or prog143.get("total_types") is not None
+            or hand143.get("section_count") is not None
+        )
+        and (prog143.get("pct") is not None or hand143.get("progress_pct") is not None)
+    ), hand143
+
+    # Round143 · 设置·中文品牌+版本+英文品牌+域名（前端复制；brand|app/version/brand_en/domain）
+    h143 = call("/api/health")
+    assert h143.get("ok") is True, h143
+    assert (
+        (h143.get("brand") or h143.get("app"))
+        and (h143.get("version") or h143.get("server_version"))
+        and h143.get("brand_en")
+        and h143.get("domain")
+    ), h143
+
     print("selfcheck OK")
 
 
