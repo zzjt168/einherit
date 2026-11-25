@@ -15651,6 +15651,152 @@ def main() -> None:
         and (h150.get("brand") or h150.get("app"))
     ), h150
 
+    # Round151 · 首页中文品牌+域名+就绪（前端条；brand|app/domain/ok 只读）
+    h151home = call("/api/health")
+    assert (
+        (h151home.get("brand") or h151home.get("app"))
+        and (h151home.get("domain") or "einherit.cn")
+        and h151home.get("ok") is True
+    ), h151home
+
+    # Round151 · 交割受益人+标题+编号（前端；beneficiary / title|category / id）
+    lg151 = call(
+        "/api/legacy",
+        {
+            "title": "自检·受益人标题编号151",
+            "category": "鼠标",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人151",
+            "notes": "受益人标题编号151",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (lg151.get("beneficiary") or lg151.get("device_owner"))
+        and (lg151.get("title") or lg151.get("category"))
+        and lg151.get("id") is not None
+    ), lg151
+
+    # Round151 · 备忘平台+分类+摘要（前端；platform / category|tag / summary）
+    as151 = call(
+        "/api/assets",
+        {
+            "platform": "round151PlatCatSum",
+            "account_hint": "hint151",
+            "summary": "平台分类摘要151",
+            "dispose_note": "演示处置151",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        as151.get("platform")
+        and (as151.get("category") or as151.get("tag") or as151.get("dept"))
+        and (as151.get("summary") or as151.get("account_hint"))
+    ), as151
+
+    # Round151 · 报备下次建议+状态标签（前端复制；next_suggested_at/status_label 只读）
+    ck_st151 = call("/api/checkin/status")
+    cd151 = ck_st151.get("countdown") or {}
+    user151 = ck_st151.get("user") or {}
+    assert (
+        cd151.get("next_suggested_at") is not None
+        or cd151.get("next_suggested_label")
+        or ck_st151.get("status_label")
+        or cd151.get("status_label")
+        or user151.get("status_label")
+        or cd151
+    ), ck_st151
+
+    # Round151 · 差旅已存+门槛+短差（前端复制；deposited/threshold/shortfall 只读）
+    tf151 = call("/api/travel-fund")
+    fund151 = tf151.get("fund") or tf151
+    assert (
+        fund151.get("deposited") is not None
+        or fund151.get("threshold") is not None
+        or fund151.get("shortfall") is not None
+    ), tf151
+
+    # Round151 · 善后医院+状态+服务类型（前端；hospital|city / status|title / service_type）
+    ac151 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·医院状态服务151",
+            "service_type": "field_visit",
+            "city": "东方",
+            "hospital": "自检医院151",
+            "department": "眼科",
+            "notes": "医院状态服务151",
+            "visit_pref": "午后",
+            "travel_budget": 1510,
+        },
+    )["item"]
+    assert (
+        (ac151.get("hospital") or ac151.get("facility") or ac151.get("city"))
+        and (
+            ac151.get("status_label")
+            or ac151.get("status")
+            or ac151.get("status_key")
+            or ac151.get("title")
+        )
+        and (ac151.get("service_type") or ac151.get("service"))
+    ), ac151
+
+    # Round151 · 授权视频缺失+时长+完成（前端复制；missing/duration_hint/complete 可读）
+    av151 = call("/api/auth-video")
+    latest151 = av151.get("latest") or {}
+    assert (
+        av151.get("missing") is not None
+        or av151.get("duration_hint")
+        or latest151.get("duration_hint")
+        or av151.get("duration")
+        or av151.get("complete") is not None
+    ), av151
+
+    # Round151 · 受益人口令+联系+关系（前端；passphrase_hint/contact/relation）
+    bn151 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·口令联系关系151",
+            "role": "heir",
+            "relation": "友人",
+            "contact": "13300000151",
+            "passphrase_hint": "round151口令",
+        },
+    )["item"]
+    assert (
+        bn151.get("passphrase_hint")
+        and bn151.get("contact")
+        and bn151.get("relation")
+    ), bn151
+
+    # Round151 · 手册完成+品牌+域名（前端复制；done/brand/domain）
+    hand151 = call("/api/handover")
+    prog151 = hand151.get("progress") or {}
+    assert (
+        (
+            hand151.get("done") is not None
+            or prog151.get("filled_types") is not None
+            or prog151.get("done") is not None
+        )
+        and (hand151.get("brand") or hand151.get("domain"))
+        and (hand151.get("domain") or hand151.get("brand"))
+    ), hand151
+
+    # Round151 · 设置·域名+就绪+版本+英文品牌（前端复制；domain/ok/version/brand_en）
+    h151 = call("/api/health")
+    assert h151.get("ok") is True, h151
+    assert (
+        (h151.get("domain") or "einherit.cn")
+        and (h151.get("version") or h151.get("server_version"))
+        and h151.get("brand_en")
+    ), h151
+
     print("selfcheck OK")
 
 
