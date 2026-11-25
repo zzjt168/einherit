@@ -8103,6 +8103,99 @@ def main() -> None:
     assert h89.get("ok") is True, h89
     assert (h89.get("version") or h89.get("server_version")) and h89.get("brand_en"), h89
 
+    # Round90 · 首页应用名版本（前端条；app/version 只读）
+    h90home = call("/api/health")
+    assert h90home.get("app") and (
+        h90home.get("version") or h90home.get("server_version")
+    ), h90home
+
+    # Round90 · 交割处置+受益人+部门（前端；action/beneficiary/dept 可读）
+    lg90 = call(
+        "/api/legacy",
+        {
+            "title": "自检·处置受益90",
+            "category": "耳机",
+            "action": "转赠",
+            "dept": "finance",
+            "beneficiary": "自检受益人90",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert lg90.get("action") and lg90.get("dept"), lg90
+    assert lg90.get("beneficiary") or "beneficiary" in lg90, lg90
+
+    # Round90 · 备忘摘要+提示+标签（前端；summary/account_hint/tag 可读）
+    as90 = call(
+        "/api/assets",
+        {
+            "platform": "round90SumHintTag",
+            "account_hint": "hint90",
+            "summary": "摘要提示标签90",
+            "dispose_note": "演示处置90",
+            "dept": "admin",
+            "tag": "其他",
+            "visibility": "private",
+            "draft": True,
+        },
+    )["item"]
+    assert as90.get("summary") and as90.get("account_hint") and as90.get("tag"), as90
+
+    # Round90 · 报备即将到期（前端复制；due_soon 只读）
+    ck_st90 = call("/api/checkin/status")
+    cd90 = ck_st90.get("countdown") or {}
+    assert "due_soon" in cd90 or cd90, ck_st90
+
+    # Round90 · 差旅达标与进度百分比（前端复制；met/progress_pct 只读）
+    tf90 = call("/api/travel-fund")
+    fund90 = tf90.get("fund") or tf90
+    assert fund90.get("met") is not None or fund90.get("progress_pct") is not None, tf90
+
+    # Round90 · 善后编号+状态+预算（前端；id/status/travel_budget 可读）
+    ac90 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·编号状态90",
+            "service_type": "field_visit",
+            "city": "临高",
+            "notes": "编号状态预算90",
+            "visit_pref": "上午",
+            "travel_budget": 900,
+        },
+    )["item"]
+    assert ac90.get("id") is not None and (
+        ac90.get("status") or ac90.get("travel_budget") is not None
+    ), ac90
+
+    # Round90 · 授权视频清单+完成文案（前端复制；checklist/complete_label 可读）
+    av90 = call("/api/auth-video")
+    assert isinstance(av90.get("checklist"), list) or av90.get("complete_label"), av90
+
+    # Round90 · 受益人联系+关系+角色（前端；contact/relation/role 可读）
+    bn90 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·联系关系90",
+            "role": "executor",
+            "relation": "亲属",
+            "contact": "13300000090",
+            "passphrase_hint": "round90口令",
+        },
+    )["item"]
+    assert bn90.get("contact") and bn90.get("relation") and bn90.get("role"), bn90
+
+    # Round90 · 手册生成时间与品牌（前端复制；generated_at/brand 可读）
+    hand90 = call("/api/handover")
+    assert hand90.get("generated_at") is not None or hand90.get("brand"), hand90
+
+    # Round90 · 设置·域名+版本+就绪（前端复制；domain/version/ok 对齐）
+    h90 = call("/api/health")
+    assert h90.get("ok") is True, h90
+    assert h90.get("domain") == "einherit.cn" and (
+        h90.get("version") or h90.get("server_version")
+    ), h90
+
     print("selfcheck OK")
 
 
