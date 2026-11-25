@@ -2175,6 +2175,107 @@ def main() -> None:
     assert h25.get("ok") is True, h25
     assert h25.get("domain") == "einherit.cn", h25
 
+    # Round26 · 首页备忘未处置缺口（前端条；API 只读）
+    pending26 = call("/api/assets/dispose-pending")
+    assert "count" in pending26, pending26
+    assert isinstance(pending26.get("items"), list), pending26
+
+    # Round26 · 交割清除媒体字段可读（筛选为前端）
+    lg26 = call(
+        "/api/legacy",
+        {
+            "title": "自检·清除筛",
+            "category": "电子设备",
+            "action": "销毁",
+            "clear_photos": True,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert lg26.get("clear_photos") in (1, True), lg26
+    miss_clear26 = call("/api/legacy/missing-clear-media")
+    assert "count" in miss_clear26 or "items" in miss_clear26, miss_clear26
+
+    # Round26 · 备忘「今日已看」（review_at）
+    as26 = call(
+        "/api/assets",
+        {
+            "platform": "round26Seen",
+            "summary": "今日已看演示",
+            "dept": "admin",
+            "dispose_note": "销毁",
+            "draft": True,
+        },
+    )["item"]
+    today26 = time.strftime("%Y-%m-%d")
+    seen26 = call(
+        "/api/assets/review-at",
+        {"id": as26["id"], "review_at": today26},
+    )
+    assert "item" in seen26, seen26
+    assert str((seen26.get("item") or {}).get("review_at") or "").startswith(today26), seen26
+    as26_list = call("/api/assets")
+    hit26 = next(
+        (x for x in (as26_list.get("items") or []) if x.get("id") == as26["id"]),
+        None,
+    )
+    assert hit26 is not None, as26_list
+    assert str(hit26.get("review_at") or "").startswith(today26), hit26
+
+    # Round26 · 报备间隔说明（前端复制；interval 可读）
+    ck_st26 = call("/api/checkin/status")
+    assert "user" in ck_st26, ck_st26
+    assert ck_st26["user"].get("checkin_interval_hours") is not None, ck_st26
+
+    # Round26 · 差旅补足金额（前端填；fund 门槛可读）
+    tf26 = call("/api/travel-fund")
+    fund26 = tf26.get("fund") or tf26
+    assert fund26.get("threshold") is not None or "balance" in fund26, fund26
+
+    # Round26 · 善后状态计数（前端；列表可读 status_key）
+    ac26 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·状态计数",
+            "service_type": "delete_data",
+            "city": "三亚",
+            "travel_budget": 800,
+        },
+    )["item"]
+    assert ac26.get("title"), ac26
+    ac26_list = call("/api/aftercare")
+    assert any(
+        (x.get("status_key") or x.get("status")) for x in (ac26_list.get("items") or [])
+    ), ac26_list
+
+    # Round26 · 授权视频上传区聚焦（前端；门槛可读）
+    av26 = call("/api/auth-video")
+    assert "ready" in av26, av26
+
+    # Round26 · 受益人缺联系（前端角标；可写无 contact）
+    bn26 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·待补联系",
+            "role": "family",
+            "relation": "演示",
+            "contact": "",
+        },
+    )["item"]
+    assert bn26.get("name"), bn26
+    assert not str(bn26.get("contact") or "").strip(), bn26
+
+    # Round26 · 手册缺口跳转回显（前端；print-checklist 可读）
+    hand26 = call("/api/handover/print-checklist")
+    assert "items" in hand26 or "ok" in hand26 or "ready" in hand26, hand26
+
+    # Round26 · 设置·复制数据体量摘要
+    summary26 = call("/api/counts-summary")
+    assert summary26.get("text"), summary26
+    assert "counts" in summary26, summary26
+    h26 = call("/api/health")
+    assert h26.get("ok") is True, h26
+    assert h26.get("domain") == "einherit.cn", h26
+
     print("selfcheck OK")
 
 

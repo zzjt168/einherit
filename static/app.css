@@ -2832,3 +2832,81 @@ body.privacy-mode .privacy-hint { opacity: 0.85; }
   background: #f0f4f1;
   color: #3f5e50;
 }
+
+/* Round26 · 温和增量 */
+.home-dispose-pending-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 10px 0 12px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: linear-gradient(160deg, #f3f7f4 0%, #fff 75%);
+  border: 1px solid var(--line, #e2e8e4);
+}
+.home-dispose-pending-bar[hidden] {
+  display: none;
+}
+.home-dispose-mark {
+  font-weight: 600;
+  color: var(--sage-deep, #2f5d45);
+  font-size: 13px;
+}
+.home-dispose-sub {
+  flex: 1;
+  min-width: 8em;
+  font-size: 12px;
+}
+.lg-clear-media-chips {
+  margin: 8px 0 10px;
+}
+.as-seen-today {
+  margin-top: 8px;
+}
+.as-seen-today-done {
+  opacity: 0.85;
+}
+.checkin-interval-copy {
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #f5f8f6;
+}
+.checkin-interval-copy-line {
+  margin: 0 0 8px;
+}
+.travel-shortfall-fill {
+  margin-top: 8px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: #f5f8f6;
+}
+.ac-status-counts-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  margin: 0 0 10px;
+  font-size: 12px;
+}
+.av-focus-upload-wrap {
+  margin: 4px 0 10px;
+}
+.av-upload-focus {
+  outline: 2px solid var(--sage, #6b8f7a);
+  outline-offset: 3px;
+  transition: outline-color 0.3s ease;
+}
+.bn-missing-contact {
+  background: #eef3f0;
+  color: #4a6558;
+  margin-left: 6px;
+}
+.counts-copy-card .counts-copy-preview {
+  margin: 8px 0 10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: #f5f8f6;
+  word-break: break-word;
+}
