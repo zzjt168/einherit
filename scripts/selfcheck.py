@@ -3106,6 +3106,91 @@ def main() -> None:
     assert h36.get("domain") == "einherit.cn", h36
     assert h36.get("app") or h36.get("brand_en"), h36
 
+    # Round37 · 首页公司盘点完成度（前端条；progress 可读）
+    co37 = call("/api/company")
+    prog37 = co37.get("progress") or {}
+    assert "pct" in prog37 or "filled" in prog37, co37
+
+    # Round37 · 交割清理勾选项（前端；factory_reset 可读）
+    lg37 = call(
+        "/api/legacy",
+        {
+            "title": "自检·清理项37",
+            "category": "其他",
+            "action": "销毁",
+            "dept": "admin",
+            "factory_reset": True,
+            "clear_photos": True,
+        },
+    )["item"]
+    assert lg37.get("factory_reset") in (1, True) or lg37.get("clear_photos") in (
+        1,
+        True,
+    ), lg37
+
+    # Round37 · 备忘标签复制（前端；tag 可读）
+    as37 = call(
+        "/api/assets",
+        {
+            "platform": "round37Tag",
+            "summary": "标签复制",
+            "dept": "admin",
+            "tag": "账号",
+            "draft": True,
+        },
+    )["item"]
+    assert str(as37.get("tag") or "") == "账号", as37
+
+    # Round37 · 报备登记姓名（前端复制；name 可读）
+    ck_st37 = call("/api/checkin/status")
+    assert "user" in ck_st37, ck_st37
+    assert ck_st37["user"].get("name") or ck_st37["user"].get("phone"), ck_st37
+
+    # Round37 · 差旅余额更新时间（前端复制；updated_at 可读）
+    tf37 = call("/api/travel-fund")
+    fund37 = tf37.get("fund") or tf37
+    assert fund37.get("updated_at") is not None or fund37.get("balance") is not None, fund37
+
+    # Round37 · 善后联系窗口（前端；contact_window 可读）
+    ac37 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·联系窗口37",
+            "service_type": "delete_data",
+            "city": "海口",
+            "travel_budget": 240,
+            "contact_window": "工作日上午",
+        },
+    )["item"]
+    assert str(ac37.get("contact_window") or "") == "工作日上午", ac37
+
+    # Round37 · 授权视频历史上传可见条数（前端；列表可读）
+    av37 = call("/api/auth-video")
+    assert isinstance(av37.get("items"), list) or "ready" in av37, av37
+
+    # Round37 · 受益人口令提示（前端；passphrase_hint 可读）
+    bn37 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·口令提示37",
+            "role": "heir",
+            "relation": "演示",
+            "contact": "13300000037",
+            "passphrase_hint": "生日后四位·37",
+        },
+    )["item"]
+    assert "37" in str(bn37.get("passphrase_hint") or ""), bn37
+
+    # Round37 · 手册说明（前端复制；note 可读）
+    hand37 = call("/api/handover")
+    assert hand37.get("note") or hand37.get("brand"), hand37
+
+    # Round37 · 设置·产品口号行（前端复制；slogan 对齐）
+    assert co37.get("slogan") or prog37.get("pct") is not None, co37
+    h37 = call("/api/health")
+    assert h37.get("ok") is True, h37
+    assert h37.get("domain") == "einherit.cn", h37
+
     print("selfcheck OK")
 
 
