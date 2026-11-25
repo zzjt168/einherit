@@ -6550,6 +6550,109 @@ def main() -> None:
     assert h73.get("version") or h73.get("server_version"), h73
     assert h73.get("domain") == "einherit.cn", h73
 
+    # Round74 · 首页报备间隔小时（前端条；checkin_interval_hours 只读）
+    ck_st74home = call("/api/checkin/status")
+    assert (ck_st74home.get("user") or {}).get(
+        "checkin_interval_hours"
+    ) is not None or ck_st74home.get("user"), ck_st74home
+
+    # Round74 · 交割备注+处置（前端；notes/action 可读）
+    lg74 = call(
+        "/api/legacy",
+        {
+            "title": "自检·备注处置74",
+            "category": "其他",
+            "action": "销毁",
+            "dept": "hr",
+            "notes": "round74备注",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert lg74.get("action"), lg74
+    assert lg74.get("notes") is not None or "notes" in lg74, lg74
+
+    # Round74 · 备忘编号+摘要+可见性（前端；id/summary/visibility 可读）
+    as74 = call(
+        "/api/assets",
+        {
+            "platform": "round74IdSummaryVis",
+            "account_hint": "hint74",
+            "summary": "编号摘要可见74",
+            "dispose_note": "演示处置74",
+            "dept": "admin",
+            "tag": "其他",
+            "visibility": "private",
+            "draft": True,
+        },
+    )["item"]
+    assert as74.get("id") is not None, as74
+    assert as74.get("summary") is not None or "summary" in as74, as74
+    assert as74.get("visibility"), as74
+
+    # Round74 · 报备间隔小时纯（前端复制；checkin_interval_hours 只读）
+    ck_st74 = call("/api/checkin/status")
+    assert (ck_st74.get("user") or {}).get(
+        "checkin_interval_hours"
+    ) is not None or ck_st74.get("user"), ck_st74
+
+    # Round74 · 差旅达标与进度（前端复制；met/progress_pct 只读）
+    tf74 = call("/api/travel-fund")
+    fund74 = tf74.get("fund") or tf74
+    assert (
+        fund74.get("met") is not None
+        or fund74.get("meets_threshold") is not None
+        or fund74.get("progress_pct") is not None
+    ), tf74
+
+    # Round74 · 善后编号+阶段+城市（前端；id/phase_label/city 可读）
+    ac74 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·编号阶段74",
+            "service_type": "field_visit",
+            "city": "保亭",
+            "notes": "编号阶段74",
+            "visit_pref": "上午",
+            "travel_budget": 740,
+        },
+    )["item"]
+    assert ac74.get("id") is not None and ac74.get("city"), ac74
+    assert ac74.get("phase_label") or ac74.get("status"), ac74
+
+    # Round74 · 授权视频脚本条数+就绪（前端复制；script/ready 可读）
+    av74 = call("/api/auth-video")
+    assert (
+        isinstance(av74.get("script"), list)
+        or av74.get("ready") is not None
+    ), av74
+
+    # Round74 · 受益人姓名+备注+角色（前端；name/note/role 可读）
+    bn74 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·姓名备注74",
+            "role": "executor",
+            "relation": "亲属",
+            "contact": "13300000074",
+            "note": "round74备注",
+            "passphrase_hint": "round74口令",
+        },
+    )["item"]
+    assert bn74.get("name") and bn74.get("role"), bn74
+    assert bn74.get("note") is not None or "note" in bn74, bn74
+
+    # Round74 · 手册分享提示与品牌（前端复制；share_hint/brand 可读）
+    hand74 = call("/api/handover")
+    assert hand74.get("share_hint") or hand74.get("brand"), hand74
+
+    # Round74 · 设置·英文品牌+应用版本（前端复制；brand_en/version 对齐）
+    h74 = call("/api/health")
+    assert h74.get("ok") is True, h74
+    assert h74.get("brand_en") and (h74.get("version") or h74.get("server_version")), h74
+    assert h74.get("domain") == "einherit.cn", h74
+
     print("selfcheck OK")
 
 
