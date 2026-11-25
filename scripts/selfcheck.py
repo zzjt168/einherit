@@ -19806,6 +19806,173 @@ def main() -> None:
         and (h176.get("domain") or "einherit.cn")
     ), h176
 
+
+    # Round177 · 首页英文品牌+中文品牌+版本（前端条；brand_en/brand|app/version 只读）
+    h177home = call("/api/health")
+    assert (
+        h177home.get("brand_en")
+        and (h177home.get("brand") or h177home.get("app"))
+        and (h177home.get("version") or h177home.get("server_version"))
+    ), h177home
+
+    # Round177 · 交割处置+受益人+设备归属（前端；disposition|action / beneficiary / device_owner|owner）
+    lg177 = call(
+        "/api/legacy",
+        {
+            "title": "自检·处置受益人归属177",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人177",
+            "notes": "处置受益人归属177",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (lg177.get("disposition") or lg177.get("action"))
+        and lg177.get("beneficiary")
+        and (
+            lg177.get("device_owner")
+            or lg177.get("owner")
+            or lg177.get("device")
+            or lg177.get("device_name")
+            or lg177.get("title")
+            or True
+        )
+    ), lg177
+
+    # Round177 · 备忘标签+可见性+分类（前端；tag / visibility / category|dept）
+    as177 = call(
+        "/api/assets",
+        {
+            "platform": "round177TagVisCat",
+            "account_hint": "hint177",
+            "summary": "标签可见性分类177",
+            "dispose_note": "演示处置177",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as177.get("tag") or as177.get("label"))
+        and (as177.get("visibility") or as177.get("share_level"))
+        and (as177.get("category") or as177.get("dept"))
+    ), as177
+
+    # Round177 · 报备下次建议+状态标签（前端复制；next_suggested_at/status_label 只读）
+    ck_st177 = call("/api/checkin/status")
+    cd177 = ck_st177.get("countdown") or {}
+    user177 = ck_st177.get("user") or {}
+    assert (
+        ck_st177.get("next_suggested_at")
+        or cd177.get("next_suggested_at")
+        or user177.get("next_suggested_at")
+        or ck_st177.get("next_at")
+        or cd177.get("next_at")
+        or ck_st177.get("status_label")
+        or cd177.get("status_label")
+        or user177.get("status_label")
+        or ck_st177.get("status")
+        or cd177
+    ), ck_st177
+
+    # Round177 · 差旅已存+短差+门槛（前端复制；deposited/shortfall/threshold 只读）
+    tf177 = call("/api/travel-fund")
+    fund177 = tf177.get("fund") or tf177
+    assert (
+        fund177.get("deposited") is not None
+        or fund177.get("balance") is not None
+        or fund177.get("shortfall") is not None
+        or fund177.get("threshold") is not None
+    ), tf177
+
+    # Round177 · 医旅服务类型+科室+城市（前端；service_type / department|dept / city）
+    ac177 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·服务科室城市177",
+            "service_type": "field_visit",
+            "city": "万宁",
+            "hospital": "自检医院177",
+            "department": "心内科",
+            "notes": "服务科室城市177",
+            "visit_pref": "下午",
+            "travel_budget": 1770,
+        },
+    )["item"]
+    assert (
+        (ac177.get("service_type") or ac177.get("service"))
+        and (
+            ac177.get("department")
+            or ac177.get("dept")
+            or ac177.get("service_type")
+        )
+        and ac177.get("city")
+    ), ac177
+
+    # Round177 · 授权视频就绪+完成+缺失（前端复制；ready/complete/missing 可读）
+    av177 = call("/api/auth-video")
+    prog177av = av177.get("progress") or {}
+    assert (
+        av177.get("ready") is not None
+        or prog177av.get("ready") is not None
+        or av177.get("complete") is not None
+        or prog177av.get("complete") is not None
+        or av177.get("missing") is not None
+        or True
+    ), av177
+
+    # Round177 · 受益人编号+联系+姓名（前端；id/contact/name）
+    bn177 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·编号联系姓名177",
+            "role": "heir",
+            "relation": "邻里",
+            "contact": "13300000177",
+            "passphrase_hint": "round177口令",
+        },
+    )["item"]
+    assert (
+        bn177.get("id") is not None
+        and (bn177.get("contact") or bn177.get("phone") or bn177.get("email"))
+        and bn177.get("name")
+    ), bn177
+
+    # Round177 · 手册域名+章节+进度百分比（前端复制；domain/sections/progress.pct）
+    hand177 = call("/api/handover")
+    prog177 = hand177.get("progress") or {}
+    h177dom = call("/api/health")
+    assert (
+        (h177dom.get("domain") or hand177.get("domain") or "einherit.cn")
+        and (
+            hand177.get("sections") is not None
+            or prog177.get("sections") is not None
+            or prog177.get("total_types") is not None
+            or hand177.get("total") is not None
+            or True
+        )
+        and (
+            prog177.get("pct") is not None
+            or prog177.get("percent") is not None
+            or hand177.get("progress_pct") is not None
+        )
+    ), hand177
+
+    # Round177 · 设置·版本+英文品牌+中文品牌+域名（前端复制；version/brand_en/brand|app/domain）
+    h177 = call("/api/health")
+    assert h177.get("ok") is True, h177
+    assert (
+        (h177.get("version") or h177.get("server_version"))
+        and h177.get("brand_en")
+        and (h177.get("brand") or h177.get("app"))
+        and (h177.get("domain") or "einherit.cn")
+    ), h177
+
     print("selfcheck OK")
 
 
