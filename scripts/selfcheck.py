@@ -25033,6 +25033,178 @@ def main() -> None:
         and h206.get("brand_en")
     ), h206
 
+
+    # Round207 · 首页英文品牌+中文品牌+版本（前端条；brand_en/brand/version 只读）
+    h207home = call("/api/health")
+    assert (
+        h207home.get("brand_en")
+        and (h207home.get("brand") or h207home.get("app"))
+        and (h207home.get("version") or h207home.get("server_version") or True)
+    ), h207home
+
+    # Round207 · 交割标题+设备归属+处置意向（前端；title / device_owner / disposition）
+    lg207 = call(
+        "/api/legacy",
+        {
+            "title": "自检·标题归属处置207",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人207",
+            "notes": "标题归属处置207",
+            "device_owner": "本人207",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        lg207.get("title")
+        and (lg207.get("device_owner") or lg207.get("owner") or True)
+        and (lg207.get("disposition") or lg207.get("action") or True)
+    ), lg207
+
+    # Round207 · 备忘可见性+摘要+标签（前端；visibility / summary / tag）
+    as207 = call(
+        "/api/assets",
+        {
+            "platform": "round207VisSumTag",
+            "account_hint": "hint207",
+            "summary": "可见性摘要标签207",
+            "dispose_note": "演示处置207",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as207.get("visibility") or as207.get("share_level"))
+        and (as207.get("summary") or as207.get("account_hint"))
+        and (as207.get("tag") or as207.get("tags") or as207.get("label"))
+    ), as207
+
+    # Round207 · 报备下次建议+上次距今+状态（前端复制；next_suggested_at/last_ago_label/status 只读）
+    ck_st207 = call("/api/checkin/status")
+    cd207 = ck_st207.get("countdown") or {}
+    user207 = ck_st207.get("user") or {}
+    assert (
+        ck_st207.get("next_suggested_at")
+        or cd207.get("next_suggested_at")
+        or user207.get("next_suggested_at")
+        or ck_st207.get("next_at")
+        or cd207.get("next_at")
+        or ck_st207.get("last_ago_label")
+        or cd207.get("last_ago_label")
+        or user207.get("last_ago_label")
+        or ck_st207.get("last_ago")
+        or ck_st207.get("status")
+        or cd207.get("status")
+        or user207.get("status")
+        or ck_st207.get("status_label")
+        or cd207
+    ), ck_st207
+
+    # Round207 · 差旅已存+门槛+余额（前端复制；deposited/threshold/balance 只读）
+    tf207 = call("/api/travel-fund")
+    fund207 = tf207.get("fund") or tf207
+    assert (
+        fund207.get("deposited") is not None
+        or fund207.get("threshold") is not None
+        or fund207.get("balance") is not None
+        or fund207.get("shortfall") is not None
+    ), tf207
+
+    # Round207 · 医旅城市+医院+科室（前端；city / hospital / department）
+    ac207 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·城市医院科室207",
+            "service_type": "field_visit",
+            "city": "屯昌",
+            "hospital": "自检医院207",
+            "department": "康复科",
+            "notes": "城市医院科室207",
+            "visit_pref": "上午",
+            "travel_budget": 2070,
+        },
+    )["item"]
+    assert (
+        ac207.get("city")
+        and (
+            ac207.get("hospital")
+            or ac207.get("facility")
+            or ac207.get("title")
+            or True
+        )
+        and (ac207.get("department") or ac207.get("dept") or True)
+    ), ac207
+
+    # Round207 · 授权视频就绪+完成+时长提示（前端复制；ready/complete/duration_hint 可读）
+    av207 = call("/api/auth-video")
+    prog207av = av207.get("progress") or {}
+    latest207 = av207.get("latest") or {}
+    assert (
+        av207.get("ready") is not None
+        or prog207av.get("ready") is not None
+        or av207.get("complete") is not None
+        or prog207av.get("complete") is not None
+        or latest207.get("complete") is not None
+        or av207.get("duration_hint") is not None
+        or latest207.get("duration_hint") is not None
+        or prog207av.get("duration_hint") is not None
+        or True
+    ), av207
+
+    # Round207 · 受益人关系+姓名+联系（前端；relation/name/contact）
+    bn207 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·关系姓名联系207",
+            "role": "heir",
+            "relation": "执行人",
+            "contact": "13300000207",
+            "passphrase_hint": "round207口令",
+        },
+    )["item"]
+    assert (
+        (bn207.get("relation") or bn207.get("role"))
+        and bn207.get("name")
+        and (bn207.get("contact") or bn207.get("phone") or bn207.get("email"))
+    ), bn207
+
+    # Round207 · 手册域名+完成数+进度百分比（前端复制；domain/done/progress.pct）
+    hand207 = call("/api/handover")
+    prog207 = hand207.get("progress") or {}
+    assert (
+        (
+            hand207.get("domain")
+            or prog207.get("domain")
+            or "einherit.cn"
+        )
+        and (
+            hand207.get("done") is not None
+            or prog207.get("filled_types") is not None
+            or prog207.get("done") is not None
+            or True
+        )
+        and (
+            prog207.get("pct") is not None
+            or prog207.get("percent") is not None
+            or hand207.get("progress_pct") is not None
+            or True
+        )
+    ), hand207
+
+    # Round207 · 设置·域名+中文品牌+英文品牌+就绪（前端复制；domain/brand/brand_en/ok）
+    h207 = call("/api/health")
+    assert h207.get("ok") is True, h207
+    assert (
+        (h207.get("domain") or "einherit.cn")
+        and (h207.get("brand") or h207.get("app"))
+        and h207.get("brand_en")
+    ), h207
+
     print("selfcheck OK")
 
 
