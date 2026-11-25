@@ -1965,6 +1965,101 @@ def main() -> None:
     assert h23.get("ok") is True, h23
     assert h23.get("domain") == "einherit.cn", h23
 
+    # Round24 · 首页七宗罪自保进度（前端；API 只读）
+    guard24 = call("/api/self-guard")
+    assert "items" in guard24 and "progress" in guard24, guard24
+    prog24 = guard24["progress"]
+    assert "done" in prog24, prog24
+    assert int(prog24.get("total") or 7) == 7, prog24
+
+    # Round24 · 交割备注字数（前端；写入仍可用）
+    lg24 = call(
+        "/api/legacy",
+        {
+            "title": "自检·备注字数",
+            "category": "其他",
+            "action": "销毁",
+            "beneficiary": "字数接收人",
+            "notes": "温和字数提示演示备注，不强制截断。",
+        },
+    )["item"]
+    assert "温和字数" in str(lg24.get("notes") or ""), lg24
+
+    # Round24 · 备忘搜索清空（前端；q 过滤仍可用）
+    as24 = call(
+        "/api/assets",
+        {
+            "platform": "自检·搜索清空备忘",
+            "summary": "round24",
+            "dept": "admin",
+            "dispose_note": "销毁",
+            "draft": True,
+        },
+    )["item"]
+    found_as24 = call(
+        "/api/assets?" + urllib.parse.urlencode({"q": "搜索清空备忘"})
+    )
+    assert any(
+        x.get("id") == as24["id"] for x in (found_as24.get("items") or [])
+    ), found_as24
+
+    # Round24 · 报备间隔预设 chip（只写 interval）
+    iv24 = call("/api/checkin/interval", {"interval_hours": 48})
+    assert int(iv24.get("interval_hours") or 0) == 48, iv24
+    iv24b = call("/api/checkin/interval")
+    assert int(iv24b.get("interval_hours") or 0) == 48, iv24b
+    call("/api/checkin/interval", {"interval_hours": 24})
+
+    # Round24 · 差旅流水金额着色（前端；ledger 可读）
+    tf24 = call("/api/travel-fund")
+    fund24 = tf24.get("fund") or tf24
+    assert "balance" in fund24, fund24
+    ledger24 = tf24.get("ledger") or []
+    assert isinstance(ledger24, list), tf24
+    if ledger24:
+        assert "amount" in ledger24[0], ledger24[0]
+        assert "kind" in ledger24[0], ledger24[0]
+
+    # Round24 · 善后联系窗口快捷 chip（contact_window）
+    ac24 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·联系窗口上午",
+            "service_type": "field_visit",
+            "city": "海口",
+            "travel_budget": 2000,
+            "contact_window": "上午",
+        },
+    )["item"]
+    assert str(ac24.get("contact_window") or "") == "上午", ac24
+
+    # Round24 · 授权视频脚本分段（greeting/authorize/plan）
+    av24 = call("/api/auth-video")
+    script24 = av24.get("script") or []
+    assert len(script24) >= 3, av24
+    keys24 = {s.get("key") for s in script24}
+    assert {"greeting", "authorize", "plan"}.issubset(keys24), keys24
+
+    # Round24 · 急症清册重复写入确认（前端；ready 可读）
+    icu24 = call("/api/icu-pack")
+    assert "ready" in icu24, icu24
+    assert isinstance(icu24["ready"], bool), icu24
+
+    # Round24 · 医旅意向备注一键清空（前端；note 可写）
+    hospitals24 = call("/api/hospitals")["items"]
+    assert hospitals24, hospitals24
+    hid24 = hospitals24[0]["id"]
+    intent24 = call(
+        "/api/hospitals/intent",
+        {"hospital_id": hid24, "note": "round24 备注清空演示"},
+    )["intent"]
+    assert "round24" in str(intent24.get("note") or ""), intent24
+
+    # Round24 · 设置·主题对比度提示（前端大字号；健康仍就绪）
+    h24 = call("/api/health")
+    assert h24.get("ok") is True, h24
+    assert h24.get("domain") == "einherit.cn", h24
+
     print("selfcheck OK")
 
 
