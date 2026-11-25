@@ -11921,3 +11921,38 @@ body.privacy-mode .privacy-hint { opacity: 0.85; }
   margin: 8px 0 10px; padding: 8px 10px; border-radius: 8px; background: #f5f8f6;
   word-break: break-word; font-weight: 600; color: var(--sage-deep, #2f5d45);
 }
+
+/* Round240 · 温和增量 */
+.home-brand-brand-en-version-calm-r240 {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px;
+  margin: 8px 0 12px; padding: 10px 12px; border-radius: 10px;
+  background: linear-gradient(160deg, #eef5f3 0%, #fff 75%);
+  border: 1px solid var(--line, #e2e8e4);
+}
+.home-brand-brand-en-version-calm-r240[hidden] { display: none; }
+.home-brand-brand-en-version-calm-r240-mark { font-weight: 600; color: var(--sage-deep, #2f5d45); font-size: 13px; }
+.home-brand-brand-en-version-calm-r240-sub { flex: 1; min-width: 8em; font-size: 12px; }
+.lg-copy-title-device-owner-disposition-r240 { margin-top: 8px; margin-left: 6px; }
+.as-copy-summary-tag-visibility-r240 { margin-top: 8px; margin-left: 6px; }
+.checkin-next-suggested-last-ago-status-plain-r240-copy {
+  margin-top: 10px; padding: 10px 12px; border-radius: 10px; background: #f5f8f6;
+}
+.checkin-next-suggested-last-ago-status-plain-r240-copy-line { margin: 0 0 8px; }
+.travel-deposited-threshold-balance-plain-r240-copy {
+  margin: 8px 0 10px; padding: 10px 12px; border-radius: 10px; background: #f5f8f6;
+}
+.travel-deposited-threshold-balance-plain-r240-copy-line { margin: 0 0 8px; }
+.ac-copy-city-hospital-department-r240 { margin-top: 8px; margin-left: 6px; }
+.av-ready-complete-duration-hint-copy-r240 {
+  margin: 8px 0 10px; padding: 10px 12px; border-radius: 10px; background: #f5f8f6;
+}
+.av-ready-complete-duration-hint-copy-r240-line { margin: 0 0 8px; }
+.bn-copy-relation-name-contact-r240 { margin-top: 8px; margin-left: 6px; }
+.hand-domain-done-progress-pct-copy-r240 {
+  margin: 8px 0 12px; padding: 10px 12px; border-radius: 10px; background: #f5f8f6;
+}
+.hand-domain-done-progress-pct-copy-r240-line { margin: 0 0 8px; }
+.settings-brand-en-version-ok-domain-r240-copy-card .settings-brand-en-version-ok-domain-r240-copy-preview {
+  margin: 8px 0 10px; padding: 8px 10px; border-radius: 8px; background: #f5f8f6;
+  word-break: break-word; font-weight: 600; color: var(--sage-deep, #2f5d45);
+}
