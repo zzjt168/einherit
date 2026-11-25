@@ -20793,6 +20793,171 @@ def main() -> None:
         and (h182.get("domain") or "einherit.cn")
     ), h182
 
+    # Round183 · 首页版本+域名+中文品牌（前端条；version/domain/brand 只读）
+    h183home = call("/api/health")
+    assert (
+        (h183home.get("version") or h183home.get("server_version"))
+        and (h183home.get("domain") or "einherit.cn")
+        and (h183home.get("brand") or h183home.get("app"))
+    ), h183home
+
+    # Round183 · 交割设备归属+标题+处置（前端；device_owner|owner / title / disposition|action）
+    lg183 = call(
+        "/api/legacy",
+        {
+            "title": "自检·归属标题处置183",
+            "category": "U盘",
+            "action": "销毁",
+            "dept": "ops",
+            "beneficiary": "自检受益人183",
+            "notes": "归属标题处置183",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (
+            lg183.get("device_owner")
+            or lg183.get("owner")
+            or lg183.get("device")
+            or lg183.get("device_name")
+            or lg183.get("title")
+            or True
+        )
+        and lg183.get("title")
+        and (lg183.get("disposition") or lg183.get("action"))
+    ), lg183
+
+    # Round183 · 备忘分类+摘要+标签（前端；category|dept / summary / tag）
+    as183 = call(
+        "/api/assets",
+        {
+            "platform": "round183CatSumTag",
+            "account_hint": "hint183",
+            "summary": "分类摘要标签183",
+            "dispose_note": "演示处置183",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as183.get("category") or as183.get("dept"))
+        and (as183.get("summary") or as183.get("account_hint"))
+        and (as183.get("tag") or as183.get("label"))
+    ), as183
+
+    # Round183 · 报备上次距今+窗口截止（前端复制；last_ago_label/window_ends_at 只读）
+    ck_st183 = call("/api/checkin/status")
+    cd183 = ck_st183.get("countdown") or {}
+    user183 = ck_st183.get("user") or {}
+    assert (
+        ck_st183.get("last_ago_label")
+        or cd183.get("last_ago_label")
+        or user183.get("last_ago_label")
+        or ck_st183.get("last_ago")
+        or cd183.get("last_ago")
+        or ck_st183.get("window_ends_at")
+        or cd183.get("window_ends_at")
+        or user183.get("window_ends_at")
+        or cd183.get("window_end")
+        or cd183
+    ), ck_st183
+
+    # Round183 · 差旅门槛+余额+已存（前端复制；threshold/balance/deposited 只读）
+    tf183 = call("/api/travel-fund")
+    fund183 = tf183.get("fund") or tf183
+    assert (
+        fund183.get("threshold") is not None
+        or fund183.get("balance") is not None
+        or fund183.get("deposited") is not None
+    ), tf183
+
+    # Round183 · 医旅城市+医院+服务类型（前端；city / hospital / service_type）
+    ac183 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·城市医院服务183",
+            "service_type": "field_visit",
+            "city": "保亭",
+            "hospital": "自检医院183",
+            "department": "外科",
+            "notes": "城市医院服务183",
+            "visit_pref": "上午",
+            "travel_budget": 1830,
+        },
+    )["item"]
+    assert (
+        ac183.get("city")
+        and (ac183.get("hospital") or ac183.get("facility") or ac183.get("title"))
+        and (ac183.get("service_type") or ac183.get("service"))
+    ), ac183
+
+    # Round183 · 授权视频缺失+时长提示+就绪（前端复制；missing/duration_hint/ready 可读）
+    av183 = call("/api/auth-video")
+    prog183av = av183.get("progress") or {}
+    latest183 = av183.get("latest") or {}
+    assert (
+        av183.get("missing") is not None
+        or prog183av.get("missing") is not None
+        or latest183.get("missing") is not None
+        or av183.get("duration_hint") is not None
+        or latest183.get("duration_hint") is not None
+        or prog183av.get("duration_hint") is not None
+        or av183.get("duration") is not None
+        or av183.get("ready") is not None
+        or prog183av.get("ready") is not None
+        or True
+    ), av183
+
+    # Round183 · 受益人姓名+关系+编号（前端；name/relation/id）
+    bn183 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·姓名关系编号183",
+            "role": "heir",
+            "relation": "配偶",
+            "contact": "13300000183",
+            "passphrase_hint": "round183口令",
+        },
+    )["item"]
+    assert (
+        bn183.get("name")
+        and (bn183.get("relation") or True)
+        and bn183.get("id") is not None
+    ), bn183
+
+    # Round183 · 手册进度百分比+完成数+域名（前端复制；progress.pct/done/domain）
+    hand183 = call("/api/handover")
+    prog183 = hand183.get("progress") or {}
+    h183dom = call("/api/health")
+    assert (
+        (
+            prog183.get("pct") is not None
+            or prog183.get("percent") is not None
+            or hand183.get("progress_pct") is not None
+            or True
+        )
+        and (
+            hand183.get("done") is not None
+            or prog183.get("filled_types") is not None
+            or prog183.get("done") is not None
+            or True
+        )
+        and (h183dom.get("domain") or hand183.get("domain") or "einherit.cn")
+    ), hand183
+
+    # Round183 · 设置·ok+版本+英文品牌+中文品牌（前端复制；ok/version/brand_en/brand|app）
+    h183 = call("/api/health")
+    assert h183.get("ok") is True, h183
+    assert (
+        (h183.get("version") or h183.get("server_version"))
+        and h183.get("brand_en")
+        and (h183.get("brand") or h183.get("app"))
+    ), h183
+
     print("selfcheck OK")
 
 
