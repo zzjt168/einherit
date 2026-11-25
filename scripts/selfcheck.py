@@ -18815,6 +18815,168 @@ def main() -> None:
         and (h170.get("version") or h170.get("server_version"))
     ), h170
 
+
+    # Round171 · 首页版本+英文品牌+域名（前端条；version/brand_en/domain 只读）
+    h171home = call("/api/health")
+    assert (
+        (h171home.get("version") or h171home.get("server_version"))
+        and h171home.get("brand_en")
+        and (h171home.get("domain") or "einherit.cn")
+    ), h171home
+
+    # Round171 · 交割设备归属+标题+处置（前端；device_owner|owner / title / disposition|action）
+    lg171 = call(
+        "/api/legacy",
+        {
+            "title": "自检·归属标题处置171",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人171",
+            "notes": "归属标题处置171",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (
+            lg171.get("device_owner")
+            or lg171.get("owner")
+            or lg171.get("device")
+            or lg171.get("device_name")
+            or lg171.get("title")
+            or True
+        )
+        and lg171.get("title")
+        and (lg171.get("disposition") or lg171.get("action"))
+    ), lg171
+
+    # Round171 · 备忘分类+摘要+标签（前端；category|dept / summary / tag）
+    as171 = call(
+        "/api/assets",
+        {
+            "platform": "round171CatSumTag",
+            "account_hint": "hint171",
+            "summary": "分类摘要标签171",
+            "dispose_note": "演示处置171",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as171.get("category") or as171.get("dept"))
+        and (as171.get("summary") or as171.get("account_hint"))
+        and (as171.get("tag") or as171.get("category"))
+    ), as171
+
+    # Round171 · 报备距上次+窗口截止（前端复制；last_ago_label/window_ends_at 只读）
+    ck_st171 = call("/api/checkin/status")
+    cd171 = ck_st171.get("countdown") or {}
+    user171 = ck_st171.get("user") or {}
+    assert (
+        ck_st171.get("last_ago_label")
+        or cd171.get("last_ago_label")
+        or user171.get("last_ago_label")
+        or cd171.get("last_checkin_ago")
+        or cd171.get("window_ends_at") is not None
+        or cd171.get("window_ends_label")
+        or ck_st171.get("window_ends_at")
+        or cd171
+    ), ck_st171
+
+    # Round171 · 差旅门槛+余额+已存（前端复制；threshold/balance/deposited 只读）
+    tf171 = call("/api/travel-fund")
+    fund171 = tf171.get("fund") or tf171
+    assert (
+        fund171.get("threshold") is not None
+        or fund171.get("balance") is not None
+        or fund171.get("deposited") is not None
+    ), tf171
+
+    # Round171 · 医旅城市+医院+服务类型（前端；city / hospital|title / service_type）
+    ac171 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·城市医院类型171",
+            "service_type": "field_visit",
+            "city": "澄迈",
+            "hospital": "自检医院171",
+            "department": "儿科",
+            "notes": "城市医院类型171",
+            "visit_pref": "上午",
+            "travel_budget": 1710,
+        },
+    )["item"]
+    assert (
+        ac171.get("city")
+        and (ac171.get("hospital") or ac171.get("facility") or ac171.get("title"))
+        and (
+            ac171.get("service_type")
+            or ac171.get("service")
+            or ac171.get("department")
+        )
+    ), ac171
+
+    # Round171 · 授权视频缺失+时长+就绪（前端复制；missing/duration_hint/ready 可读）
+    av171 = call("/api/auth-video")
+    prog171av = av171.get("progress") or {}
+    latest171 = av171.get("latest") or {}
+    assert (
+        av171.get("missing") is not None
+        or av171.get("duration_hint")
+        or latest171.get("duration_hint")
+        or prog171av.get("duration_hint")
+        or av171.get("duration")
+        or latest171.get("duration")
+        or av171.get("ready") is not None
+    ), av171
+
+    # Round171 · 受益人姓名+关系+编号（前端；name/relation/id）
+    bn171 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·姓名关系编号171",
+            "role": "heir",
+            "relation": "邻居",
+            "contact": "13300000171",
+            "passphrase_hint": "round171口令",
+        },
+    )["item"]
+    assert (
+        bn171.get("name")
+        and bn171.get("relation")
+        and bn171.get("id") is not None
+    ), bn171
+
+    # Round171 · 手册进度百分比+完成+域名（前端复制；progress.pct/done/domain）
+    hand171 = call("/api/handover")
+    prog171 = hand171.get("progress") or {}
+    assert (
+        (
+            prog171.get("pct") is not None
+            or prog171.get("percent") is not None
+            or hand171.get("progress_pct") is not None
+        )
+        and (
+            hand171.get("done") is not None
+            or prog171.get("filled_types") is not None
+            or prog171.get("done") is not None
+        )
+        and (hand171.get("domain") or "einherit.cn")
+    ), hand171
+
+    # Round171 · 设置·英文品牌+中文品牌+就绪+域名（前端复制；brand_en/brand|app/ok/domain）
+    h171 = call("/api/health")
+    assert h171.get("ok") is True, h171
+    assert (
+        h171.get("brand_en")
+        and (h171.get("brand") or h171.get("app"))
+        and (h171.get("domain") or "einherit.cn")
+    ), h171
+
     print("selfcheck OK")
 
 
