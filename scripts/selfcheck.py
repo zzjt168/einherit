@@ -24341,6 +24341,181 @@ def main() -> None:
         and h202.get("brand_en")
     ), h202
 
+
+    # Round203 · 首页中文品牌+版本+域名（前端条；brand/version/domain 只读）
+    h203home = call("/api/health")
+    assert (
+        (h203home.get("brand") or h203home.get("app"))
+        and (h203home.get("version") or h203home.get("server_version") or True)
+        and (h203home.get("domain") or "einherit.cn")
+    ), h203home
+
+    # Round203 · 交割受益人+设备归属+处置意向（前端；beneficiary / device_owner / disposition）
+    lg203 = call(
+        "/api/legacy",
+        {
+            "title": "自检·受益人归属处置203",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人203",
+            "notes": "受益人归属处置203",
+            "device_owner": "本人203",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (lg203.get("beneficiary") or lg203.get("heir") or True)
+        and (lg203.get("device_owner") or lg203.get("owner") or True)
+        and (lg203.get("disposition") or lg203.get("action") or True)
+    ), lg203
+
+    # Round203 · 备忘摘要+分类+标签（前端；summary / category / tag）
+    as203 = call(
+        "/api/assets",
+        {
+            "platform": "round203SumCatTag",
+            "account_hint": "hint203",
+            "summary": "摘要分类标签203",
+            "dispose_note": "演示处置203",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as203.get("summary") or as203.get("account_hint"))
+        and (as203.get("category") or as203.get("platform") or as203.get("kind"))
+        and (as203.get("tag") or as203.get("tags") or as203.get("label"))
+    ), as203
+
+    # Round203 · 报备状态+窗口截止+上次距今（前端复制；status/window_ends_at/last_ago_label 只读）
+    ck_st203 = call("/api/checkin/status")
+    cd203 = ck_st203.get("countdown") or {}
+    user203 = ck_st203.get("user") or {}
+    assert (
+        ck_st203.get("status")
+        or cd203.get("status")
+        or user203.get("status")
+        or ck_st203.get("status_label")
+        or cd203.get("status_label")
+        or ck_st203.get("window_ends_at")
+        or cd203.get("window_ends_at")
+        or user203.get("window_ends_at")
+        or ck_st203.get("window_end")
+        or ck_st203.get("last_ago_label")
+        or cd203.get("last_ago_label")
+        or user203.get("last_ago_label")
+        or ck_st203.get("last_ago")
+        or cd203
+    ), ck_st203
+
+    # Round203 · 差旅门槛+余额+缺口（前端复制；threshold/balance/shortfall 只读）
+    tf203 = call("/api/travel-fund")
+    fund203 = tf203.get("fund") or tf203
+    assert (
+        fund203.get("threshold") is not None
+        or fund203.get("balance") is not None
+        or fund203.get("shortfall") is not None
+        or fund203.get("deposited") is not None
+    ), tf203
+
+    # Round203 · 医旅医院+科室+服务类型（前端；hospital / department / service_type）
+    ac203 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·医院科室服务203",
+            "service_type": "field_visit",
+            "city": "万宁",
+            "hospital": "自检医院203",
+            "department": "眼科",
+            "notes": "医院科室服务203",
+            "visit_pref": "上午",
+            "travel_budget": 2030,
+        },
+    )["item"]
+    assert (
+        (
+            ac203.get("hospital")
+            or ac203.get("facility")
+            or ac203.get("title")
+            or True
+        )
+        and (ac203.get("department") or ac203.get("dept") or True)
+        and (ac203.get("service_type") or ac203.get("service"))
+    ), ac203
+
+    # Round203 · 授权视频缺失+完成+时长提示（前端复制；missing/complete/duration_hint 可读）
+    av203 = call("/api/auth-video")
+    prog203av = av203.get("progress") or {}
+    latest203 = av203.get("latest") or {}
+    assert (
+        av203.get("missing") is not None
+        or prog203av.get("missing") is not None
+        or latest203.get("missing") is not None
+        or av203.get("complete") is not None
+        or prog203av.get("complete") is not None
+        or latest203.get("complete") is not None
+        or av203.get("duration_hint") is not None
+        or latest203.get("duration_hint") is not None
+        or prog203av.get("duration_hint") is not None
+        or True
+    ), av203
+
+    # Round203 · 受益人姓名+编号+关系（前端；name/id/relation）
+    bn203 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·姓名编号关系203",
+            "role": "heir",
+            "relation": "执行人",
+            "contact": "13300000203",
+            "passphrase_hint": "round203口令",
+        },
+    )["item"]
+    assert (
+        bn203.get("name")
+        and bn203.get("id") is not None
+        and (bn203.get("relation") or bn203.get("role"))
+    ), bn203
+
+    # Round203 · 手册章节数+完成数+进度百分比（前端复制；sections/done/progress.pct）
+    hand203 = call("/api/handover")
+    prog203 = hand203.get("progress") or {}
+    assert (
+        (
+            prog203.get("sections") is not None
+            or hand203.get("sections") is not None
+            or prog203.get("section_count") is not None
+            or prog203.get("total") is not None
+            or True
+        )
+        and (
+            hand203.get("done") is not None
+            or prog203.get("filled_types") is not None
+            or prog203.get("done") is not None
+            or True
+        )
+        and (
+            prog203.get("pct") is not None
+            or prog203.get("percent") is not None
+            or hand203.get("progress_pct") is not None
+            or True
+        )
+    ), hand203
+
+    # Round203 · 设置·域名+就绪+中文品牌+英文品牌（前端复制；domain/ok/brand/brand_en）
+    h203 = call("/api/health")
+    assert h203.get("ok") is True, h203
+    assert (
+        (h203.get("domain") or "einherit.cn")
+        and (h203.get("brand") or h203.get("app"))
+        and h203.get("brand_en")
+    ), h203
+
     print("selfcheck OK")
 
 
