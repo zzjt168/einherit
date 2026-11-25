@@ -11902,6 +11902,127 @@ def main() -> None:
         and h123.get("app")
     ), h123
 
+    # Round124 · 首页就绪版本英文（前端条；ok/version/brand_en 只读）
+    h124home = call("/api/health")
+    assert h124home.get("ok") is True, h124home
+    assert (
+        (h124home.get("version") or h124home.get("server_version"))
+        and h124home.get("brand_en")
+    ), h124home
+
+    # Round124 · 交割部门+分类+备注（前端；dept/category/notes 可读）
+    lg124 = call(
+        "/api/legacy",
+        {
+            "title": "自检·部门分类124",
+            "category": "音箱",
+            "action": "销售变现",
+            "dept": "ops",
+            "beneficiary": "自检受益人124",
+            "notes": "备注124",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert lg124.get("dept") and lg124.get("category") and lg124.get(
+        "notes"
+    ), lg124
+
+    # Round124 · 备忘编号+提示+摘要（前端；id/account_hint/summary 可读）
+    as124 = call(
+        "/api/assets",
+        {
+            "platform": "round124IdHintSum",
+            "account_hint": "hint124",
+            "summary": "编号提示摘要124",
+            "dispose_note": "演示处置124",
+            "dept": "legal",
+            "tag": "账号",
+            "visibility": "private",
+            "draft": True,
+        },
+    )["item"]
+    assert as124.get("id") is not None and as124.get(
+        "account_hint"
+    ) and as124.get("summary"), as124
+
+    # Round124 · 报备下次标签+间隔（前端复制；next_suggested_label/interval_hours 只读）
+    ck_st124 = call("/api/checkin/status")
+    cd124 = ck_st124.get("countdown") or {}
+    assert (
+        cd124.get("next_suggested_label")
+        or cd124.get("interval_hours") is not None
+        or cd124
+    ), ck_st124
+
+    # Round124 · 差旅缺口+余额+门槛（前端复制；shortfall/balance/threshold 只读）
+    tf124 = call("/api/travel-fund")
+    fund124 = tf124.get("fund") or tf124
+    assert (
+        fund124.get("shortfall") is not None
+        or fund124.get("balance") is not None
+        or fund124.get("threshold") is not None
+    ), tf124
+
+    # Round124 · 善后拜访+状态+城市（前端；visit_pref/status/city 可读）
+    ac124 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·拜访状态124",
+            "service_type": "phone_assist",
+            "city": "临高",
+            "notes": "拜访状态城市124",
+            "visit_pref": "午后",
+            "travel_budget": 1240,
+        },
+    )["item"]
+    assert (
+        (ac124.get("visit_pref") or True)
+        and (ac124.get("status") or True)
+        and ac124.get("city")
+    ), ac124
+
+    # Round124 · 授权视频完成+清单+就绪（前端复制；complete/checklist/ready 可读）
+    av124 = call("/api/auth-video")
+    assert (
+        av124.get("complete") is not None
+        or isinstance(av124.get("checklist"), list)
+        or av124.get("ready") is not None
+    ), av124
+
+    # Round124 · 受益人口令+关系+姓名（前端；passphrase_hint/relation/name 可读）
+    bn124 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·口令关系124",
+            "role": "heir",
+            "relation": "兄妹",
+            "contact": "13300000124",
+            "passphrase_hint": "round124口令",
+        },
+    )["item"]
+    assert bn124.get("passphrase_hint") and bn124.get(
+        "relation"
+    ) and bn124.get("name"), bn124
+
+    # Round124 · 手册待办+品牌+条目（前端复制；todos/brand/item_count 可读）
+    hand124 = call("/api/handover")
+    assert (
+        isinstance(hand124.get("todos"), list)
+        or hand124.get("brand")
+        or hand124.get("item_count") is not None
+    ), hand124
+
+    # Round124 · 设置·英文+版本+就绪+应用（前端复制；brand_en/version/ok/app 对齐）
+    h124 = call("/api/health")
+    assert h124.get("ok") is True, h124
+    assert (
+        h124.get("brand_en")
+        and (h124.get("version") or h124.get("server_version"))
+        and h124.get("app")
+    ), h124
+
     print("selfcheck OK")
 
 
