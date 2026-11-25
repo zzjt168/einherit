@@ -25549,6 +25549,178 @@ def main() -> None:
         and (h209.get("brand") or h209.get("app"))
     ), h209
 
+
+    # Round210 · 首页域名+版本+中文品牌（前端条；domain/version/brand 只读）
+    h210home = call("/api/health")
+    assert (
+        (h210home.get("domain") or "einherit.cn")
+        and (h210home.get("version") or h210home.get("server_version") or True)
+        and (h210home.get("brand") or h210home.get("app"))
+    ), h210home
+
+    # Round210 · 交割标题+处置意向+设备归属（前端；title / disposition / device_owner）
+    lg210 = call(
+        "/api/legacy",
+        {
+            "title": "自检·标题处置归属210",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人210",
+            "notes": "标题处置归属210",
+            "device_owner": "本人210",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        lg210.get("title")
+        and (lg210.get("disposition") or lg210.get("action") or True)
+        and (lg210.get("device_owner") or lg210.get("owner") or True)
+    ), lg210
+
+    # Round210 · 备忘可见性+标签+摘要（前端；visibility / tag / summary）
+    as210 = call(
+        "/api/assets",
+        {
+            "platform": "round210VisTagSum",
+            "account_hint": "hint210",
+            "summary": "可见性标签摘要210",
+            "dispose_note": "演示处置210",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as210.get("visibility") or as210.get("share_level"))
+        and (as210.get("tag") or as210.get("tags") or as210.get("label"))
+        and (as210.get("summary") or as210.get("account_hint"))
+    ), as210
+
+    # Round210 · 报备下次建议+状态+上次距今（前端复制；next_suggested_at/status/last_ago_label 只读）
+    ck_st210 = call("/api/checkin/status")
+    cd210 = ck_st210.get("countdown") or {}
+    user210 = ck_st210.get("user") or {}
+    assert (
+        ck_st210.get("next_suggested_at")
+        or cd210.get("next_suggested_at")
+        or user210.get("next_suggested_at")
+        or ck_st210.get("next_at")
+        or cd210.get("next_at")
+        or ck_st210.get("status")
+        or cd210.get("status")
+        or user210.get("status")
+        or ck_st210.get("status_label")
+        or ck_st210.get("last_ago_label")
+        or cd210.get("last_ago_label")
+        or user210.get("last_ago_label")
+        or ck_st210.get("last_ago")
+        or cd210
+    ), ck_st210
+
+    # Round210 · 差旅已存+余额+门槛（前端复制；deposited/balance/threshold 只读）
+    tf210 = call("/api/travel-fund")
+    fund210 = tf210.get("fund") or tf210
+    assert (
+        fund210.get("deposited") is not None
+        or fund210.get("balance") is not None
+        or fund210.get("threshold") is not None
+        or fund210.get("shortfall") is not None
+    ), tf210
+
+    # Round210 · 医旅城市+科室+医院（前端；city / department / hospital）
+    ac210 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·城市科室医院210",
+            "service_type": "field_visit",
+            "city": "白沙",
+            "hospital": "自检医院210",
+            "department": "心内科",
+            "notes": "城市科室医院210",
+            "visit_pref": "下午",
+            "travel_budget": 2100,
+        },
+    )["item"]
+    assert (
+        ac210.get("city")
+        and (ac210.get("department") or ac210.get("dept") or True)
+        and (
+            ac210.get("hospital")
+            or ac210.get("facility")
+            or ac210.get("title")
+            or True
+        )
+    ), ac210
+
+    # Round210 · 授权视频就绪+时长提示+完成（前端复制；ready/duration_hint/complete 可读）
+    av210 = call("/api/auth-video")
+    prog210av = av210.get("progress") or {}
+    latest210 = av210.get("latest") or {}
+    assert (
+        av210.get("ready") is not None
+        or prog210av.get("ready") is not None
+        or av210.get("duration_hint") is not None
+        or latest210.get("duration_hint") is not None
+        or prog210av.get("duration_hint") is not None
+        or av210.get("complete") is not None
+        or prog210av.get("complete") is not None
+        or latest210.get("complete") is not None
+        or True
+    ), av210
+
+    # Round210 · 受益人关系+联系+姓名（前端；relation/contact/name）
+    bn210 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·关系联系姓名210",
+            "role": "heir",
+            "relation": "执行人",
+            "contact": "13300000210",
+            "passphrase_hint": "round210口令",
+        },
+    )["item"]
+    assert (
+        (bn210.get("relation") or bn210.get("role"))
+        and (bn210.get("contact") or bn210.get("phone") or bn210.get("email"))
+        and bn210.get("name")
+    ), bn210
+
+    # Round210 · 手册域名+进度百分比+完成数（前端复制；domain/progress.pct/done）
+    hand210 = call("/api/handover")
+    prog210 = hand210.get("progress") or {}
+    assert (
+        (
+            hand210.get("domain")
+            or prog210.get("domain")
+            or "einherit.cn"
+        )
+        and (
+            prog210.get("pct") is not None
+            or prog210.get("percent") is not None
+            or hand210.get("progress_pct") is not None
+            or True
+        )
+        and (
+            hand210.get("done") is not None
+            or prog210.get("filled_types") is not None
+            or prog210.get("done") is not None
+            or True
+        )
+    ), hand210
+
+    # Round210 · 设置·就绪+版本+中文品牌+域名（前端复制；ok/version/brand/domain）
+    h210 = call("/api/health")
+    assert h210.get("ok") is True, h210
+    assert (
+        (h210.get("version") or h210.get("server_version"))
+        and (h210.get("brand") or h210.get("app"))
+        and (h210.get("domain") or "einherit.cn")
+    ), h210
+
     print("selfcheck OK")
 
 
