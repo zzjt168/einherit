@@ -4494,3 +4494,91 @@ body.privacy-mode .privacy-hint { opacity: 0.85; }
   font-weight: 600;
   color: var(--sage-deep, #2f5d45);
 }
+
+
+/* Round45 · 温和增量 */
+.home-company-filled-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 10px 0 12px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: linear-gradient(160deg, #f4f7f5 0%, #fff 75%);
+  border: 1px solid var(--line, #e2e8e4);
+}
+.home-company-filled-bar[hidden] {
+  display: none;
+}
+.home-company-filled-mark {
+  font-weight: 600;
+  color: var(--sage-deep, #2f5d45);
+  font-size: 13px;
+}
+.home-company-filled-sub {
+  flex: 1;
+  min-width: 8em;
+  font-size: 12px;
+}
+.lg-copy-factory-reset {
+  margin-top: 8px;
+  margin-left: 6px;
+}
+.as-copy-summary-only {
+  margin-top: 8px;
+  margin-left: 6px;
+}
+.checkin-backup-phone-copy {
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #f5f8f6;
+}
+.checkin-backup-phone-copy-line {
+  margin: 0 0 8px;
+}
+.travel-balance-num-copy {
+  margin: 8px 0 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #f5f8f6;
+}
+.travel-balance-num-copy-line {
+  margin: 0 0 8px;
+}
+.ac-copy-title-service {
+  margin-top: 8px;
+  margin-left: 6px;
+}
+.av-threshold-passed-copy {
+  margin: 8px 0 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #f5f8f6;
+}
+.av-threshold-passed-copy-line {
+  margin: 0 0 8px;
+}
+.bn-copy-id-name {
+  margin-top: 8px;
+  margin-left: 6px;
+}
+.hand-by-action-copy {
+  margin: 8px 0 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #f5f8f6;
+}
+.hand-by-action-copy-line {
+  margin: 0 0 8px;
+}
+.app-server-version-copy-card .app-server-version-copy-preview {
+  margin: 8px 0 10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: #f5f8f6;
+  word-break: break-word;
+  font-weight: 600;
+  color: var(--sage-deep, #2f5d45);
+}
