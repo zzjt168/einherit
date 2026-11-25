@@ -2884,6 +2884,38 @@ def batch_legacy_action(user_id: int, ids: list[int], action: str) -> dict[str, 
     return {"updated": len(ids), "action": action, "items": list_legacy(user_id)}
 
 
+def batch_legacy_factory_reset(
+    user_id: int, ids: list[int], factory_reset: bool
+) -> dict[str, Any]:
+    """批量勾选 / 清除出厂重置标记（不改处置类型 / 外呼 / 退款机）。"""
+    ids = [int(i) for i in (ids or []) if i]
+    if not ids:
+        raise ValueError("请先勾选要标记出厂重置的交割条目")
+    flag = 1 if factory_reset else 0
+    with connect() as conn:
+        for i in ids:
+            conn.execute(
+                "UPDATE legacy_items SET factory_reset=? WHERE user_id=? AND id=?",
+                (flag, user_id, i),
+            )
+        conn.commit()
+    audit(
+        user_id,
+        "legacy.batch_factory_reset",
+        f"{'on' if flag else 'off'}:{len(ids)}",
+    )
+    return {
+        "updated": len(ids),
+        "factory_reset": bool(flag),
+        "items": list_legacy(user_id),
+        "note": (
+            "已为勾选条目标出厂重置"
+            if flag
+            else "已清除勾选条目的出厂重置标记"
+        ),
+    }
+
+
 def batch_legacy_beneficiary(
     user_id: int,
     ids: list[int],
