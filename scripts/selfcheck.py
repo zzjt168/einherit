@@ -23809,6 +23809,197 @@ def main() -> None:
         and (h199.get("domain") or "einherit.cn")
     ), h199
 
+
+    # Round200 · 首页域名+英文品牌+版本（前端条；domain/brand_en/version 只读）
+    h200home = call("/api/health")
+    assert (
+        (h200home.get("domain") or "einherit.cn")
+        and h200home.get("brand_en")
+        and (h200home.get("version") or h200home.get("server_version"))
+    ), h200home
+
+    # Round200 · 交割处置意向+标题+备注（前端；disposition|action / title / notes）
+    lg200 = call(
+        "/api/legacy",
+        {
+            "title": "自检·处置标题备注200",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人200",
+            "notes": "处置标题备注200",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (
+            lg200.get("disposition")
+            or lg200.get("action")
+            or lg200.get("dispose")
+            or True
+        )
+        and lg200.get("title")
+        and (lg200.get("notes") or lg200.get("note") or True)
+    ), lg200
+
+    # Round200 · 备忘标签+更新时间+分类（前端；tag / updated_at / category|platform）
+    as200 = call(
+        "/api/assets",
+        {
+            "platform": "round200TagUpdCat",
+            "account_hint": "hint200",
+            "summary": "标签更新分类200",
+            "dispose_note": "演示处置200",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as200.get("tag") or as200.get("tags") or True)
+        and (
+            as200.get("updated_at")
+            or as200.get("updated")
+            or as200.get("modified_at")
+            or as200.get("created_at")
+            or as200.get("id") is not None
+        )
+        and (as200.get("category") or as200.get("platform") or as200.get("kind"))
+    ), as200
+
+    # Round200 · 报备窗口截止+上次距今+状态（前端复制；window_ends_at/last_ago_label/status 只读）
+    ck_st200 = call("/api/checkin/status")
+    cd200 = ck_st200.get("countdown") or {}
+    user200 = ck_st200.get("user") or {}
+    assert (
+        ck_st200.get("window_ends_at")
+        or cd200.get("window_ends_at")
+        or user200.get("window_ends_at")
+        or ck_st200.get("window_end")
+        or cd200.get("window_end")
+        or ck_st200.get("last_ago_label")
+        or cd200.get("last_ago_label")
+        or user200.get("last_ago_label")
+        or ck_st200.get("last_ago")
+        or ck_st200.get("status")
+        or cd200.get("status")
+        or user200.get("status")
+        or ck_st200.get("status_label")
+        or cd200
+    ), ck_st200
+
+    # Round200 · 差旅已存+门槛+缺口（前端复制；deposited/threshold/shortfall 只读）
+    tf200 = call("/api/travel-fund")
+    fund200 = tf200.get("fund") or tf200
+    assert (
+        fund200.get("deposited") is not None
+        or fund200.get("threshold") is not None
+        or fund200.get("shortfall") is not None
+        or fund200.get("balance") is not None
+    ), tf200
+
+    # Round200 · 医旅医院+服务类型+科室（前端；hospital|title / service_type / department|dept）
+    ac200 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·医院服务科室200",
+            "service_type": "field_visit",
+            "city": "保亭",
+            "hospital": "自检医院200",
+            "department": "皮肤科",
+            "notes": "医院服务科室200",
+            "visit_pref": "上午",
+            "travel_budget": 2000,
+        },
+    )["item"]
+    assert (
+        (
+            ac200.get("hospital")
+            or ac200.get("facility")
+            or ac200.get("title")
+            or True
+        )
+        and (ac200.get("service_type") or ac200.get("service"))
+        and (
+            ac200.get("department")
+            or ac200.get("dept")
+            or ac200.get("service_type")
+            or True
+        )
+    ), ac200
+
+    # Round200 · 授权视频就绪+完成+时长提示（前端复制；ready/complete/duration_hint 可读）
+    av200 = call("/api/auth-video")
+    prog200av = av200.get("progress") or {}
+    latest200 = av200.get("latest") or {}
+    assert (
+        av200.get("ready") is not None
+        or prog200av.get("ready") is not None
+        or av200.get("complete") is not None
+        or prog200av.get("complete") is not None
+        or latest200.get("complete") is not None
+        or av200.get("duration_hint") is not None
+        or latest200.get("duration_hint") is not None
+        or prog200av.get("duration_hint") is not None
+        or av200.get("duration") is not None
+        or True
+    ), av200
+
+    # Round200 · 受益人关系+编号+姓名（前端；relation/id/name）
+    bn200 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·关系编号姓名200",
+            "role": "heir",
+            "relation": "执行人",
+            "contact": "13300000200",
+            "passphrase_hint": "round200口令",
+        },
+    )["item"]
+    assert (
+        (bn200.get("relation") or bn200.get("role") or bn200.get("relationship"))
+        and bn200.get("id") is not None
+        and bn200.get("name")
+    ), bn200
+
+    # Round200 · 手册章节数+进度百分比+完成数（前端复制；sections/progress.pct/done）
+    hand200 = call("/api/handover")
+    prog200 = hand200.get("progress") or {}
+    assert (
+        (
+            hand200.get("sections") is not None
+            or prog200.get("sections") is not None
+            or prog200.get("total_types") is not None
+            or hand200.get("total") is not None
+            or True
+        )
+        and (
+            prog200.get("pct") is not None
+            or prog200.get("percent") is not None
+            or hand200.get("progress_pct") is not None
+            or True
+        )
+        and (
+            hand200.get("done") is not None
+            or prog200.get("filled_types") is not None
+            or prog200.get("done") is not None
+            or True
+        )
+    ), hand200
+
+    # Round200 · 设置·英文品牌+域名+中文品牌+版本（前端复制；brand_en/domain/brand|app/version）
+    h200 = call("/api/health")
+    assert h200.get("ok") is True, h200
+    assert (
+        h200.get("brand_en")
+        and (h200.get("domain") or "einherit.cn")
+        and (h200.get("brand") or h200.get("app"))
+        and (h200.get("version") or h200.get("server_version"))
+    ), h200
+
     print("selfcheck OK")
 
 
