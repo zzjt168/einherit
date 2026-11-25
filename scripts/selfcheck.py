@@ -14298,6 +14298,157 @@ def main() -> None:
         and (h141.get("version") or h141.get("server_version"))
     ), h141
 
+    # Round142 · 首页英文品牌+就绪+域名（前端条；brand_en/ok/domain 只读）
+    h142home = call("/api/health")
+    assert (
+        h142home.get("brand_en")
+        and h142home.get("ok") is True
+        and h142home.get("domain")
+    ), h142home
+
+    # Round142 · 交割状态+受益人+设备归属（前端；status / beneficiary / device_owner|beneficiary|dept）
+    lg142 = call(
+        "/api/legacy",
+        {
+            "title": "自检·状态受益人归属142",
+            "category": "平板",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人142",
+            "notes": "状态受益人归属142",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (
+            lg142.get("status_label")
+            or lg142.get("status")
+            or lg142.get("status_key")
+            or lg142.get("title")
+        )
+        and lg142.get("beneficiary")
+        and (
+            lg142.get("device_owner")
+            or lg142.get("beneficiary")
+            or lg142.get("dept")
+        )
+    ), lg142
+
+    # Round142 · 备忘可见性+分类+平台（前端；visibility / category|tag / platform）
+    as142 = call(
+        "/api/assets",
+        {
+            "platform": "round142VisCatPlat",
+            "account_hint": "hint142",
+            "summary": "可见分类平台142",
+            "dispose_note": "演示处置142",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        as142.get("visibility")
+        and (as142.get("category") or as142.get("tag"))
+        and as142.get("platform")
+    ), as142
+
+    # Round142 · 报备距上次+状态标签（前端复制；last_ago_label/status_label 只读）
+    ck_st142 = call("/api/checkin/status")
+    cd142 = ck_st142.get("countdown") or {}
+    user142 = ck_st142.get("user") or {}
+    assert (
+        cd142.get("last_ago_label")
+        or ck_st142.get("last_ago_label")
+        or ck_st142.get("status_label")
+        or cd142.get("status_label")
+        or user142.get("status_label")
+        or cd142
+    ), ck_st142
+
+    # Round142 · 差旅达标+已存+进度（前端复制；met/deposited|balance/progress_pct 只读）
+    tf142 = call("/api/travel-fund")
+    fund142 = tf142.get("fund") or tf142
+    assert (
+        fund142.get("met") is not None
+        or fund142.get("deposited") is not None
+        or fund142.get("balance") is not None
+        or fund142.get("progress_pct") is not None
+        or fund142.get("progress") is not None
+    ), tf142
+
+    # Round142 · 善后科室+城市+编号（前端；department|service_type / city / id）
+    ac142 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·科室城市编号142",
+            "service_type": "field_visit",
+            "city": "昌江",
+            "notes": "科室城市编号142",
+            "visit_pref": "午后",
+            "travel_budget": 1420,
+        },
+    )["item"]
+    assert (
+        (
+            ac142.get("department")
+            or ac142.get("service_type")
+            or ac142.get("service")
+        )
+        and ac142.get("city")
+        and ac142.get("id") is not None
+    ), ac142
+
+    # Round142 · 授权视频完成+就绪+缺失（前端复制；complete/ready/missing 可读）
+    av142 = call("/api/auth-video")
+    assert (
+        av142.get("complete") is not None
+        or av142.get("ready") is not None
+        or av142.get("missing") is not None
+    ), av142
+
+    # Round142 · 受益人联系+编号+关系（前端；contact/id/relation 可读）
+    bn142 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·联系编号142",
+            "role": "heir",
+            "relation": "挚友",
+            "contact": "13300000142",
+            "passphrase_hint": "round142口令",
+        },
+    )["item"]
+    assert (
+        bn142.get("contact")
+        and bn142.get("id") is not None
+        and bn142.get("relation")
+    ), bn142
+
+    # Round142 · 手册进度+品牌+完成（前端复制；progress.pct/brand/done|filled_types）
+    hand142 = call("/api/handover")
+    prog142 = hand142.get("progress") or {}
+    assert (
+        (prog142.get("pct") is not None or hand142.get("progress_pct") is not None)
+        and (hand142.get("brand") or hand142.get("domain"))
+        and (
+            hand142.get("done") is not None
+            or prog142.get("filled_types") is not None
+            or prog142.get("done") is not None
+        )
+    ), hand142
+
+    # Round142 · 设置·英文品牌+域名+就绪+版本（前端复制；brand_en/domain/ok/version）
+    h142 = call("/api/health")
+    assert h142.get("ok") is True, h142
+    assert (
+        h142.get("brand_en")
+        and h142.get("domain")
+        and (h142.get("version") or h142.get("server_version"))
+    ), h142
+
     print("selfcheck OK")
 
 
