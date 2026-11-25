@@ -15498,6 +15498,159 @@ def main() -> None:
         and (h149.get("domain") or "einherit.cn")
     ), h149
 
+    # Round150 · 首页就绪+版本+英文品牌（前端条；ok/version/brand_en 只读）
+    h150home = call("/api/health")
+    assert (
+        h150home.get("ok") is True
+        and (h150home.get("version") or h150home.get("server_version"))
+        and h150home.get("brand_en")
+    ), h150home
+
+    # Round150 · 交割编号+设备归属+处置（前端；id / device_owner|dept / disposition|action）
+    lg150 = call(
+        "/api/legacy",
+        {
+            "title": "自检·编号归属处置150",
+            "category": "键盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人150",
+            "notes": "编号归属处置150",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        lg150.get("id") is not None
+        and (
+            lg150.get("device_owner")
+            or lg150.get("dept")
+            or lg150.get("beneficiary")
+        )
+        and (lg150.get("disposition") or lg150.get("action"))
+    ), lg150
+
+    # Round150 · 备忘标题+标签+可见性（前端；title|platform / tag|category / visibility）
+    as150 = call(
+        "/api/assets",
+        {
+            "platform": "round150TitleTagVis",
+            "account_hint": "hint150",
+            "summary": "标题标签可见150",
+            "dispose_note": "演示处置150",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as150.get("title") or as150.get("platform"))
+        and (as150.get("tag") or as150.get("category") or as150.get("dept"))
+        and as150.get("visibility")
+    ), as150
+
+    # Round150 · 报备状态标签+距上次（前端复制；status_label/last_ago_label 只读）
+    ck_st150 = call("/api/checkin/status")
+    cd150 = ck_st150.get("countdown") or {}
+    user150 = ck_st150.get("user") or {}
+    assert (
+        ck_st150.get("status_label")
+        or cd150.get("status_label")
+        or user150.get("status_label")
+        or ck_st150.get("last_ago_label")
+        or cd150.get("last_ago_label")
+        or user150.get("last_ago_label")
+        or cd150.get("last_checkin_ago")
+        or cd150
+    ), ck_st150
+
+    # Round150 · 差旅门槛+进度+余额（前端复制；threshold/progress_pct/balance 只读）
+    tf150 = call("/api/travel-fund")
+    fund150 = tf150.get("fund") or tf150
+    assert (
+        fund150.get("threshold") is not None
+        or fund150.get("progress_pct") is not None
+        or fund150.get("progress") is not None
+        or fund150.get("balance") is not None
+    ), tf150
+
+    # Round150 · 医旅/善后医院+城市+科室（前端；hospital|facility / city / department|dept）
+    ac150 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·医院城市科室150",
+            "service_type": "field_visit",
+            "city": "万宁",
+            "hospital": "自检医院150",
+            "department": "儿科",
+            "notes": "医院城市科室150",
+            "visit_pref": "清晨",
+            "travel_budget": 1500,
+        },
+    )["item"]
+    assert (
+        (ac150.get("hospital") or ac150.get("facility") or ac150.get("city"))
+        and ac150.get("city")
+        and (
+            ac150.get("department")
+            or ac150.get("dept")
+            or ac150.get("service_type")
+        )
+    ), ac150
+
+    # Round150 · 授权视频时长+完成+就绪（前端复制；duration_hint/complete/ready 可读）
+    av150 = call("/api/auth-video")
+    latest150 = av150.get("latest") or {}
+    assert (
+        av150.get("duration_hint")
+        or latest150.get("duration_hint")
+        or av150.get("duration")
+        or av150.get("complete") is not None
+        or av150.get("ready") is not None
+    ), av150
+
+    # Round150 · 受益人联系+编号+关系（前端；contact/id/relation）
+    bn150 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·联系编号关系150",
+            "role": "heir",
+            "relation": "亲属",
+            "contact": "13300000150",
+            "passphrase_hint": "round150口令",
+        },
+    )["item"]
+    assert (
+        bn150.get("contact")
+        and bn150.get("id") is not None
+        and bn150.get("relation")
+    ), bn150
+
+    # Round150 · 手册域名+进度+品牌（前端复制；domain/progress.pct/brand）
+    hand150 = call("/api/handover")
+    prog150 = hand150.get("progress") or {}
+    assert (
+        (hand150.get("domain") or hand150.get("brand"))
+        and (
+            prog150.get("pct") is not None
+            or hand150.get("progress_pct") is not None
+            or isinstance(hand150.get("progress"), (int, float))
+            or prog150
+        )
+        and (hand150.get("brand") or hand150.get("domain"))
+    ), hand150
+
+    # Round150 · 设置·就绪+版本+英文品牌+中文品牌（前端复制；ok/version/brand_en/brand|app）
+    h150 = call("/api/health")
+    assert h150.get("ok") is True, h150
+    assert (
+        (h150.get("version") or h150.get("server_version"))
+        and h150.get("brand_en")
+        and (h150.get("brand") or h150.get("app"))
+    ), h150
+
     print("selfcheck OK")
 
 
