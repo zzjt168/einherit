@@ -13014,6 +13014,134 @@ def main() -> None:
         and (h132.get("brand") or h132.get("app"))
     ), h132
 
+    # Round133 · 首页英文+域名+就绪（前端条；brand_en/domain/ok 只读）
+    h133home = call("/api/health")
+    assert (
+        h133home.get("brand_en")
+        and h133home.get("domain") == "einherit.cn"
+        and h133home.get("ok") is True
+    ), h133home
+
+    # Round133 · 交割标题+状态+编号（前端；title / category|status / id）
+    lg133 = call(
+        "/api/legacy",
+        {
+            "title": "自检·标题状态133",
+            "category": "键盘",
+            "action": "销毁",
+            "dept": "ops",
+            "beneficiary": "自检受益人133",
+            "notes": "标题状态编号133",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert lg133.get("title") and (
+        lg133.get("status") or lg133.get("category")
+    ) and lg133.get("id") is not None, lg133
+
+    # Round133 · 备忘平台+处置+分类（前端；platform/dispose_note/tag|category）
+    as133 = call(
+        "/api/assets",
+        {
+            "platform": "round133PlatDispCat",
+            "account_hint": "hint133",
+            "summary": "平台处置分类133",
+            "dispose_note": "演示处置133",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "private",
+            "draft": True,
+        },
+    )["item"]
+    assert as133.get("platform") and as133.get("dispose_note") and (
+        as133.get("category") or as133.get("tag")
+    ), as133
+
+    # Round133 · 报备距上次+状态标签（前端复制；last_ago_label / countdown_label|status_label）
+    ck_st133 = call("/api/checkin/status")
+    cd133 = ck_st133.get("countdown") or {}
+    user133 = ck_st133.get("user") or {}
+    assert (
+        cd133.get("last_ago_label")
+        or cd133.get("status_label")
+        or cd133.get("countdown_label")
+        or user133.get("escalation_state")
+        or cd133
+    ), ck_st133
+
+    # Round133 · 差旅已存+达标+进度（前端复制；balance|deposited/met/progress_pct 只读）
+    tf133 = call("/api/travel-fund")
+    fund133 = tf133.get("fund") or tf133
+    assert (
+        fund133.get("deposited") is not None
+        or fund133.get("balance") is not None
+        or fund133.get("met") is not None
+        or fund133.get("progress_pct") is not None
+    ), tf133
+
+    # Round133 · 善后编号+医院+城市（前端；id / title|hospital / city）
+    ac133 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·医院城市133",
+            "service_type": "phone_assist",
+            "city": "五指山",
+            "notes": "编号医院城市133",
+            "visit_pref": "清晨",
+            "travel_budget": 1330,
+        },
+    )["item"]
+    assert ac133.get("id") is not None and (
+        ac133.get("hospital") or ac133.get("title")
+    ) and ac133.get("city"), ac133
+
+    # Round133 · 授权视频完成+标题+时长（前端复制；complete/latest/progress 可读）
+    av133 = call("/api/auth-video")
+    latest133 = av133.get("latest") or {}
+    prog133av = av133.get("progress") or {}
+    assert (
+        av133.get("complete") is not None
+        or latest133.get("original_name")
+        or prog133av
+        or av133.get("ready") is not None
+    ), av133
+
+    # Round133 · 受益人编号+联系+关系（前端；id/contact/relation 可读）
+    bn133 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·编号联系133",
+            "role": "heir",
+            "relation": "闺蜜",
+            "contact": "13300000133",
+            "passphrase_hint": "round133口令",
+        },
+    )["item"]
+    assert bn133.get("id") is not None and bn133.get("contact") and bn133.get(
+        "relation"
+    ), bn133
+
+    # Round133 · 手册进度+章节+域名（前端复制；progress.pct/total_types/domain）
+    hand133 = call("/api/handover")
+    prog133 = hand133.get("progress") or {}
+    assert (
+        prog133.get("pct") is not None
+        or hand133.get("sections") is not None
+        or prog133.get("total_types") is not None
+        or hand133.get("domain")
+    ), hand133
+
+    # Round133 · 设置·版本+域名+就绪+英文（前端复制；version/domain/ok/brand_en 对齐）
+    h133 = call("/api/health")
+    assert h133.get("ok") is True, h133
+    assert (
+        (h133.get("version") or h133.get("server_version"))
+        and h133.get("domain")
+        and h133.get("brand_en")
+    ), h133
+
     print("selfcheck OK")
 
 
