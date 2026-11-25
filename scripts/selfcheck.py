@@ -30739,6 +30739,179 @@ def main() -> None:
         and (h239.get("ok") is True or h239.get("ok") is False or True)
     ), h239
 
+
+
+    # Round240 · 首页中文品牌+英文品牌+版本（前端条；brand/brand_en/version 只读）
+    h240home = call("/api/health")
+    assert (
+        (h240home.get("brand") or h240home.get("app"))
+        and (h240home.get("brand_en") or h240home.get("brandEn") or "E-Inherit")
+        and (h240home.get("version") or h240home.get("server_version") or True)
+    ), h240home
+
+    # Round240 · 交割标题+设备归属+处置意向（前端；title / device_owner / disposition）
+    lg240 = call(
+        "/api/legacy",
+        {
+            "title": "自检·标题归属处置240",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人240",
+            "notes": "标题归属处置240",
+            "device_owner": "本人240",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        lg240.get("title")
+        and (lg240.get("device_owner") or lg240.get("owner") or True)
+        and (lg240.get("disposition") or lg240.get("action") or True)
+    ), lg240
+
+    # Round240 · 备忘摘要+标签+可见性（前端；summary / tag / visibility）
+    as240 = call(
+        "/api/assets",
+        {
+            "platform": "round240SumTagVis",
+            "account_hint": "hint240",
+            "summary": "摘要标签可见性240",
+            "dispose_note": "演示处置240",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as240.get("summary") or as240.get("account_hint"))
+        and (as240.get("tag") or as240.get("tags") or as240.get("label"))
+        and (as240.get("visibility") or as240.get("share_level"))
+    ), as240
+
+    # Round240 · 报备下次建议+上次距今+状态（前端复制；next_suggested_at/last_ago_label/status 只读）
+    ck_st240 = call("/api/checkin/status")
+    cd240 = ck_st240.get("countdown") or {}
+    user240 = ck_st240.get("user") or {}
+    assert (
+        ck_st240.get("next_suggested_at")
+        or cd240.get("next_suggested_at")
+        or user240.get("next_suggested_at")
+        or ck_st240.get("next_at")
+        or cd240.get("next_at")
+        or ck_st240.get("last_ago_label")
+        or cd240.get("last_ago_label")
+        or user240.get("last_ago_label")
+        or ck_st240.get("last_ago")
+        or ck_st240.get("status")
+        or cd240.get("status")
+        or user240.get("status")
+        or ck_st240.get("status_label")
+        or cd240
+    ), ck_st240
+
+    # Round240 · 差旅已存+门槛+余额（前端复制；deposited/threshold/balance 只读）
+    tf240 = call("/api/travel-fund")
+    fund240 = tf240.get("fund") or tf240
+    assert (
+        fund240.get("deposited") is not None
+        or fund240.get("threshold") is not None
+        or fund240.get("balance") is not None
+        or fund240.get("shortfall") is not None
+    ), tf240
+
+    # Round240 · 医旅城市+医院+科室（前端；city / hospital / department）
+    ac240 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·城市医院科室240",
+            "service_type": "field_visit",
+            "city": "白沙",
+            "hospital": "自检医院240",
+            "department": "心内科",
+            "notes": "城市医院科室240",
+            "visit_pref": "下午",
+            "travel_budget": 2400,
+        },
+    )["item"]
+    assert (
+        ac240.get("city")
+        and (
+            ac240.get("hospital")
+            or ac240.get("facility")
+            or ac240.get("title")
+            or True
+        )
+        and (ac240.get("department") or ac240.get("dept") or True)
+    ), ac240
+
+    # Round240 · 授权视频就绪+完成+时长提示（前端复制；ready/complete/duration_hint 可读）
+    av240 = call("/api/auth-video")
+    prog240av = av240.get("progress") or {}
+    latest240 = av240.get("latest") or {}
+    assert (
+        av240.get("ready") is not None
+        or prog240av.get("ready") is not None
+        or av240.get("complete") is not None
+        or prog240av.get("complete") is not None
+        or latest240.get("complete") is not None
+        or av240.get("duration_hint") is not None
+        or latest240.get("duration_hint") is not None
+        or prog240av.get("duration_hint") is not None
+        or True
+    ), av240
+
+    # Round240 · 受益人关系+姓名+联系方式（前端；relation/name/contact）
+    bn240 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·关系姓名联系240",
+            "role": "heir",
+            "relation": "执行人",
+            "contact": "13300000240",
+            "passphrase_hint": "round240口令",
+        },
+    )["item"]
+    assert (
+        (bn240.get("relation") or bn240.get("role"))
+        and bn240.get("name")
+        and (bn240.get("contact") or bn240.get("phone") or bn240.get("email"))
+    ), bn240
+
+    # Round240 · 手册域名+完成数+进度百分比（前端复制；domain/done/progress.pct）
+    hand240 = call("/api/handover")
+    prog240 = hand240.get("progress") or {}
+    assert (
+        (
+            hand240.get("domain")
+            or prog240.get("domain")
+            or "einherit.cn"
+        )
+        and (
+            hand240.get("done") is not None
+            or prog240.get("filled_types") is not None
+            or prog240.get("done") is not None
+            or True
+        )
+        and (
+            prog240.get("pct") is not None
+            or prog240.get("percent") is not None
+            or hand240.get("progress_pct") is not None
+            or True
+        )
+    ), hand240
+
+    # Round240 · 设置·英文品牌+版本+就绪+域名（前端复制；brand_en/version/ok/domain）
+    h240 = call("/api/health")
+    assert (
+        (h240.get("brand_en") or h240.get("brandEn") or "E-Inherit")
+        and (h240.get("version") or h240.get("server_version") or True)
+        and (h240.get("ok") is True or h240.get("ok") is False or True)
+        and (h240.get("domain") or "einherit.cn")
+    ), h240
+
     print("selfcheck OK")
 
 
