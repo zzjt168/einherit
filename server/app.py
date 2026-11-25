@@ -386,6 +386,11 @@ class Handler(BaseHTTPRequestHandler):
             ):
                 out = db.legacy_missing_beneficiary(1)
             elif path in (
+                "/api/legacy/missing-factory-reset",
+                "/api/legacy/factory-reset-pending",
+            ):
+                out = db.legacy_missing_factory_reset(1)
+            elif path in (
                 "/api/assets/review-calendar",
                 "/api/assets/review-cal",
             ):
