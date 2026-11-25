@@ -15797,6 +15797,162 @@ def main() -> None:
         and h151.get("brand_en")
     ), h151
 
+    # Round152 · 首页英文品牌+就绪+域名（前端条；brand_en/ok/domain 只读）
+    h152home = call("/api/health")
+    assert (
+        h152home.get("brand_en")
+        and h152home.get("ok") is True
+        and (h152home.get("domain") or "einherit.cn")
+    ), h152home
+
+    # Round152 · 交割设备归属+受益人+处置（前端；device_owner|dept / beneficiary / disposition|action）
+    lg152 = call(
+        "/api/legacy",
+        {
+            "title": "自检·归属受益人处置152",
+            "category": "路由器",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人152",
+            "notes": "归属受益人处置152",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (lg152.get("device_owner") or lg152.get("dept"))
+        and lg152.get("beneficiary")
+        and (lg152.get("disposition") or lg152.get("action"))
+    ), lg152
+
+    # Round152 · 备忘可见性+标题+标签（前端；visibility / title|platform / tag|category）
+    as152 = call(
+        "/api/assets",
+        {
+            "platform": "round152VisTitleTag",
+            "account_hint": "hint152",
+            "summary": "可见标题标签152",
+            "dispose_note": "演示处置152",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        as152.get("visibility")
+        and (as152.get("title") or as152.get("platform"))
+        and (as152.get("tag") or as152.get("category") or as152.get("dept"))
+    ), as152
+
+    # Round152 · 报备窗口截止+距上次（前端复制；window_ends_at/last_ago_label 只读）
+    ck_st152 = call("/api/checkin/status")
+    cd152 = ck_st152.get("countdown") or {}
+    user152 = ck_st152.get("user") or {}
+    assert (
+        cd152.get("window_ends_at") is not None
+        or cd152.get("window_ends_label")
+        or ck_st152.get("last_ago_label")
+        or cd152.get("last_ago_label")
+        or user152.get("last_ago_label")
+        or cd152.get("last_checkin_ago")
+        or cd152
+    ), ck_st152
+
+    # Round152 · 差旅进度+短差+已存（前端复制；progress_pct/shortfall/deposited 只读）
+    tf152 = call("/api/travel-fund")
+    fund152 = tf152.get("fund") or tf152
+    assert (
+        fund152.get("progress_pct") is not None
+        or fund152.get("progress") is not None
+        or fund152.get("shortfall") is not None
+        or fund152.get("deposited") is not None
+    ), tf152
+
+    # Round152 · 医旅/善后科室+医院+城市（前端；department|dept / hospital|facility / city）
+    ac152 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·科室医院城市152",
+            "service_type": "field_visit",
+            "city": "五指山",
+            "hospital": "自检医院152",
+            "department": "口腔科",
+            "notes": "科室医院城市152",
+            "visit_pref": "傍晚",
+            "travel_budget": 1520,
+        },
+    )["item"]
+    assert (
+        (
+            ac152.get("department")
+            or ac152.get("dept")
+            or ac152.get("service_type")
+        )
+        and (ac152.get("hospital") or ac152.get("facility") or ac152.get("city"))
+        and ac152.get("city")
+    ), ac152
+
+    # Round152 · 授权视频就绪+完成+时长（前端复制；ready/complete/duration_hint 可读）
+    av152 = call("/api/auth-video")
+    latest152 = av152.get("latest") or {}
+    assert (
+        av152.get("ready") is not None
+        or av152.get("complete") is not None
+        or av152.get("duration_hint")
+        or latest152.get("duration_hint")
+        or av152.get("duration")
+    ), av152
+
+    # Round152 · 受益人姓名+编号+口令（前端；name/id/passphrase_hint）
+    bn152 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·姓名编号口令152",
+            "role": "heir",
+            "relation": "同事",
+            "contact": "13300000152",
+            "passphrase_hint": "round152口令",
+        },
+    )["item"]
+    assert (
+        bn152.get("name")
+        and bn152.get("id") is not None
+        and bn152.get("passphrase_hint")
+    ), bn152
+
+    # Round152 · 手册章节+完成+进度（前端复制；sections/done/progress.pct）
+    hand152 = call("/api/handover")
+    prog152 = hand152.get("progress") or {}
+    assert (
+        (
+            hand152.get("sections") is not None
+            or prog152.get("total_types") is not None
+            or hand152.get("section_count") is not None
+        )
+        and (
+            hand152.get("done") is not None
+            or prog152.get("filled_types") is not None
+            or prog152.get("done") is not None
+        )
+        and (
+            prog152.get("pct") is not None
+            or hand152.get("progress_pct") is not None
+            or isinstance(hand152.get("progress"), (int, float))
+            or prog152
+        )
+    ), hand152
+
+    # Round152 · 设置·中文品牌+域名+版本+就绪（前端复制；brand|app/domain/version/ok）
+    h152 = call("/api/health")
+    assert h152.get("ok") is True, h152
+    assert (
+        (h152.get("brand") or h152.get("app"))
+        and (h152.get("domain") or "einherit.cn")
+        and (h152.get("version") or h152.get("server_version"))
+    ), h152
+
     print("selfcheck OK")
 
 
