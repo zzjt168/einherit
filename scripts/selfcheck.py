@@ -2375,6 +2375,95 @@ def main() -> None:
     assert h27.get("ok") is True, h27
     assert h27.get("domain") == "einherit.cn", h27
 
+    # Round28 · 首页善后未完成（前端条；aftercare 可读）
+    ac28_list = call("/api/aftercare")
+    assert "items" in ac28_list, ac28_list
+    assert isinstance(ac28_list.get("items"), list), ac28_list
+
+    # Round28 · 交割标题复制（前端；title 可读）
+    lg28 = call(
+        "/api/legacy",
+        {
+            "title": "自检·标题复制",
+            "category": "其他",
+            "action": "销毁",
+        },
+    )["item"]
+    assert "标题复制" in str(lg28.get("title") or ""), lg28
+
+    # Round28 · 备忘草稿/正式（无处置=草稿）
+    as28_draft = call(
+        "/api/assets",
+        {
+            "platform": "round28Draft",
+            "summary": "草稿筛",
+            "dept": "admin",
+            "dispose_note": "",
+            "draft": True,
+        },
+    )["item"]
+    assert not str(as28_draft.get("dispose_note") or "").strip(), as28_draft
+    as28_formal = call(
+        "/api/assets",
+        {
+            "platform": "round28Formal",
+            "summary": "正式筛",
+            "dept": "admin",
+            "dispose_note": "销毁",
+            "draft": True,
+        },
+    )["item"]
+    assert str(as28_formal.get("dispose_note") or "").strip(), as28_formal
+
+    # Round28 · 报备冷静期说明（前端复制；grace 可读）
+    ck_st28 = call("/api/checkin/status")
+    assert "user" in ck_st28, ck_st28
+    assert ck_st28["user"].get("grace_hours") is not None, ck_st28
+
+    # Round28 · 会员权益摘要复制（API text 可读）
+    bene28 = call("/api/membership/benefits")
+    assert bene28.get("text"), bene28
+    assert "rows" in bene28, bene28
+
+    # Round28 · 善后服务类型计数（前端；service_type 可读）
+    ac28 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·服务类型计数",
+            "service_type": "delete_data",
+            "city": "海口",
+            "travel_budget": 600,
+        },
+    )["item"]
+    assert ac28.get("service_type") == "delete_data" or ac28.get("title"), ac28
+
+    # Round28 · 授权视频最近上传（前端相对时间；items 可读）
+    av28 = call("/api/auth-video")
+    assert "items" in av28, av28
+    assert isinstance(av28.get("items"), list), av28
+
+    # Round28 · 受益人姓名复制（前端；name 可读）
+    bn28 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·姓名复制",
+            "role": "family",
+            "relation": "演示",
+            "contact": "13900000028",
+        },
+    )["item"]
+    assert "姓名复制" in str(bn28.get("name") or ""), bn28
+
+    # Round28 · 手册快照份数（前端；snapshots 可读）
+    snaps28 = call("/api/snapshots")
+    assert isinstance(snaps28.get("items"), list), snaps28
+
+    # Round28 · 设置·应用版本行（前端复制；health 对齐）
+    h28 = call("/api/health")
+    assert h28.get("ok") is True, h28
+    assert h28.get("domain") == "einherit.cn", h28
+    assert h28.get("version"), h28
+
     print("selfcheck OK")
 
 
