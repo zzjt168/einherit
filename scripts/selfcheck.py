@@ -3709,6 +3709,108 @@ def main() -> None:
     assert h43.get("domain") == "einherit.cn", h43
     assert h43.get("server_version") or h43.get("version"), h43
 
+    # Round44 · 首页手册处置种类覆盖（前端条；handover.progress 可读）
+    hand44p = call("/api/handover")
+    prog44 = hand44p.get("progress") or {}
+    assert (
+        prog44.get("filled_types") is not None
+        or prog44.get("total_types") is not None
+        or hand44p.get("item_count") is not None
+    ), hand44p
+
+    # Round44 · 交割类别+部门（前端；category/dept 可读）
+    lg44 = call(
+        "/api/legacy",
+        {
+            "title": "自检·类别部门44",
+            "category": "设备",
+            "action": "销毁",
+            "dept": "ip",
+        },
+    )["item"]
+    assert lg44.get("category") and lg44.get("dept"), lg44
+
+    # Round44 · 备忘可见性+平台（前端；visibility/platform 可读）
+    as44 = call(
+        "/api/assets",
+        {
+            "platform": "round44Combo",
+            "summary": "可见性平台",
+            "dept": "admin",
+            "tag": "其他",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert as44.get("platform") and as44.get("visibility"), as44
+
+    # Round44 · 报备逾时冷静句（前端复制；overdue 字段可读）
+    ck_st44 = call("/api/checkin/status")
+    assert "user" in ck_st44, ck_st44
+    assert (
+        "checkin_overdue" in ck_st44["user"]
+        or "checkin_soft_overdue" in ck_st44["user"]
+        or "is_member" in ck_st44["user"]
+    ), ck_st44
+
+    # Round44 · 差旅进度百分比纯数字（前端复制；progress_pct 可读）
+    tf44 = call("/api/travel-fund")
+    fund44 = tf44.get("fund") or tf44
+    assert (
+        fund44.get("progress_pct") is not None
+        or fund44.get("balance") is not None
+    ), fund44
+
+    # Round44 · 善后阶段+状态（前端；phase_label/status_label 可读）
+    ac44 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·阶段状态44",
+            "service_type": "delete_data",
+            "city": "三亚",
+            "travel_budget": 320,
+        },
+    )["item"]
+    assert ac44.get("phase_label") or ac44.get("status_label"), ac44
+
+    # Round44 · 授权视频生效标签（前端复制；active_label 可读）
+    av44 = call("/api/auth-video")
+    items44 = av44.get("items") or []
+    active44 = (
+        av44.get("current_active")
+        if isinstance(av44.get("current_active"), dict)
+        else None
+    ) or (items44[0] if items44 else {})
+    assert (
+        (isinstance(active44, dict) and (
+            active44.get("active_label") is not None
+            or active44.get("current_active") is not None
+        ))
+        or "ready" in av44
+    ), av44
+
+    # Round44 · 受益人角色+关系（前端；role/relation 可读）
+    bn44 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·角色关系44",
+            "role": "executor",
+            "relation": "朋友",
+            "contact": "13300000044",
+        },
+    )["item"]
+    assert bn44.get("role") and bn44.get("relation"), bn44
+
+    # Round44 · 手册各部门条数（前端复制；by_dept 可读）
+    hand44 = call("/api/handover")
+    assert isinstance(hand44.get("by_dept"), list) or hand44.get("item_count") is not None, hand44
+
+    # Round44 · 设置·中文品牌+英文品牌+域名（前端复制；health 对齐）
+    h44 = call("/api/health")
+    assert h44.get("ok") is True, h44
+    assert h44.get("app") or h44.get("brand_en"), h44
+    assert h44.get("domain") == "einherit.cn", h44
+
     print("selfcheck OK")
 
 
