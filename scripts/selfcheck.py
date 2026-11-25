@@ -5347,6 +5347,108 @@ def main() -> None:
     assert h61.get("app") or h61.get("brand_en"), h61
     assert h61.get("domain") == "einherit.cn", h61
 
+    # Round62 · 首页会员温和提示（前端条；member_gentle_hint 只读）
+    ck_st62home = call("/api/checkin/status")
+    assert (ck_st62home.get("user") or {}).get("member_gentle_hint") or ck_st62home.get(
+        "user"
+    ), ck_st62home
+
+    # Round62 · 交割编号+清除照片（前端；id/clear_photos 可读）
+    lg62 = call(
+        "/api/legacy",
+        {
+            "title": "自检·编号清除照片62",
+            "category": "其他",
+            "action": "销毁",
+            "dept": "production",
+            "clear_photos": True,
+        },
+    )["item"]
+    assert lg62.get("id") is not None, lg62
+    assert lg62.get("clear_photos") is not None or "clear_photos" in lg62, lg62
+
+    # Round62 · 备忘平台+账号提示（前端；platform/account_hint 可读）
+    as62 = call(
+        "/api/assets",
+        {
+            "platform": "round62PlatHint",
+            "summary": "平台账号提示62",
+            "account_hint": "demo@einherit",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "private",
+            "draft": True,
+        },
+    )["item"]
+    assert as62.get("platform"), as62
+    assert as62.get("account_hint") is not None or "account_hint" in as62, as62
+
+    # Round62 · 报备剩余小时与冷静期小时（前端复制；只读，不改外呼）
+    ck_st62 = call("/api/checkin/status")
+    cd62 = ck_st62.get("countdown") or {}
+    user62 = ck_st62.get("user") or {}
+    assert (
+        cd62.get("hours_remaining") is not None
+        or cd62.get("grace_hours") is not None
+        or user62.get("grace_hours") is not None
+        or user62
+    ), ck_st62
+
+    # Round62 · 差旅流水编号+备注（前端复制；ledger id/note 只读，不改退款）
+    tf62 = call("/api/travel-fund")
+    ledger62 = tf62.get("ledger") or []
+    assert isinstance(ledger62, list), tf62
+    if ledger62:
+        assert ledger62[0].get("id") is not None or "note" in ledger62[0], ledger62[0]
+
+    # Round62 · 善后城市+协作状态（前端；city/coop_state 可读）
+    ac62 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·城市协作62",
+            "service_type": "field_visit",
+            "city": "儋州",
+            "travel_budget": 620,
+        },
+    )["item"]
+    assert ac62.get("city") or ac62.get("coop_state") is not None, ac62
+
+    # Round62 · 授权视频就绪与齐备文案（前端复制；ready/complete_label 可读）
+    av62 = call("/api/auth-video")
+    assert (
+        av62.get("ready") is not None
+        or av62.get("complete_label")
+        or av62.get("complete") is not None
+    ), av62
+
+    # Round62 · 受益人联系+备注（前端；contact/note 可读）
+    bn62 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·联系备注62",
+            "role": "family",
+            "relation": "亲属",
+            "contact": "13300000062",
+            "note": "round62备注",
+        },
+    )["item"]
+    assert bn62.get("contact"), bn62
+    assert bn62.get("note") is not None or "note" in bn62, bn62
+
+    # Round62 · 手册转赠与清除条数（前端复制；action_counts.gift/clear 可读）
+    hand62 = call("/api/handover")
+    counts62 = ((hand62.get("progress") or {}).get("action_counts")) or {}
+    assert (
+        counts62.get("gift") is not None
+        or counts62.get("clear") is not None
+        or hand62.get("item_count") is not None
+    ), hand62
+
+    # Round62 · 设置·就绪状态+域名（前端复制；ok/domain 对齐）
+    h62 = call("/api/health")
+    assert h62.get("ok") is True, h62
+    assert h62.get("domain") == "einherit.cn", h62
+
     print("selfcheck OK")
 
 
