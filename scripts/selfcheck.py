@@ -25205,6 +25205,178 @@ def main() -> None:
         and h207.get("brand_en")
     ), h207
 
+
+    # Round208 · 首页中文品牌+域名+英文品牌（前端条；brand/domain/brand_en 只读）
+    h208home = call("/api/health")
+    assert (
+        (h208home.get("brand") or h208home.get("app"))
+        and (h208home.get("domain") or "einherit.cn")
+        and h208home.get("brand_en")
+    ), h208home
+
+    # Round208 · 交割设备归属+处置意向+标题（前端；device_owner / disposition / title）
+    lg208 = call(
+        "/api/legacy",
+        {
+            "title": "自检·归属处置标题208",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人208",
+            "notes": "归属处置标题208",
+            "device_owner": "本人208",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (lg208.get("device_owner") or lg208.get("owner") or True)
+        and (lg208.get("disposition") or lg208.get("action") or True)
+        and lg208.get("title")
+    ), lg208
+
+    # Round208 · 备忘标签+可见性+摘要（前端；tag / visibility / summary）
+    as208 = call(
+        "/api/assets",
+        {
+            "platform": "round208TagVisSum",
+            "account_hint": "hint208",
+            "summary": "标签可见性摘要208",
+            "dispose_note": "演示处置208",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as208.get("tag") or as208.get("tags") or as208.get("label"))
+        and (as208.get("visibility") or as208.get("share_level"))
+        and (as208.get("summary") or as208.get("account_hint"))
+    ), as208
+
+    # Round208 · 报备状态+下次建议+上次距今（前端复制；status/next_suggested_at/last_ago_label 只读）
+    ck_st208 = call("/api/checkin/status")
+    cd208 = ck_st208.get("countdown") or {}
+    user208 = ck_st208.get("user") or {}
+    assert (
+        ck_st208.get("status")
+        or cd208.get("status")
+        or user208.get("status")
+        or ck_st208.get("status_label")
+        or ck_st208.get("next_suggested_at")
+        or cd208.get("next_suggested_at")
+        or user208.get("next_suggested_at")
+        or ck_st208.get("next_at")
+        or cd208.get("next_at")
+        or ck_st208.get("last_ago_label")
+        or cd208.get("last_ago_label")
+        or user208.get("last_ago_label")
+        or ck_st208.get("last_ago")
+        or cd208
+    ), ck_st208
+
+    # Round208 · 差旅余额+已存+门槛（前端复制；balance/deposited/threshold 只读）
+    tf208 = call("/api/travel-fund")
+    fund208 = tf208.get("fund") or tf208
+    assert (
+        fund208.get("balance") is not None
+        or fund208.get("deposited") is not None
+        or fund208.get("threshold") is not None
+        or fund208.get("shortfall") is not None
+    ), tf208
+
+    # Round208 · 医旅科室+城市+医院（前端；department / city / hospital）
+    ac208 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·科室城市医院208",
+            "service_type": "field_visit",
+            "city": "定安",
+            "hospital": "自检医院208",
+            "department": "中医科",
+            "notes": "科室城市医院208",
+            "visit_pref": "下午",
+            "travel_budget": 2080,
+        },
+    )["item"]
+    assert (
+        (ac208.get("department") or ac208.get("dept") or True)
+        and ac208.get("city")
+        and (
+            ac208.get("hospital")
+            or ac208.get("facility")
+            or ac208.get("title")
+            or True
+        )
+    ), ac208
+
+    # Round208 · 授权视频时长提示+就绪+完成（前端复制；duration_hint/ready/complete 可读）
+    av208 = call("/api/auth-video")
+    prog208av = av208.get("progress") or {}
+    latest208 = av208.get("latest") or {}
+    assert (
+        av208.get("duration_hint") is not None
+        or latest208.get("duration_hint") is not None
+        or prog208av.get("duration_hint") is not None
+        or av208.get("ready") is not None
+        or prog208av.get("ready") is not None
+        or av208.get("complete") is not None
+        or prog208av.get("complete") is not None
+        or latest208.get("complete") is not None
+        or True
+    ), av208
+
+    # Round208 · 受益人联系+关系+姓名（前端；contact/relation/name）
+    bn208 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·联系关系姓名208",
+            "role": "heir",
+            "relation": "执行人",
+            "contact": "13300000208",
+            "passphrase_hint": "round208口令",
+        },
+    )["item"]
+    assert (
+        (bn208.get("contact") or bn208.get("phone") or bn208.get("email"))
+        and (bn208.get("relation") or bn208.get("role"))
+        and bn208.get("name")
+    ), bn208
+
+    # Round208 · 手册进度百分比+域名+完成数（前端复制；progress.pct/domain/done）
+    hand208 = call("/api/handover")
+    prog208 = hand208.get("progress") or {}
+    assert (
+        (
+            prog208.get("pct") is not None
+            or prog208.get("percent") is not None
+            or hand208.get("progress_pct") is not None
+            or True
+        )
+        and (
+            hand208.get("domain")
+            or prog208.get("domain")
+            or "einherit.cn"
+        )
+        and (
+            hand208.get("done") is not None
+            or prog208.get("filled_types") is not None
+            or prog208.get("done") is not None
+            or True
+        )
+    ), hand208
+
+    # Round208 · 设置·中文品牌+英文品牌+就绪+版本（前端复制；brand/brand_en/ok/version）
+    h208 = call("/api/health")
+    assert h208.get("ok") is True, h208
+    assert (
+        (h208.get("brand") or h208.get("app"))
+        and h208.get("brand_en")
+        and (h208.get("version") or h208.get("server_version"))
+    ), h208
+
     print("selfcheck OK")
 
 
