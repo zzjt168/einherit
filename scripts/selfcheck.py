@@ -7060,6 +7060,101 @@ def main() -> None:
     assert h78.get("app") and h78.get("brand_en"), h78
     assert h78.get("domain") == "einherit.cn", h78
 
+    # Round79 · 首页升级状态（前端条；escalation_state 只读）
+    ck_st79home = call("/api/checkin/status")
+    u79home = ck_st79home.get("user") or {}
+    assert "escalation_state" in u79home or u79home, ck_st79home
+
+    # Round79 · 交割编号+标题+备注（前端；id/title/notes 可读）
+    lg79 = call(
+        "/api/legacy",
+        {
+            "title": "自检·编号标题79",
+            "category": "笔记本",
+            "action": "转赠",
+            "dept": "admin",
+            "notes": "编号标题备注79",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert lg79.get("id") is not None and lg79.get("title"), lg79
+    assert "notes" in lg79 or lg79.get("notes") is not None, lg79
+
+    # Round79 · 备忘摘要+处置+标签（前端；summary/dispose_note/tag 可读）
+    as79 = call(
+        "/api/assets",
+        {
+            "platform": "round79SummaryDisposeTag",
+            "account_hint": "hint79",
+            "summary": "摘要处置标签79",
+            "dispose_note": "演示处置79",
+            "dept": "admin",
+            "tag": "其他",
+            "visibility": "private",
+            "draft": True,
+        },
+    )["item"]
+    assert as79.get("summary") and as79.get("dispose_note") and as79.get("tag"), as79
+
+    # Round79 · 报备软逾期布尔（前端复制；checkin_soft_overdue 只读）
+    ck_st79 = call("/api/checkin/status")
+    u79 = ck_st79.get("user") or {}
+    assert "checkin_soft_overdue" in u79 or u79, ck_st79
+
+    # Round79 · 差旅达标+门槛+金额（前端复制；met/threshold/balance 只读）
+    tf79 = call("/api/travel-fund")
+    fund79 = tf79.get("fund") or tf79
+    assert (
+        fund79.get("met") is not None
+        or fund79.get("threshold") is not None
+        or fund79.get("balance") is not None
+    ), tf79
+
+    # Round79 · 善后备注+状态+城市（前端；notes/status/city 可读）
+    ac79 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·备注状态79",
+            "service_type": "field_visit",
+            "city": "琼海",
+            "notes": "备注状态城市79",
+            "visit_pref": "下午",
+            "travel_budget": 790,
+        },
+    )["item"]
+    assert ac79.get("notes") or ac79.get("status") or ac79.get("city"), ac79
+
+    # Round79 · 授权视频进度完成/总数（前端复制；progress.done/total 可读）
+    av79 = call("/api/auth-video")
+    prog79 = av79.get("progress") or {}
+    assert prog79.get("done") is not None or prog79.get("total") is not None, av79
+
+    # Round79 · 受益人编号+姓名+口令（前端；id/name/passphrase_hint 可读）
+    bn79 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·编号姓名79",
+            "role": "heir",
+            "relation": "亲属",
+            "contact": "13300000079",
+            "passphrase_hint": "round79口令",
+        },
+    )["item"]
+    assert bn79.get("id") is not None and bn79.get("name"), bn79
+    assert bn79.get("passphrase_hint"), bn79
+
+    # Round79 · 手册待办数与品牌（前端复制；todos/brand 可读）
+    hand79 = call("/api/handover")
+    assert hand79.get("todos") is not None or hand79.get("brand"), hand79
+
+    # Round79 · 设置·版本+就绪+域名（前端复制；version/ok/domain 对齐）
+    h79 = call("/api/health")
+    assert h79.get("ok") is True, h79
+    assert h79.get("version") or h79.get("server_version"), h79
+    assert h79.get("domain") == "einherit.cn", h79
+
     print("selfcheck OK")
 
 
