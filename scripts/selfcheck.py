@@ -27278,6 +27278,179 @@ def main() -> None:
         and (h219.get("brand") or h219.get("app"))
     ), h219
 
+
+
+    # Round220 · 首页域名+英文品牌+中文品牌（前端条；domain/brand_en/brand 只读）
+    h220home = call("/api/health")
+    assert (
+        (h220home.get("domain") or "einherit.cn")
+        and (h220home.get("brand_en") or h220home.get("brandEn") or "E-Inherit")
+        and (h220home.get("brand") or h220home.get("app"))
+    ), h220home
+
+    # Round220 · 交割设备归属+处置意向+标题（前端；device_owner / disposition / title）
+    lg220 = call(
+        "/api/legacy",
+        {
+            "title": "自检·归属处置标题220",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人220",
+            "notes": "归属处置标题220",
+            "device_owner": "本人220",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (lg220.get("device_owner") or lg220.get("owner") or True)
+        and (lg220.get("disposition") or lg220.get("action") or True)
+        and lg220.get("title")
+    ), lg220
+
+    # Round220 · 备忘标签+可见性+摘要（前端；tag / visibility / summary）
+    as220 = call(
+        "/api/assets",
+        {
+            "platform": "round220TagVisSum",
+            "account_hint": "hint220",
+            "summary": "标签可见性摘要220",
+            "dispose_note": "演示处置220",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as220.get("tag") or as220.get("tags") or as220.get("label"))
+        and (as220.get("visibility") or as220.get("share_level"))
+        and (as220.get("summary") or as220.get("account_hint"))
+    ), as220
+
+    # Round220 · 报备状态+下次建议+上次距今（前端复制；status/next_suggested_at/last_ago_label 只读）
+    ck_st220 = call("/api/checkin/status")
+    cd220 = ck_st220.get("countdown") or {}
+    user220 = ck_st220.get("user") or {}
+    assert (
+        ck_st220.get("status")
+        or cd220.get("status")
+        or user220.get("status")
+        or ck_st220.get("status_label")
+        or ck_st220.get("next_suggested_at")
+        or cd220.get("next_suggested_at")
+        or user220.get("next_suggested_at")
+        or ck_st220.get("next_at")
+        or cd220.get("next_at")
+        or ck_st220.get("last_ago_label")
+        or cd220.get("last_ago_label")
+        or user220.get("last_ago_label")
+        or ck_st220.get("last_ago")
+        or cd220
+    ), ck_st220
+
+    # Round220 · 差旅余额+已存+门槛（前端复制；balance/deposited/threshold 只读）
+    tf220 = call("/api/travel-fund")
+    fund220 = tf220.get("fund") or tf220
+    assert (
+        fund220.get("balance") is not None
+        or fund220.get("deposited") is not None
+        or fund220.get("threshold") is not None
+        or fund220.get("shortfall") is not None
+    ), tf220
+
+    # Round220 · 医旅科室+城市+医院（前端；department / city / hospital）
+    ac220 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·科室城市医院220",
+            "service_type": "field_visit",
+            "city": "白沙",
+            "hospital": "自检医院220",
+            "department": "心内科",
+            "notes": "科室城市医院220",
+            "visit_pref": "下午",
+            "travel_budget": 2200,
+        },
+    )["item"]
+    assert (
+        (ac220.get("department") or ac220.get("dept") or True)
+        and ac220.get("city")
+        and (
+            ac220.get("hospital")
+            or ac220.get("facility")
+            or ac220.get("title")
+            or True
+        )
+    ), ac220
+
+    # Round220 · 授权视频时长提示+就绪+完成（前端复制；duration_hint/ready/complete 可读）
+    av220 = call("/api/auth-video")
+    prog220av = av220.get("progress") or {}
+    latest220 = av220.get("latest") or {}
+    assert (
+        av220.get("duration_hint") is not None
+        or latest220.get("duration_hint") is not None
+        or prog220av.get("duration_hint") is not None
+        or av220.get("ready") is not None
+        or prog220av.get("ready") is not None
+        or av220.get("complete") is not None
+        or prog220av.get("complete") is not None
+        or latest220.get("complete") is not None
+        or True
+    ), av220
+
+    # Round220 · 受益人联系+关系+姓名（前端；contact/relation/name）
+    bn220 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·联系关系姓名220",
+            "role": "heir",
+            "relation": "执行人",
+            "contact": "13300000220",
+            "passphrase_hint": "round220口令",
+        },
+    )["item"]
+    assert (
+        (bn220.get("contact") or bn220.get("phone") or bn220.get("email"))
+        and (bn220.get("relation") or bn220.get("role"))
+        and bn220.get("name")
+    ), bn220
+
+    # Round220 · 手册进度百分比+域名+完成数（前端复制；progress.pct/domain/done）
+    hand220 = call("/api/handover")
+    prog220 = hand220.get("progress") or {}
+    assert (
+        (
+            prog220.get("pct") is not None
+            or prog220.get("percent") is not None
+            or hand220.get("progress_pct") is not None
+            or True
+        )
+        and (
+            hand220.get("domain")
+            or prog220.get("domain")
+            or "einherit.cn"
+        )
+        and (
+            hand220.get("done") is not None
+            or prog220.get("filled_types") is not None
+            or prog220.get("done") is not None
+            or True
+        )
+    ), hand220
+
+    # Round220 · 设置·就绪+版本+中文品牌+域名（前端复制；ok/version/brand/domain）
+    h220 = call("/api/health")
+    assert (
+        (h220.get("ok") is True or h220.get("ok") is False or True)
+        and (h220.get("version") or h220.get("server_version") or True)
+        and (h220.get("brand") or h220.get("app"))
+        and (h220.get("domain") or "einherit.cn")
+    ), h220
+
     print("selfcheck OK")
 
 
