@@ -8482,6 +8482,108 @@ def main() -> None:
     assert h93.get("ok") is True, h93
     assert h93.get("domain") == "einherit.cn" and h93.get("brand_en"), h93
 
+    # Round94 · 首页英文品牌版本（前端条；brand_en/version 只读）
+    h94home = call("/api/health")
+    assert h94home.get("brand_en") and (
+        h94home.get("version") or h94home.get("server_version")
+    ), h94home
+
+    # Round94 · 交割编号+处置+部门（前端；id/action/dept 可读）
+    lg94 = call(
+        "/api/legacy",
+        {
+            "title": "自检·编号处置94",
+            "category": "耳机",
+            "action": "转赠",
+            "dept": "finance",
+            "beneficiary": "自检受益人94",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert lg94.get("id") is not None and lg94.get("action") and lg94.get(
+        "dept"
+    ), lg94
+
+    # Round94 · 备忘摘要+可见性+平台（前端；summary/visibility/platform 可读）
+    as94 = call(
+        "/api/assets",
+        {
+            "platform": "round94SumVisPlat",
+            "account_hint": "hint94",
+            "summary": "摘要可见平台94",
+            "dispose_note": "演示处置94",
+            "dept": "admin",
+            "tag": "其他",
+            "visibility": "private",
+            "draft": True,
+        },
+    )["item"]
+    assert as94.get("summary") and as94.get("visibility") and as94.get(
+        "platform"
+    ), as94
+
+    # Round94 · 报备建议时间（前端复制；next_suggested_label 只读）
+    ck_st94 = call("/api/checkin/status")
+    cd94 = ck_st94.get("countdown") or {}
+    assert cd94.get("next_suggested_label") or cd94.get(
+        "next_suggested_at"
+    ) is not None or cd94, ck_st94
+
+    # Round94 · 差旅缺口与余额（前端复制；shortfall/balance 只读）
+    tf94 = call("/api/travel-fund")
+    fund94 = tf94.get("fund") or tf94
+    assert fund94.get("shortfall") is not None or fund94.get(
+        "balance"
+    ) is not None, tf94
+
+    # Round94 · 善后标题+预算+城市（前端；title/travel_budget/city 可读）
+    ac94 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·标题预算94",
+            "service_type": "field_visit",
+            "city": "保亭",
+            "notes": "标题预算城市94",
+            "visit_pref": "午间",
+            "travel_budget": 940,
+        },
+    )["item"]
+    assert ac94.get("title") and (
+        ac94.get("travel_budget") is not None or ac94.get("city")
+    ), ac94
+
+    # Round94 · 授权视频清单+闸口（前端复制；checklist/gate 可读）
+    av94 = call("/api/auth-video")
+    assert isinstance(av94.get("checklist"), list) or av94.get("gate"), av94
+
+    # Round94 · 受益人编号+关系+口令（前端；id/relation/passphrase_hint 可读）
+    bn94 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·编号关系94",
+            "role": "executor",
+            "relation": "邻居",
+            "contact": "13300000094",
+            "passphrase_hint": "round94口令",
+        },
+    )["item"]
+    assert bn94.get("id") is not None and bn94.get("relation") and bn94.get(
+        "passphrase_hint"
+    ), bn94
+
+    # Round94 · 手册待办数与分享提示（前端复制；todos/share_hint 可读）
+    hand94 = call("/api/handover")
+    assert isinstance(hand94.get("todos"), list) or hand94.get("share_hint"), hand94
+
+    # Round94 · 设置·版本+应用名+域名（前端复制；version/app/domain 对齐）
+    h94 = call("/api/health")
+    assert h94.get("ok") is True, h94
+    assert (h94.get("version") or h94.get("server_version")) and h94.get(
+        "app"
+    ) and h94.get("domain") == "einherit.cn", h94
+
     print("selfcheck OK")
 
 
