@@ -10556,3 +10556,38 @@ body.privacy-mode .privacy-hint { opacity: 0.85; }
   margin: 8px 0 10px; padding: 8px 10px; border-radius: 8px; background: #f5f8f6;
   word-break: break-word; font-weight: 600; color: var(--sage-deep, #2f5d45);
 }
+
+/* Round201 · 温和增量 */
+.home-brand-brand-en-domain-calm-r201 {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px;
+  margin: 8px 0 12px; padding: 10px 12px; border-radius: 10px;
+  background: linear-gradient(160deg, #eef5f3 0%, #fff 75%);
+  border: 1px solid var(--line, #e2e8e4);
+}
+.home-brand-brand-en-domain-calm-r201[hidden] { display: none; }
+.home-brand-brand-en-domain-calm-r201-mark { font-weight: 600; color: var(--sage-deep, #2f5d45); font-size: 13px; }
+.home-brand-brand-en-domain-calm-r201-sub { flex: 1; min-width: 8em; font-size: 12px; }
+.lg-copy-notes-beneficiary-title-r201 { margin-top: 8px; margin-left: 6px; }
+.as-copy-category-summary-visibility-r201 { margin-top: 8px; margin-left: 6px; }
+.checkin-next-suggested-window-ends-status-plain-r201-copy {
+  margin-top: 10px; padding: 10px 12px; border-radius: 10px; background: #f5f8f6;
+}
+.checkin-next-suggested-window-ends-status-plain-r201-copy-line { margin: 0 0 8px; }
+.travel-balance-shortfall-deposited-plain-r201-copy {
+  margin: 8px 0 10px; padding: 10px 12px; border-radius: 10px; background: #f5f8f6;
+}
+.travel-balance-shortfall-deposited-plain-r201-copy-line { margin: 0 0 8px; }
+.ac-copy-service-type-city-hospital-r201 { margin-top: 8px; margin-left: 6px; }
+.av-duration-hint-missing-ready-copy-r201 {
+  margin: 8px 0 10px; padding: 10px 12px; border-radius: 10px; background: #f5f8f6;
+}
+.av-duration-hint-missing-ready-copy-r201-line { margin: 0 0 8px; }
+.bn-copy-id-name-contact-r201 { margin-top: 8px; margin-left: 6px; }
+.hand-done-domain-progress-pct-copy-r201 {
+  margin: 8px 0 12px; padding: 10px 12px; border-radius: 10px; background: #f5f8f6;
+}
+.hand-done-domain-progress-pct-copy-r201-line { margin: 0 0 8px; }
+.settings-ok-domain-version-brand-en-r201-copy-card .settings-ok-domain-version-brand-en-r201-copy-preview {
+  margin: 8px 0 10px; padding: 8px 10px; border-radius: 8px; background: #f5f8f6;
+  word-break: break-word; font-weight: 600; color: var(--sage-deep, #2f5d45);
+}
