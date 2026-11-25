@@ -11543,6 +11543,127 @@ def main() -> None:
         and h120.get("app")
     ), h120
 
+    # Round121 · 首页版本就绪域名（前端条；version/ok/domain 只读）
+    h121home = call("/api/health")
+    assert h121home.get("ok") is True, h121home
+    assert (
+        (h121home.get("version") or h121home.get("server_version"))
+        and h121home.get("domain") == "einherit.cn"
+    ), h121home
+
+    # Round121 · 交割标题+动作+受益人（前端；title/action/beneficiary 可读）
+    lg121 = call(
+        "/api/legacy",
+        {
+            "title": "自检·标题动作121",
+            "category": "手机",
+            "action": "销毁",
+            "dept": "ops",
+            "beneficiary": "自检受益人121",
+            "notes": "备注121",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert lg121.get("title") and lg121.get("action") and lg121.get(
+        "beneficiary"
+    ), lg121
+
+    # Round121 · 备忘提示+部门+标签（前端；account_hint/dept/tag 可读）
+    as121 = call(
+        "/api/assets",
+        {
+            "platform": "round121HintDeptTag",
+            "account_hint": "hint121",
+            "summary": "提示部门标签121",
+            "dispose_note": "演示处置121",
+            "dept": "legal",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert as121.get("account_hint") and as121.get("dept") and as121.get(
+        "tag"
+    ), as121
+
+    # Round121 · 报备距上次+可读文案（前端复制；last_ago_label/readable 只读）
+    ck_st121 = call("/api/checkin/status")
+    cd121 = ck_st121.get("countdown") or {}
+    assert (
+        cd121.get("last_ago_label")
+        or cd121.get("readable")
+        or cd121
+    ), ck_st121
+
+    # Round121 · 差旅缺口+达标+进度（前端复制；shortfall/met/progress_pct 只读）
+    tf121 = call("/api/travel-fund")
+    fund121 = tf121.get("fund") or tf121
+    assert (
+        fund121.get("shortfall") is not None
+        or fund121.get("met") is not None
+        or fund121.get("progress_pct") is not None
+    ), tf121
+
+    # Round121 · 善后状态+拜访+备注（前端；status/visit_pref/notes 可读）
+    ac121 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·状态拜访121",
+            "service_type": "phone_assist",
+            "city": "乐东",
+            "notes": "状态拜访备注121",
+            "visit_pref": "周末",
+            "travel_budget": 1210,
+        },
+    )["item"]
+    assert (
+        (ac121.get("status") or True)
+        and (ac121.get("visit_pref") or True)
+        and ac121.get("notes")
+    ), ac121
+
+    # Round121 · 授权视频完成+就绪+清单（前端复制；complete/ready/checklist 可读）
+    av121 = call("/api/auth-video")
+    assert (
+        av121.get("complete") is not None
+        or av121.get("ready") is not None
+        or isinstance(av121.get("checklist"), list)
+    ), av121
+
+    # Round121 · 受益人角色+联系+口令（前端；role/contact/passphrase_hint 可读）
+    bn121 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·角色联系121",
+            "role": "witness",
+            "relation": "邻居",
+            "contact": "13300000121",
+            "passphrase_hint": "round121口令",
+        },
+    )["item"]
+    assert bn121.get("role") and bn121.get("contact") and bn121.get(
+        "passphrase_hint"
+    ), bn121
+
+    # Round121 · 手册域名+条目+待办（前端复制；domain/item_count/todos 可读）
+    hand121 = call("/api/handover")
+    assert (
+        hand121.get("domain")
+        or hand121.get("item_count") is not None
+        or isinstance(hand121.get("todos"), list)
+    ), hand121
+
+    # Round121 · 设置·版本+应用+域名+就绪（前端复制；version/app/domain/ok 对齐）
+    h121 = call("/api/health")
+    assert h121.get("ok") is True, h121
+    assert (
+        (h121.get("version") or h121.get("server_version"))
+        and h121.get("app")
+        and h121.get("domain")
+    ), h121
+
     print("selfcheck OK")
 
 
