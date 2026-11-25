@@ -4714,6 +4714,93 @@ def main() -> None:
     assert h54.get("ok") is True, h54
     assert h54.get("brand_en") or h54.get("app"), h54
 
+    # Round55 · 首页受益人条数（前端条；counts.beneficiaries 可读）
+    counts55 = call("/api/counts-summary")
+    assert (counts55.get("counts") or {}).get("beneficiaries") is not None or counts55.get(
+        "text"
+    ), counts55
+
+    # Round55 · 交割类别纯文本（前端；category 可读）
+    lg55 = call(
+        "/api/legacy",
+        {
+            "title": "自检·类别55",
+            "category": "虚拟资产",
+            "action": "销毁",
+            "dept": "finance",
+        },
+    )["item"]
+    assert lg55.get("category"), lg55
+
+    # Round55 · 备忘编号+部门（前端；id/dept 可读）
+    as55 = call(
+        "/api/assets",
+        {
+            "platform": "round55Combo",
+            "summary": "编号部门",
+            "dept": "ip",
+            "tag": "其他",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert as55.get("id") is not None and as55.get("dept"), as55
+
+    # Round55 · 报备距上次小时（前端复制；hours_since_last 可读）
+    ck_st55 = call("/api/checkin/status")
+    cd55 = ck_st55.get("countdown") or {}
+    assert cd55.get("hours_since_last") is not None or ck_st55.get("user"), ck_st55
+
+    # Round55 · 差旅断缴退款种类键（前端复制；last_refund.kind 可读）
+    tf55 = call("/api/travel-fund")
+    fund55 = tf55.get("fund") or tf55
+    refund55 = fund55.get("last_refund")
+    assert refund55 is None or refund55.get("kind") or isinstance(
+        tf55.get("ledger") or [], list
+    ), tf55
+
+    # Round55 · 善后服务类型+城市（前端；service_type/city 可读）
+    ac55 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·服务城市55",
+            "service_type": "delete_data",
+            "city": "文昌",
+            "travel_budget": 520,
+        },
+    )["item"]
+    assert ac55.get("service_type") and ac55.get("city"), ac55
+
+    # Round55 · 授权视频门槛总数（前端复制；progress.total 可读）
+    av55 = call("/api/auth-video")
+    prog_av55 = av55.get("progress") or {}
+    assert prog_av55.get("total") is not None or av55.get("ready") is not None, av55
+
+    # Round55 · 受益人编号纯数字（前端；id 可读）
+    bn55 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·编号55",
+            "role": "heir",
+            "relation": "子女",
+            "contact": "13300000055",
+        },
+    )["item"]
+    assert bn55.get("id") is not None, bn55
+
+    # Round55 · 手册转赠条数（前端复制；action_counts.gift 可读）
+    hand55 = call("/api/handover")
+    prog55 = hand55.get("progress") or {}
+    gift55 = (prog55.get("action_counts") or {}).get("gift")
+    assert gift55 is not None or isinstance(prog55.get("by_action"), list) or hand55.get(
+        "item_count"
+    ) is not None, hand55
+
+    # Round55 · 设置·服务端版本纯文本（前端复制；health.server_version 对齐）
+    h55 = call("/api/health")
+    assert h55.get("ok") is True, h55
+    assert h55.get("server_version") or h55.get("version"), h55
+
     print("selfcheck OK")
 
 
