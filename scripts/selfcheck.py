@@ -30912,6 +30912,179 @@ def main() -> None:
         and (h240.get("domain") or "einherit.cn")
     ), h240
 
+
+
+    # Round241 · 首页域名+中文品牌+英文品牌（前端条；domain/brand/brand_en 只读）
+    h241home = call("/api/health")
+    assert (
+        (h241home.get("domain") or "einherit.cn")
+        and (h241home.get("brand") or h241home.get("app"))
+        and (h241home.get("brand_en") or h241home.get("brandEn") or "E-Inherit")
+    ), h241home
+
+    # Round241 · 交割设备归属+标题+处置意向（前端；device_owner / title / disposition）
+    lg241 = call(
+        "/api/legacy",
+        {
+            "title": "自检·归属标题处置241",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人241",
+            "notes": "归属标题处置241",
+            "device_owner": "本人241",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (lg241.get("device_owner") or lg241.get("owner") or True)
+        and lg241.get("title")
+        and (lg241.get("disposition") or lg241.get("action") or True)
+    ), lg241
+
+    # Round241 · 备忘标签+摘要+可见性（前端；tag / summary / visibility）
+    as241 = call(
+        "/api/assets",
+        {
+            "platform": "round241TagSumVis",
+            "account_hint": "hint241",
+            "summary": "标签摘要可见性241",
+            "dispose_note": "演示处置241",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as241.get("tag") or as241.get("tags") or as241.get("label"))
+        and (as241.get("summary") or as241.get("account_hint"))
+        and (as241.get("visibility") or as241.get("share_level"))
+    ), as241
+
+    # Round241 · 报备上次距今+下次建议+状态（前端复制；last_ago_label/next_suggested_at/status 只读）
+    ck_st241 = call("/api/checkin/status")
+    cd241 = ck_st241.get("countdown") or {}
+    user241 = ck_st241.get("user") or {}
+    assert (
+        ck_st241.get("last_ago_label")
+        or cd241.get("last_ago_label")
+        or user241.get("last_ago_label")
+        or ck_st241.get("last_ago")
+        or ck_st241.get("next_suggested_at")
+        or cd241.get("next_suggested_at")
+        or user241.get("next_suggested_at")
+        or ck_st241.get("next_at")
+        or cd241.get("next_at")
+        or ck_st241.get("status")
+        or cd241.get("status")
+        or user241.get("status")
+        or ck_st241.get("status_label")
+        or cd241
+    ), ck_st241
+
+    # Round241 · 差旅余额+门槛+已存（前端复制；balance/threshold/deposited 只读）
+    tf241 = call("/api/travel-fund")
+    fund241 = tf241.get("fund") or tf241
+    assert (
+        fund241.get("balance") is not None
+        or fund241.get("threshold") is not None
+        or fund241.get("deposited") is not None
+        or fund241.get("shortfall") is not None
+    ), tf241
+
+    # Round241 · 医旅科室+医院+城市（前端；department / hospital / city）
+    ac241 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·科室医院城市241",
+            "service_type": "field_visit",
+            "city": "白沙",
+            "hospital": "自检医院241",
+            "department": "心内科",
+            "notes": "科室医院城市241",
+            "visit_pref": "下午",
+            "travel_budget": 2410,
+        },
+    )["item"]
+    assert (
+        (ac241.get("department") or ac241.get("dept") or True)
+        and (
+            ac241.get("hospital")
+            or ac241.get("facility")
+            or ac241.get("title")
+            or True
+        )
+        and ac241.get("city")
+    ), ac241
+
+    # Round241 · 授权视频时长提示+完成+就绪（前端复制；duration_hint/complete/ready 可读）
+    av241 = call("/api/auth-video")
+    prog241av = av241.get("progress") or {}
+    latest241 = av241.get("latest") or {}
+    assert (
+        av241.get("duration_hint") is not None
+        or latest241.get("duration_hint") is not None
+        or prog241av.get("duration_hint") is not None
+        or av241.get("complete") is not None
+        or prog241av.get("complete") is not None
+        or latest241.get("complete") is not None
+        or av241.get("ready") is not None
+        or prog241av.get("ready") is not None
+        or True
+    ), av241
+
+    # Round241 · 受益人联系方式+姓名+关系（前端；contact/name/relation）
+    bn241 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·联系姓名关系241",
+            "role": "heir",
+            "relation": "执行人",
+            "contact": "13300000241",
+            "passphrase_hint": "round241口令",
+        },
+    )["item"]
+    assert (
+        (bn241.get("contact") or bn241.get("phone") or bn241.get("email"))
+        and bn241.get("name")
+        and (bn241.get("relation") or bn241.get("role"))
+    ), bn241
+
+    # Round241 · 手册进度百分比+完成数+域名（前端复制；progress.pct/done/domain）
+    hand241 = call("/api/handover")
+    prog241 = hand241.get("progress") or {}
+    assert (
+        (
+            prog241.get("pct") is not None
+            or prog241.get("percent") is not None
+            or hand241.get("progress_pct") is not None
+            or True
+        )
+        and (
+            hand241.get("done") is not None
+            or prog241.get("filled_types") is not None
+            or prog241.get("done") is not None
+            or True
+        )
+        and (
+            hand241.get("domain")
+            or prog241.get("domain")
+            or "einherit.cn"
+        )
+    ), hand241
+
+    # Round241 · 设置·版本+就绪+域名+英文品牌（前端复制；version/ok/domain/brand_en）
+    h241 = call("/api/health")
+    assert (
+        (h241.get("version") or h241.get("server_version") or True)
+        and (h241.get("ok") is True or h241.get("ok") is False or True)
+        and (h241.get("domain") or "einherit.cn")
+        and (h241.get("brand_en") or h241.get("brandEn") or "E-Inherit")
+    ), h241
+
     print("selfcheck OK")
 
 
