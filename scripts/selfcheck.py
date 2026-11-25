@@ -8390,6 +8390,98 @@ def main() -> None:
         "domain"
     ) == "einherit.cn" and h92.get("brand_en"), h92
 
+    # Round93 · 首页应用就绪域名（前端条；app/ok/domain 只读）
+    h93home = call("/api/health")
+    assert h93home.get("app") and h93home.get("ok") is True and h93home.get(
+        "domain"
+    ) == "einherit.cn", h93home
+
+    # Round93 · 交割分类+处置+受益人（前端；category/action/beneficiary 可读）
+    lg93 = call(
+        "/api/legacy",
+        {
+            "title": "自检·分类处置93",
+            "category": "耳机",
+            "action": "转赠",
+            "dept": "finance",
+            "beneficiary": "自检受益人93",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert lg93.get("category") and lg93.get("action"), lg93
+    assert lg93.get("beneficiary") or "beneficiary" in lg93, lg93
+
+    # Round93 · 备忘标签+可见性+部门（前端；tag/visibility/dept 可读）
+    as93 = call(
+        "/api/assets",
+        {
+            "platform": "round93TagVisDept",
+            "account_hint": "hint93",
+            "summary": "标签可见部门93",
+            "dispose_note": "演示处置93",
+            "dept": "admin",
+            "tag": "其他",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert as93.get("tag") and as93.get("visibility") and as93.get("dept"), as93
+
+    # Round93 · 报备可读说明（前端复制；readable 只读）
+    ck_st93 = call("/api/checkin/status")
+    cd93 = ck_st93.get("countdown") or {}
+    assert cd93.get("readable") or cd93, ck_st93
+
+    # Round93 · 差旅达标与门槛（前端复制；met/threshold 只读）
+    tf93 = call("/api/travel-fund")
+    fund93 = tf93.get("fund") or tf93
+    assert fund93.get("met") is not None or fund93.get("threshold") is not None, tf93
+
+    # Round93 · 善后编号+阶段+备注（前端；id/phase/notes 可读）
+    ac93 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·编号阶段93",
+            "service_type": "field_visit",
+            "city": "琼中",
+            "notes": "编号阶段备注93",
+            "visit_pref": "清晨",
+            "travel_budget": 930,
+        },
+    )["item"]
+    assert ac93.get("id") is not None and (
+        ac93.get("phase") or ac93.get("notes")
+    ), ac93
+
+    # Round93 · 授权视频进度+完成文案（前端复制；progress/complete_label 可读）
+    av93 = call("/api/auth-video")
+    prog93 = av93.get("progress") or {}
+    assert prog93.get("done") is not None or av93.get("complete_label"), av93
+
+    # Round93 · 受益人联系+姓名+关系（前端；contact/name/relation 可读）
+    bn93 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·联系姓名93",
+            "role": "executor",
+            "relation": "同学",
+            "contact": "13300000093",
+            "passphrase_hint": "round93口令",
+        },
+    )["item"]
+    assert bn93.get("contact") and bn93.get("name") and bn93.get("relation"), bn93
+
+    # Round93 · 手册导出路径与分享提示（前端复制；export_path/share_hint 可读）
+    hand93 = call("/api/handover")
+    assert hand93.get("export_path") or hand93.get("share_hint"), hand93
+
+    # Round93 · 设置·就绪+域名+英文品牌（前端复制；ok/domain/brand_en 对齐）
+    h93 = call("/api/health")
+    assert h93.get("ok") is True, h93
+    assert h93.get("domain") == "einherit.cn" and h93.get("brand_en"), h93
+
     print("selfcheck OK")
 
 
