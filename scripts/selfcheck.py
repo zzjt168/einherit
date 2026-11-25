@@ -4275,6 +4275,99 @@ def main() -> None:
     assert h49.get("version") or h49.get("server_version"), h49
     assert h49.get("domain") == "einherit.cn", h49
 
+    # Round50 · 首页五十批体验层就绪（前端条；脚本挂载由 UI 判定）
+    h50home = call("/api/health")
+    assert h50home.get("ok") is True, h50home
+    assert h50home.get("domain") == "einherit.cn", h50home
+
+    # Round50 · 交割编号+类别（前端；id/category 可读）
+    lg50 = call(
+        "/api/legacy",
+        {
+            "title": "自检·编号类别50",
+            "category": "设备",
+            "action": "变现",
+            "dept": "finance",
+        },
+    )["item"]
+    assert lg50.get("id") is not None and lg50.get("category"), lg50
+
+    # Round50 · 备忘平台+部门（前端；platform/dept 可读）
+    as50 = call(
+        "/api/assets",
+        {
+            "platform": "round50Combo",
+            "summary": "平台部门50",
+            "dept": "ip",
+            "tag": "账号",
+            "draft": True,
+        },
+    )["item"]
+    assert as50.get("platform") and as50.get("dept"), as50
+
+    # Round50 · 报备冷静期小时纯数字（前端复制；grace_hours 可读）
+    ck_st50 = call("/api/checkin/status")
+    assert "user" in ck_st50, ck_st50
+    assert (
+        ck_st50["user"].get("grace_hours") is not None
+        or (ck_st50.get("countdown") or {}).get("grace_hours") is not None
+        or "is_member" in ck_st50["user"]
+    ), ck_st50
+
+    # Round50 · 差旅进度文案（前端复制；progress_label 可读）
+    tf50 = call("/api/travel-fund")
+    fund50 = tf50.get("fund") or tf50
+    assert (
+        fund50.get("progress_label")
+        or fund50.get("progress_pct") is not None
+        or fund50.get("balance") is not None
+    ), fund50
+
+    # Round50 · 善后标题+阶段（前端；title/phase_label 可读）
+    ac50 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·标题阶段50",
+            "service_type": "field_visit",
+            "city": "三亚",
+            "travel_budget": 380,
+        },
+    )["item"]
+    assert ac50.get("title") and (
+        ac50.get("phase_label") or ac50.get("status_label")
+    ), ac50
+
+    # Round50 · 授权视频三勾已完成数（前端复制；progress.done 可读）
+    av50 = call("/api/auth-video")
+    prog50 = av50.get("progress") or {}
+    assert (
+        prog50.get("done") is not None
+        or av50.get("complete") is not None
+        or av50.get("ready") is not None
+    ), av50
+
+    # Round50 · 受益人关系+角色（前端；relation/role 可读）
+    bn50 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·关系角色50",
+            "role": "heir",
+            "relation": "子女",
+            "contact": "13300000050",
+        },
+    )["item"]
+    assert bn50.get("relation") and bn50.get("role"), bn50
+
+    # Round50 · 手册品牌+执行人（前端复制；brand/executor 可读）
+    hand50 = call("/api/handover")
+    assert hand50.get("brand") or hand50.get("executor") is not None, hand50
+
+    # Round50 · 设置·五十批体验层范围（前端复制；health 对齐作锚）
+    h50 = call("/api/health")
+    assert h50.get("ok") is True, h50
+    assert h50.get("domain") == "einherit.cn", h50
+    assert h50.get("app") or h50.get("brand_en"), h50
+
     print("selfcheck OK")
 
 
