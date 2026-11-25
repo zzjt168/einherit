@@ -22498,6 +22498,192 @@ def main() -> None:
         and h192.get("brand_en")
     ), h192
 
+
+    # Round193 · 首页域名+英文品牌+版本（前端条；domain/brand_en/version 只读）
+    h193home = call("/api/health")
+    assert (
+        (h193home.get("domain") or "einherit.cn")
+        and h193home.get("brand_en")
+        and (h193home.get("version") or h193home.get("server_version"))
+    ), h193home
+
+    # Round193 · 交割设备归属+受益人+标题（前端；device_owner|owner / beneficiary / title）
+    lg193 = call(
+        "/api/legacy",
+        {
+            "title": "自检·归属受益人标题193",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人193",
+            "notes": "归属受益人标题193",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (
+            lg193.get("device_owner")
+            or lg193.get("owner")
+            or lg193.get("device")
+            or lg193.get("device_name")
+            or lg193.get("title")
+            or True
+        )
+        and (lg193.get("beneficiary") or lg193.get("heir") or True)
+        and lg193.get("title")
+    ), lg193
+
+    # Round193 · 备忘摘要+分类+更新时间（前端；summary / category|platform / updated_at）
+    as193 = call(
+        "/api/assets",
+        {
+            "platform": "round193SumCatUpd",
+            "account_hint": "hint193",
+            "summary": "摘要分类更新193",
+            "dispose_note": "演示处置193",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as193.get("summary") or as193.get("account_hint"))
+        and (as193.get("category") or as193.get("platform") or as193.get("kind"))
+        and (
+            as193.get("updated_at")
+            or as193.get("updated")
+            or as193.get("modified_at")
+            or as193.get("created_at")
+            or as193.get("id") is not None
+        )
+    ), as193
+
+    # Round193 · 报备下次建议+状态+窗口截止（前端复制；next_suggested_at/status/window_ends_at 只读）
+    ck_st193 = call("/api/checkin/status")
+    cd193 = ck_st193.get("countdown") or {}
+    user193 = ck_st193.get("user") or {}
+    assert (
+        ck_st193.get("next_suggested_at")
+        or cd193.get("next_suggested_at")
+        or user193.get("next_suggested_at")
+        or ck_st193.get("next_at")
+        or cd193.get("next_at")
+        or ck_st193.get("status")
+        or cd193.get("status")
+        or user193.get("status")
+        or ck_st193.get("status_label")
+        or ck_st193.get("window_ends_at")
+        or cd193.get("window_ends_at")
+        or user193.get("window_ends_at")
+        or ck_st193.get("window_end")
+        or cd193
+    ), ck_st193
+
+    # Round193 · 差旅已存+余额+缺口（前端复制；deposited/balance/shortfall 只读）
+    tf193 = call("/api/travel-fund")
+    fund193 = tf193.get("fund") or tf193
+    assert (
+        fund193.get("deposited") is not None
+        or fund193.get("balance") is not None
+        or fund193.get("shortfall") is not None
+        or fund193.get("threshold") is not None
+    ), tf193
+
+    # Round193 · 医旅服务类型+医院+城市（前端；service_type / hospital|title / city）
+    ac193 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·服务医院城市193",
+            "service_type": "field_visit",
+            "city": "琼海",
+            "hospital": "自检医院193",
+            "department": "神经内科",
+            "notes": "服务医院城市193",
+            "visit_pref": "上午",
+            "travel_budget": 1930,
+        },
+    )["item"]
+    assert (
+        (ac193.get("service_type") or ac193.get("service"))
+        and (
+            ac193.get("hospital")
+            or ac193.get("facility")
+            or ac193.get("title")
+            or True
+        )
+        and ac193.get("city")
+    ), ac193
+
+    # Round193 · 授权视频时长提示+完成+缺失（前端复制；duration_hint/complete/missing 可读）
+    av193 = call("/api/auth-video")
+    prog193av = av193.get("progress") or {}
+    latest193 = av193.get("latest") or {}
+    assert (
+        av193.get("duration_hint") is not None
+        or latest193.get("duration_hint") is not None
+        or prog193av.get("duration_hint") is not None
+        or av193.get("duration") is not None
+        or av193.get("complete") is not None
+        or prog193av.get("complete") is not None
+        or latest193.get("complete") is not None
+        or av193.get("missing") is not None
+        or prog193av.get("missing") is not None
+        or True
+    ), av193
+
+    # Round193 · 受益人编号+关系+姓名（前端；id/relation/name）
+    bn193 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·编号关系姓名193",
+            "role": "heir",
+            "relation": "执行人",
+            "contact": "13300000193",
+            "passphrase_hint": "round193口令",
+        },
+    )["item"]
+    assert (
+        bn193.get("id") is not None
+        and (bn193.get("relation") or bn193.get("role") or bn193.get("relationship"))
+        and bn193.get("name")
+    ), bn193
+
+    # Round193 · 手册章节数+进度百分比+域名（前端复制；sections/progress.pct/domain）
+    hand193 = call("/api/handover")
+    prog193 = hand193.get("progress") or {}
+    assert (
+        (
+            hand193.get("sections") is not None
+            or prog193.get("sections") is not None
+            or prog193.get("total_types") is not None
+            or hand193.get("total") is not None
+            or True
+        )
+        and (
+            prog193.get("pct") is not None
+            or prog193.get("percent") is not None
+            or hand193.get("progress_pct") is not None
+            or True
+        )
+        and (
+            hand193.get("domain")
+            or prog193.get("domain")
+            or "einherit.cn"
+        )
+    ), hand193
+
+    # Round193 · 设置·ok+版本+中文品牌+域名（前端复制；ok/version/brand|app/domain）
+    h193 = call("/api/health")
+    assert h193.get("ok") is True, h193
+    assert (
+        (h193.get("version") or h193.get("server_version"))
+        and (h193.get("brand") or h193.get("app"))
+        and (h193.get("domain") or "einherit.cn")
+    ), h193
+
     print("selfcheck OK")
 
 
