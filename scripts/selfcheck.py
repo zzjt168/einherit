@@ -3452,6 +3452,95 @@ def main() -> None:
     assert h40.get("version") or h40.get("server_version"), h40
     assert h40.get("domain") == "einherit.cn", h40
 
+    # Round41 · 首页执行人线索条数（前端条；executor-lead 可读）
+    ex41 = call("/api/executor-lead")
+    assert isinstance(ex41.get("items"), list), ex41
+
+    # Round41 · 交割标题+部门复制（前端；title/dept 可读）
+    lg41 = call(
+        "/api/legacy",
+        {
+            "title": "自检·标题部门41",
+            "category": "其他",
+            "action": "销毁",
+            "dept": "finance",
+        },
+    )["item"]
+    assert lg41.get("title") and lg41.get("dept"), lg41
+
+    # Round41 · 备忘复习日复制（前端；review_at 可读）
+    as41 = call(
+        "/api/assets",
+        {
+            "platform": "round41Review",
+            "summary": "复习日",
+            "dept": "admin",
+            "draft": True,
+        },
+    )["item"]
+    as41 = call(
+        "/api/assets/review-at",
+        {"id": as41["id"], "review_at": "2026-12-01"},
+    )["item"]
+    assert "2026-12-01" in str(as41.get("review_at") or ""), as41
+
+    # Round41 · 报备会员到期日（前端复制；member_until_iso 可读）
+    ck_st41 = call("/api/checkin/status")
+    assert "user" in ck_st41, ck_st41
+    assert (
+        ck_st41["user"].get("member_until_iso")
+        or ck_st41["user"].get("member_until") is not None
+        or "is_member" in ck_st41["user"]
+    ), ck_st41
+
+    # Round41 · 差旅流水编号（前端复制；ledger id 可读）
+    tf41 = call("/api/travel-fund")
+    ledger41 = tf41.get("ledger") or []
+    assert isinstance(ledger41, list), tf41
+
+    # Round41 · 善后预算标签（前端；travel_budget_label 可读）
+    ac41 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·预算标签41",
+            "service_type": "delete_data",
+            "city": "海口",
+            "travel_budget": 280,
+        },
+    )["item"]
+    assert ac41.get("travel_budget_label") or ac41.get("travel_budget") is not None, ac41
+
+    # Round41 · 授权视频门槛说明（前端复制；missing_text 可读）
+    av41 = call("/api/auth-video")
+    assert (
+        av41.get("missing_text") is not None
+        or "ready" in av41
+        or "complete" in av41
+    ), av41
+
+    # Round41 · 受益人联系+角色（前端；contact/role 可读）
+    bn41 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·联系角色41",
+            "role": "executor",
+            "relation": "演示",
+            "contact": "13300000041",
+        },
+    )["item"]
+    assert bn41.get("contact") and str(bn41.get("role") or "") == "executor", bn41
+
+    # Round41 · 手册域名（前端复制；domain 可读）
+    hand41 = call("/api/handover")
+    assert hand41.get("domain") == "einherit.cn" or hand41.get("domain"), hand41
+
+    # Round41 · 设置·中文品牌·域名·版本（前端复制；health 对齐）
+    h41 = call("/api/health")
+    assert h41.get("ok") is True, h41
+    assert h41.get("app") or h41.get("brand_en"), h41
+    assert h41.get("domain") == "einherit.cn", h41
+    assert h41.get("version") or h41.get("server_version"), h41
+
     print("selfcheck OK")
 
 
