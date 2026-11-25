@@ -9331,6 +9331,118 @@ def main() -> None:
         h101.get("version") or h101.get("server_version")
     ), h101
 
+    # Round102 · 首页应用英文就绪（前端条；app/brand_en/ok 只读）
+    h102home = call("/api/health")
+    assert h102home.get("app") and h102home.get("brand_en") and h102home.get(
+        "ok"
+    ) is True, h102home
+
+    # Round102 · 交割编号+标题+受益人（前端；id/title/beneficiary 可读）
+    lg102 = call(
+        "/api/legacy",
+        {
+            "title": "自检·编号标题102",
+            "category": "耳机",
+            "action": "转赠",
+            "dept": "finance",
+            "beneficiary": "自检受益人102",
+            "notes": "备注102",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert lg102.get("id") is not None and lg102.get("title") and lg102.get(
+        "beneficiary"
+    ), lg102
+
+    # Round102 · 备忘摘要+部门+账号提示（前端；summary/dept/account_hint 可读）
+    as102 = call(
+        "/api/assets",
+        {
+            "platform": "round102SumDeptHint",
+            "account_hint": "hint102",
+            "summary": "摘要部门提示102",
+            "dispose_note": "演示处置102",
+            "dept": "admin",
+            "tag": "其他",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert as102.get("summary") and as102.get("dept") and as102.get(
+        "account_hint"
+    ), as102
+
+    # Round102 · 报备倒计时标签（前端复制；countdown_label 只读）
+    ck_st102 = call("/api/checkin/status")
+    cd102 = ck_st102.get("countdown") or {}
+    assert cd102.get("countdown_label") or cd102, ck_st102
+
+    # Round102 · 差旅门槛+余额+进度百分比（前端复制；threshold/balance/progress_pct 只读）
+    tf102 = call("/api/travel-fund")
+    fund102 = tf102.get("fund") or tf102
+    assert (
+        fund102.get("threshold") is not None
+        or fund102.get("balance") is not None
+        or fund102.get("progress_pct") is not None
+        or fund102.get("progress") is not None
+    ), tf102
+
+    # Round102 · 善后标题+服务类型+城市（前端；title/service_type/city 可读）
+    ac102 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·标题服务102",
+            "service_type": "field_visit",
+            "city": "五指山",
+            "notes": "标题服务城市102",
+            "visit_pref": "晚上",
+            "travel_budget": 1020,
+        },
+    )["item"]
+    assert ac102.get("title") and (
+        ac102.get("service_type") or ac102.get("city")
+    ), ac102
+
+    # Round102 · 授权视频就绪+闸口+进度（前端复制；ready/gate/progress 可读）
+    av102 = call("/api/auth-video")
+    assert (
+        av102.get("ready") is not None
+        or av102.get("gate")
+        or av102.get("progress")
+    ), av102
+
+    # Round102 · 受益人联系+角色+姓名（前端；contact/role/name 可读）
+    bn102 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·联系角色102",
+            "role": "executor",
+            "relation": "亲属",
+            "contact": "13300000102",
+            "passphrase_hint": "round102口令",
+        },
+    )["item"]
+    assert bn102.get("contact") and bn102.get("role") and bn102.get(
+        "name"
+    ), bn102
+
+    # Round102 · 手册品牌+域名+导出路径（前端复制；brand/domain/export_path 可读）
+    hand102 = call("/api/handover")
+    assert (
+        hand102.get("brand")
+        or hand102.get("domain")
+        or hand102.get("export_path")
+    ), hand102
+
+    # Round102 · 设置·应用名+就绪+域名+版本（前端复制；app/ok/domain/version 对齐）
+    h102 = call("/api/health")
+    assert h102.get("ok") is True, h102
+    assert h102.get("app") and h102.get("domain") and (
+        h102.get("version") or h102.get("server_version")
+    ), h102
+
     print("selfcheck OK")
 
 
