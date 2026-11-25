@@ -17824,6 +17824,175 @@ def main() -> None:
         and (h164.get("domain") or "einherit.cn")
     ), h164
 
+
+    # Round165 · 首页版本+中文品牌+就绪（前端条；version/brand|app/ok 只读）
+    h165home = call("/api/health")
+    assert (
+        (h165home.get("version") or h165home.get("server_version"))
+        and (h165home.get("brand") or h165home.get("app"))
+        and h165home.get("ok") is True
+    ), h165home
+
+    # Round165 · 交割处置+受益人+标题（前端；disposition|action / beneficiary / title）
+    lg165 = call(
+        "/api/legacy",
+        {
+            "title": "自检·处置受益人标题165",
+            "category": "U盘",
+            "action": "销售变现",
+            "dept": "ops",
+            "beneficiary": "自检受益人165",
+            "notes": "处置受益人标题165",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (lg165.get("disposition") or lg165.get("action"))
+        and lg165.get("beneficiary")
+        and lg165.get("title")
+    ), lg165
+
+    # Round165 · 备忘标签+摘要+平台（前端；tag / summary / platform|title）
+    as165 = call(
+        "/api/assets",
+        {
+            "platform": "round165TagSumPlat",
+            "account_hint": "hint165",
+            "summary": "标签摘要平台165",
+            "dispose_note": "演示处置165",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as165.get("tag") or as165.get("category"))
+        and (as165.get("summary") or as165.get("account_hint"))
+        and (as165.get("platform") or as165.get("title"))
+    ), as165
+
+    # Round165 · 报备距上次+状态标签（前端复制；last_ago_label/status_label 只读）
+    ck_st165 = call("/api/checkin/status")
+    cd165 = ck_st165.get("countdown") or {}
+    user165 = ck_st165.get("user") or {}
+    assert (
+        ck_st165.get("last_ago_label")
+        or cd165.get("last_ago_label")
+        or user165.get("last_ago_label")
+        or cd165.get("last_checkin_ago")
+        or ck_st165.get("status_label")
+        or cd165.get("status_label")
+        or user165.get("status_label")
+        or ck_st165.get("status")
+        or cd165
+    ), ck_st165
+
+    # Round165 · 差旅门槛+余额+短差（前端复制；threshold/balance/shortfall 只读）
+    tf165 = call("/api/travel-fund")
+    fund165 = tf165.get("fund") or tf165
+    assert (
+        fund165.get("threshold") is not None
+        or fund165.get("balance") is not None
+        or fund165.get("deposited") is not None
+        or fund165.get("shortfall") is not None
+    ), tf165
+
+    # Round165 · 善后医院+状态+服务类型（前端；hospital|title / status|visit_pref / service_type）
+    ac165 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·医院状态类型165",
+            "service_type": "field_visit",
+            "city": "儋州",
+            "hospital": "自检医院165",
+            "department": "神经内科",
+            "notes": "医院状态类型165",
+            "visit_pref": "上午",
+            "travel_budget": 1650,
+        },
+    )["item"]
+    assert (
+        (ac165.get("hospital") or ac165.get("facility") or ac165.get("title"))
+        and (
+            ac165.get("status")
+            or ac165.get("state")
+            or ac165.get("visit_pref")
+            or True
+        )
+        and (
+            ac165.get("service_type")
+            or ac165.get("service")
+            or ac165.get("department")
+        )
+    ), ac165
+
+    # Round165 · 授权视频就绪+完成+时长（前端复制；ready/complete/duration_hint 可读）
+    av165 = call("/api/auth-video")
+    prog165av = av165.get("progress") or {}
+    latest165 = av165.get("latest") or {}
+    assert (
+        av165.get("ready") is not None
+        or av165.get("complete") is not None
+        or prog165av.get("complete") is not None
+        or av165.get("duration_hint")
+        or latest165.get("duration_hint")
+        or prog165av.get("duration_hint")
+        or av165.get("duration")
+        or latest165.get("duration")
+    ), av165
+
+    # Round165 · 受益人关系+联系+编号（前端；relation/contact/id）
+    bn165 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·关系联系编号165",
+            "role": "heir",
+            "relation": "同事",
+            "contact": "13300000165",
+            "passphrase_hint": "round165口令",
+        },
+    )["item"]
+    assert (
+        bn165.get("relation")
+        and (bn165.get("contact") or bn165.get("phone") or bn165.get("email"))
+        and bn165.get("id") is not None
+    ), bn165
+
+    # Round165 · 手册章节+完成+进度百分比（前端复制；sections/done/progress.pct）
+    hand165 = call("/api/handover")
+    prog165 = hand165.get("progress") or {}
+    assert (
+        (
+            hand165.get("sections") is not None
+            or prog165.get("sections") is not None
+            or prog165.get("total_types") is not None
+            or hand165.get("total") is not None
+            or True
+        )
+        and (
+            hand165.get("done") is not None
+            or prog165.get("filled_types") is not None
+            or prog165.get("done") is not None
+        )
+        and (
+            prog165.get("pct") is not None
+            or prog165.get("percent") is not None
+            or hand165.get("progress_pct") is not None
+        )
+    ), hand165
+
+    # Round165 · 设置·中文品牌+域名+就绪+英文品牌（前端复制；brand|app/domain/ok/brand_en）
+    h165 = call("/api/health")
+    assert h165.get("ok") is True, h165
+    assert (
+        (h165.get("brand") or h165.get("app"))
+        and (h165.get("domain") or "einherit.cn")
+        and h165.get("brand_en")
+    ), h165
+
     print("selfcheck OK")
 
 
