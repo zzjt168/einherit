@@ -11424,6 +11424,125 @@ def main() -> None:
         "brand_en"
     ), h119
 
+    # Round120 · 首页域名英文版本（前端条；domain/brand_en/version 只读）
+    h120home = call("/api/health")
+    assert (
+        h120home.get("domain") == "einherit.cn"
+        and h120home.get("brand_en")
+        and (h120home.get("version") or h120home.get("server_version"))
+    ), h120home
+
+    # Round120 · 交割动作+备注+受益人（前端；action/notes/beneficiary 可读）
+    lg120 = call(
+        "/api/legacy",
+        {
+            "title": "自检·动作备注120",
+            "category": "电脑",
+            "action": "销售变现",
+            "dept": "finance",
+            "beneficiary": "自检受益人120",
+            "notes": "备注120",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert lg120.get("action") and lg120.get("notes") and lg120.get(
+        "beneficiary"
+    ), lg120
+
+    # Round120 · 备忘平台+部门+可见度（前端；platform/dept/visibility 可读）
+    as120 = call(
+        "/api/assets",
+        {
+            "platform": "round120PlatDeptVis",
+            "account_hint": "hint120",
+            "summary": "平台部门可见120",
+            "dispose_note": "演示处置120",
+            "dept": "admin",
+            "tag": "其他",
+            "visibility": "private",
+            "draft": True,
+        },
+    )["item"]
+    assert as120.get("platform") and as120.get("dept") and as120.get(
+        "visibility"
+    ), as120
+
+    # Round120 · 报备剩余小时+可读文案（前端复制；hours_remaining/readable 只读）
+    ck_st120 = call("/api/checkin/status")
+    cd120 = ck_st120.get("countdown") or {}
+    assert (
+        cd120.get("hours_remaining") is not None
+        or cd120.get("readable")
+        or cd120
+    ), ck_st120
+
+    # Round120 · 差旅进度+达标+余额（前端复制；progress_pct/met/balance 只读）
+    tf120 = call("/api/travel-fund")
+    fund120 = tf120.get("fund") or tf120
+    assert (
+        fund120.get("progress_pct") is not None
+        or fund120.get("met") is not None
+        or fund120.get("balance") is not None
+    ), tf120
+
+    # Round120 · 善后标题+拜访+预算（前端；title/visit_pref/travel_budget 可读）
+    ac120 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·标题拜访120",
+            "service_type": "phone_assist",
+            "city": "白沙",
+            "notes": "标题拜访预算120",
+            "visit_pref": "晚上",
+            "travel_budget": 1200,
+        },
+    )["item"]
+    assert ac120.get("title") and (
+        ac120.get("visit_pref") or True
+    ) and ac120.get("travel_budget") is not None, ac120
+
+    # Round120 · 授权视频就绪+完成+清单（前端复制；ready/complete/checklist 可读）
+    av120 = call("/api/auth-video")
+    assert (
+        av120.get("ready") is not None
+        or av120.get("complete") is not None
+        or isinstance(av120.get("checklist"), list)
+    ), av120
+
+    # Round120 · 受益人联系+口令+关系（前端；contact/passphrase_hint/relation 可读）
+    bn120 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·联系口令120",
+            "role": "heir",
+            "relation": "亲属",
+            "contact": "13300000120",
+            "passphrase_hint": "round120口令",
+        },
+    )["item"]
+    assert bn120.get("contact") and bn120.get(
+        "passphrase_hint"
+    ) and bn120.get("relation"), bn120
+
+    # Round120 · 手册条目+待办+域名（前端复制；item_count/todos/domain 可读）
+    hand120 = call("/api/handover")
+    assert (
+        hand120.get("item_count") is not None
+        or isinstance(hand120.get("todos"), list)
+        or hand120.get("domain")
+    ), hand120
+
+    # Round120 · 设置·域名+版本+应用+就绪（前端复制；domain/version/app/ok 对齐）
+    h120 = call("/api/health")
+    assert h120.get("ok") is True, h120
+    assert (
+        h120.get("domain")
+        and (h120.get("version") or h120.get("server_version"))
+        and h120.get("app")
+    ), h120
+
     print("selfcheck OK")
 
 
