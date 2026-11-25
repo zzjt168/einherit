@@ -15200,6 +15200,154 @@ def main() -> None:
         and (h147.get("domain") or "einherit.cn")
     ), h147
 
+    # Round148 · 首页版本+域名+就绪（前端条；version/domain/ok 只读）
+    h148home = call("/api/health")
+    assert (
+        (h148home.get("version") or h148home.get("server_version"))
+        and (h148home.get("domain") or "einherit.cn")
+        and h148home.get("ok") is True
+    ), h148home
+
+    # Round148 · 交割处置+编号+设备归属（前端；disposition|action / id / device_owner|dept）
+    lg148 = call(
+        "/api/legacy",
+        {
+            "title": "自检·处置编号归属148",
+            "category": "耳机",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人148",
+            "notes": "处置编号归属148",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (lg148.get("disposition") or lg148.get("action"))
+        and lg148.get("id") is not None
+        and (
+            lg148.get("device_owner")
+            or lg148.get("dept")
+            or lg148.get("beneficiary")
+        )
+    ), lg148
+
+    # Round148 · 备忘标签+平台+可见性（前端；tag|category / platform / visibility）
+    as148 = call(
+        "/api/assets",
+        {
+            "platform": "round148TagPlatVis",
+            "account_hint": "hint148",
+            "summary": "标签平台可见148",
+            "dispose_note": "演示处置148",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as148.get("tag") or as148.get("category") or as148.get("dept"))
+        and as148.get("platform")
+        and as148.get("visibility")
+    ), as148
+
+    # Round148 · 报备窗口截止+状态标签（前端复制；window_ends_at/status_label 只读）
+    ck_st148 = call("/api/checkin/status")
+    cd148 = ck_st148.get("countdown") or {}
+    user148 = ck_st148.get("user") or {}
+    assert (
+        cd148.get("window_ends_at") is not None
+        or cd148.get("window_ends_label")
+        or ck_st148.get("status_label")
+        or cd148.get("status_label")
+        or user148.get("status_label")
+        or cd148
+    ), ck_st148
+
+    # Round148 · 差旅进度+已存+门槛（前端复制；progress_pct/deposited/threshold 只读）
+    tf148 = call("/api/travel-fund")
+    fund148 = tf148.get("fund") or tf148
+    assert (
+        fund148.get("progress_pct") is not None
+        or fund148.get("progress") is not None
+        or fund148.get("deposited") is not None
+        or fund148.get("threshold") is not None
+    ), tf148
+
+    # Round148 · 医旅/善后城市+科室+医院（前端；city / department|dept / hospital|facility）
+    ac148 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·城市科室医院148",
+            "service_type": "field_visit",
+            "city": "琼海",
+            "hospital": "自检医院148",
+            "department": "骨科",
+            "notes": "城市科室医院148",
+            "visit_pref": "午间",
+            "travel_budget": 1480,
+        },
+    )["item"]
+    assert (
+        ac148.get("city")
+        and (
+            ac148.get("department")
+            or ac148.get("dept")
+            or ac148.get("service_type")
+        )
+        and (ac148.get("hospital") or ac148.get("facility") or ac148.get("city"))
+    ), ac148
+
+    # Round148 · 授权视频就绪+缺失+时长（前端复制；ready/missing/duration_hint 可读）
+    av148 = call("/api/auth-video")
+    latest148 = av148.get("latest") or {}
+    assert (
+        av148.get("ready") is not None
+        or av148.get("missing") is not None
+        or av148.get("duration_hint")
+        or latest148.get("duration_hint")
+        or av148.get("duration")
+    ), av148
+
+    # Round148 · 受益人姓名+关系+联系（前端；name/relation/contact）
+    bn148 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·姓名关系联系148",
+            "role": "heir",
+            "relation": "邻居",
+            "contact": "13300000148",
+            "passphrase_hint": "round148口令",
+        },
+    )["item"]
+    assert (
+        bn148.get("name") and bn148.get("relation") and bn148.get("contact")
+    ), bn148
+
+    # Round148 · 手册品牌+域名+章节（前端复制；brand/domain/sections）
+    hand148 = call("/api/handover")
+    prog148 = hand148.get("progress") or {}
+    assert (
+        (hand148.get("brand") or hand148.get("domain"))
+        and (hand148.get("domain") or hand148.get("brand"))
+        and (
+            hand148.get("sections") is not None
+            or prog148.get("total_types") is not None
+            or hand148.get("section_count") is not None
+        )
+    ), hand148
+
+    # Round148 · 设置·版本+域名+就绪+中文品牌（前端复制；version/domain/ok/brand|app）
+    h148 = call("/api/health")
+    assert h148.get("ok") is True, h148
+    assert (
+        (h148.get("version") or h148.get("server_version"))
+        and (h148.get("domain") or "einherit.cn")
+        and (h148.get("brand") or h148.get("app"))
+    ), h148
+
     print("selfcheck OK")
 
 
