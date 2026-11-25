@@ -5110,3 +5110,91 @@ body.privacy-mode .privacy-hint { opacity: 0.85; }
   font-weight: 600;
   color: var(--sage-deep, #2f5d45);
 }
+
+
+/* Round52 · 温和增量 */
+.home-brand-en-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 10px 0 12px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: linear-gradient(160deg, #f4f7f5 0%, #fff 75%);
+  border: 1px solid var(--line, #e2e8e4);
+}
+.home-brand-en-bar[hidden] {
+  display: none;
+}
+.home-brand-en-mark {
+  font-weight: 600;
+  color: var(--sage-deep, #2f5d45);
+  font-size: 13px;
+}
+.home-brand-en-sub {
+  flex: 1;
+  min-width: 8em;
+  font-size: 12px;
+}
+.lg-copy-action-dept {
+  margin-top: 8px;
+  margin-left: 6px;
+}
+.as-copy-id-visibility {
+  margin-top: 8px;
+  margin-left: 6px;
+}
+.checkin-member-days-num-copy {
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #f5f8f6;
+}
+.checkin-member-days-num-copy-line {
+  margin: 0 0 8px;
+}
+.travel-has-aftercare-ref-copy {
+  margin: 8px 0 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #f5f8f6;
+}
+.travel-has-aftercare-ref-copy-line {
+  margin: 0 0 8px;
+}
+.ac-copy-id-phase {
+  margin-top: 8px;
+  margin-left: 6px;
+}
+.av-script-title1-copy {
+  margin: 8px 0 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #f5f8f6;
+}
+.av-script-title1-copy-line {
+  margin: 0 0 8px;
+}
+.bn-copy-role-key {
+  margin-top: 8px;
+  margin-left: 6px;
+}
+.hand-total-types-num-copy {
+  margin: 8px 0 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #f5f8f6;
+}
+.hand-total-types-num-copy-line {
+  margin: 0 0 8px;
+}
+.version-plain-copy-card .version-plain-copy-preview {
+  margin: 8px 0 10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: #f5f8f6;
+  word-break: break-word;
+  font-weight: 600;
+  color: var(--sage-deep, #2f5d45);
+}
