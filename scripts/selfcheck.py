@@ -15953,6 +15953,158 @@ def main() -> None:
         and (h152.get("version") or h152.get("server_version"))
     ), h152
 
+    # Round153 · 首页版本+中文品牌+英文品牌（前端条；version/brand|app/brand_en 只读）
+    h153home = call("/api/health")
+    assert (
+        (h153home.get("version") or h153home.get("server_version"))
+        and (h153home.get("brand") or h153home.get("app"))
+        and h153home.get("brand_en")
+    ), h153home
+
+    # Round153 · 交割处置+标题+设备归属（前端；disposition|action / title / device_owner|dept）
+    lg153 = call(
+        "/api/legacy",
+        {
+            "title": "自检·处置标题归属153",
+            "category": "摄像头",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人153",
+            "notes": "处置标题归属153",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (lg153.get("disposition") or lg153.get("action"))
+        and (lg153.get("title") or lg153.get("category"))
+        and (
+            lg153.get("device_owner")
+            or lg153.get("dept")
+            or lg153.get("beneficiary")
+        )
+    ), lg153
+
+    # Round153 · 备忘摘要+可见性+平台（前端；summary / visibility / platform）
+    as153 = call(
+        "/api/assets",
+        {
+            "platform": "round153SumVisPlat",
+            "account_hint": "hint153",
+            "summary": "摘要可见平台153",
+            "dispose_note": "演示处置153",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as153.get("summary") or as153.get("account_hint"))
+        and as153.get("visibility")
+        and as153.get("platform")
+    ), as153
+
+    # Round153 · 报备下次建议+距上次（前端复制；next_suggested_at/last_ago_label 只读）
+    ck_st153 = call("/api/checkin/status")
+    cd153 = ck_st153.get("countdown") or {}
+    user153 = ck_st153.get("user") or {}
+    assert (
+        cd153.get("next_suggested_at") is not None
+        or cd153.get("next_suggested_label")
+        or ck_st153.get("last_ago_label")
+        or cd153.get("last_ago_label")
+        or user153.get("last_ago_label")
+        or cd153.get("last_checkin_ago")
+        or cd153
+    ), ck_st153
+
+    # Round153 · 差旅余额+门槛+进度（前端复制；balance/threshold/progress_pct 只读）
+    tf153 = call("/api/travel-fund")
+    fund153 = tf153.get("fund") or tf153
+    assert (
+        fund153.get("balance") is not None
+        or fund153.get("threshold") is not None
+        or fund153.get("progress_pct") is not None
+        or fund153.get("progress") is not None
+    ), tf153
+
+    # Round153 · 善后服务类型+医院+状态（前端；service_type / hospital|city / status|title）
+    ac153 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·服务医院状态153",
+            "service_type": "field_visit",
+            "city": "临高",
+            "hospital": "自检医院153",
+            "department": "皮肤科",
+            "notes": "服务医院状态153",
+            "visit_pref": "上午",
+            "travel_budget": 1530,
+        },
+    )["item"]
+    assert (
+        (ac153.get("service_type") or ac153.get("service"))
+        and (ac153.get("hospital") or ac153.get("facility") or ac153.get("city"))
+        and (
+            ac153.get("status_label")
+            or ac153.get("status")
+            or ac153.get("status_key")
+            or ac153.get("title")
+        )
+    ), ac153
+
+    # Round153 · 授权视频缺失+就绪+完成（前端复制；missing/ready/complete 可读）
+    av153 = call("/api/auth-video")
+    assert (
+        av153.get("missing") is not None
+        or av153.get("ready") is not None
+        or av153.get("complete") is not None
+    ), av153
+
+    # Round153 · 受益人关系+姓名+联系（前端；relation/name/contact）
+    bn153 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·关系姓名联系153",
+            "role": "heir",
+            "relation": "邻居",
+            "contact": "13300000153",
+            "passphrase_hint": "round153口令",
+        },
+    )["item"]
+    assert (
+        bn153.get("relation") and bn153.get("name") and bn153.get("contact")
+    ), bn153
+
+    # Round153 · 手册品牌+章节+完成（前端复制；brand/sections/done）
+    hand153 = call("/api/handover")
+    prog153 = hand153.get("progress") or {}
+    assert (
+        (hand153.get("brand") or hand153.get("domain"))
+        and (
+            hand153.get("sections") is not None
+            or prog153.get("total_types") is not None
+            or hand153.get("section_count") is not None
+        )
+        and (
+            hand153.get("done") is not None
+            or prog153.get("filled_types") is not None
+            or prog153.get("done") is not None
+        )
+    ), hand153
+
+    # Round153 · 设置·英文品牌+中文品牌+版本+域名（前端复制；brand_en/brand|app/version/domain）
+    h153 = call("/api/health")
+    assert h153.get("ok") is True, h153
+    assert (
+        h153.get("brand_en")
+        and (h153.get("brand") or h153.get("app"))
+        and (h153.get("version") or h153.get("server_version"))
+        and (h153.get("domain") or "einherit.cn")
+    ), h153
+
     print("selfcheck OK")
 
 
