@@ -11431,3 +11431,38 @@ body.privacy-mode .privacy-hint { opacity: 0.85; }
   margin: 8px 0 10px; padding: 8px 10px; border-radius: 8px; background: #f5f8f6;
   word-break: break-word; font-weight: 600; color: var(--sage-deep, #2f5d45);
 }
+
+/* Round226 · 温和增量 */
+.home-brand-domain-version-calm-r226 {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px;
+  margin: 8px 0 12px; padding: 10px 12px; border-radius: 10px;
+  background: linear-gradient(160deg, #eef5f3 0%, #fff 75%);
+  border: 1px solid var(--line, #e2e8e4);
+}
+.home-brand-domain-version-calm-r226[hidden] { display: none; }
+.home-brand-domain-version-calm-r226-mark { font-weight: 600; color: var(--sage-deep, #2f5d45); font-size: 13px; }
+.home-brand-domain-version-calm-r226-sub { flex: 1; min-width: 8em; font-size: 12px; }
+.lg-copy-device-owner-disposition-title-r226 { margin-top: 8px; margin-left: 6px; }
+.as-copy-tag-visibility-summary-r226 { margin-top: 8px; margin-left: 6px; }
+.checkin-last-ago-status-next-suggested-plain-r226-copy {
+  margin-top: 10px; padding: 10px 12px; border-radius: 10px; background: #f5f8f6;
+}
+.checkin-last-ago-status-next-suggested-plain-r226-copy-line { margin: 0 0 8px; }
+.travel-balance-deposited-threshold-plain-r226-copy {
+  margin: 8px 0 10px; padding: 10px 12px; border-radius: 10px; background: #f5f8f6;
+}
+.travel-balance-deposited-threshold-plain-r226-copy-line { margin: 0 0 8px; }
+.ac-copy-department-city-hospital-r226 { margin-top: 8px; margin-left: 6px; }
+.av-duration-hint-ready-complete-copy-r226 {
+  margin: 8px 0 10px; padding: 10px 12px; border-radius: 10px; background: #f5f8f6;
+}
+.av-duration-hint-ready-complete-copy-r226-line { margin: 0 0 8px; }
+.bn-copy-contact-relation-name-r226 { margin-top: 8px; margin-left: 6px; }
+.hand-progress-pct-domain-done-copy-r226 {
+  margin: 8px 0 12px; padding: 10px 12px; border-radius: 10px; background: #f5f8f6;
+}
+.hand-progress-pct-domain-done-copy-r226-line { margin: 0 0 8px; }
+.settings-version-domain-brand-en-ok-r226-copy-card .settings-version-domain-brand-en-ok-r226-copy-preview {
+  margin: 8px 0 10px; padding: 8px 10px; border-radius: 8px; background: #f5f8f6;
+  word-break: break-word; font-weight: 600; color: var(--sage-deep, #2f5d45);
+}
