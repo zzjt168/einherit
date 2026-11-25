@@ -7156,3 +7156,39 @@ body.privacy-mode .privacy-hint { opacity: 0.85; }
   margin: 8px 0 10px; padding: 8px 10px; border-radius: 8px; background: #f5f8f6;
   word-break: break-word; font-weight: 600; color: var(--sage-deep, #2f5d45);
 }
+
+
+/* Round104 · 温和增量 */
+.home-brand-en-app-version-calm-bar {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  margin: 10px 0 12px; padding: 12px 14px; border-radius: 12px;
+  background: linear-gradient(160deg, #eef5f3 0%, #fff 75%);
+  border: 1px solid var(--line, #e2e8e4);
+}
+.home-brand-en-app-version-calm-bar[hidden] { display: none; }
+.home-brand-en-app-version-calm-mark { font-weight: 600; color: var(--sage-deep, #2f5d45); font-size: 13px; }
+.home-brand-en-app-version-calm-sub { flex: 1; min-width: 8em; font-size: 12px; }
+.lg-copy-beneficiary-category-dept { margin-top: 8px; margin-left: 6px; }
+.as-copy-visibility-platform-hint { margin-top: 8px; margin-left: 6px; }
+.checkin-grace-hours-plain-r104-copy {
+  margin-top: 10px; padding: 10px 12px; border-radius: 10px; background: #f5f8f6;
+}
+.checkin-grace-hours-plain-r104-copy-line { margin: 0 0 8px; }
+.travel-balance-pct-threshold-plain-copy {
+  margin: 8px 0 10px; padding: 10px 12px; border-radius: 10px; background: #f5f8f6;
+}
+.travel-balance-pct-threshold-plain-copy-line { margin: 0 0 8px; }
+.ac-copy-city-service-budget { margin-top: 8px; margin-left: 6px; }
+.av-missing-progress-ready-copy {
+  margin: 8px 0 10px; padding: 10px 12px; border-radius: 10px; background: #f5f8f6;
+}
+.av-missing-progress-ready-copy-line { margin: 0 0 8px; }
+.bn-copy-relation-name-contact { margin-top: 8px; margin-left: 6px; }
+.hand-export-path-domain-brand-copy {
+  margin: 8px 0 12px; padding: 10px 12px; border-radius: 10px; background: #f5f8f6;
+}
+.hand-export-path-domain-brand-copy-line { margin: 0 0 8px; }
+.app-brand-en-domain-ok-r104-copy-card .app-brand-en-domain-ok-r104-copy-preview {
+  margin: 8px 0 10px; padding: 8px 10px; border-radius: 8px; background: #f5f8f6;
+  word-break: break-word; font-weight: 600; color: var(--sage-deep, #2f5d45);
+}
