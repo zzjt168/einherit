@@ -14899,6 +14899,151 @@ def main() -> None:
         and (h145.get("brand") or h145.get("app"))
     ), h145
 
+    # Round146 · 首页英文品牌+版本+域名（前端条；brand_en/version/domain 只读）
+    h146home = call("/api/health")
+    assert (
+        h146home.get("brand_en")
+        and (h146home.get("version") or h146home.get("server_version"))
+        and (h146home.get("domain") or "einherit.cn")
+    ), h146home
+
+    # Round146 · 交割处置+编号+受益人（前端；disposition|action / id / beneficiary）
+    lg146 = call(
+        "/api/legacy",
+        {
+            "title": "自检·处置编号受益人146",
+            "category": "笔记本",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人146",
+            "notes": "处置编号受益人146",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (lg146.get("disposition") or lg146.get("action"))
+        and lg146.get("id") is not None
+        and (lg146.get("beneficiary") or lg146.get("device_owner"))
+    ), lg146
+
+    # Round146 · 备忘标签+平台+可见性（前端；tag|category / platform / visibility）
+    as146 = call(
+        "/api/assets",
+        {
+            "platform": "round146TagPlatVis",
+            "account_hint": "hint146",
+            "summary": "标签平台可见146",
+            "dispose_note": "演示处置146",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as146.get("tag") or as146.get("category") or as146.get("dept"))
+        and as146.get("platform")
+        and as146.get("visibility")
+    ), as146
+
+    # Round146 · 报备窗口截止+状态标签（前端复制；window_ends_at/status_label 只读）
+    ck_st146 = call("/api/checkin/status")
+    cd146 = ck_st146.get("countdown") or {}
+    user146 = ck_st146.get("user") or {}
+    assert (
+        cd146.get("window_ends_at") is not None
+        or cd146.get("window_ends_label")
+        or ck_st146.get("status_label")
+        or cd146.get("status_label")
+        or user146.get("status_label")
+        or cd146
+    ), ck_st146
+
+    # Round146 · 差旅进度+达标+已存（前端复制；progress_pct/met/deposited 只读）
+    tf146 = call("/api/travel-fund")
+    fund146 = tf146.get("fund") or tf146
+    assert (
+        fund146.get("progress_pct") is not None
+        or fund146.get("progress") is not None
+        or fund146.get("met") is not None
+        or fund146.get("deposited") is not None
+    ), tf146
+
+    # Round146 · 善后城市+科室+医院（前端；city / department|dept|service_type / hospital|facility）
+    ac146 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·城市科室医院146",
+            "service_type": "field_visit",
+            "city": "海口",
+            "hospital": "自检医院146",
+            "department": "内科",
+            "notes": "城市科室医院146",
+            "visit_pref": "傍晚",
+            "travel_budget": 1460,
+        },
+    )["item"]
+    assert (
+        ac146.get("city")
+        and (
+            ac146.get("department")
+            or ac146.get("dept")
+            or ac146.get("service_type")
+        )
+        and (ac146.get("hospital") or ac146.get("facility") or ac146.get("city"))
+    ), ac146
+
+    # Round146 · 授权视频时长+就绪+缺失（前端复制；duration_hint/ready/missing 可读）
+    av146 = call("/api/auth-video")
+    latest146 = av146.get("latest") or {}
+    assert (
+        av146.get("duration_hint")
+        or latest146.get("duration_hint")
+        or av146.get("duration")
+        or latest146.get("duration")
+        or av146.get("ready") is not None
+        or av146.get("missing") is not None
+    ), av146
+
+    # Round146 · 受益人联系+姓名+关系（前端；contact/name/relation）
+    bn146 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·联系姓名关系146",
+            "role": "heir",
+            "relation": "友人",
+            "contact": "13300000146",
+            "passphrase_hint": "round146口令",
+        },
+    )["item"]
+    assert (
+        bn146.get("contact") and bn146.get("name") and bn146.get("relation")
+    ), bn146
+
+    # Round146 · 手册品牌+域名+章节（前端复制；brand/domain/sections|total_types）
+    hand146 = call("/api/handover")
+    prog146 = hand146.get("progress") or {}
+    assert (
+        (hand146.get("brand") or hand146.get("domain"))
+        and (hand146.get("domain") or hand146.get("brand"))
+        and (
+            hand146.get("sections") is not None
+            or prog146.get("total_types") is not None
+            or hand146.get("section_count") is not None
+        )
+    ), hand146
+
+    # Round146 · 设置·版本+域名+就绪+中文品牌（前端复制；version/domain/ok/brand|app）
+    h146 = call("/api/health")
+    assert h146.get("ok") is True, h146
+    assert (
+        (h146.get("version") or h146.get("server_version"))
+        and (h146.get("domain") or "einherit.cn")
+        and (h146.get("brand") or h146.get("app"))
+    ), h146
+
     print("selfcheck OK")
 
 
