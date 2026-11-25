@@ -9331,3 +9331,38 @@ body.privacy-mode .privacy-hint { opacity: 0.85; }
   margin: 8px 0 10px; padding: 8px 10px; border-radius: 8px; background: #f5f8f6;
   word-break: break-word; font-weight: 600; color: var(--sage-deep, #2f5d45);
 }
+
+/* Round166 · 温和增量 */
+.home-brand-en-ok-brand-calm-r166 {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px;
+  margin: 8px 0 12px; padding: 10px 12px; border-radius: 10px;
+  background: linear-gradient(160deg, #eef5f3 0%, #fff 75%);
+  border: 1px solid var(--line, #e2e8e4);
+}
+.home-brand-en-ok-brand-calm-r166[hidden] { display: none; }
+.home-brand-en-ok-brand-calm-r166-mark { font-weight: 600; color: var(--sage-deep, #2f5d45); font-size: 13px; }
+.home-brand-en-ok-brand-calm-r166-sub { flex: 1; min-width: 8em; font-size: 12px; }
+.lg-copy-id-device-owner-beneficiary-r166 { margin-top: 8px; margin-left: 6px; }
+.as-copy-platform-visibility-title-r166 { margin-top: 8px; margin-left: 6px; }
+.checkin-window-ends-next-suggested-plain-r166-copy {
+  margin-top: 10px; padding: 10px 12px; border-radius: 10px; background: #f5f8f6;
+}
+.checkin-window-ends-next-suggested-plain-r166-copy-line { margin: 0 0 8px; }
+.travel-deposited-progress-shortfall-plain-r166-copy {
+  margin: 8px 0 10px; padding: 10px 12px; border-radius: 10px; background: #f5f8f6;
+}
+.travel-deposited-progress-shortfall-plain-r166-copy-line { margin: 0 0 8px; }
+.ac-copy-city-hospital-department-r166 { margin-top: 8px; margin-left: 6px; }
+.av-missing-ready-complete-copy-r166 {
+  margin: 8px 0 10px; padding: 10px 12px; border-radius: 10px; background: #f5f8f6;
+}
+.av-missing-ready-complete-copy-r166-line { margin: 0 0 8px; }
+.bn-copy-passphrase-hint-name-contact-r166 { margin-top: 8px; margin-left: 6px; }
+.hand-brand-domain-sections-copy-r166 {
+  margin: 8px 0 12px; padding: 10px 12px; border-radius: 10px; background: #f5f8f6;
+}
+.hand-brand-domain-sections-copy-r166-line { margin: 0 0 8px; }
+.settings-version-brand-domain-ok-r166-copy-card .settings-version-brand-domain-ok-r166-copy-preview {
+  margin: 8px 0 10px; padding: 8px 10px; border-radius: 8px; background: #f5f8f6;
+  word-break: break-word; font-weight: 600; color: var(--sage-deep, #2f5d45);
+}
