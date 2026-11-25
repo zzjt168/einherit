@@ -8596,3 +8596,38 @@ body.privacy-mode .privacy-hint { opacity: 0.85; }
   margin: 8px 0 10px; padding: 8px 10px; border-radius: 8px; background: #f5f8f6;
   word-break: break-word; font-weight: 600; color: var(--sage-deep, #2f5d45);
 }
+
+/* Round145 · 温和增量 */
+.home-domain-ok-brand-calm-r145 {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px;
+  margin: 8px 0 12px; padding: 10px 12px; border-radius: 10px;
+  background: linear-gradient(160deg, #eef5f3 0%, #fff 75%);
+  border: 1px solid var(--line, #e2e8e4);
+}
+.home-domain-ok-brand-calm-r145[hidden] { display: none; }
+.home-domain-ok-brand-calm-r145-mark { font-weight: 600; color: var(--sage-deep, #2f5d45); font-size: 13px; }
+.home-domain-ok-brand-calm-r145-sub { flex: 1; min-width: 8em; font-size: 12px; }
+.lg-copy-beneficiary-status-title { margin-top: 8px; margin-left: 6px; }
+.as-copy-category-dispose-summary { margin-top: 8px; margin-left: 6px; }
+.checkin-last-ago-window-ends-plain-r145-copy {
+  margin-top: 10px; padding: 10px 12px; border-radius: 10px; background: #f5f8f6;
+}
+.checkin-last-ago-window-ends-plain-r145-copy-line { margin: 0 0 8px; }
+.travel-deposited-balance-shortfall-plain-r145-copy {
+  margin: 8px 0 10px; padding: 10px 12px; border-radius: 10px; background: #f5f8f6;
+}
+.travel-deposited-balance-shortfall-plain-r145-copy-line { margin: 0 0 8px; }
+.ac-copy-hospital-id-department { margin-top: 8px; margin-left: 6px; }
+.av-missing-complete-ready-copy-r145 {
+  margin: 8px 0 10px; padding: 10px 12px; border-radius: 10px; background: #f5f8f6;
+}
+.av-missing-complete-ready-copy-r145-line { margin: 0 0 8px; }
+.bn-copy-id-name-passphrase-r145 { margin-top: 8px; margin-left: 6px; }
+.hand-pct-done-domain-copy {
+  margin: 8px 0 12px; padding: 10px 12px; border-radius: 10px; background: #f5f8f6;
+}
+.hand-pct-done-domain-copy-line { margin: 0 0 8px; }
+.settings-domain-ok-brand-en-brand-r145-copy-card .settings-domain-ok-brand-en-brand-r145-copy-preview {
+  margin: 8px 0 10px; padding: 8px 10px; border-radius: 8px; background: #f5f8f6;
+  word-break: break-word; font-weight: 600; color: var(--sage-deep, #2f5d45);
+}
