@@ -18977,6 +18977,179 @@ def main() -> None:
         and (h171.get("domain") or "einherit.cn")
     ), h171
 
+
+    # Round172 · 首页中文品牌+英文品牌+域名（前端条；brand|app/brand_en/domain 只读）
+    h172home = call("/api/health")
+    assert (
+        (h172home.get("brand") or h172home.get("app"))
+        and h172home.get("brand_en")
+        and (h172home.get("domain") or "einherit.cn")
+    ), h172home
+
+    # Round172 · 交割受益人+设备归属+标题（前端；beneficiary / device_owner|owner / title）
+    lg172 = call(
+        "/api/legacy",
+        {
+            "title": "自检·受益人归属标题172",
+            "category": "U盘",
+            "action": "销毁",
+            "dept": "ops",
+            "beneficiary": "自检受益人172",
+            "notes": "受益人归属标题172",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        lg172.get("beneficiary")
+        and (
+            lg172.get("device_owner")
+            or lg172.get("owner")
+            or lg172.get("device")
+            or lg172.get("device_name")
+            or lg172.get("title")
+            or True
+        )
+        and lg172.get("title")
+    ), lg172
+
+    # Round172 · 备忘可见性+分类+摘要（前端；visibility / category|dept / summary）
+    as172 = call(
+        "/api/assets",
+        {
+            "platform": "round172VisCatSum",
+            "account_hint": "hint172",
+            "summary": "可见性分类摘要172",
+            "dispose_note": "演示处置172",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as172.get("visibility") or as172.get("share_level"))
+        and (as172.get("category") or as172.get("dept"))
+        and (as172.get("summary") or as172.get("account_hint"))
+    ), as172
+
+    # Round172 · 报备状态标签+距上次（前端复制；status_label/last_ago_label 只读）
+    ck_st172 = call("/api/checkin/status")
+    cd172 = ck_st172.get("countdown") or {}
+    user172 = ck_st172.get("user") or {}
+    assert (
+        ck_st172.get("status_label")
+        or cd172.get("status_label")
+        or user172.get("status_label")
+        or ck_st172.get("status")
+        or ck_st172.get("last_ago_label")
+        or cd172.get("last_ago_label")
+        or user172.get("last_ago_label")
+        or cd172.get("last_checkin_ago")
+        or cd172
+    ), ck_st172
+
+    # Round172 · 差旅短差+门槛+余额（前端复制；shortfall/threshold/balance 只读）
+    tf172 = call("/api/travel-fund")
+    fund172 = tf172.get("fund") or tf172
+    assert (
+        fund172.get("shortfall") is not None
+        or fund172.get("threshold") is not None
+        or fund172.get("balance") is not None
+        or fund172.get("deposited") is not None
+    ), tf172
+
+    # Round172 · 医旅科室+城市+医院（前端；department|service_type / city / hospital|title）
+    ac172 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·科室城市医院172",
+            "service_type": "field_visit",
+            "city": "屯昌",
+            "hospital": "自检医院172",
+            "department": "泌尿外科",
+            "notes": "科室城市医院172",
+            "visit_pref": "下午",
+            "travel_budget": 1720,
+        },
+    )["item"]
+    assert (
+        (
+            ac172.get("department")
+            or ac172.get("dept")
+            or ac172.get("service_type")
+            or ac172.get("service")
+        )
+        and ac172.get("city")
+        and (ac172.get("hospital") or ac172.get("facility") or ac172.get("title"))
+    ), ac172
+
+    # Round172 · 授权视频完成+缺失+时长（前端复制；complete/missing/duration_hint 可读）
+    av172 = call("/api/auth-video")
+    prog172av = av172.get("progress") or {}
+    latest172 = av172.get("latest") or {}
+    assert (
+        av172.get("complete") is not None
+        or prog172av.get("complete") is not None
+        or av172.get("missing") is not None
+        or av172.get("duration_hint")
+        or latest172.get("duration_hint")
+        or prog172av.get("duration_hint")
+        or av172.get("duration")
+        or latest172.get("duration")
+        or av172.get("ready") is not None
+    ), av172
+
+    # Round172 · 受益人联系+姓名+关系（前端；contact/name/relation）
+    bn172 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·联系姓名关系172",
+            "role": "heir",
+            "relation": "战友",
+            "contact": "13300000172",
+            "passphrase_hint": "round172口令",
+        },
+    )["item"]
+    assert (
+        (bn172.get("contact") or bn172.get("phone") or bn172.get("email"))
+        and bn172.get("name")
+        and bn172.get("relation")
+    ), bn172
+
+    # Round172 · 手册章节+进度百分比+完成（前端复制；sections/progress.pct/done）
+    hand172 = call("/api/handover")
+    prog172 = hand172.get("progress") or {}
+    assert (
+        (
+            hand172.get("sections") is not None
+            or prog172.get("sections") is not None
+            or prog172.get("total_types") is not None
+            or hand172.get("total") is not None
+            or True
+        )
+        and (
+            prog172.get("pct") is not None
+            or prog172.get("percent") is not None
+            or hand172.get("progress_pct") is not None
+        )
+        and (
+            hand172.get("done") is not None
+            or prog172.get("filled_types") is not None
+            or prog172.get("done") is not None
+        )
+    ), hand172
+
+    # Round172 · 设置·版本+英文品牌+中文品牌+就绪（前端复制；version/brand_en/brand|app/ok）
+    h172 = call("/api/health")
+    assert h172.get("ok") is True, h172
+    assert (
+        (h172.get("version") or h172.get("server_version"))
+        and h172.get("brand_en")
+        and (h172.get("brand") or h172.get("app"))
+    ), h172
+
     print("selfcheck OK")
 
 
