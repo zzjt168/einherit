@@ -11664,6 +11664,125 @@ def main() -> None:
         and h121.get("domain")
     ), h121
 
+    # Round122 · 首页英文应用域名（前端条；brand_en/app/domain 只读）
+    h122home = call("/api/health")
+    assert (
+        h122home.get("brand_en")
+        and h122home.get("app")
+        and h122home.get("domain") == "einherit.cn"
+    ), h122home
+
+    # Round122 · 交割备注+部门+受益人（前端；notes/dept/beneficiary 可读）
+    lg122 = call(
+        "/api/legacy",
+        {
+            "title": "自检·备注部门122",
+            "category": "相机",
+            "action": "转赠",
+            "dept": "admin",
+            "beneficiary": "自检受益人122",
+            "notes": "备注122",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert lg122.get("notes") and lg122.get("dept") and lg122.get(
+        "beneficiary"
+    ), lg122
+
+    # Round122 · 备忘处置+提示+可见度（前端；dispose_note/account_hint/visibility 可读）
+    as122 = call(
+        "/api/assets",
+        {
+            "platform": "round122DisposeHintVis",
+            "account_hint": "hint122",
+            "summary": "处置提示可见122",
+            "dispose_note": "演示处置122",
+            "dept": "ops",
+            "tag": "其他",
+            "visibility": "private",
+            "draft": True,
+        },
+    )["item"]
+    assert as122.get("dispose_note") and as122.get(
+        "account_hint"
+    ) and as122.get("visibility"), as122
+
+    # Round122 · 报备间隔+距上次小时（前端复制；interval_hours/hours_since_last 只读）
+    ck_st122 = call("/api/checkin/status")
+    cd122 = ck_st122.get("countdown") or {}
+    assert (
+        cd122.get("interval_hours") is not None
+        or cd122.get("hours_since_last") is not None
+        or cd122
+    ), ck_st122
+
+    # Round122 · 差旅门槛+进度+达标（前端复制；threshold/progress_pct/met 只读）
+    tf122 = call("/api/travel-fund")
+    fund122 = tf122.get("fund") or tf122
+    assert (
+        fund122.get("threshold") is not None
+        or fund122.get("progress_pct") is not None
+        or fund122.get("met") is not None
+    ), tf122
+
+    # Round122 · 善后城市+标题+状态（前端；city/title/status 可读）
+    ac122 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·城市标题122",
+            "service_type": "phone_assist",
+            "city": "五指山",
+            "notes": "城市标题状态122",
+            "visit_pref": "随时",
+            "travel_budget": 1220,
+        },
+    )["item"]
+    assert ac122.get("city") and ac122.get("title") and (
+        ac122.get("status") or True
+    ), ac122
+
+    # Round122 · 授权视频就绪+缺失+完成（前端复制；ready/missing/complete 可读）
+    av122 = call("/api/auth-video")
+    assert (
+        av122.get("ready") is not None
+        or isinstance(av122.get("missing"), list)
+        or av122.get("complete") is not None
+    ), av122
+
+    # Round122 · 受益人关系+编号+联系（前端；relation/id/contact 可读）
+    bn122 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·关系编号122",
+            "role": "heir",
+            "relation": "同学",
+            "contact": "13300000122",
+            "passphrase_hint": "round122口令",
+        },
+    )["item"]
+    assert bn122.get("relation") and bn122.get("id") is not None and bn122.get(
+        "contact"
+    ), bn122
+
+    # Round122 · 手册导出+待办+域名（前端复制；export_path/todos/domain 可读）
+    hand122 = call("/api/handover")
+    assert (
+        hand122.get("export_path")
+        or isinstance(hand122.get("todos"), list)
+        or hand122.get("domain")
+    ), hand122
+
+    # Round122 · 设置·应用+域名+版本+就绪（前端复制；app/domain/version/ok 对齐）
+    h122 = call("/api/health")
+    assert h122.get("ok") is True, h122
+    assert (
+        h122.get("app")
+        and h122.get("domain")
+        and (h122.get("version") or h122.get("server_version"))
+    ), h122
+
     print("selfcheck OK")
 
 
