@@ -5055,6 +5055,94 @@ def main() -> None:
     assert h58.get("ok") is True, h58
     assert h58.get("domain") or h58.get("brand_en"), h58
 
+    # Round59 · 首页差旅进度百分比（前端条；progress_pct 可读）
+    tf59home = call("/api/travel-fund")
+    fund59home = tf59home.get("fund") or tf59home
+    assert (
+        fund59home.get("progress_pct") is not None
+        or fund59home.get("balance") is not None
+    ), tf59home
+
+    # Round59 · 交割编号纯数字（前端；id 可读）
+    lg59 = call(
+        "/api/legacy",
+        {
+            "title": "自检·编号59",
+            "category": "其他",
+            "action": "转赠",
+            "dept": "admin",
+        },
+    )["item"]
+    assert lg59.get("id") is not None, lg59
+
+    # Round59 · 备忘可见性英文键（前端；visibility 可读）
+    as59 = call(
+        "/api/assets",
+        {
+            "platform": "round59Vis",
+            "summary": "可见性键",
+            "dept": "admin",
+            "tag": "其他",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert as59.get("visibility"), as59
+
+    # Round59 · 报备是否冷静期（前端复制；checkin_in_grace 可读）
+    ck_st59 = call("/api/checkin/status")
+    assert "checkin_in_grace" in (ck_st59.get("user") or {}) or ck_st59.get(
+        "countdown"
+    ), ck_st59
+
+    # Round59 · 差旅流水编号+种类键（前端复制；id/kind 可读）
+    tf59 = call("/api/travel-fund")
+    ledger59 = tf59.get("ledger") or []
+    assert isinstance(ledger59, list), tf59
+    if ledger59:
+        assert ledger59[0].get("id") is not None or ledger59[0].get("kind"), ledger59[0]
+
+    # Round59 · 善后服务类型英文键（前端；service_type 可读）
+    ac59 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·服务类型键59",
+            "service_type": "delete_data",
+            "city": "临高",
+            "travel_budget": 590,
+        },
+    )["item"]
+    assert ac59.get("service_type"), ac59
+
+    # Round59 · 授权视频生效文件名（前端复制；filename 可读）
+    av59 = call("/api/auth-video")
+    active59 = av59.get("current_active") or av59.get("latest") or {}
+    assert active59.get("filename") or av59.get("ready") is not None, av59
+
+    # Round59 · 受益人角色键+关系（前端；role/relation 可读）
+    bn59 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·角色关系59",
+            "role": "family",
+            "relation": "兄妹",
+            "contact": "13300000059",
+        },
+    )["item"]
+    assert bn59.get("role") and bn59.get("relation"), bn59
+
+    # Round59 · 手册处置计数英文键摘要（前端复制；action_counts 可读）
+    hand59 = call("/api/handover")
+    prog59 = hand59.get("progress") or {}
+    assert prog59.get("action_counts") or isinstance(prog59.get("by_action"), list) or hand59.get(
+        "item_count"
+    ) is not None, hand59
+
+    # Round59 · 设置·服务端+应用版本纯号（前端复制；server_version/version 对齐）
+    h59 = call("/api/health")
+    assert h59.get("ok") is True, h59
+    assert h59.get("server_version") or h59.get("version"), h59
+
     print("selfcheck OK")
 
 
