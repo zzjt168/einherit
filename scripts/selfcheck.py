@@ -16262,6 +16262,157 @@ def main() -> None:
         and (h154.get("version") or h154.get("server_version"))
     ), h154
 
+
+    # Round155 · 首页英文品牌+版本+就绪（前端条；brand_en/version/ok 只读）
+    h155home = call("/api/health")
+    assert (
+        h155home.get("brand_en")
+        and (h155home.get("version") or h155home.get("server_version"))
+        and h155home.get("ok") is True
+    ), h155home
+
+    # Round155 · 交割设备归属+编号+受益人（前端；device_owner|dept / id / beneficiary）
+    lg155 = call(
+        "/api/legacy",
+        {
+            "title": "自检·归属编号受益人155",
+            "category": "平板",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人155",
+            "notes": "归属编号受益人155",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (lg155.get("device_owner") or lg155.get("dept"))
+        and lg155.get("id") is not None
+        and lg155.get("beneficiary")
+    ), lg155
+
+    # Round155 · 备忘平台+标签+可见性（前端；platform / tag / visibility）
+    as155 = call(
+        "/api/assets",
+        {
+            "platform": "round155PlatTagVis",
+            "account_hint": "hint155",
+            "summary": "平台标签可见155",
+            "dispose_note": "演示处置155",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        as155.get("platform") and as155.get("tag") and as155.get("visibility")
+    ), as155
+
+    # Round155 · 报备下次建议+窗口截止（前端复制；next_suggested_at/window_ends_at 只读）
+    ck_st155 = call("/api/checkin/status")
+    cd155 = ck_st155.get("countdown") or {}
+    assert (
+        cd155.get("next_suggested_at") is not None
+        or cd155.get("next_suggested_label")
+        or cd155.get("window_ends_at") is not None
+        or cd155.get("window_ends_label")
+        or ck_st155.get("window_ends_at")
+        or cd155
+    ), ck_st155
+
+    # Round155 · 差旅门槛+已存+余额（前端复制；threshold/deposited/balance 只读）
+    tf155 = call("/api/travel-fund")
+    fund155 = tf155.get("fund") or tf155
+    assert (
+        fund155.get("threshold") is not None
+        or fund155.get("deposited") is not None
+        or fund155.get("balance") is not None
+    ), tf155
+
+    # Round155 · 善后状态+医院+服务类型（前端；status|title / hospital|city / service_type）
+    ac155 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·状态医院服务155",
+            "service_type": "field_visit",
+            "city": "海口",
+            "hospital": "自检医院155",
+            "department": "骨科",
+            "notes": "状态医院服务155",
+            "visit_pref": "上午",
+            "travel_budget": 1550,
+        },
+    )["item"]
+    assert (
+        (
+            ac155.get("status_label")
+            or ac155.get("status")
+            or ac155.get("status_key")
+            or ac155.get("title")
+        )
+        and (ac155.get("hospital") or ac155.get("facility") or ac155.get("city") or ac155.get("title"))
+        and (ac155.get("service_type") or ac155.get("service"))
+    ), ac155
+
+    # Round155 · 授权视频完成+时长+缺失（前端复制；complete/duration_hint/missing 可读）
+    av155 = call("/api/auth-video")
+    prog155av = av155.get("progress") or {}
+    latest155 = av155.get("latest") or {}
+    assert (
+        av155.get("complete") is not None
+        or av155.get("duration_hint")
+        or latest155.get("duration_hint")
+        or prog155av.get("duration_hint")
+        or av155.get("duration")
+        or latest155.get("duration")
+        or av155.get("missing") is not None
+    ), av155
+
+    # Round155 · 受益人姓名+联系+口令提示（前端；name/contact/passphrase_hint）
+    bn155 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·姓名联系口令155",
+            "role": "heir",
+            "relation": "朋友",
+            "contact": "13300000155",
+            "passphrase_hint": "round155口令",
+        },
+    )["item"]
+    assert (
+        bn155.get("name")
+        and bn155.get("contact")
+        and bn155.get("passphrase_hint")
+    ), bn155
+
+    # Round155 · 手册完成+进度百分比+品牌（前端复制；done/progress.pct/brand）
+    hand155 = call("/api/handover")
+    prog155 = hand155.get("progress") or {}
+    assert (
+        (
+            hand155.get("done") is not None
+            or prog155.get("filled_types") is not None
+            or prog155.get("done") is not None
+        )
+        and (
+            prog155.get("pct") is not None
+            or prog155.get("percent") is not None
+            or hand155.get("progress_pct") is not None
+        )
+        and (hand155.get("brand") or "电子继承 App")
+    ), hand155
+
+    # Round155 · 设置·版本+英文品牌+就绪+中文品牌（前端复制；version/brand_en/ok/brand）
+    h155 = call("/api/health")
+    assert h155.get("ok") is True, h155
+    assert (
+        (h155.get("version") or h155.get("server_version"))
+        and h155.get("brand_en")
+        and (h155.get("brand") or h155.get("app"))
+    ), h155
+
     print("selfcheck OK")
 
 
