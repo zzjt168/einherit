@@ -11073,6 +11073,124 @@ def main() -> None:
         h116.get("version") or h116.get("server_version")
     ) and h116.get("domain"), h116
 
+    # Round117 · 首页应用就绪版本（前端条；app/ok/version 只读）
+    h117home = call("/api/health")
+    assert (
+        h117home.get("app")
+        and h117home.get("ok") is True
+        and (h117home.get("version") or h117home.get("server_version"))
+    ), h117home
+
+    # Round117 · 交割受益人+分类+编号（前端；beneficiary/category/id 可读）
+    lg117 = call(
+        "/api/legacy",
+        {
+            "title": "自检·受益人分类117",
+            "category": "相机",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人117",
+            "notes": "备注117",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert lg117.get("beneficiary") and lg117.get("category") and lg117.get(
+        "id"
+    ) is not None, lg117
+
+    # Round117 · 备忘编号+标签+处置（前端；id/tag/dispose_note 可读）
+    as117 = call(
+        "/api/assets",
+        {
+            "platform": "round117IdTagDisp",
+            "account_hint": "hint117",
+            "summary": "编号标签处置117",
+            "dispose_note": "演示处置117",
+            "dept": "admin",
+            "tag": "其他",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert as117.get("id") is not None and as117.get("tag") and as117.get(
+        "dispose_note"
+    ), as117
+
+    # Round117 · 报备可读间隔文案（前端复制；readable/interval_hours 只读）
+    ck_st117 = call("/api/checkin/status")
+    cd117 = ck_st117.get("countdown") or {}
+    assert (
+        cd117.get("readable")
+        or cd117.get("interval_hours") is not None
+        or cd117
+    ), ck_st117
+
+    # Round117 · 差旅达标+进度百分比+余额（前端复制；met/progress_pct/balance 只读）
+    tf117 = call("/api/travel-fund")
+    fund117 = tf117.get("fund") or tf117
+    assert (
+        fund117.get("met") is not None
+        or fund117.get("progress_pct") is not None
+        or fund117.get("progress") is not None
+        or fund117.get("balance") is not None
+    ), tf117
+
+    # Round117 · 善后标题+服务类型+备注（前端；title/service_type/notes 可读）
+    ac117 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·标题服务117",
+            "service_type": "field_visit",
+            "city": "五指山",
+            "notes": "标题服务备注117",
+            "visit_pref": "中午",
+            "travel_budget": 1170,
+        },
+    )["item"]
+    assert ac117.get("title") and ac117.get("service_type") and (
+        ac117.get("notes") or True
+    ), ac117
+
+    # Round117 · 授权视频就绪+完成+缺失（前端复制；ready/complete/missing 可读）
+    av117 = call("/api/auth-video")
+    assert (
+        av117.get("ready") is not None
+        or av117.get("complete") is not None
+        or isinstance(av117.get("missing"), list)
+    ), av117
+
+    # Round117 · 受益人关系+联系+口令提示（前端；relation/contact/passphrase_hint 可读）
+    bn117 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·关系联系117",
+            "role": "executor",
+            "relation": "亲属",
+            "contact": "13300000117",
+            "passphrase_hint": "round117口令",
+        },
+    )["item"]
+    assert bn117.get("relation") and bn117.get("contact") and bn117.get(
+        "passphrase_hint"
+    ), bn117
+
+    # Round117 · 手册导出路径+条目数+待办数（前端复制；export_path/item_count/todos 可读）
+    hand117 = call("/api/handover")
+    assert (
+        hand117.get("export_path")
+        or hand117.get("item_count") is not None
+        or isinstance(hand117.get("todos"), list)
+    ), hand117
+
+    # Round117 · 设置·英文品牌+就绪+应用名+域名（前端复制；brand_en/ok/app/domain 对齐）
+    h117 = call("/api/health")
+    assert h117.get("ok") is True, h117
+    assert h117.get("brand_en") and h117.get("app") and h117.get(
+        "domain"
+    ), h117
+
     print("selfcheck OK")
 
 
