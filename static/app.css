@@ -7721,3 +7721,38 @@ body.privacy-mode .privacy-hint { opacity: 0.85; }
   margin: 8px 0 10px; padding: 8px 10px; border-radius: 8px; background: #f5f8f6;
   word-break: break-word; font-weight: 600; color: var(--sage-deep, #2f5d45);
 }
+
+/* Round120 · 温和增量 */
+.home-domain-brand-en-version-calm-bar-r120 {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  margin: 10px 0 12px; padding: 12px 14px; border-radius: 12px;
+  background: linear-gradient(160deg, #eef5f3 0%, #fff 75%);
+  border: 1px solid var(--line, #e2e8e4);
+}
+.home-domain-brand-en-version-calm-bar-r120[hidden] { display: none; }
+.home-domain-brand-en-version-calm-bar-r120-mark { font-weight: 600; color: var(--sage-deep, #2f5d45); font-size: 13px; }
+.home-domain-brand-en-version-calm-bar-r120-sub { flex: 1; min-width: 8em; font-size: 12px; }
+.lg-copy-action-notes-beneficiary { margin-top: 8px; margin-left: 6px; }
+.as-copy-platform-dept-visibility { margin-top: 8px; margin-left: 6px; }
+.checkin-hours-remaining-readable-plain-r120-copy {
+  margin-top: 10px; padding: 10px 12px; border-radius: 10px; background: #f5f8f6;
+}
+.checkin-hours-remaining-readable-plain-r120-copy-line { margin: 0 0 8px; }
+.travel-pct-met-balance-plain-r120-copy {
+  margin: 8px 0 10px; padding: 10px 12px; border-radius: 10px; background: #f5f8f6;
+}
+.travel-pct-met-balance-plain-r120-copy-line { margin: 0 0 8px; }
+.ac-copy-title-visit-budget { margin-top: 8px; margin-left: 6px; }
+.av-ready-complete-checklist-copy {
+  margin: 8px 0 10px; padding: 10px 12px; border-radius: 10px; background: #f5f8f6;
+}
+.av-ready-complete-checklist-copy-line { margin: 0 0 8px; }
+.bn-copy-contact-passphrase-relation { margin-top: 8px; margin-left: 6px; }
+.hand-item-count-todos-domain-copy {
+  margin: 8px 0 12px; padding: 10px 12px; border-radius: 10px; background: #f5f8f6;
+}
+.hand-item-count-todos-domain-copy-line { margin: 0 0 8px; }
+.domain-version-app-ok-r120-copy-card .domain-version-app-ok-r120-copy-preview {
+  margin: 8px 0 10px; padding: 8px 10px; border-radius: 8px; background: #f5f8f6;
+  word-break: break-word; font-weight: 600; color: var(--sage-deep, #2f5d45);
+}
