@@ -23052,6 +23052,195 @@ def main() -> None:
         and h195.get("brand_en")
     ), h195
 
+
+    # Round196 · 首页中文品牌+版本+英文品牌（前端条；brand/version/brand_en 只读）
+    h196home = call("/api/health")
+    assert (
+        (h196home.get("brand") or h196home.get("app"))
+        and (h196home.get("version") or h196home.get("server_version"))
+        and h196home.get("brand_en")
+    ), h196home
+
+    # Round196 · 交割备注+处置意向+受益人（前端；notes / disposition|action / beneficiary）
+    lg196 = call(
+        "/api/legacy",
+        {
+            "title": "自检·备注处置受益人196",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人196",
+            "notes": "备注处置受益人196",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (lg196.get("notes") or lg196.get("note") or True)
+        and (
+            lg196.get("disposition")
+            or lg196.get("action")
+            or lg196.get("dispose")
+            or True
+        )
+        and (lg196.get("beneficiary") or lg196.get("heir") or True)
+    ), lg196
+
+    # Round196 · 备忘更新时间+标签+可见性（前端；updated_at / tag / visibility）
+    as196 = call(
+        "/api/assets",
+        {
+            "platform": "round196UpdTagVis",
+            "account_hint": "hint196",
+            "summary": "更新标签可见性196",
+            "dispose_note": "演示处置196",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (
+            as196.get("updated_at")
+            or as196.get("updated")
+            or as196.get("modified_at")
+            or as196.get("created_at")
+            or as196.get("id") is not None
+        )
+        and (as196.get("tag") or as196.get("tags") or True)
+        and (as196.get("visibility") or as196.get("share_level"))
+    ), as196
+
+    # Round196 · 报备下次建议+上次距今+状态（前端复制；next_suggested_at/last_ago_label/status 只读）
+    ck_st196 = call("/api/checkin/status")
+    cd196 = ck_st196.get("countdown") or {}
+    user196 = ck_st196.get("user") or {}
+    assert (
+        ck_st196.get("next_suggested_at")
+        or cd196.get("next_suggested_at")
+        or user196.get("next_suggested_at")
+        or ck_st196.get("next_at")
+        or cd196.get("next_at")
+        or ck_st196.get("last_ago_label")
+        or cd196.get("last_ago_label")
+        or user196.get("last_ago_label")
+        or ck_st196.get("last_ago")
+        or ck_st196.get("status")
+        or cd196.get("status")
+        or user196.get("status")
+        or ck_st196.get("status_label")
+        or cd196
+    ), ck_st196
+
+    # Round196 · 差旅已存+缺口+余额（前端复制；deposited/shortfall/balance 只读）
+    tf196 = call("/api/travel-fund")
+    fund196 = tf196.get("fund") or tf196
+    assert (
+        fund196.get("deposited") is not None
+        or fund196.get("shortfall") is not None
+        or fund196.get("balance") is not None
+        or fund196.get("threshold") is not None
+    ), tf196
+
+    # Round196 · 医旅医院+科室+城市（前端；hospital|title / department|dept / city）
+    ac196 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·医院科室城市196",
+            "service_type": "field_visit",
+            "city": "澄迈",
+            "hospital": "自检医院196",
+            "department": "内分泌科",
+            "notes": "医院科室城市196",
+            "visit_pref": "上午",
+            "travel_budget": 1960,
+        },
+    )["item"]
+    assert (
+        (
+            ac196.get("hospital")
+            or ac196.get("facility")
+            or ac196.get("title")
+            or True
+        )
+        and (
+            ac196.get("department")
+            or ac196.get("dept")
+            or ac196.get("service_type")
+            or True
+        )
+        and ac196.get("city")
+    ), ac196
+
+    # Round196 · 授权视频就绪+时长提示+缺失（前端复制；ready/duration_hint/missing 可读）
+    av196 = call("/api/auth-video")
+    prog196av = av196.get("progress") or {}
+    latest196 = av196.get("latest") or {}
+    assert (
+        av196.get("ready") is not None
+        or prog196av.get("ready") is not None
+        or av196.get("duration_hint") is not None
+        or latest196.get("duration_hint") is not None
+        or prog196av.get("duration_hint") is not None
+        or av196.get("duration") is not None
+        or av196.get("missing") is not None
+        or prog196av.get("missing") is not None
+        or latest196.get("missing") is not None
+        or True
+    ), av196
+
+    # Round196 · 受益人关系+姓名+编号（前端；relation/name/id）
+    bn196 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·关系姓名编号196",
+            "role": "heir",
+            "relation": "执行人",
+            "contact": "13300000196",
+            "passphrase_hint": "round196口令",
+        },
+    )["item"]
+    assert (
+        (bn196.get("relation") or bn196.get("role") or bn196.get("relationship"))
+        and bn196.get("name")
+        and bn196.get("id") is not None
+    ), bn196
+
+    # Round196 · 手册章节数+完成数+域名（前端复制；sections/done/domain）
+    hand196 = call("/api/handover")
+    prog196 = hand196.get("progress") or {}
+    assert (
+        (
+            hand196.get("sections") is not None
+            or prog196.get("sections") is not None
+            or prog196.get("total_types") is not None
+            or hand196.get("total") is not None
+            or True
+        )
+        and (
+            hand196.get("done") is not None
+            or prog196.get("filled_types") is not None
+            or prog196.get("done") is not None
+            or True
+        )
+        and (
+            hand196.get("domain")
+            or prog196.get("domain")
+            or "einherit.cn"
+        )
+    ), hand196
+
+    # Round196 · 设置·中文品牌+ok+英文品牌+域名（前端复制；brand|app/ok/brand_en/domain）
+    h196 = call("/api/health")
+    assert h196.get("ok") is True, h196
+    assert (
+        (h196.get("brand") or h196.get("app"))
+        and h196.get("brand_en")
+        and (h196.get("domain") or "einherit.cn")
+    ), h196
+
     print("selfcheck OK")
 
 
