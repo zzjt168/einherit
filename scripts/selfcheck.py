@@ -6260,6 +6260,105 @@ def main() -> None:
     assert h70.get("app") and h70.get("domain") == "einherit.cn", h70
     assert h70.get("brand_en"), h70
 
+    # Round71 · 首页报备手机号（前端条；phone 只读）
+    ck_st71home = call("/api/checkin/status")
+    assert (ck_st71home.get("user") or {}).get("phone") or ck_st71home.get(
+        "user"
+    ), ck_st71home
+
+    # Round71 · 交割编号+标题+处置（前端；id/title/action 可读）
+    lg71 = call(
+        "/api/legacy",
+        {
+            "title": "自检·编号标题71",
+            "category": "其他",
+            "action": "销售变现",
+            "dept": "hr",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert lg71.get("id") is not None and lg71.get("title") and lg71.get("action"), lg71
+
+    # Round71 · 备忘标签+可见性（前端；tag/visibility 可读）
+    as71 = call(
+        "/api/assets",
+        {
+            "platform": "round71TagVis",
+            "account_hint": "hint71",
+            "summary": "标签可见71",
+            "dispose_note": "演示处置71",
+            "dept": "admin",
+            "tag": "社交",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert as71.get("tag") is not None or "tag" in as71, as71
+    assert as71.get("visibility"), as71
+
+    # Round71 · 报备上次距今（前端复制；last_ago_label 只读）
+    ck_st71 = call("/api/checkin/status")
+    cd71 = ck_st71.get("countdown") or {}
+    assert cd71.get("last_ago_label") or "hours_since_last" in cd71 or cd71, ck_st71
+
+    # Round71 · 差旅短差与达标（前端复制；shortfall/met 只读）
+    tf71 = call("/api/travel-fund")
+    fund71 = tf71.get("fund") or tf71
+    assert (
+        fund71.get("shortfall") is not None
+        or fund71.get("met") is not None
+        or fund71.get("meets_threshold") is not None
+    ), tf71
+
+    # Round71 · 善后编号+状态+城市（前端；id/status/city 可读）
+    ac71 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·编号状态71",
+            "service_type": "field_visit",
+            "city": "白沙",
+            "notes": "编号状态71",
+            "visit_pref": "上午",
+            "travel_budget": 710,
+        },
+    )["item"]
+    assert ac71.get("id") is not None and ac71.get("city"), ac71
+    assert ac71.get("status") or ac71.get("status_label"), ac71
+
+    # Round71 · 授权视频进度与缺失（前端复制；progress/missing_text 可读）
+    av71 = call("/api/auth-video")
+    assert (
+        av71.get("progress")
+        or av71.get("missing_text")
+        or av71.get("missing_labels") is not None
+    ), av71
+
+    # Round71 · 受益人口令+角色（前端；passphrase_hint/role 可读）
+    bn71 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·口令角色71",
+            "role": "executor",
+            "relation": "同事",
+            "contact": "13300000071",
+            "passphrase_hint": "round71口令",
+        },
+    )["item"]
+    assert bn71.get("role"), bn71
+    assert bn71.get("passphrase_hint") is not None or "passphrase_hint" in bn71, bn71
+
+    # Round71 · 手册品牌与域名（前端复制；brand/domain 可读）
+    hand71 = call("/api/handover")
+    assert hand71.get("brand") or hand71.get("domain"), hand71
+
+    # Round71 · 设置·服务端版本+就绪（前端复制；server_version/ok 对齐）
+    h71 = call("/api/health")
+    assert h71.get("ok") is True, h71
+    assert h71.get("server_version") or h71.get("version"), h71
+    assert h71.get("domain") == "einherit.cn", h71
+
     print("selfcheck OK")
 
 

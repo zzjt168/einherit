@@ -5968,3 +5968,39 @@ body.privacy-mode .privacy-hint { opacity: 0.85; }
   margin: 8px 0 10px; padding: 8px 10px; border-radius: 8px; background: #f5f8f6;
   word-break: break-word; font-weight: 600; color: var(--sage-deep, #2f5d45);
 }
+
+
+/* Round71 · 温和增量 */
+.home-phone-bar {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  margin: 10px 0 12px; padding: 12px 14px; border-radius: 12px;
+  background: linear-gradient(160deg, #eef4f1 0%, #fff 75%);
+  border: 1px solid var(--line, #e2e8e4);
+}
+.home-phone-bar[hidden] { display: none; }
+.home-phone-mark { font-weight: 600; color: var(--sage-deep, #2f5d45); font-size: 13px; }
+.home-phone-sub { flex: 1; min-width: 8em; font-size: 12px; }
+.lg-copy-id-title-action { margin-top: 8px; margin-left: 6px; }
+.as-copy-tag-vis { margin-top: 8px; margin-left: 6px; }
+.checkin-last-ago-plain-copy {
+  margin-top: 10px; padding: 10px 12px; border-radius: 10px; background: #f5f8f6;
+}
+.checkin-last-ago-plain-copy-line { margin: 0 0 8px; }
+.travel-shortfall-met-copy {
+  margin: 8px 0 10px; padding: 10px 12px; border-radius: 10px; background: #f5f8f6;
+}
+.travel-shortfall-met-copy-line { margin: 0 0 8px; }
+.ac-copy-id-status-city { margin-top: 8px; margin-left: 6px; }
+.av-progress-missing-copy {
+  margin: 8px 0 10px; padding: 10px 12px; border-radius: 10px; background: #f5f8f6;
+}
+.av-progress-missing-copy-line { margin: 0 0 8px; }
+.bn-copy-passphrase-role { margin-top: 8px; margin-left: 6px; }
+.hand-brand-domain-copy {
+  margin: 8px 0 12px; padding: 10px 12px; border-radius: 10px; background: #f5f8f6;
+}
+.hand-brand-domain-copy-line { margin: 0 0 8px; }
+.server-ver-ok-r71-copy-card .server-ver-ok-r71-copy-preview {
+  margin: 8px 0 10px; padding: 8px 10px; border-radius: 8px; background: #f5f8f6;
+  word-break: break-word; font-weight: 600; color: var(--sage-deep, #2f5d45);
+}
