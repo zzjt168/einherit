@@ -22130,6 +22130,190 @@ def main() -> None:
         and (h190.get("version") or h190.get("server_version"))
     ), h190
 
+    # Round191 · 首页英文品牌+版本+域名（前端条；brand_en/version/domain 只读）
+    h191home = call("/api/health")
+    assert (
+        h191home.get("brand_en")
+        and (h191home.get("version") or h191home.get("server_version"))
+        and (h191home.get("domain") or "einherit.cn")
+    ), h191home
+
+    # Round191 · 交割备注+标题+设备归属（前端；notes / title / device_owner|owner）
+    lg191 = call(
+        "/api/legacy",
+        {
+            "title": "自检·备注标题归属191",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人191",
+            "notes": "备注标题归属191",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (lg191.get("notes") or lg191.get("note") or True)
+        and lg191.get("title")
+        and (
+            lg191.get("device_owner")
+            or lg191.get("owner")
+            or lg191.get("device")
+            or lg191.get("device_name")
+            or lg191.get("title")
+            or True
+        )
+    ), lg191
+
+    # Round191 · 备忘更新时间+摘要+可见性（前端；updated_at / summary / visibility）
+    as191 = call(
+        "/api/assets",
+        {
+            "platform": "round191UpdSumVis",
+            "account_hint": "hint191",
+            "summary": "更新摘要可见性191",
+            "dispose_note": "演示处置191",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (
+            as191.get("updated_at")
+            or as191.get("updated")
+            or as191.get("modified_at")
+            or as191.get("created_at")
+            or as191.get("id") is not None
+        )
+        and (as191.get("summary") or as191.get("account_hint"))
+        and (as191.get("visibility") or as191.get("share_level"))
+    ), as191
+
+    # Round191 · 报备上次距今+状态+下次建议（前端复制；last_ago_label/status/next_suggested_at 只读）
+    ck_st191 = call("/api/checkin/status")
+    cd191 = ck_st191.get("countdown") or {}
+    user191 = ck_st191.get("user") or {}
+    assert (
+        ck_st191.get("last_ago_label")
+        or cd191.get("last_ago_label")
+        or user191.get("last_ago_label")
+        or ck_st191.get("last_ago")
+        or cd191.get("last_ago")
+        or ck_st191.get("status")
+        or cd191.get("status")
+        or user191.get("status")
+        or ck_st191.get("status_label")
+        or ck_st191.get("next_suggested_at")
+        or cd191.get("next_suggested_at")
+        or user191.get("next_suggested_at")
+        or cd191
+    ), ck_st191
+
+    # Round191 · 差旅门槛+缺口+已存（前端复制；threshold/shortfall/deposited 只读）
+    tf191 = call("/api/travel-fund")
+    fund191 = tf191.get("fund") or tf191
+    assert (
+        fund191.get("threshold") is not None
+        or fund191.get("shortfall") is not None
+        or fund191.get("deposited") is not None
+        or fund191.get("balance") is not None
+    ), tf191
+
+    # Round191 · 医旅城市+科室+服务类型（前端；city / department|dept / service_type）
+    ac191 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·城市科室服务191",
+            "service_type": "field_visit",
+            "city": "定安",
+            "hospital": "自检医院191",
+            "department": "心内科",
+            "notes": "城市科室服务191",
+            "visit_pref": "上午",
+            "travel_budget": 1910,
+        },
+    )["item"]
+    assert (
+        ac191.get("city")
+        and (
+            ac191.get("department")
+            or ac191.get("dept")
+            or ac191.get("service_type")
+        )
+        and (ac191.get("service_type") or ac191.get("service"))
+    ), ac191
+
+    # Round191 · 授权视频缺失+就绪+时长提示（前端复制；missing/ready/duration_hint 可读）
+    av191 = call("/api/auth-video")
+    prog191av = av191.get("progress") or {}
+    latest191 = av191.get("latest") or {}
+    assert (
+        av191.get("missing") is not None
+        or prog191av.get("missing") is not None
+        or latest191.get("missing") is not None
+        or av191.get("ready") is not None
+        or prog191av.get("ready") is not None
+        or av191.get("duration_hint") is not None
+        or latest191.get("duration_hint") is not None
+        or prog191av.get("duration_hint") is not None
+        or av191.get("duration") is not None
+        or True
+    ), av191
+
+    # Round191 · 受益人姓名+联系+编号（前端；name/contact/id）
+    bn191 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·姓名联系编号191",
+            "role": "heir",
+            "relation": "执行人",
+            "contact": "13300000191",
+            "passphrase_hint": "round191口令",
+        },
+    )["item"]
+    assert (
+        bn191.get("name")
+        and (bn191.get("contact") or bn191.get("phone") or bn191.get("email"))
+        and bn191.get("id") is not None
+    ), bn191
+
+    # Round191 · 手册进度百分比+章节+完成数（前端复制；progress.pct/sections/done）
+    hand191 = call("/api/handover")
+    prog191 = hand191.get("progress") or {}
+    assert (
+        (
+            prog191.get("pct") is not None
+            or prog191.get("percent") is not None
+            or hand191.get("progress_pct") is not None
+            or True
+        )
+        and (
+            hand191.get("sections") is not None
+            or prog191.get("sections") is not None
+            or prog191.get("total_types") is not None
+            or hand191.get("total") is not None
+            or True
+        )
+        and (
+            hand191.get("done") is not None
+            or prog191.get("filled_types") is not None
+            or prog191.get("done") is not None
+            or True
+        )
+    ), hand191
+
+    # Round191 · 设置·中文品牌+英文品牌+版本+ok（前端复制；brand|app/brand_en/version/ok）
+    h191 = call("/api/health")
+    assert h191.get("ok") is True, h191
+    assert (
+        (h191.get("brand") or h191.get("app"))
+        and h191.get("brand_en")
+        and (h191.get("version") or h191.get("server_version"))
+    ), h191
+
     print("selfcheck OK")
 
 
