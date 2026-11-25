@@ -12883,6 +12883,137 @@ def main() -> None:
         and h131.get("domain")
     ), h131
 
+    # Round132 · 首页中文品牌+版本+就绪（前端条；app|brand/version/ok 只读）
+    h132home = call("/api/health")
+    assert (
+        (h132home.get("brand") or h132home.get("app"))
+        and (h132home.get("version") or h132home.get("server_version"))
+        and h132home.get("ok") is True
+    ), h132home
+
+    # Round132 · 交割编号+状态+归属（前端；id / category|status / beneficiary|device_owner）
+    lg132 = call(
+        "/api/legacy",
+        {
+            "title": "自检·编号归属132",
+            "category": "手表",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人132",
+            "notes": "编号状态归属132",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert lg132.get("id") is not None and (
+        lg132.get("status") or lg132.get("category")
+    ) and (
+        lg132.get("device_owner")
+        or lg132.get("beneficiary")
+        or lg132.get("dept")
+    ), lg132
+
+    # Round132 · 备忘摘要+标签+可见性（前端；summary/tag/visibility 可读）
+    as132 = call(
+        "/api/assets",
+        {
+            "platform": "round132SumTagVis",
+            "account_hint": "hint132",
+            "summary": "摘要标签可见性132",
+            "dispose_note": "演示处置132",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert as132.get("summary") and as132.get("tag") and as132.get(
+        "visibility"
+    ), as132
+
+    # Round132 · 报备下次建议+窗口截止（前端复制；next_suggested_at / window_ends_at|checkin_due_at）
+    ck_st132 = call("/api/checkin/status")
+    cd132 = ck_st132.get("countdown") or {}
+    user132 = ck_st132.get("user") or {}
+    assert (
+        cd132.get("next_suggested_at") is not None
+        or cd132.get("window_ends_at") is not None
+        or user132.get("checkin_due_at") is not None
+        or cd132
+    ), ck_st132
+
+    # Round132 · 差旅进度+门槛+缺口（前端复制；progress_pct/threshold/shortfall 只读）
+    tf132 = call("/api/travel-fund")
+    fund132 = tf132.get("fund") or tf132
+    assert (
+        fund132.get("progress_pct") is not None
+        or fund132.get("threshold") is not None
+        or fund132.get("shortfall") is not None
+    ), tf132
+
+    # Round132 · 善后城市+服务+状态（前端；city/service_type/status 可读）
+    ac132 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·城市服务状态132",
+            "service_type": "phone_assist",
+            "city": "东方",
+            "notes": "城市服务状态132",
+            "visit_pref": "午后",
+            "travel_budget": 1320,
+        },
+    )["item"]
+    assert ac132.get("city") and (
+        ac132.get("service_type") or ac132.get("service")
+    ) and (
+        ac132.get("status")
+        or ac132.get("status_label")
+        or ac132.get("status_key")
+    ), ac132
+
+    # Round132 · 授权视频就绪+缺失+完成（前端复制；ready/missing/complete 可读）
+    av132 = call("/api/auth-video")
+    assert (
+        av132.get("ready") is not None
+        or isinstance(av132.get("missing"), list)
+        or av132.get("complete") is not None
+    ), av132
+
+    # Round132 · 受益人口令+姓名+编号（前端；passphrase_hint/name/id 可读）
+    bn132 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·口令姓名132",
+            "role": "heir",
+            "relation": "搭档",
+            "contact": "13300000132",
+            "passphrase_hint": "round132口令",
+        },
+    )["item"]
+    assert bn132.get("passphrase_hint") and bn132.get("name") and bn132.get(
+        "id"
+    ) is not None, bn132
+
+    # Round132 · 手册域名+品牌+完成（前端复制；domain/brand/filled_types|done）
+    hand132 = call("/api/handover")
+    prog132 = hand132.get("progress") or {}
+    assert (
+        hand132.get("domain")
+        or hand132.get("brand")
+        or hand132.get("done") is not None
+        or prog132.get("filled_types") is not None
+    ), hand132
+
+    # Round132 · 设置·就绪+英文+版本+中文品牌（前端复制；ok/brand_en/version/app|brand）
+    h132 = call("/api/health")
+    assert h132.get("ok") is True, h132
+    assert (
+        h132.get("brand_en")
+        and (h132.get("version") or h132.get("server_version"))
+        and (h132.get("brand") or h132.get("app"))
+    ), h132
+
     print("selfcheck OK")
 
 
