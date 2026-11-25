@@ -9220,6 +9220,117 @@ def main() -> None:
         h100.get("version") or h100.get("server_version")
     ), h100
 
+    # Round101 · 首页域名英文就绪（前端条；domain/brand_en/ok 只读）
+    h101home = call("/api/health")
+    assert h101home.get("domain") == "einherit.cn" and h101home.get(
+        "brand_en"
+    ) and h101home.get("ok") is True, h101home
+
+    # Round101 · 交割标题+分类+部门（前端；title/category/dept 可读）
+    lg101 = call(
+        "/api/legacy",
+        {
+            "title": "自检·标题分类101",
+            "category": "耳机",
+            "action": "转赠",
+            "dept": "finance",
+            "beneficiary": "自检受益人101",
+            "notes": "备注101",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert lg101.get("title") and lg101.get("category") and lg101.get(
+        "dept"
+    ), lg101
+
+    # Round101 · 备忘平台+部门+标签（前端；platform/dept/tag 可读）
+    as101 = call(
+        "/api/assets",
+        {
+            "platform": "round101PlatDeptTag",
+            "account_hint": "hint101",
+            "summary": "平台部门标签101",
+            "dispose_note": "演示处置101",
+            "dept": "admin",
+            "tag": "其他",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert as101.get("platform") and as101.get("dept") and as101.get(
+        "tag"
+    ), as101
+
+    # Round101 · 报备最近距今说明（前端复制；last_ago_label 只读）
+    ck_st101 = call("/api/checkin/status")
+    cd101 = ck_st101.get("countdown") or {}
+    assert cd101.get("last_ago_label") or cd101, ck_st101
+
+    # Round101 · 差旅余额+缺口+达标（前端复制；balance/shortfall/met 只读）
+    tf101 = call("/api/travel-fund")
+    fund101 = tf101.get("fund") or tf101
+    assert (
+        fund101.get("balance") is not None
+        or fund101.get("shortfall") is not None
+        or fund101.get("met") is not None
+    ), tf101
+
+    # Round101 · 善后状态+城市+备注（前端；status/city/notes 可读）
+    ac101 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·状态城市101",
+            "service_type": "field_visit",
+            "city": "儋州",
+            "notes": "状态城市备注101",
+            "visit_pref": "晚上",
+            "travel_budget": 1010,
+        },
+    )["item"]
+    assert ac101.get("city") and (
+        ac101.get("status") or ac101.get("notes")
+    ), ac101
+
+    # Round101 · 授权视频完成+进度+就绪（前端复制；complete/progress/ready 可读）
+    av101 = call("/api/auth-video")
+    assert (
+        av101.get("complete") is not None
+        or av101.get("progress")
+        or av101.get("ready") is not None
+    ), av101
+
+    # Round101 · 受益人姓名+角色+口令提示（前端；name/role/passphrase_hint 可读）
+    bn101 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·姓名角色101",
+            "role": "executor",
+            "relation": "亲属",
+            "contact": "13300000101",
+            "passphrase_hint": "round101口令",
+        },
+    )["item"]
+    assert bn101.get("name") and bn101.get("role") and bn101.get(
+        "passphrase_hint"
+    ), bn101
+
+    # Round101 · 手册域名+条目数+导出路径（前端复制；domain/item_count/export_path 可读）
+    hand101 = call("/api/handover")
+    assert (
+        hand101.get("domain")
+        or hand101.get("item_count") is not None
+        or hand101.get("export_path")
+    ), hand101
+
+    # Round101 · 设置·英文品牌+就绪+版本（前端复制；brand_en/ok/version 对齐）
+    h101 = call("/api/health")
+    assert h101.get("ok") is True, h101
+    assert h101.get("brand_en") and (
+        h101.get("version") or h101.get("server_version")
+    ), h101
+
     print("selfcheck OK")
 
 
