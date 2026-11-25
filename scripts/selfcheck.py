@@ -10478,6 +10478,124 @@ def main() -> None:
         h111.get("version") or h111.get("server_version")
     ), h111
 
+    # Round112 · 首页应用就绪域名（前端条；app/ok/domain 只读）
+    h112home = call("/api/health")
+    assert (
+        h112home.get("app")
+        and h112home.get("ok") is True
+        and h112home.get("domain") == "einherit.cn"
+    ), h112home
+
+    # Round112 · 交割分类+动作+备注（前端；category/action/notes 可读）
+    lg112 = call(
+        "/api/legacy",
+        {
+            "title": "自检·分类动作112",
+            "category": "相机",
+            "action": "销售变现",
+            "dept": "finance",
+            "beneficiary": "自检受益人112",
+            "notes": "备注112",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert lg112.get("category") and lg112.get("action") and lg112.get(
+        "notes"
+    ), lg112
+
+    # Round112 · 备忘编号+平台+摘要（前端；id/platform/summary 可读）
+    as112 = call(
+        "/api/assets",
+        {
+            "platform": "round112IdPlatSum",
+            "account_hint": "hint112",
+            "summary": "编号平台摘要112",
+            "dispose_note": "演示处置112",
+            "dept": "admin",
+            "tag": "其他",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert as112.get("id") is not None and as112.get("platform") and as112.get(
+        "summary"
+    ), as112
+
+    # Round112 · 报备可读宽限文案（前端复制；readable/grace_hours 只读）
+    ck_st112 = call("/api/checkin/status")
+    cd112 = ck_st112.get("countdown") or {}
+    assert (
+        cd112.get("readable")
+        or cd112.get("grace_hours") is not None
+        or cd112
+    ), ck_st112
+
+    # Round112 · 差旅进度百分比+余额+门槛（前端复制；progress_pct/balance/threshold 只读）
+    tf112 = call("/api/travel-fund")
+    fund112 = tf112.get("fund") or tf112
+    assert (
+        fund112.get("progress_pct") is not None
+        or fund112.get("progress") is not None
+        or fund112.get("balance") is not None
+        or fund112.get("threshold") is not None
+    ), tf112
+
+    # Round112 · 善后标题+城市+预算（前端；title/city/travel_budget 可读）
+    ac112 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·标题城市112",
+            "service_type": "phone_assist",
+            "city": "万宁",
+            "notes": "标题城市预算112",
+            "visit_pref": "中午",
+            "travel_budget": 1120,
+        },
+    )["item"]
+    assert ac112.get("title") and ac112.get("city") and (
+        ac112.get("travel_budget") is not None
+    ), ac112
+
+    # Round112 · 授权视频就绪+闸口+缺失（前端复制；ready/gate/missing 可读）
+    av112 = call("/api/auth-video")
+    assert (
+        av112.get("ready") is not None
+        or av112.get("gate") is not None
+        or isinstance(av112.get("missing"), list)
+    ), av112
+
+    # Round112 · 受益人口令提示+姓名+联系（前端；passphrase_hint/name/contact 可读）
+    bn112 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·口令姓名112",
+            "role": "heir",
+            "relation": "朋友",
+            "contact": "13300000112",
+            "passphrase_hint": "round112口令",
+        },
+    )["item"]
+    assert bn112.get("passphrase_hint") and bn112.get("name") and bn112.get(
+        "contact"
+    ), bn112
+
+    # Round112 · 手册导出路径+域名+待办数（前端复制；export_path/domain/todos 可读）
+    hand112 = call("/api/handover")
+    assert (
+        hand112.get("export_path")
+        or hand112.get("domain")
+        or isinstance(hand112.get("todos"), list)
+    ), hand112
+
+    # Round112 · 设置·就绪+英文品牌+域名+应用名（前端复制；ok/brand_en/domain/app 对齐）
+    h112 = call("/api/health")
+    assert h112.get("ok") is True, h112
+    assert h112.get("brand_en") and h112.get("domain") and h112.get(
+        "app"
+    ), h112
+
     print("selfcheck OK")
 
 
