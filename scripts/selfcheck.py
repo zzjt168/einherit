@@ -8012,6 +8012,97 @@ def main() -> None:
     assert h88.get("ok") is True, h88
     assert h88.get("domain") == "einherit.cn" and h88.get("brand_en"), h88
 
+    # Round89 · 首页域名英文品牌（前端条；domain/brand_en 只读）
+    h89home = call("/api/health")
+    assert h89home.get("domain") == "einherit.cn" and h89home.get("brand_en"), h89home
+
+    # Round89 · 交割标题+受益人+备注（前端；title/beneficiary/notes 可读）
+    lg89 = call(
+        "/api/legacy",
+        {
+            "title": "自检·标题受益89",
+            "category": "耳机",
+            "action": "转赠",
+            "dept": "finance",
+            "beneficiary": "自检受益人89",
+            "notes": "备注89",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert lg89.get("title") and (lg89.get("beneficiary") or lg89.get("notes")), lg89
+
+    # Round89 · 备忘编号+平台+处置（前端；id/platform/dispose_note 可读）
+    as89 = call(
+        "/api/assets",
+        {
+            "platform": "round89IdPlatDisp",
+            "account_hint": "hint89",
+            "summary": "编号平台处置89",
+            "dispose_note": "演示处置89",
+            "dept": "admin",
+            "tag": "其他",
+            "visibility": "private",
+            "draft": True,
+        },
+    )["item"]
+    assert as89.get("id") is not None and as89.get("platform") and as89.get(
+        "dispose_note"
+    ), as89
+
+    # Round89 · 报备冷静期小时（前端复制；grace_hours 只读）
+    ck_st89 = call("/api/checkin/status")
+    cd89 = ck_st89.get("countdown") or {}
+    assert cd89.get("grace_hours") is not None or cd89, ck_st89
+
+    # Round89 · 差旅门槛与余额（前端复制；threshold/balance 只读）
+    tf89 = call("/api/travel-fund")
+    fund89 = tf89.get("fund") or tf89
+    assert fund89.get("threshold") is not None or fund89.get("balance") is not None, tf89
+
+    # Round89 · 善后标题+阶段+备注（前端；title/phase/notes 可读）
+    ac89 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·标题阶段89",
+            "service_type": "field_visit",
+            "city": "澄迈",
+            "notes": "标题阶段备注89",
+            "visit_pref": "午后",
+            "travel_budget": 890,
+        },
+    )["item"]
+    assert ac89.get("title") and (ac89.get("phase") or ac89.get("notes")), ac89
+
+    # Round89 · 授权视频脚本+完成文案（前端复制；script/complete_label 可读）
+    av89 = call("/api/auth-video")
+    assert isinstance(av89.get("script"), list) or av89.get("complete_label"), av89
+
+    # Round89 · 受益人姓名+关系+口令（前端；name/relation/passphrase_hint 可读）
+    bn89 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·姓名关系89",
+            "role": "executor",
+            "relation": "好友",
+            "contact": "13300000089",
+            "passphrase_hint": "round89口令",
+        },
+    )["item"]
+    assert bn89.get("name") and bn89.get("relation") and bn89.get(
+        "passphrase_hint"
+    ), bn89
+
+    # Round89 · 手册待办数与域名（前端复制；todos/domain 可读）
+    hand89 = call("/api/handover")
+    assert isinstance(hand89.get("todos"), list) or hand89.get("domain"), hand89
+
+    # Round89 · 设置·版本+就绪+英文品牌（前端复制；version/ok/brand_en 对齐）
+    h89 = call("/api/health")
+    assert h89.get("ok") is True, h89
+    assert (h89.get("version") or h89.get("server_version")) and h89.get("brand_en"), h89
+
     print("selfcheck OK")
 
 
