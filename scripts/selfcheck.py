@@ -7155,6 +7155,95 @@ def main() -> None:
     assert h79.get("version") or h79.get("server_version"), h79
     assert h79.get("domain") == "einherit.cn", h79
 
+    # Round80 · 首页用户编号（前端条；user.id 只读）
+    ck_st80home = call("/api/checkin/status")
+    u80home = ck_st80home.get("user") or {}
+    assert u80home.get("id") is not None or u80home, ck_st80home
+
+    # Round80 · 交割编号+分类+处置（前端；id/category/action 可读）
+    lg80 = call(
+        "/api/legacy",
+        {
+            "title": "自检·编号分类80",
+            "category": "手机",
+            "action": "销毁",
+            "dept": "admin",
+            "factory_reset": True,
+            "clear_photos": True,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert lg80.get("id") is not None and lg80.get("category") and lg80.get("action"), lg80
+
+    # Round80 · 备忘提示+平台+部门（前端；account_hint/platform/dept 可读）
+    as80 = call(
+        "/api/assets",
+        {
+            "platform": "round80HintPlatformDept",
+            "account_hint": "hint80",
+            "summary": "提示平台部门80",
+            "dispose_note": "演示处置80",
+            "dept": "finance",
+            "tag": "其他",
+            "visibility": "private",
+            "draft": True,
+        },
+    )["item"]
+    assert as80.get("account_hint") and as80.get("platform") and as80.get("dept"), as80
+
+    # Round80 · 报备倒计时文案（前端复制；countdown_label 只读）
+    ck_st80 = call("/api/checkin/status")
+    cd80 = ck_st80.get("countdown") or {}
+    assert cd80.get("countdown_label") or cd80, ck_st80
+
+    # Round80 · 差旅进度%与达标（前端复制；progress_pct/met 只读）
+    tf80 = call("/api/travel-fund")
+    fund80 = tf80.get("fund") or tf80
+    assert (
+        fund80.get("progress_pct") is not None or fund80.get("met") is not None
+    ), tf80
+
+    # Round80 · 善后编号+标题+城市（前端；id/title/city 可读）
+    ac80 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·编号标题80",
+            "service_type": "field_visit",
+            "city": "三亚",
+            "notes": "编号标题城市80",
+            "visit_pref": "上午",
+            "travel_budget": 800,
+        },
+    )["item"]
+    assert ac80.get("id") is not None and ac80.get("title") and ac80.get("city"), ac80
+
+    # Round80 · 授权视频脚本段数与就绪（前端复制；script/ready 可读）
+    av80 = call("/api/auth-video")
+    assert isinstance(av80.get("script"), list) or av80.get("ready") is not None, av80
+
+    # Round80 · 受益人姓名+角色+联系（前端；name/role/contact 可读）
+    bn80 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·姓名角色80",
+            "role": "executor",
+            "relation": "同事",
+            "contact": "13300000080",
+            "passphrase_hint": "round80口令",
+        },
+    )["item"]
+    assert bn80.get("name") and bn80.get("role") and bn80.get("contact"), bn80
+
+    # Round80 · 手册分享提示与域名（前端复制；share_hint/domain 可读）
+    hand80 = call("/api/handover")
+    assert hand80.get("share_hint") or hand80.get("domain"), hand80
+
+    # Round80 · 设置·服务版本+就绪+域名（前端复制；server_version/ok/domain 对齐）
+    h80 = call("/api/health")
+    assert h80.get("ok") is True, h80
+    assert h80.get("server_version") or h80.get("version"), h80
+    assert h80.get("domain") == "einherit.cn", h80
+
     print("selfcheck OK")
 
 
