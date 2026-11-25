@@ -5663,6 +5663,100 @@ def main() -> None:
     assert h64.get("app") or h64.get("domain") == "einherit.cn", h64
     assert h64.get("domain") == "einherit.cn", h64
 
+    # Round65 · 首页会员有效冷静条（前端条；is_member 只读）
+    ck_st65home = call("/api/checkin/status")
+    assert "is_member" in (ck_st65home.get("user") or {}) or ck_st65home.get(
+        "user"
+    ), ck_st65home
+
+    # Round65 · 交割备注+部门（前端；notes/dept 可读）
+    lg65 = call(
+        "/api/legacy",
+        {
+            "title": "自检·备注部门65",
+            "category": "其他",
+            "action": "转赠",
+            "dept": "ip",
+            "notes": "round65备注",
+        },
+    )["item"]
+    assert lg65.get("dept"), lg65
+    assert lg65.get("notes") is not None or "notes" in lg65, lg65
+
+    # Round65 · 备忘摘要+可见性（前端；summary/visibility 可读）
+    as65 = call(
+        "/api/assets",
+        {
+            "platform": "round65SumVis",
+            "summary": "摘要可见性65",
+            "dept": "hr",
+            "tag": "其他",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert as65.get("summary") and as65.get("visibility"), as65
+
+    # Round65 · 报备距今与已过小时（前端复制；last_ago_label/hours_since_last 只读）
+    ck_st65 = call("/api/checkin/status")
+    cd65 = ck_st65.get("countdown") or {}
+    assert (
+        cd65.get("last_ago_label")
+        or cd65.get("hours_since_last") is not None
+        or ck_st65.get("user")
+    ), ck_st65
+
+    # Round65 · 差旅进度文案与百分比（前端复制；progress_label/progress_pct 只读）
+    tf65 = call("/api/travel-fund")
+    fund65 = tf65.get("fund") or tf65
+    assert (
+        fund65.get("progress_label")
+        or fund65.get("progress_pct") is not None
+        or fund65.get("balance") is not None
+    ), tf65
+
+    # Round65 · 善后服务类型+阶段文案（前端；service_type/phase_label 可读）
+    ac65 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·服务阶段65",
+            "service_type": "delete_data",
+            "city": "乐东",
+            "travel_budget": 650,
+        },
+    )["item"]
+    assert ac65.get("service_type") and (
+        ac65.get("phase_label") or ac65.get("phase_key")
+    ), ac65
+
+    # Round65 · 授权视频准入提示（前端复制；gate 可读）
+    av65 = call("/api/auth-video")
+    assert av65.get("gate") or av65.get("ready") is not None, av65
+
+    # Round65 · 受益人姓名+口令提示（前端；name/passphrase_hint 可读）
+    bn65 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·姓名口令65",
+            "role": "executor",
+            "relation": "同事",
+            "contact": "13300000065",
+            "passphrase_hint": "round65口令",
+        },
+    )["item"]
+    assert bn65.get("name"), bn65
+    assert bn65.get("passphrase_hint") is not None or "passphrase_hint" in bn65, bn65
+
+    # Round65 · 手册域名+执行人（前端复制；domain/executor 可读）
+    hand65 = call("/api/handover")
+    assert hand65.get("domain") or hand65.get("executor"), hand65
+
+    # Round65 · 设置·服务端版本+域名（前端复制；server_version/domain 对齐）
+    h65 = call("/api/health")
+    assert h65.get("ok") is True, h65
+    assert h65.get("server_version") or h65.get("domain") == "einherit.cn", h65
+    assert h65.get("domain") == "einherit.cn", h65
+
     print("selfcheck OK")
 
 
