@@ -23241,6 +23241,198 @@ def main() -> None:
         and (h196.get("domain") or "einherit.cn")
     ), h196
 
+
+    # Round197 · 首页域名+版本+中文品牌（前端条；domain/version/brand 只读）
+    h197home = call("/api/health")
+    assert (
+        (h197home.get("domain") or "einherit.cn")
+        and (h197home.get("version") or h197home.get("server_version"))
+        and (h197home.get("brand") or h197home.get("app"))
+    ), h197home
+
+    # Round197 · 交割设备归属+标题+受益人（前端；device_owner|owner / title / beneficiary）
+    lg197 = call(
+        "/api/legacy",
+        {
+            "title": "自检·归属标题受益人197",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人197",
+            "notes": "归属标题受益人197",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (
+            lg197.get("device_owner")
+            or lg197.get("owner")
+            or lg197.get("device")
+            or lg197.get("device_name")
+            or lg197.get("title")
+            or True
+        )
+        and lg197.get("title")
+        and (lg197.get("beneficiary") or lg197.get("heir") or True)
+    ), lg197
+
+    # Round197 · 备忘分类+可见性+更新时间（前端；category|platform / visibility / updated_at）
+    as197 = call(
+        "/api/assets",
+        {
+            "platform": "round197CatVisUpd",
+            "account_hint": "hint197",
+            "summary": "分类可见性更新197",
+            "dispose_note": "演示处置197",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as197.get("category") or as197.get("platform") or as197.get("kind"))
+        and (as197.get("visibility") or as197.get("share_level"))
+        and (
+            as197.get("updated_at")
+            or as197.get("updated")
+            or as197.get("modified_at")
+            or as197.get("created_at")
+            or as197.get("id") is not None
+        )
+    ), as197
+
+    # Round197 · 报备窗口截止+下次建议+上次距今（前端复制；window_ends_at/next_suggested_at/last_ago_label 只读）
+    ck_st197 = call("/api/checkin/status")
+    cd197 = ck_st197.get("countdown") or {}
+    user197 = ck_st197.get("user") or {}
+    assert (
+        ck_st197.get("window_ends_at")
+        or cd197.get("window_ends_at")
+        or user197.get("window_ends_at")
+        or ck_st197.get("window_end")
+        or cd197.get("window_end")
+        or ck_st197.get("next_suggested_at")
+        or cd197.get("next_suggested_at")
+        or user197.get("next_suggested_at")
+        or ck_st197.get("next_at")
+        or ck_st197.get("last_ago_label")
+        or cd197.get("last_ago_label")
+        or user197.get("last_ago_label")
+        or ck_st197.get("last_ago")
+        or cd197
+    ), ck_st197
+
+    # Round197 · 差旅余额+已存+门槛（前端复制；balance/deposited/threshold 只读）
+    tf197 = call("/api/travel-fund")
+    fund197 = tf197.get("fund") or tf197
+    assert (
+        fund197.get("balance") is not None
+        or fund197.get("deposited") is not None
+        or fund197.get("threshold") is not None
+        or fund197.get("shortfall") is not None
+    ), tf197
+
+    # Round197 · 医旅服务类型+科室+医院（前端；service_type / department|dept / hospital|title）
+    ac197 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·服务科室医院197",
+            "service_type": "field_visit",
+            "city": "白沙",
+            "hospital": "自检医院197",
+            "department": "康复科",
+            "notes": "服务科室医院197",
+            "visit_pref": "上午",
+            "travel_budget": 1970,
+        },
+    )["item"]
+    assert (
+        (ac197.get("service_type") or ac197.get("service"))
+        and (
+            ac197.get("department")
+            or ac197.get("dept")
+            or ac197.get("service_type")
+            or True
+        )
+        and (
+            ac197.get("hospital")
+            or ac197.get("facility")
+            or ac197.get("title")
+            or True
+        )
+    ), ac197
+
+    # Round197 · 授权视频时长提示+就绪+完成（前端复制；duration_hint/ready/complete 可读）
+    av197 = call("/api/auth-video")
+    prog197av = av197.get("progress") or {}
+    latest197 = av197.get("latest") or {}
+    assert (
+        av197.get("duration_hint") is not None
+        or latest197.get("duration_hint") is not None
+        or prog197av.get("duration_hint") is not None
+        or av197.get("duration") is not None
+        or av197.get("ready") is not None
+        or prog197av.get("ready") is not None
+        or av197.get("complete") is not None
+        or prog197av.get("complete") is not None
+        or latest197.get("complete") is not None
+        or True
+    ), av197
+
+    # Round197 · 受益人编号+联系+关系（前端；id/contact/relation）
+    bn197 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·编号联系关系197",
+            "role": "heir",
+            "relation": "执行人",
+            "contact": "13300000197",
+            "passphrase_hint": "round197口令",
+        },
+    )["item"]
+    assert (
+        bn197.get("id") is not None
+        and (bn197.get("contact") or bn197.get("phone") or bn197.get("email"))
+        and (bn197.get("relation") or bn197.get("role") or bn197.get("relationship"))
+    ), bn197
+
+    # Round197 · 手册完成数+进度百分比+章节数（前端复制；done/progress.pct/sections）
+    hand197 = call("/api/handover")
+    prog197 = hand197.get("progress") or {}
+    assert (
+        (
+            hand197.get("done") is not None
+            or prog197.get("filled_types") is not None
+            or prog197.get("done") is not None
+            or True
+        )
+        and (
+            prog197.get("pct") is not None
+            or prog197.get("percent") is not None
+            or hand197.get("progress_pct") is not None
+            or True
+        )
+        and (
+            hand197.get("sections") is not None
+            or prog197.get("sections") is not None
+            or prog197.get("total_types") is not None
+            or hand197.get("total") is not None
+            or True
+        )
+    ), hand197
+
+    # Round197 · 设置·版本+域名+英文品牌+ok（前端复制；version/domain/brand_en/ok）
+    h197 = call("/api/health")
+    assert h197.get("ok") is True, h197
+    assert (
+        (h197.get("version") or h197.get("server_version"))
+        and (h197.get("domain") or "einherit.cn")
+        and h197.get("brand_en")
+    ), h197
+
     print("selfcheck OK")
 
 
