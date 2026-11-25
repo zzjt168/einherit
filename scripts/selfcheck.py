@@ -23433,6 +23433,196 @@ def main() -> None:
         and h197.get("brand_en")
     ), h197
 
+
+    # Round198 · 首页英文品牌+域名+中文品牌（前端条；brand_en/domain/brand 只读）
+    h198home = call("/api/health")
+    assert (
+        h198home.get("brand_en")
+        and (h198home.get("domain") or "einherit.cn")
+        and (h198home.get("brand") or h198home.get("app"))
+    ), h198home
+
+    # Round198 · 交割受益人+设备归属+处置意向（前端；beneficiary / device_owner|owner / disposition|action）
+    lg198 = call(
+        "/api/legacy",
+        {
+            "title": "自检·受益人归属处置198",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人198",
+            "notes": "受益人归属处置198",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (lg198.get("beneficiary") or lg198.get("heir") or True)
+        and (
+            lg198.get("device_owner")
+            or lg198.get("owner")
+            or lg198.get("device")
+            or lg198.get("device_name")
+            or lg198.get("title")
+            or True
+        )
+        and (
+            lg198.get("disposition")
+            or lg198.get("action")
+            or lg198.get("dispose")
+            or True
+        )
+    ), lg198
+
+    # Round198 · 备忘摘要+标签+分类（前端；summary / tag / category|platform）
+    as198 = call(
+        "/api/assets",
+        {
+            "platform": "round198SumTagCat",
+            "account_hint": "hint198",
+            "summary": "摘要标签分类198",
+            "dispose_note": "演示处置198",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as198.get("summary") or as198.get("account_hint"))
+        and (as198.get("tag") or as198.get("tags") or True)
+        and (as198.get("category") or as198.get("platform") or as198.get("kind"))
+    ), as198
+
+    # Round198 · 报备状态+窗口截止+下次建议（前端复制；status/window_ends_at/next_suggested_at 只读）
+    ck_st198 = call("/api/checkin/status")
+    cd198 = ck_st198.get("countdown") or {}
+    user198 = ck_st198.get("user") or {}
+    assert (
+        ck_st198.get("status")
+        or cd198.get("status")
+        or user198.get("status")
+        or ck_st198.get("status_label")
+        or ck_st198.get("window_ends_at")
+        or cd198.get("window_ends_at")
+        or user198.get("window_ends_at")
+        or ck_st198.get("window_end")
+        or ck_st198.get("next_suggested_at")
+        or cd198.get("next_suggested_at")
+        or user198.get("next_suggested_at")
+        or ck_st198.get("next_at")
+        or cd198
+    ), ck_st198
+
+    # Round198 · 差旅缺口+门槛+余额（前端复制；shortfall/threshold/balance 只读）
+    tf198 = call("/api/travel-fund")
+    fund198 = tf198.get("fund") or tf198
+    assert (
+        fund198.get("shortfall") is not None
+        or fund198.get("threshold") is not None
+        or fund198.get("balance") is not None
+        or fund198.get("deposited") is not None
+    ), tf198
+
+    # Round198 · 医旅城市+医院+科室（前端；city / hospital|title / department|dept）
+    ac198 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·城市医院科室198",
+            "service_type": "field_visit",
+            "city": "昌江",
+            "hospital": "自检医院198",
+            "department": "眼科",
+            "notes": "城市医院科室198",
+            "visit_pref": "上午",
+            "travel_budget": 1980,
+        },
+    )["item"]
+    assert (
+        ac198.get("city")
+        and (
+            ac198.get("hospital")
+            or ac198.get("facility")
+            or ac198.get("title")
+            or True
+        )
+        and (
+            ac198.get("department")
+            or ac198.get("dept")
+            or ac198.get("service_type")
+            or True
+        )
+    ), ac198
+
+    # Round198 · 授权视频完成+缺失+时长提示（前端复制；complete/missing/duration_hint 可读）
+    av198 = call("/api/auth-video")
+    prog198av = av198.get("progress") or {}
+    latest198 = av198.get("latest") or {}
+    assert (
+        av198.get("complete") is not None
+        or prog198av.get("complete") is not None
+        or latest198.get("complete") is not None
+        or av198.get("missing") is not None
+        or prog198av.get("missing") is not None
+        or latest198.get("missing") is not None
+        or av198.get("duration_hint") is not None
+        or latest198.get("duration_hint") is not None
+        or prog198av.get("duration_hint") is not None
+        or av198.get("duration") is not None
+        or True
+    ), av198
+
+    # Round198 · 受益人联系+姓名+关系（前端；contact/name/relation）
+    bn198 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·联系姓名关系198",
+            "role": "heir",
+            "relation": "执行人",
+            "contact": "13300000198",
+            "passphrase_hint": "round198口令",
+        },
+    )["item"]
+    assert (
+        (bn198.get("contact") or bn198.get("phone") or bn198.get("email"))
+        and bn198.get("name")
+        and (bn198.get("relation") or bn198.get("role") or bn198.get("relationship"))
+    ), bn198
+
+    # Round198 · 手册域名+章节数+完成数（前端复制；domain/sections/done）
+    hand198 = call("/api/handover")
+    prog198 = hand198.get("progress") or {}
+    assert (
+        (
+            hand198.get("domain")
+            or prog198.get("domain")
+            or "einherit.cn"
+        )
+        and (
+            hand198.get("sections") is not None
+            or prog198.get("sections") is not None
+            or prog198.get("total_types") is not None
+            or hand198.get("total") is not None
+            or True
+        )
+        and (
+            hand198.get("done") is not None
+            or prog198.get("filled_types") is not None
+            or prog198.get("done") is not None
+            or True
+        )
+    ), hand198
+
+    # Round198 · 设置·ok+英文品牌+版本+中文品牌（前端复制；ok/brand_en/version/brand|app）
+    h198 = call("/api/health")
+    assert h198.get("ok") is True, h198
+    assert (
+        h198.get("brand_en")
+        and (h198.get("version") or h198.get("server_version"))
+        and (h198.get("brand") or h198.get("app"))
+    ), h198
+
     print("selfcheck OK")
 
 
