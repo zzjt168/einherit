@@ -3541,6 +3541,91 @@ def main() -> None:
     assert h41.get("domain") == "einherit.cn", h41
     assert h41.get("version") or h41.get("server_version"), h41
 
+    # Round42 · 首页审计条数（前端条；audit 可读）
+    audit42 = call("/api/audit")
+    assert isinstance(audit42.get("items"), list), audit42
+
+    # Round42 · 交割编号+标题（前端；id/title 可读）
+    lg42 = call(
+        "/api/legacy",
+        {
+            "title": "自检·编号标题42",
+            "category": "其他",
+            "action": "销毁",
+            "dept": "admin",
+        },
+    )["item"]
+    assert lg42.get("id") is not None and lg42.get("title"), lg42
+
+    # Round42 · 备忘标签+平台（前端；tag/platform 可读）
+    as42 = call(
+        "/api/assets",
+        {
+            "platform": "round42Combo",
+            "summary": "标签平台",
+            "dept": "admin",
+            "tag": "设备",
+            "draft": True,
+        },
+    )["item"]
+    assert as42.get("platform") and as42.get("tag"), as42
+
+    # Round42 · 报备节奏状态（前端复制；escalation_state 可读）
+    ck_st42 = call("/api/checkin/status")
+    assert "user" in ck_st42, ck_st42
+    assert (
+        ck_st42["user"].get("escalation_state") is not None
+        or "is_member" in ck_st42["user"]
+    ), ck_st42
+
+    # Round42 · 差旅门槛纯数字（前端复制；threshold 可读）
+    tf42 = call("/api/travel-fund")
+    fund42 = tf42.get("fund") or tf42
+    assert fund42.get("threshold") is not None or fund42.get("balance") is not None, fund42
+
+    # Round42 · 善后标题+城市（前端；title/city 可读）
+    ac42 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·标题城市42",
+            "service_type": "delete_data",
+            "city": "三亚",
+            "travel_budget": 290,
+        },
+    )["item"]
+    assert ac42.get("title") and ac42.get("city"), ac42
+
+    # Round42 · 授权视频文件名+编号（前端复制；current_active 可读）
+    av42 = call("/api/auth-video")
+    assert (
+        av42.get("current_active") is not None
+        or av42.get("latest") is not None
+        or "ready" in av42
+    ), av42
+
+    # Round42 · 受益人姓名+关系（前端；name/relation 可读）
+    bn42 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·姓名关系42",
+            "role": "heir",
+            "relation": "子女",
+            "contact": "13300000042",
+        },
+    )["item"]
+    assert bn42.get("name") and bn42.get("relation"), bn42
+
+    # Round42 · 手册导出路径+域名（前端复制；export_path/domain）
+    hand42 = call("/api/handover")
+    assert hand42.get("export_path") or hand42.get("domain"), hand42
+
+    # Round42 · 设置·服务端版本+中文品牌（前端复制；health 对齐）
+    h42 = call("/api/health")
+    assert h42.get("ok") is True, h42
+    assert h42.get("server_version") or h42.get("version"), h42
+    assert h42.get("app") or h42.get("brand_en"), h42
+    assert h42.get("domain") == "einherit.cn", h42
+
     print("selfcheck OK")
 
 
