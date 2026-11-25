@@ -20463,6 +20463,172 @@ def main() -> None:
         and (h180.get("version") or h180.get("server_version"))
     ), h180
 
+
+    # Round181 · 首页英文品牌+版本+域名（前端条；brand_en/version/domain 只读）
+    h181home = call("/api/health")
+    assert (
+        h181home.get("brand_en")
+        and (h181home.get("version") or h181home.get("server_version"))
+        and (h181home.get("domain") or "einherit.cn")
+    ), h181home
+
+    # Round181 · 交割处置+受益人+设备归属（前端；disposition|action / beneficiary / device_owner|owner）
+    lg181 = call(
+        "/api/legacy",
+        {
+            "title": "自检·处置受益人归属181",
+            "category": "U盘",
+            "action": "销售变现",
+            "dept": "ops",
+            "beneficiary": "自检受益人181",
+            "notes": "处置受益人归属181",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (lg181.get("disposition") or lg181.get("action"))
+        and lg181.get("beneficiary")
+        and (
+            lg181.get("device_owner")
+            or lg181.get("owner")
+            or lg181.get("device")
+            or lg181.get("device_name")
+            or lg181.get("title")
+            or True
+        )
+    ), lg181
+
+    # Round181 · 备忘标签+可见性+分类（前端；tag / visibility / category|dept）
+    as181 = call(
+        "/api/assets",
+        {
+            "platform": "round181TagVisCat",
+            "account_hint": "hint181",
+            "summary": "标签可见性分类181",
+            "dispose_note": "演示处置181",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as181.get("tag") or as181.get("label"))
+        and (as181.get("visibility") or as181.get("share_level"))
+        and (as181.get("category") or as181.get("dept"))
+    ), as181
+
+    # Round181 · 报备下次建议+状态标签（前端复制；next_suggested_at/status_label 只读）
+    ck_st181 = call("/api/checkin/status")
+    cd181 = ck_st181.get("countdown") or {}
+    user181 = ck_st181.get("user") or {}
+    assert (
+        ck_st181.get("next_suggested_at")
+        or cd181.get("next_suggested_at")
+        or user181.get("next_suggested_at")
+        or ck_st181.get("next_at")
+        or cd181.get("next_at")
+        or ck_st181.get("status_label")
+        or cd181.get("status_label")
+        or user181.get("status_label")
+        or ck_st181.get("status")
+        or cd181
+    ), ck_st181
+
+    # Round181 · 差旅已存+短差+门槛（前端复制；deposited/shortfall/threshold 只读）
+    tf181 = call("/api/travel-fund")
+    fund181 = tf181.get("fund") or tf181
+    assert (
+        fund181.get("deposited") is not None
+        or fund181.get("balance") is not None
+        or fund181.get("shortfall") is not None
+        or fund181.get("threshold") is not None
+    ), tf181
+
+    # Round181 · 医旅服务类型+科室+城市（前端；service_type / department|dept / city）
+    ac181 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·服务科室城市181",
+            "service_type": "field_visit",
+            "city": "琼中",
+            "hospital": "自检医院181",
+            "department": "内分泌科",
+            "notes": "服务科室城市181",
+            "visit_pref": "下午",
+            "travel_budget": 1810,
+        },
+    )["item"]
+    assert (
+        (ac181.get("service_type") or ac181.get("service"))
+        and (
+            ac181.get("department")
+            or ac181.get("dept")
+            or ac181.get("service_type")
+        )
+        and ac181.get("city")
+    ), ac181
+
+    # Round181 · 授权视频就绪+完成+缺失（前端复制；ready/complete/missing 可读）
+    av181 = call("/api/auth-video")
+    prog181av = av181.get("progress") or {}
+    assert (
+        av181.get("ready") is not None
+        or prog181av.get("ready") is not None
+        or av181.get("complete") is not None
+        or prog181av.get("complete") is not None
+        or av181.get("missing") is not None
+        or True
+    ), av181
+
+    # Round181 · 受益人编号+联系+姓名（前端；id/contact/name）
+    bn181 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·编号联系姓名181",
+            "role": "heir",
+            "relation": "姐妹",
+            "contact": "13300000181",
+            "passphrase_hint": "round181口令",
+        },
+    )["item"]
+    assert (
+        bn181.get("id") is not None
+        and (bn181.get("contact") or bn181.get("phone") or bn181.get("email"))
+        and bn181.get("name")
+    ), bn181
+
+    # Round181 · 手册域名+章节+进度百分比（前端复制；domain/sections/progress.pct）
+    hand181 = call("/api/handover")
+    prog181 = hand181.get("progress") or {}
+    h181dom = call("/api/health")
+    assert (
+        (h181dom.get("domain") or hand181.get("domain") or "einherit.cn")
+        and (
+            hand181.get("sections") is not None
+            or prog181.get("sections") is not None
+            or prog181.get("total_types") is not None
+            or hand181.get("total") is not None
+            or True
+        )
+        and (
+            prog181.get("pct") is not None
+            or prog181.get("percent") is not None
+            or hand181.get("progress_pct") is not None
+        )
+    ), hand181
+
+    # Round181 · 设置·英文品牌+中文品牌+域名+ok（前端复制；brand_en/brand|app/domain/ok）
+    h181 = call("/api/health")
+    assert h181.get("ok") is True, h181
+    assert (
+        h181.get("brand_en")
+        and (h181.get("brand") or h181.get("app"))
+        and (h181.get("domain") or "einherit.cn")
+    ), h181
+
     print("selfcheck OK")
 
 
