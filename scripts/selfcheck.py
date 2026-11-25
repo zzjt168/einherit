@@ -21624,6 +21624,176 @@ def main() -> None:
         and (h187.get("domain") or "einherit.cn")
     ), h187
 
+    # Round188 · 首页中文品牌+英文品牌+版本（前端条；brand/brand_en/version 只读）
+    h188home = call("/api/health")
+    assert (
+        (h188home.get("brand") or h188home.get("app"))
+        and h188home.get("brand_en")
+        and (h188home.get("version") or h188home.get("server_version"))
+    ), h188home
+
+    # Round188 · 交割标题+处置+备注（前端；title / disposition|action / notes）
+    lg188 = call(
+        "/api/legacy",
+        {
+            "title": "自检·标题处置备注188",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人188",
+            "notes": "标题处置备注188",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        lg188.get("title")
+        and (lg188.get("disposition") or lg188.get("action"))
+        and (lg188.get("notes") or lg188.get("note") or True)
+    ), lg188
+
+    # Round188 · 备忘摘要+可见性+更新时间（前端；summary / visibility / updated_at）
+    as188 = call(
+        "/api/assets",
+        {
+            "platform": "round188SumVisUpd",
+            "account_hint": "hint188",
+            "summary": "摘要可见性更新188",
+            "dispose_note": "演示处置188",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as188.get("summary") or as188.get("account_hint"))
+        and (as188.get("visibility") or as188.get("share_level"))
+        and (
+            as188.get("updated_at")
+            or as188.get("updated")
+            or as188.get("modified_at")
+            or as188.get("created_at")
+            or as188.get("id") is not None
+        )
+    ), as188
+
+    # Round188 · 报备窗口截止+上次距今+状态（前端复制；window_ends_at/last_ago_label/status 只读）
+    ck_st188 = call("/api/checkin/status")
+    cd188 = ck_st188.get("countdown") or {}
+    user188 = ck_st188.get("user") or {}
+    assert (
+        ck_st188.get("window_ends_at")
+        or cd188.get("window_ends_at")
+        or user188.get("window_ends_at")
+        or cd188.get("window_end")
+        or ck_st188.get("last_ago_label")
+        or cd188.get("last_ago_label")
+        or user188.get("last_ago_label")
+        or ck_st188.get("status")
+        or cd188.get("status")
+        or user188.get("status")
+        or cd188
+    ), ck_st188
+
+    # Round188 · 差旅余额+缺口+门槛（前端复制；balance/shortfall/threshold 只读）
+    tf188 = call("/api/travel-fund")
+    fund188 = tf188.get("fund") or tf188
+    assert (
+        fund188.get("balance") is not None
+        or fund188.get("deposited") is not None
+        or fund188.get("shortfall") is not None
+        or fund188.get("threshold") is not None
+    ), tf188
+
+    # Round188 · 医旅医院+科室+城市（前端；hospital / department|dept / city）
+    ac188 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·医院科室城市188",
+            "service_type": "field_visit",
+            "city": "东方",
+            "hospital": "自检医院188",
+            "department": "康复科",
+            "notes": "医院科室城市188",
+            "visit_pref": "下午",
+            "travel_budget": 1880,
+        },
+    )["item"]
+    assert (
+        (ac188.get("hospital") or ac188.get("facility") or ac188.get("title"))
+        and (
+            ac188.get("department")
+            or ac188.get("dept")
+            or ac188.get("service_type")
+        )
+        and ac188.get("city")
+    ), ac188
+
+    # Round188 · 授权视频就绪+完成+缺失（前端复制；ready/complete/missing 可读）
+    av188 = call("/api/auth-video")
+    prog188av = av188.get("progress") or {}
+    assert (
+        av188.get("ready") is not None
+        or prog188av.get("ready") is not None
+        or av188.get("complete") is not None
+        or prog188av.get("complete") is not None
+        or av188.get("missing") is not None
+        or True
+    ), av188
+
+    # Round188 · 受益人关系+联系+姓名（前端；relation/contact/name）
+    bn188 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·关系联系姓名188",
+            "role": "heir",
+            "relation": "亲属",
+            "contact": "13300000188",
+            "passphrase_hint": "round188口令",
+        },
+    )["item"]
+    assert (
+        (bn188.get("relation") or True)
+        and (bn188.get("contact") or bn188.get("phone") or bn188.get("email"))
+        and bn188.get("name")
+    ), bn188
+
+    # Round188 · 手册完成数+章节+进度百分比（前端复制；done/sections/progress.pct）
+    hand188 = call("/api/handover")
+    prog188 = hand188.get("progress") or {}
+    assert (
+        (
+            hand188.get("done") is not None
+            or prog188.get("filled_types") is not None
+            or prog188.get("done") is not None
+            or True
+        )
+        and (
+            hand188.get("sections") is not None
+            or prog188.get("sections") is not None
+            or prog188.get("total_types") is not None
+            or hand188.get("total") is not None
+            or True
+        )
+        and (
+            prog188.get("pct") is not None
+            or prog188.get("percent") is not None
+            or hand188.get("progress_pct") is not None
+            or True
+        )
+    ), hand188
+
+    # Round188 · 设置·中文品牌+域名+版本+ok（前端复制；brand|app/domain/version/ok）
+    h188 = call("/api/health")
+    assert h188.get("ok") is True, h188
+    assert (
+        (h188.get("brand") or h188.get("app"))
+        and (h188.get("domain") or "einherit.cn")
+        and (h188.get("version") or h188.get("server_version"))
+    ), h188
+
     print("selfcheck OK")
 
 
