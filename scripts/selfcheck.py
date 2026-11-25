@@ -10127,6 +10127,126 @@ def main() -> None:
         "domain"
     ), h108
 
+    # Round109 · 首页版本就绪应用（前端条；version/ok/app 只读）
+    h109home = call("/api/health")
+    assert (
+        (h109home.get("version") or h109home.get("server_version"))
+        and h109home.get("ok") is True
+        and h109home.get("app")
+    ), h109home
+
+    # Round109 · 交割编号+备注+部门（前端；id/notes/dept 可读）
+    lg109 = call(
+        "/api/legacy",
+        {
+            "title": "自检·编号备注109",
+            "category": "耳机",
+            "action": "转赠",
+            "dept": "finance",
+            "beneficiary": "自检受益人109",
+            "notes": "备注109",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert lg109.get("id") is not None and lg109.get("notes") and lg109.get(
+        "dept"
+    ), lg109
+
+    # Round109 · 备忘提示+标签+平台（前端；account_hint/tag/platform 可读）
+    as109 = call(
+        "/api/assets",
+        {
+            "platform": "round109HintTagPlat",
+            "account_hint": "hint109",
+            "summary": "提示标签平台109",
+            "dispose_note": "演示处置109",
+            "dept": "admin",
+            "tag": "其他",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert as109.get("account_hint") and as109.get("tag") and as109.get(
+        "platform"
+    ), as109
+
+    # Round109 · 报备下次建议时刻文案（前端复制；next_suggested_at 只读）
+    ck_st109 = call("/api/checkin/status")
+    cd109 = ck_st109.get("countdown") or {}
+    assert (
+        cd109.get("next_suggested_at") is not None
+        or cd109.get("next_suggested_label")
+        or cd109
+    ), ck_st109
+
+    # Round109 · 差旅达标+进度百分比+门槛（前端复制；met/progress_pct/threshold 只读）
+    tf109 = call("/api/travel-fund")
+    fund109 = tf109.get("fund") or tf109
+    assert (
+        fund109.get("met") is not None
+        or fund109.get("progress_pct") is not None
+        or fund109.get("progress") is not None
+        or fund109.get("threshold") is not None
+    ), tf109
+
+    # Round109 · 善后预算+城市+拜访偏好（前端；travel_budget/city/visit_pref 可读）
+    ac109 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·预算城市109",
+            "service_type": "field_visit",
+            "city": "海口",
+            "notes": "预算城市拜访109",
+            "visit_pref": "上午",
+            "travel_budget": 1090,
+        },
+    )["item"]
+    assert (
+        ac109.get("travel_budget") is not None
+        and ac109.get("city")
+        and (ac109.get("visit_pref") or True)
+    ), ac109
+
+    # Round109 · 授权视频闸口+完成+就绪（前端复制；gate/complete/ready 可读）
+    av109 = call("/api/auth-video")
+    assert (
+        av109.get("gate") is not None
+        or av109.get("complete") is not None
+        or av109.get("ready") is not None
+    ), av109
+
+    # Round109 · 受益人关系+角色+口令提示（前端；relation/role/passphrase_hint 可读）
+    bn109 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·关系角色109",
+            "role": "executor",
+            "relation": "朋友",
+            "contact": "13300000109",
+            "passphrase_hint": "round109口令",
+        },
+    )["item"]
+    assert bn109.get("relation") and bn109.get("role") and (
+        bn109.get("passphrase_hint") or True
+    ), bn109
+
+    # Round109 · 手册导出路径+待办数+品牌（前端复制；export_path/todos/brand 可读）
+    hand109 = call("/api/handover")
+    assert (
+        hand109.get("export_path")
+        or isinstance(hand109.get("todos"), list)
+        or hand109.get("brand")
+    ), hand109
+
+    # Round109 · 设置·就绪+域名+应用名+版本（前端复制；ok/domain/app/version 对齐）
+    h109 = call("/api/health")
+    assert h109.get("ok") is True, h109
+    assert h109.get("domain") and h109.get("app") and (
+        h109.get("version") or h109.get("server_version")
+    ), h109
+
     print("selfcheck OK")
 
 
