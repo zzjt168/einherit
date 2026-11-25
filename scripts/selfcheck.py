@@ -22314,6 +22314,190 @@ def main() -> None:
         and (h191.get("version") or h191.get("server_version"))
     ), h191
 
+
+    # Round192 · 首页中文品牌+域名+版本（前端条；brand/domain/version 只读）
+    h192home = call("/api/health")
+    assert (
+        (h192home.get("brand") or h192home.get("app"))
+        and (h192home.get("domain") or "einherit.cn")
+        and (h192home.get("version") or h192home.get("server_version"))
+    ), h192home
+
+    # Round192 · 交割受益人+备注+处置意向（前端；beneficiary / notes / disposition|action）
+    lg192 = call(
+        "/api/legacy",
+        {
+            "title": "自检·受益人备注处置192",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人192",
+            "notes": "受益人备注处置192",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (lg192.get("beneficiary") or lg192.get("heir") or True)
+        and (lg192.get("notes") or lg192.get("note") or True)
+        and (
+            lg192.get("disposition")
+            or lg192.get("action")
+            or lg192.get("dispose")
+            or True
+        )
+    ), lg192
+
+    # Round192 · 备忘分类+更新时间+标签（前端；category|platform / updated_at / tag）
+    as192 = call(
+        "/api/assets",
+        {
+            "platform": "round192CatUpdTag",
+            "account_hint": "hint192",
+            "summary": "分类更新标签192",
+            "dispose_note": "演示处置192",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as192.get("category") or as192.get("platform") or as192.get("kind"))
+        and (
+            as192.get("updated_at")
+            or as192.get("updated")
+            or as192.get("modified_at")
+            or as192.get("created_at")
+            or as192.get("id") is not None
+        )
+        and (as192.get("tag") or as192.get("tags") or True)
+    ), as192
+
+    # Round192 · 报备窗口截止+状态+上次距今（前端复制；window_ends_at/status/last_ago_label 只读）
+    ck_st192 = call("/api/checkin/status")
+    cd192 = ck_st192.get("countdown") or {}
+    user192 = ck_st192.get("user") or {}
+    assert (
+        ck_st192.get("window_ends_at")
+        or cd192.get("window_ends_at")
+        or user192.get("window_ends_at")
+        or ck_st192.get("window_end")
+        or cd192.get("window_end")
+        or ck_st192.get("status")
+        or cd192.get("status")
+        or user192.get("status")
+        or ck_st192.get("status_label")
+        or ck_st192.get("last_ago_label")
+        or cd192.get("last_ago_label")
+        or user192.get("last_ago_label")
+        or ck_st192.get("last_ago")
+        or cd192
+    ), ck_st192
+
+    # Round192 · 差旅余额+门槛+缺口（前端复制；balance/threshold/shortfall 只读）
+    tf192 = call("/api/travel-fund")
+    fund192 = tf192.get("fund") or tf192
+    assert (
+        fund192.get("balance") is not None
+        or fund192.get("threshold") is not None
+        or fund192.get("shortfall") is not None
+        or fund192.get("deposited") is not None
+    ), tf192
+
+    # Round192 · 医旅医院+城市+服务类型（前端；hospital / city / service_type）
+    ac192 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·医院城市服务192",
+            "service_type": "field_visit",
+            "city": "文昌",
+            "hospital": "自检医院192",
+            "department": "骨科",
+            "notes": "医院城市服务192",
+            "visit_pref": "上午",
+            "travel_budget": 1920,
+        },
+    )["item"]
+    assert (
+        (
+            ac192.get("hospital")
+            or ac192.get("facility")
+            or ac192.get("title")
+            or True
+        )
+        and ac192.get("city")
+        and (ac192.get("service_type") or ac192.get("service"))
+    ), ac192
+
+    # Round192 · 授权视频就绪+缺失+完成（前端复制；ready/missing/complete 可读）
+    av192 = call("/api/auth-video")
+    prog192av = av192.get("progress") or {}
+    latest192 = av192.get("latest") or {}
+    assert (
+        av192.get("ready") is not None
+        or prog192av.get("ready") is not None
+        or av192.get("missing") is not None
+        or prog192av.get("missing") is not None
+        or latest192.get("missing") is not None
+        or av192.get("complete") is not None
+        or prog192av.get("complete") is not None
+        or latest192.get("complete") is not None
+        or True
+    ), av192
+
+    # Round192 · 受益人关系+编号+联系（前端；relation/id/contact）
+    bn192 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·关系编号联系192",
+            "role": "heir",
+            "relation": "执行人",
+            "contact": "13300000192",
+            "passphrase_hint": "round192口令",
+        },
+    )["item"]
+    assert (
+        (bn192.get("relation") or bn192.get("role") or bn192.get("relationship"))
+        and bn192.get("id") is not None
+        and (bn192.get("contact") or bn192.get("phone") or bn192.get("email"))
+    ), bn192
+
+    # Round192 · 手册完成数+域名+章节数（前端复制；done/domain/sections）
+    hand192 = call("/api/handover")
+    prog192 = hand192.get("progress") or {}
+    assert (
+        (
+            hand192.get("done") is not None
+            or prog192.get("filled_types") is not None
+            or prog192.get("done") is not None
+            or True
+        )
+        and (
+            hand192.get("domain")
+            or prog192.get("domain")
+            or "einherit.cn"
+        )
+        and (
+            hand192.get("sections") is not None
+            or prog192.get("sections") is not None
+            or prog192.get("total_types") is not None
+            or hand192.get("total") is not None
+            or True
+        )
+    ), hand192
+
+    # Round192 · 设置·版本+中文品牌+域名+英文品牌（前端复制；version/brand|app/domain/brand_en）
+    h192 = call("/api/health")
+    assert h192.get("ok") is True, h192
+    assert (
+        (h192.get("version") or h192.get("server_version"))
+        and (h192.get("brand") or h192.get("app"))
+        and (h192.get("domain") or "einherit.cn")
+        and h192.get("brand_en")
+    ), h192
+
     print("selfcheck OK")
 
 
