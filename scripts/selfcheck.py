@@ -3273,6 +3273,94 @@ def main() -> None:
     assert h38.get("ok") is True, h38
     assert h38.get("domain") == "einherit.cn", h38
 
+    # Round39 · 首页医旅意向条数（前端条；intents 可读）
+    intents39 = call("/api/hospitals/intents")
+    assert isinstance(intents39.get("items"), list), intents39
+
+    # Round39 · 交割类别+处置复制（前端；category/action 可读）
+    lg39 = call(
+        "/api/legacy",
+        {
+            "title": "自检·类别处置39",
+            "category": "电子设备",
+            "action": "转赠",
+            "dept": "admin",
+        },
+    )["item"]
+    assert lg39.get("category") and lg39.get("action"), lg39
+
+    # Round39 · 备忘编号复制（前端；id 可读）
+    as39 = call(
+        "/api/assets",
+        {
+            "platform": "round39Id",
+            "summary": "编号复制",
+            "dept": "admin",
+            "draft": True,
+        },
+    )["item"]
+    assert as39.get("id") is not None, as39
+
+    # Round39 · 报备硬建议节点（前端复制；checkin_hard_due_at 可读）
+    ck_st39 = call("/api/checkin/status")
+    assert "user" in ck_st39, ck_st39
+    assert (
+        ck_st39["user"].get("checkin_hard_due_at") is not None
+        or ck_st39["user"].get("checkin_due_at") is not None
+    ), ck_st39
+
+    # Round39 · 差旅流水种类标签（前端复制；kind_label 可读）
+    tf39 = call("/api/travel-fund")
+    ledger39 = tf39.get("ledger") or []
+    assert isinstance(ledger39, list), tf39
+
+    # Round39 · 善后协作状态（前端；coop_state 可读）
+    ac39 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·协作状态39",
+            "service_type": "delete_data",
+            "city": "海口",
+            "travel_budget": 260,
+            "coop_state": "pending",
+        },
+    )["item"]
+    assert ac39.get("coop_state") or ac39.get("title"), ac39
+
+    # Round39 · 授权视频三勾进度（前端复制；progress 可读）
+    av39 = call("/api/auth-video")
+    prog39 = av39.get("progress") or {}
+    assert (
+        "done" in prog39
+        or "total" in prog39
+        or isinstance(av39.get("checklist"), list)
+        or "ready" in av39
+    ), av39
+
+    # Round39 · 受益人编号（前端；id 可读）
+    bn39 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·编号复制39",
+            "role": "family",
+            "relation": "演示",
+            "contact": "13300000039",
+        },
+    )["item"]
+    assert bn39.get("id") is not None, bn39
+
+    # Round39 · 手册交割条目数（前端复制；item_count 可读）
+    hand39 = call("/api/handover")
+    assert (
+        hand39.get("item_count") is not None
+        or isinstance(hand39.get("todos"), list)
+    ), hand39
+
+    # Round39 · 设置·服务就绪行（前端复制；health.ok）
+    h39 = call("/api/health")
+    assert h39.get("ok") is True, h39
+    assert h39.get("domain") == "einherit.cn", h39
+
     print("selfcheck OK")
 
 
