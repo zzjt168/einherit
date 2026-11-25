@@ -7629,6 +7629,102 @@ def main() -> None:
     assert h84.get("ok") is True, h84
     assert h84.get("app") and h84.get("brand_en"), h84
 
+    # Round85 · 首页服务版本（前端条；server_version 只读）
+    h85home = call("/api/health")
+    assert h85home.get("server_version") or h85home.get("version"), h85home
+
+    # Round85 · 交割编号+部门+备注（前端；id/dept/notes 可读）
+    lg85 = call(
+        "/api/legacy",
+        {
+            "title": "自检·编号部门85",
+            "category": "硬盘",
+            "action": "销毁",
+            "dept": "admin",
+            "notes": "编号部门备注85",
+            "factory_reset": True,
+            "clear_photos": True,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert lg85.get("id") is not None and lg85.get("dept"), lg85
+    assert "notes" in lg85 or lg85.get("notes") is not None, lg85
+
+    # Round85 · 备忘编号+可见性+摘要（前端；id/visibility/summary 可读）
+    as85 = call(
+        "/api/assets",
+        {
+            "platform": "round85IdVisSummary",
+            "account_hint": "hint85",
+            "summary": "编号可见摘要85",
+            "dispose_note": "演示处置85",
+            "dept": "admin",
+            "tag": "其他",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        as85.get("id") is not None
+        and as85.get("visibility")
+        and as85.get("summary")
+    ), as85
+
+    # Round85 · 报备下次建议时间点（前端复制；next_suggested_at 只读）
+    ck_st85 = call("/api/checkin/status")
+    cd85 = ck_st85.get("countdown") or {}
+    assert cd85.get("next_suggested_at") is not None or cd85, ck_st85
+
+    # Round85 · 差旅门槛与达标（前端复制；threshold/met 只读）
+    tf85 = call("/api/travel-fund")
+    fund85 = tf85.get("fund") or tf85
+    assert (
+        fund85.get("threshold") is not None or fund85.get("met") is not None
+    ), tf85
+
+    # Round85 · 善后编号+阶段+状态（前端；id/phase_label/status 可读）
+    ac85 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·编号阶段85",
+            "service_type": "field_visit",
+            "city": "澄迈",
+            "notes": "编号阶段状态85",
+            "visit_pref": "上午",
+            "travel_budget": 850,
+        },
+    )["item"]
+    assert ac85.get("id") is not None and (
+        ac85.get("phase_label") or ac85.get("status")
+    ), ac85
+
+    # Round85 · 授权视频门闩+缺失文案（前端复制；gate/missing_text 可读）
+    av85 = call("/api/auth-video")
+    assert av85.get("gate") or av85.get("missing_text"), av85
+
+    # Round85 · 受益人姓名+关系+联系（前端；name/relation/contact 可读）
+    bn85 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·姓名关系85",
+            "role": "heir",
+            "relation": "堂亲",
+            "contact": "13300000085",
+            "passphrase_hint": "round85口令",
+        },
+    )["item"]
+    assert bn85.get("name") and bn85.get("relation") and bn85.get("contact"), bn85
+
+    # Round85 · 手册条目数与品牌（前端复制；item_count/brand 可读）
+    hand85 = call("/api/handover")
+    assert hand85.get("item_count") is not None or hand85.get("brand"), hand85
+
+    # Round85 · 设置·就绪+域名+版本（前端复制；ok/domain/version 对齐）
+    h85 = call("/api/health")
+    assert h85.get("ok") is True, h85
+    assert h85.get("domain") == "einherit.cn", h85
+    assert h85.get("version") or h85.get("server_version"), h85
+
     print("selfcheck OK")
 
 
