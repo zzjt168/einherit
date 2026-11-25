@@ -12500,6 +12500,126 @@ def main() -> None:
         and h128.get("app")
     ), h128
 
+    # Round129 · 首页域名+英文+版本（前端条；domain/brand_en/version 只读）
+    h129home = call("/api/health")
+    assert (
+        h129home.get("domain") == "einherit.cn"
+        and h129home.get("brand_en")
+        and (h129home.get("version") or h129home.get("server_version"))
+    ), h129home
+
+    # Round129 · 交割部门+处置+备注（前端；dept/action/notes 可读）
+    lg129 = call(
+        "/api/legacy",
+        {
+            "title": "自检·部门处置129",
+            "category": "相机",
+            "action": "销售变现",
+            "dept": "finance",
+            "beneficiary": "自检受益人129",
+            "notes": "部门处置备注129",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert lg129.get("dept") and lg129.get("action") and lg129.get(
+        "notes"
+    ), lg129
+
+    # Round129 · 备忘处置+平台+草稿（前端；dispose_note/platform/draft 可读）
+    as129 = call(
+        "/api/assets",
+        {
+            "platform": "round129DispPlatDraft",
+            "account_hint": "hint129",
+            "summary": "处置平台草稿129",
+            "dispose_note": "演示处置129",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "private",
+            "draft": True,
+        },
+    )["item"]
+    assert as129.get("dispose_note") and as129.get("platform"), as129
+    # draft 为前端演示态；API 可能不回显，有则校验为真
+    if "draft" in as129:
+        assert as129.get("draft") is True or as129.get("draft") == 1, as129
+
+    # Round129 · 报备宽限+剩余小时（前端复制；grace_hours/hours_remaining 只读）
+    ck_st129 = call("/api/checkin/status")
+    cd129 = ck_st129.get("countdown") or {}
+    assert (
+        cd129.get("grace_hours") is not None
+        or cd129.get("hours_remaining") is not None
+        or cd129
+    ), ck_st129
+
+    # Round129 · 差旅余额+达标+进度（前端复制；balance/met/progress_pct 只读）
+    tf129 = call("/api/travel-fund")
+    fund129 = tf129.get("fund") or tf129
+    assert (
+        fund129.get("balance") is not None
+        or fund129.get("met") is not None
+        or fund129.get("progress_pct") is not None
+    ), tf129
+
+    # Round129 · 善后预算+城市+标题（前端；travel_budget/city/title 可读）
+    ac129 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·预算城市129",
+            "service_type": "phone_assist",
+            "city": "文昌",
+            "notes": "预算城市标题129",
+            "visit_pref": "上午",
+            "travel_budget": 1290,
+        },
+    )["item"]
+    assert ac129.get("travel_budget") is not None and ac129.get(
+        "city"
+    ) and ac129.get("title"), ac129
+
+    # Round129 · 授权视频完整+缺失+闸口（前端复制；ready/missing/complete 可读）
+    av129 = call("/api/auth-video")
+    assert (
+        av129.get("ready") is not None
+        or isinstance(av129.get("missing"), list)
+        or av129.get("complete") is not None
+    ), av129
+
+    # Round129 · 受益人关系+姓名+角色（前端；relation/name/role 可读）
+    bn129 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·关系姓名129",
+            "role": "heir",
+            "relation": "表亲",
+            "contact": "13300000129",
+            "passphrase_hint": "round129口令",
+        },
+    )["item"]
+    assert bn129.get("relation") and bn129.get("name") and bn129.get(
+        "role"
+    ), bn129
+
+    # Round129 · 手册域名+条目+版本（前端复制；domain/item_count/version 可读）
+    hand129 = call("/api/handover")
+    assert (
+        hand129.get("domain")
+        or hand129.get("item_count") is not None
+        or hand129.get("version")
+    ), hand129
+
+    # Round129 · 设置·版本+应用+英文+就绪（前端复制；version/app/brand_en/ok 对齐）
+    h129 = call("/api/health")
+    assert h129.get("ok") is True, h129
+    assert (
+        (h129.get("version") or h129.get("server_version"))
+        and h129.get("app")
+        and h129.get("brand_en")
+    ), h129
+
     print("selfcheck OK")
 
 
