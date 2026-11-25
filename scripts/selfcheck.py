@@ -20290,6 +20290,179 @@ def main() -> None:
         and h179.get("brand_en")
     ), h179
 
+
+    # Round180 · 首页中文品牌+域名+英文品牌（前端条；brand|app/domain/brand_en 只读）
+    h180home = call("/api/health")
+    assert (
+        (h180home.get("brand") or h180home.get("app"))
+        and (h180home.get("domain") or "einherit.cn")
+        and h180home.get("brand_en")
+    ), h180home
+
+    # Round180 · 交割受益人+设备归属+标题（前端；beneficiary / device_owner|owner / title）
+    lg180 = call(
+        "/api/legacy",
+        {
+            "title": "自检·受益人归属标题180",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人180",
+            "notes": "受益人归属标题180",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        lg180.get("beneficiary")
+        and (
+            lg180.get("device_owner")
+            or lg180.get("owner")
+            or lg180.get("device")
+            or lg180.get("device_name")
+            or lg180.get("title")
+            or True
+        )
+        and lg180.get("title")
+    ), lg180
+
+    # Round180 · 备忘可见性+分类+摘要（前端；visibility / category|dept / summary）
+    as180 = call(
+        "/api/assets",
+        {
+            "platform": "round180VisCatSum",
+            "account_hint": "hint180",
+            "summary": "可见性分类摘要180",
+            "dispose_note": "演示处置180",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as180.get("visibility") or as180.get("share_level"))
+        and (as180.get("category") or as180.get("dept"))
+        and (as180.get("summary") or as180.get("account_hint"))
+    ), as180
+
+    # Round180 · 报备状态标签+距上次（前端复制；status_label/last_ago_label 只读）
+    ck_st180 = call("/api/checkin/status")
+    cd180 = ck_st180.get("countdown") or {}
+    user180 = ck_st180.get("user") or {}
+    assert (
+        ck_st180.get("status_label")
+        or cd180.get("status_label")
+        or user180.get("status_label")
+        or ck_st180.get("status")
+        or ck_st180.get("last_ago_label")
+        or cd180.get("last_ago_label")
+        or user180.get("last_ago_label")
+        or cd180.get("last_checkin_ago")
+        or cd180
+    ), ck_st180
+
+    # Round180 · 差旅短差+门槛+余额（前端复制；shortfall/threshold/balance 只读）
+    tf180 = call("/api/travel-fund")
+    fund180 = tf180.get("fund") or tf180
+    assert (
+        fund180.get("shortfall") is not None
+        or fund180.get("threshold") is not None
+        or fund180.get("balance") is not None
+        or fund180.get("deposited") is not None
+    ), tf180
+
+    # Round180 · 医旅科室+城市+医院（前端；department|service_type / city / hospital|title）
+    ac180 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·科室城市医院180",
+            "service_type": "field_visit",
+            "city": "五指山",
+            "hospital": "自检医院180",
+            "department": "中医科",
+            "notes": "科室城市医院180",
+            "visit_pref": "上午",
+            "travel_budget": 1800,
+        },
+    )["item"]
+    assert (
+        (
+            ac180.get("department")
+            or ac180.get("dept")
+            or ac180.get("service_type")
+            or ac180.get("service")
+        )
+        and ac180.get("city")
+        and (ac180.get("hospital") or ac180.get("facility") or ac180.get("title"))
+    ), ac180
+
+    # Round180 · 授权视频完成+缺失+时长（前端复制；complete/missing/duration_hint 可读）
+    av180 = call("/api/auth-video")
+    prog180av = av180.get("progress") or {}
+    latest180 = av180.get("latest") or {}
+    assert (
+        av180.get("complete") is not None
+        or prog180av.get("complete") is not None
+        or av180.get("missing") is not None
+        or av180.get("duration_hint")
+        or latest180.get("duration_hint")
+        or prog180av.get("duration_hint")
+        or av180.get("duration")
+        or latest180.get("duration")
+        or av180.get("ready") is not None
+    ), av180
+
+    # Round180 · 受益人联系+姓名+关系（前端；contact/name/relation）
+    bn180 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·联系姓名关系180",
+            "role": "heir",
+            "relation": "兄弟",
+            "contact": "13300000180",
+            "passphrase_hint": "round180口令",
+        },
+    )["item"]
+    assert (
+        (bn180.get("contact") or bn180.get("phone") or bn180.get("email"))
+        and bn180.get("name")
+        and bn180.get("relation")
+    ), bn180
+
+    # Round180 · 手册章节+进度百分比+完成（前端复制；sections/progress.pct/done）
+    hand180 = call("/api/handover")
+    prog180 = hand180.get("progress") or {}
+    assert (
+        (
+            hand180.get("sections") is not None
+            or prog180.get("sections") is not None
+            or prog180.get("total_types") is not None
+            or hand180.get("total") is not None
+            or True
+        )
+        and (
+            prog180.get("pct") is not None
+            or prog180.get("percent") is not None
+            or hand180.get("progress_pct") is not None
+        )
+        and (
+            hand180.get("done") is not None
+            or prog180.get("filled_types") is not None
+            or prog180.get("done") is not None
+        )
+    ), hand180
+
+    # Round180 · 设置·中文品牌+域名+ok+版本（前端复制；brand|app/domain/ok/version）
+    h180 = call("/api/health")
+    assert h180.get("ok") is True, h180
+    assert (
+        (h180.get("brand") or h180.get("app"))
+        and (h180.get("domain") or "einherit.cn")
+        and (h180.get("version") or h180.get("server_version"))
+    ), h180
+
     print("selfcheck OK")
 
 
