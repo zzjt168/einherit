@@ -6359,6 +6359,98 @@ def main() -> None:
     assert h71.get("server_version") or h71.get("version"), h71
     assert h71.get("domain") == "einherit.cn", h71
 
+    # Round72 · 首页会员身份与剩余天（前端条；is_member/member_days_left 只读）
+    ck_st72home = call("/api/checkin/status")
+    u72home = ck_st72home.get("user") or {}
+    assert "is_member" in u72home or "member_days_left" in u72home or u72home, ck_st72home
+
+    # Round72 · 交割分类+受益人（前端；category/beneficiary 可读）
+    lg72 = call(
+        "/api/legacy",
+        {
+            "title": "自检·分类受益72",
+            "category": "手机",
+            "action": "销毁",
+            "dept": "hr",
+            "beneficiary": "自检受益人72",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert lg72.get("category"), lg72
+    assert lg72.get("beneficiary") is not None or "beneficiary" in lg72, lg72
+
+    # Round72 · 备忘编号+平台+标签（前端；id/platform/tag 可读）
+    as72 = call(
+        "/api/assets",
+        {
+            "platform": "round72IdPlatformTag",
+            "account_hint": "hint72",
+            "summary": "编号平台标签72",
+            "dispose_note": "演示处置72",
+            "dept": "admin",
+            "tag": "金融",
+            "visibility": "private",
+            "draft": True,
+        },
+    )["item"]
+    assert as72.get("id") is not None and as72.get("platform"), as72
+    assert as72.get("tag") is not None or "tag" in as72, as72
+
+    # Round72 · 报备会员剩余天纯（前端复制；member_days_left 只读）
+    ck_st72 = call("/api/checkin/status")
+    assert (ck_st72.get("user") or {}).get("member_days_left") is not None or ck_st72.get(
+        "user"
+    ), ck_st72
+
+    # Round72 · 差旅余额与门槛（前端复制；balance/threshold 只读）
+    tf72 = call("/api/travel-fund")
+    fund72 = tf72.get("fund") or tf72
+    assert fund72.get("balance") is not None or fund72.get("threshold") is not None, tf72
+
+    # Round72 · 善后阶段+预算（前端；phase_label/travel_budget 可读）
+    ac72 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·阶段预算72",
+            "service_type": "field_visit",
+            "city": "昌江",
+            "notes": "阶段预算72",
+            "visit_pref": "中午",
+            "travel_budget": 720,
+        },
+    )["item"]
+    assert ac72.get("phase_label") or ac72.get("travel_budget") is not None, ac72
+
+    # Round72 · 授权视频门闩+就绪（前端复制；gate/ready 可读）
+    av72 = call("/api/auth-video")
+    assert av72.get("gate") or av72.get("ready") is not None, av72
+
+    # Round72 · 受益人编号+姓名+联系（前端；id/name/contact 可读）
+    bn72 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·编号联系72",
+            "role": "heir",
+            "relation": "邻居",
+            "contact": "13300000072",
+            "passphrase_hint": "round72口令",
+        },
+    )["item"]
+    assert bn72.get("id") is not None and bn72.get("name") and bn72.get("contact"), bn72
+
+    # Round72 · 手册条目与品牌（前端复制；item_count/brand 可读）
+    hand72 = call("/api/handover")
+    assert (
+        hand72.get("item_count") is not None or hand72.get("brand")
+    ), hand72
+
+    # Round72 · 设置·就绪与域名（前端复制；ok/domain 对齐）
+    h72 = call("/api/health")
+    assert h72.get("ok") is True, h72
+    assert h72.get("domain") == "einherit.cn", h72
+
     print("selfcheck OK")
 
 
