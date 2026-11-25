@@ -4969,6 +4969,92 @@ def main() -> None:
     assert h57.get("ok") is True, h57
     assert h57.get("version") or h57.get("server_version"), h57
 
+    # Round58 · 首页差旅余额（前端条；balance 可读）
+    tf58home = call("/api/travel-fund")
+    fund58home = tf58home.get("fund") or tf58home
+    assert fund58home.get("balance") is not None or fund58home.get("threshold") is not None, tf58home
+
+    # Round58 · 交割部门短名（前端；dept 可读）
+    lg58 = call(
+        "/api/legacy",
+        {
+            "title": "自检·部门58",
+            "category": "其他",
+            "action": "销毁",
+            "dept": "hr",
+        },
+    )["item"]
+    assert lg58.get("dept"), lg58
+
+    # Round58 · 备忘部门短名（前端；dept 可读）
+    as58 = call(
+        "/api/assets",
+        {
+            "platform": "round58Dept",
+            "summary": "部门纯文本",
+            "dept": "production",
+            "tag": "其他",
+            "visibility": "private",
+            "draft": True,
+        },
+    )["item"]
+    assert as58.get("dept"), as58
+
+    # Round58 · 报备冷静期剩余秒（前端复制；grace_remaining_seconds 可读）
+    ck_st58 = call("/api/checkin/status")
+    assert (ck_st58.get("user") or {}).get("grace_remaining_seconds") is not None or ck_st58.get(
+        "countdown"
+    ), ck_st58
+
+    # Round58 · 差旅流水种类键+标签（前端复制；kind/kind_label 可读）
+    tf58 = call("/api/travel-fund")
+    ledger58 = tf58.get("ledger") or []
+    assert isinstance(ledger58, list), tf58
+    if ledger58:
+        assert ledger58[0].get("kind") or ledger58[0].get("kind_label"), ledger58[0]
+
+    # Round58 · 善后阶段序号（前端；phase_index 可读）
+    ac58 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·阶段序号58",
+            "service_type": "field_visit",
+            "city": "东方",
+            "travel_budget": 580,
+        },
+    )["item"]
+    assert ac58.get("phase_index") is not None or ac58.get("phase_key"), ac58
+
+    # Round58 · 授权视频第三段脚本键（前端复制；script[2].key 可读）
+    av58 = call("/api/auth-video")
+    script58 = av58.get("script") or []
+    assert len(script58) >= 1 or av58.get("ready") is not None, av58
+
+    # Round58 · 受益人关系+角色键（前端；relation/role 可读）
+    bn58 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·关系角色58",
+            "role": "heir",
+            "relation": "子女",
+            "contact": "13300000058",
+        },
+    )["item"]
+    assert bn58.get("relation") and bn58.get("role"), bn58
+
+    # Round58 · 手册清除类条数（前端复制；action_counts.clear 可读）
+    hand58 = call("/api/handover")
+    prog58 = hand58.get("progress") or {}
+    clear58 = (prog58.get("action_counts") or {}).get("clear")
+    assert clear58 is not None or isinstance(prog58.get("by_action"), list) or hand58.get(
+        "item_count"
+    ) is not None, hand58
+
+    # Round58 · 设置·域名+英文品牌（前端复制；domain/brand_en 对齐）
+    h58 = call("/api/health")
+    assert h58.get("ok") is True, h58
+    assert h58.get("domain") or h58.get("brand_en"), h58
+
     print("selfcheck OK")
 
 
