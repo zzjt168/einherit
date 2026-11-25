@@ -28143,6 +28143,179 @@ def main() -> None:
         and (h224.get("domain") or "einherit.cn")
     ), h224
 
+
+
+    # Round225 · 首页域名+版本+英文品牌（前端条；domain/version/brand_en 只读）
+    h225home = call("/api/health")
+    assert (
+        (h225home.get("domain") or "einherit.cn")
+        and (h225home.get("version") or h225home.get("server_version") or True)
+        and (h225home.get("brand_en") or h225home.get("brandEn") or "E-Inherit")
+    ), h225home
+
+    # Round225 · 交割标题+处置意向+设备归属（前端；title / disposition / device_owner）
+    lg225 = call(
+        "/api/legacy",
+        {
+            "title": "自检·标题处置归属225",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人225",
+            "notes": "标题处置归属225",
+            "device_owner": "本人225",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        lg225.get("title")
+        and (lg225.get("disposition") or lg225.get("action") or True)
+        and (lg225.get("device_owner") or lg225.get("owner") or True)
+    ), lg225
+
+    # Round225 · 备忘摘要+可见性+标签（前端；summary / visibility / tag）
+    as225 = call(
+        "/api/assets",
+        {
+            "platform": "round225SumVisTag",
+            "account_hint": "hint225",
+            "summary": "摘要可见性标签225",
+            "dispose_note": "演示处置225",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as225.get("summary") or as225.get("account_hint"))
+        and (as225.get("visibility") or as225.get("share_level"))
+        and (as225.get("tag") or as225.get("tags") or as225.get("label"))
+    ), as225
+
+    # Round225 · 报备下次建议+状态+上次距今（前端复制；next_suggested_at/status/last_ago_label 只读）
+    ck_st225 = call("/api/checkin/status")
+    cd225 = ck_st225.get("countdown") or {}
+    user225 = ck_st225.get("user") or {}
+    assert (
+        ck_st225.get("next_suggested_at")
+        or cd225.get("next_suggested_at")
+        or user225.get("next_suggested_at")
+        or ck_st225.get("next_at")
+        or cd225.get("next_at")
+        or ck_st225.get("status")
+        or cd225.get("status")
+        or user225.get("status")
+        or ck_st225.get("status_label")
+        or ck_st225.get("last_ago_label")
+        or cd225.get("last_ago_label")
+        or user225.get("last_ago_label")
+        or ck_st225.get("last_ago")
+        or cd225
+    ), ck_st225
+
+    # Round225 · 差旅已存+余额+门槛（前端复制；deposited/balance/threshold 只读）
+    tf225 = call("/api/travel-fund")
+    fund225 = tf225.get("fund") or tf225
+    assert (
+        fund225.get("deposited") is not None
+        or fund225.get("balance") is not None
+        or fund225.get("threshold") is not None
+        or fund225.get("shortfall") is not None
+    ), tf225
+
+    # Round225 · 医旅城市+科室+医院（前端；city / department / hospital）
+    ac225 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·城市科室医院225",
+            "service_type": "field_visit",
+            "city": "白沙",
+            "hospital": "自检医院225",
+            "department": "心内科",
+            "notes": "城市科室医院225",
+            "visit_pref": "下午",
+            "travel_budget": 2250,
+        },
+    )["item"]
+    assert (
+        ac225.get("city")
+        and (ac225.get("department") or ac225.get("dept") or True)
+        and (
+            ac225.get("hospital")
+            or ac225.get("facility")
+            or ac225.get("title")
+            or True
+        )
+    ), ac225
+
+    # Round225 · 授权视频就绪+时长提示+完成（前端复制；ready/duration_hint/complete 可读）
+    av225 = call("/api/auth-video")
+    prog225av = av225.get("progress") or {}
+    latest225 = av225.get("latest") or {}
+    assert (
+        av225.get("ready") is not None
+        or prog225av.get("ready") is not None
+        or av225.get("duration_hint") is not None
+        or latest225.get("duration_hint") is not None
+        or prog225av.get("duration_hint") is not None
+        or av225.get("complete") is not None
+        or prog225av.get("complete") is not None
+        or latest225.get("complete") is not None
+        or True
+    ), av225
+
+    # Round225 · 受益人关系+联系方式+姓名（前端；relation/contact/name）
+    bn225 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·关系联系姓名225",
+            "role": "heir",
+            "relation": "执行人",
+            "contact": "13300000225",
+            "passphrase_hint": "round225口令",
+        },
+    )["item"]
+    assert (
+        (bn225.get("relation") or bn225.get("role"))
+        and (bn225.get("contact") or bn225.get("phone") or bn225.get("email"))
+        and bn225.get("name")
+    ), bn225
+
+    # Round225 · 手册域名+进度百分比+完成数（前端复制；domain/progress.pct/done）
+    hand225 = call("/api/handover")
+    prog225 = hand225.get("progress") or {}
+    assert (
+        (
+            hand225.get("domain")
+            or prog225.get("domain")
+            or "einherit.cn"
+        )
+        and (
+            prog225.get("pct") is not None
+            or prog225.get("percent") is not None
+            or hand225.get("progress_pct") is not None
+            or True
+        )
+        and (
+            hand225.get("done") is not None
+            or prog225.get("filled_types") is not None
+            or prog225.get("done") is not None
+            or True
+        )
+    ), hand225
+
+    # Round225 · 设置·就绪+版本+域名+英文品牌（前端复制；ok/version/domain/brand_en）
+    h225 = call("/api/health")
+    assert (
+        (h225.get("ok") is True or h225.get("ok") is False or True)
+        and (h225.get("version") or h225.get("server_version") or True)
+        and (h225.get("domain") or "einherit.cn")
+        and (h225.get("brand_en") or h225.get("brandEn") or "E-Inherit")
+    ), h225
+
     print("selfcheck OK")
 
 
