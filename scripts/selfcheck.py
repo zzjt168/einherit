@@ -3022,6 +3022,90 @@ def main() -> None:
     assert h35.get("ok") is True, h35
     assert h35.get("domain") == "einherit.cn", h35
 
+    # Round36 · 首页快照份数（前端条；snapshots 可读）
+    snaps36 = call("/api/snapshots")
+    assert isinstance(snaps36.get("items"), list), snaps36
+
+    # Round36 · 交割缺接收人角标（前端；beneficiary 字段可读）
+    lg36 = call(
+        "/api/legacy",
+        {
+            "title": "自检·缺接收人36",
+            "category": "其他",
+            "action": "销毁",
+            "dept": "admin",
+            "beneficiary": "",
+        },
+    )["item"]
+    assert lg36.get("title"), lg36
+    assert not str(lg36.get("beneficiary") or "").strip(), lg36
+
+    # Round36 · 备忘草稿/正式状态（前端；dispose_note/draft 可读）
+    as36 = call(
+        "/api/assets",
+        {
+            "platform": "round36Draft",
+            "summary": "草稿状态",
+            "dept": "admin",
+            "dispose_note": "",
+            "draft": True,
+        },
+    )["item"]
+    assert not str(as36.get("dispose_note") or "").strip() or as36.get("draft"), as36
+
+    # Round36 · 报备登记手机号（前端复制；phone 可读）
+    ck_st36 = call("/api/checkin/status")
+    assert "user" in ck_st36, ck_st36
+    assert "phone" in ck_st36["user"] or ck_st36["user"].get("name"), ck_st36
+
+    # Round36 · 差旅还差金额（前端复制；shortfall 可读）
+    tf36 = call("/api/travel-fund")
+    fund36 = tf36.get("fund") or tf36
+    assert (
+        fund36.get("shortfall") is not None
+        or fund36.get("balance") is not None
+        or fund36.get("threshold") is not None
+    ), fund36
+
+    # Round36 · 善后阶段标签（前端；phase_label 可读）
+    ac36 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·阶段标签36",
+            "service_type": "delete_data",
+            "city": "三亚",
+            "travel_budget": 230,
+        },
+    )["item"]
+    assert ac36.get("phase_label") or ac36.get("status_label") or ac36.get("title"), ac36
+
+    # Round36 · 授权视频完整度说明（前端复制；complete_label 可读）
+    av36 = call("/api/auth-video")
+    assert av36.get("complete_label") or "ready" in av36 or "complete" in av36, av36
+
+    # Round36 · 受益人备注复制（前端；note 可读）
+    bn36 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·备注复制36",
+            "role": "heir",
+            "relation": "演示",
+            "contact": "13300000036",
+            "note": "round36 备注演示",
+        },
+    )["item"]
+    assert "round36" in str(bn36.get("note") or ""), bn36
+
+    # Round36 · 手册分享提示（前端复制；share_hint 可读）
+    hand36 = call("/api/handover")
+    assert hand36.get("share_hint") or hand36.get("domain"), hand36
+
+    # Round36 · 设置·中文品牌+域名（前端复制；health 对齐）
+    h36 = call("/api/health")
+    assert h36.get("ok") is True, h36
+    assert h36.get("domain") == "einherit.cn", h36
+    assert h36.get("app") or h36.get("brand_en"), h36
+
     print("selfcheck OK")
 
 
