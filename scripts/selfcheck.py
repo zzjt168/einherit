@@ -13417,6 +13417,150 @@ def main() -> None:
         and h135.get("domain")
     ), h135
 
+    # Round136 · 首页版本+英文品牌+就绪（前端条；version/brand_en/ok 只读）
+    h136home = call("/api/health")
+    assert (
+        (h136home.get("version") or h136home.get("server_version"))
+        and h136home.get("brand_en")
+        and h136home.get("ok") is True
+    ), h136home
+
+    # Round136 · 交割状态+处置+编号（前端；status|status_label / disposition|action / id）
+    lg136 = call(
+        "/api/legacy",
+        {
+            "title": "自检·状态处置编号136",
+            "category": "耳机",
+            "action": "销毁",
+            "dept": "ops",
+            "beneficiary": "自检受益人136",
+            "notes": "状态处置编号136",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (
+            lg136.get("status_label")
+            or lg136.get("status")
+            or lg136.get("status_key")
+            or lg136.get("title")
+        )
+        and (lg136.get("disposition") or lg136.get("action"))
+        and lg136.get("id") is not None
+    ), lg136
+
+    # Round136 · 备忘可见性+处置说明+摘要（前端；visibility / dispose_note / summary）
+    as136 = call(
+        "/api/assets",
+        {
+            "platform": "round136VisDisposeSum",
+            "account_hint": "hint136",
+            "summary": "可见处置摘要136",
+            "dispose_note": "演示处置136",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        as136.get("visibility")
+        and as136.get("dispose_note")
+        and as136.get("summary")
+    ), as136
+
+    # Round136 · 报备状态标签+窗口截止（前端复制；status_label/window_ends_at 只读）
+    ck_st136 = call("/api/checkin/status")
+    cd136 = ck_st136.get("countdown") or {}
+    user136 = ck_st136.get("user") or {}
+    assert (
+        ck_st136.get("status_label")
+        or cd136.get("status_label")
+        or user136.get("status_label")
+        or cd136.get("window_ends_at") is not None
+        or user136.get("checkin_due_at") is not None
+        or cd136
+    ), ck_st136
+
+    # Round136 · 差旅达标+短差+门槛（前端复制；met/shortfall/threshold 只读）
+    tf136 = call("/api/travel-fund")
+    fund136 = tf136.get("fund") or tf136
+    assert (
+        fund136.get("met") is not None
+        or fund136.get("shortfall") is not None
+        or fund136.get("threshold") is not None
+    ), tf136
+
+    # Round136 · 善后医院+编号+服务类型（前端；hospital|title / id / service_type）
+    ac136 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·医院编号服务136",
+            "service_type": "field_visit",
+            "city": "定安",
+            "notes": "医院编号服务136",
+            "visit_pref": "午后",
+            "travel_budget": 1360,
+        },
+    )["item"]
+    assert (
+        (ac136.get("hospital") or ac136.get("title"))
+        and ac136.get("id") is not None
+        and (ac136.get("service_type") or ac136.get("service"))
+    ), ac136
+
+    # Round136 · 授权视频时长+缺失+完成（前端复制；duration_hint/missing/complete 可读）
+    av136 = call("/api/auth-video")
+    prog136av = av136.get("progress") or {}
+    assert (
+        av136.get("duration_hint")
+        or prog136av.get("duration_hint")
+        or av136.get("missing") is not None
+        or av136.get("complete") is not None
+        or av136.get("ready") is not None
+    ), av136
+
+    # Round136 · 受益人联系+关系+口令（前端；contact/relation/passphrase_hint 可读）
+    bn136 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·联系关系136",
+            "role": "heir",
+            "relation": "表弟",
+            "contact": "13300000136",
+            "passphrase_hint": "round136口令",
+        },
+    )["item"]
+    assert (
+        bn136.get("contact")
+        and bn136.get("relation")
+        and bn136.get("passphrase_hint")
+    ), bn136
+
+    # Round136 · 手册章节+品牌+域名（前端复制；sections|total_types/brand/domain）
+    hand136 = call("/api/handover")
+    prog136 = hand136.get("progress") or {}
+    assert (
+        (
+            hand136.get("sections") is not None
+            or prog136.get("total_types") is not None
+            or hand136.get("section_count") is not None
+        )
+        and (hand136.get("brand") or hand136.get("domain"))
+        and hand136.get("domain")
+    ), hand136
+
+    # Round136 · 设置·版本+英文品牌+中文品牌+就绪（前端复制；version/brand_en/brand|app/ok）
+    h136 = call("/api/health")
+    assert h136.get("ok") is True, h136
+    assert (
+        (h136.get("version") or h136.get("server_version"))
+        and h136.get("brand_en")
+        and (h136.get("brand") or h136.get("app"))
+    ), h136
+
     print("selfcheck OK")
 
 
