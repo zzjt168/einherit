@@ -10364,6 +10364,120 @@ def main() -> None:
         "brand_en"
     ), h110
 
+    # Round111 · 首页域名版本应用（前端条；domain/version/app 只读）
+    h111home = call("/api/health")
+    assert h111home.get("domain") == "einherit.cn" and (
+        h111home.get("version") or h111home.get("server_version")
+    ) and h111home.get("app"), h111home
+
+    # Round111 · 交割部门+标题+受益人（前端；dept/title/beneficiary 可读）
+    lg111 = call(
+        "/api/legacy",
+        {
+            "title": "自检·部门标题111",
+            "category": "电脑",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人111",
+            "notes": "备注111",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert lg111.get("dept") and lg111.get("title") and lg111.get(
+        "beneficiary"
+    ), lg111
+
+    # Round111 · 备忘平台+标签+处置（前端；platform/tag/dispose_note 可读）
+    as111 = call(
+        "/api/assets",
+        {
+            "platform": "round111PlatTagDisp",
+            "account_hint": "hint111",
+            "summary": "平台标签处置111",
+            "dispose_note": "演示处置111",
+            "dept": "admin",
+            "tag": "其他",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert as111.get("platform") and as111.get("tag") and as111.get(
+        "dispose_note"
+    ), as111
+
+    # Round111 · 报备剩余到期文案（前端复制；hours_remaining/due_soon 只读）
+    ck_st111 = call("/api/checkin/status")
+    cd111 = ck_st111.get("countdown") or {}
+    assert (
+        cd111.get("hours_remaining") is not None
+        or cd111.get("due_soon") is not None
+        or cd111
+    ), ck_st111
+
+    # Round111 · 差旅门槛+余额+达标（前端复制；threshold/balance/met 只读）
+    tf111 = call("/api/travel-fund")
+    fund111 = tf111.get("fund") or tf111
+    assert (
+        fund111.get("threshold") is not None
+        or fund111.get("balance") is not None
+        or fund111.get("met") is not None
+    ), tf111
+
+    # Round111 · 善后城市+备注+状态（前端；city/notes/status 可读）
+    ac111 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·城市备注111",
+            "service_type": "field_visit",
+            "city": "儋州",
+            "notes": "城市备注状态111",
+            "visit_pref": "晚上",
+            "travel_budget": 1110,
+        },
+    )["item"]
+    assert ac111.get("city") and (
+        ac111.get("notes") or ac111.get("status")
+    ), ac111
+
+    # Round111 · 授权视频清单数+完成（前端复制；checklist/complete 可读）
+    av111 = call("/api/auth-video")
+    assert (
+        isinstance(av111.get("checklist"), list)
+        or av111.get("complete") is not None
+    ), av111
+
+    # Round111 · 受益人姓名+角色+编号（前端；name/role/id 可读）
+    bn111 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·姓名角色111",
+            "role": "executor",
+            "relation": "亲属",
+            "contact": "13300000111",
+            "passphrase_hint": "round111口令",
+        },
+    )["item"]
+    assert bn111.get("name") and bn111.get("role") and bn111.get(
+        "id"
+    ) is not None, bn111
+
+    # Round111 · 手册品牌+域名+条目数（前端复制；brand/domain/item_count 可读）
+    hand111 = call("/api/handover")
+    assert (
+        hand111.get("brand")
+        or hand111.get("domain")
+        or hand111.get("item_count") is not None
+    ), hand111
+
+    # Round111 · 设置·域名+应用名+版本+就绪（前端复制；domain/app/version/ok 对齐）
+    h111 = call("/api/health")
+    assert h111.get("ok") is True, h111
+    assert h111.get("domain") and h111.get("app") and (
+        h111.get("version") or h111.get("server_version")
+    ), h111
+
     print("selfcheck OK")
 
 
