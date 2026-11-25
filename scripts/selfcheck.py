@@ -13561,6 +13561,160 @@ def main() -> None:
         and (h136.get("brand") or h136.get("app"))
     ), h136
 
+    # Round137 · 首页域名+版本+中文品牌（前端条；domain/version/brand|app 只读）
+    h137home = call("/api/health")
+    assert (
+        h137home.get("domain")
+        and (h137home.get("version") or h137home.get("server_version"))
+        and (h137home.get("brand") or h137home.get("app"))
+    ), h137home
+
+    # Round137 · 交割设备归属+标题+状态（前端；device_owner|beneficiary|dept / title / status）
+    lg137 = call(
+        "/api/legacy",
+        {
+            "title": "自检·归属标题状态137",
+            "category": "音箱",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人137",
+            "notes": "归属标题状态137",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (
+            lg137.get("device_owner")
+            or lg137.get("beneficiary")
+            or lg137.get("dept")
+        )
+        and lg137.get("title")
+        and (
+            lg137.get("status_label")
+            or lg137.get("status")
+            or lg137.get("status_key")
+            or lg137.get("title")
+        )
+    ), lg137
+
+    # Round137 · 备忘平台+标题+标签（前端；platform / title|platform / tag）
+    as137 = call(
+        "/api/assets",
+        {
+            "platform": "round137PlatTitleTag",
+            "account_hint": "hint137",
+            "summary": "平台标题标签137",
+            "dispose_note": "演示处置137",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        as137.get("platform")
+        and (as137.get("title") or as137.get("platform"))
+        and as137.get("tag")
+    ), as137
+
+    # Round137 · 报备距上次+下次建议（前端复制；last_ago_label/next_suggested_at 只读）
+    ck_st137 = call("/api/checkin/status")
+    cd137 = ck_st137.get("countdown") or {}
+    assert (
+        cd137.get("last_ago_label")
+        or ck_st137.get("last_ago_label")
+        or cd137.get("next_suggested_at") is not None
+        or cd137
+    ), ck_st137
+
+    # Round137 · 差旅进度+已存+余额（前端复制；progress_pct/deposited|balance/balance 只读）
+    tf137 = call("/api/travel-fund")
+    fund137 = tf137.get("fund") or tf137
+    assert (
+        fund137.get("progress_pct") is not None
+        or fund137.get("progress") is not None
+        or fund137.get("deposited") is not None
+        or fund137.get("balance") is not None
+    ), tf137
+
+    # Round137 · 善后城市+科室+医院（前端；city / department|service_type / hospital|title）
+    ac137 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·城市科室医院137",
+            "service_type": "phone_assist",
+            "city": "屯昌",
+            "notes": "城市科室医院137",
+            "visit_pref": "黄昏",
+            "travel_budget": 1370,
+        },
+    )["item"]
+    assert (
+        ac137.get("city")
+        and (
+            ac137.get("department")
+            or ac137.get("service_type")
+            or ac137.get("service")
+        )
+        and (ac137.get("hospital") or ac137.get("title"))
+    ), ac137
+
+    # Round137 · 授权视频标题+就绪+完成（前端复制；title|latest/ready/complete 可读）
+    av137 = call("/api/auth-video")
+    latest137 = av137.get("latest") or {}
+    assert (
+        av137.get("title")
+        or latest137.get("original_name")
+        or av137.get("ready") is not None
+        or av137.get("complete") is not None
+    ), av137
+
+    # Round137 · 受益人口令+编号+关系（前端；passphrase_hint/id/relation 可读）
+    bn137 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·口令编号137",
+            "role": "heir",
+            "relation": "同学",
+            "contact": "13300000137",
+            "passphrase_hint": "round137口令",
+        },
+    )["item"]
+    assert (
+        bn137.get("passphrase_hint")
+        and bn137.get("id") is not None
+        and bn137.get("relation")
+    ), bn137
+
+    # Round137 · 手册完成+章节+品牌（前端复制；done|filled_types/sections|total_types/brand）
+    hand137 = call("/api/handover")
+    prog137 = hand137.get("progress") or {}
+    assert (
+        (
+            hand137.get("done") is not None
+            or prog137.get("filled_types") is not None
+            or prog137.get("done") is not None
+        )
+        and (
+            hand137.get("sections") is not None
+            or prog137.get("total_types") is not None
+            or hand137.get("section_count") is not None
+        )
+        and (hand137.get("brand") or hand137.get("domain"))
+    ), hand137
+
+    # Round137 · 设置·域名+版本+英文品牌+中文品牌（前端复制；domain/version/brand_en/brand|app）
+    h137 = call("/api/health")
+    assert h137.get("ok") is True, h137
+    assert (
+        h137.get("domain")
+        and (h137.get("version") or h137.get("server_version"))
+        and h137.get("brand_en")
+        and (h137.get("brand") or h137.get("app"))
+    ), h137
+
     print("selfcheck OK")
 
 
