@@ -12742,6 +12742,147 @@ def main() -> None:
         and h130.get("domain")
     ), h130
 
+    # Round131 · 首页就绪+版本+域名（前端条；ok/version/domain 只读）
+    h131home = call("/api/health")
+    assert (
+        h131home.get("ok") is True
+        and (h131home.get("version") or h131home.get("server_version"))
+        and h131home.get("domain") == "einherit.cn"
+    ), h131home
+
+    # Round131 · 交割状态+受益人+处置（前端；category|status / beneficiary / action|disposition）
+    lg131 = call(
+        "/api/legacy",
+        {
+            "title": "自检·状态处置131",
+            "category": "音箱",
+            "action": "销毁",
+            "dept": "ops",
+            "beneficiary": "自检受益人131",
+            "notes": "状态受益人处置131",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (lg131.get("status") or lg131.get("category"))
+        and lg131.get("beneficiary")
+        and (lg131.get("disposition") or lg131.get("action"))
+    ), lg131
+
+    # Round131 · 备忘标题+分类+平台（前端；summary|title / tag|category / platform）
+    as131 = call(
+        "/api/assets",
+        {
+            "platform": "round131TitleCatPlat",
+            "account_hint": "hint131",
+            "summary": "标题分类平台131",
+            "dispose_note": "演示处置131",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "private",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as131.get("title") or as131.get("summary"))
+        and (as131.get("category") or as131.get("tag"))
+        and as131.get("platform")
+    ), as131
+
+    # Round131 · 报备窗口截止+状态标签（前端复制；next_suggested_at|checkin_due_at / countdown_label）
+    ck_st131 = call("/api/checkin/status")
+    cd131 = ck_st131.get("countdown") or {}
+    user131 = ck_st131.get("user") or {}
+    assert (
+        cd131.get("window_ends_at") is not None
+        or cd131.get("next_suggested_at") is not None
+        or user131.get("checkin_due_at") is not None
+        or cd131.get("countdown_label")
+        or cd131.get("status_label")
+        or user131.get("escalation_state")
+        or cd131
+    ), ck_st131
+
+    # Round131 · 差旅缺口+门槛+已存（前端复制；shortfall/threshold/balance|deposited 只读）
+    tf131 = call("/api/travel-fund")
+    fund131 = tf131.get("fund") or tf131
+    assert (
+        fund131.get("shortfall") is not None
+        or fund131.get("threshold") is not None
+        or fund131.get("deposited") is not None
+        or fund131.get("balance") is not None
+    ), tf131
+
+    # Round131 · 善后医院+科室+编号（前端；city|hospital / service_type|department / id）
+    ac131 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·医院科室131",
+            "service_type": "phone_assist",
+            "city": "陵水",
+            "notes": "医院科室编号131",
+            "visit_pref": "上午",
+            "travel_budget": 1310,
+        },
+    )["item"]
+    assert (
+        (ac131.get("hospital") or ac131.get("city") or ac131.get("title"))
+        and (
+            ac131.get("department")
+            or ac131.get("service_type")
+            or ac131.get("service")
+        )
+        and ac131.get("id") is not None
+    ), ac131
+
+    # Round131 · 授权视频标题+时长+就绪（前端复制；latest/script/progress/ready 可读）
+    av131 = call("/api/auth-video")
+    latest131 = av131.get("latest") or {}
+    prog131av = av131.get("progress") or {}
+    assert (
+        av131.get("title")
+        or latest131.get("original_name")
+        or latest131.get("active_label")
+        or prog131av
+        or av131.get("ready") is not None
+    ), av131
+
+    # Round131 · 受益人姓名+关系+联系（前端；name/relation/contact 可读）
+    bn131 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·姓名关系131",
+            "role": "heir",
+            "relation": "发小",
+            "contact": "13300000131",
+            "passphrase_hint": "round131口令",
+        },
+    )["item"]
+    assert bn131.get("name") and bn131.get("relation") and bn131.get(
+        "contact"
+    ), bn131
+
+    # Round131 · 手册章节+完成+进度（前端复制；progress.total_types/filled_types/pct）
+    hand131 = call("/api/handover")
+    prog131 = hand131.get("progress") or {}
+    assert (
+        hand131.get("sections") is not None
+        or prog131.get("total_types") is not None
+        or prog131.get("filled_types") is not None
+        or prog131.get("pct") is not None
+    ), hand131
+
+    # Round131 · 设置·英文+版本+域名+就绪（前端复制；brand_en/version/domain/ok 对齐）
+    h131 = call("/api/health")
+    assert h131.get("ok") is True, h131
+    assert (
+        h131.get("brand_en")
+        and (h131.get("version") or h131.get("server_version"))
+        and h131.get("domain")
+    ), h131
+
     print("selfcheck OK")
 
 
