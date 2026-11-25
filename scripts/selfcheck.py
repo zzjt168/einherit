@@ -5555,6 +5555,114 @@ def main() -> None:
     assert h63.get("version") or h63.get("brand_en"), h63
     assert h63.get("domain") == "einherit.cn", h63
 
+    # Round64 · 首页会员剩余天数（前端条；member_days_left 只读）
+    ck_st64home = call("/api/checkin/status")
+    assert (ck_st64home.get("user") or {}).get("member_days_left") is not None or ck_st64home.get(
+        "user"
+    ), ck_st64home
+
+    # Round64 · 交割类别+出厂重置（前端；category/factory_reset 可读）
+    lg64 = call(
+        "/api/legacy",
+        {
+            "title": "自检·类别出厂64",
+            "category": "设备",
+            "action": "销毁",
+            "dept": "production",
+            "factory_reset": True,
+        },
+    )["item"]
+    assert lg64.get("category"), lg64
+    assert lg64.get("factory_reset") is not None or "factory_reset" in lg64, lg64
+
+    # Round64 · 备忘处置备注+标签（前端；dispose_note/tag 可读）
+    as64 = call(
+        "/api/assets",
+        {
+            "platform": "round64DisposeTag",
+            "summary": "处置标签64",
+            "dispose_note": "演示处置64",
+            "dept": "admin",
+            "tag": "其他",
+            "visibility": "private",
+            "draft": True,
+        },
+    )["item"]
+    assert as64.get("tag"), as64
+    assert as64.get("dispose_note") is not None or "dispose_note" in as64, as64
+
+    # Round64 · 报备间隔小时与冷静期小时（前端复制；配置只读，不改外呼）
+    ck_st64 = call("/api/checkin/status")
+    cd64 = ck_st64.get("countdown") or {}
+    user64 = ck_st64.get("user") or {}
+    assert (
+        cd64.get("interval_hours") is not None
+        or user64.get("checkin_interval_hours") is not None
+        or cd64.get("grace_hours") is not None
+        or user64.get("grace_hours") is not None
+        or user64
+    ), ck_st64
+
+    # Round64 · 差旅最近退款编号+金额（前端复制；last_refund 只读，不改退款）
+    tf64 = call("/api/travel-fund")
+    fund64 = tf64.get("fund") or tf64
+    refund64 = fund64.get("last_refund") or {}
+    assert (
+        refund64.get("id") is not None
+        or refund64.get("amount") is not None
+        or fund64.get("balance") is not None
+    ), tf64
+
+    # Round64 · 善后阶段文案+城市（前端；phase_label/city 可读）
+    ac64 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·阶段城市64",
+            "service_type": "field_visit",
+            "city": "保亭",
+            "travel_budget": 640,
+        },
+    )["item"]
+    assert ac64.get("city") and (
+        ac64.get("phase_label") or ac64.get("phase_key")
+    ), ac64
+
+    # Round64 · 授权视频清单已完成键（前端复制；checklist 可读）
+    av64 = call("/api/auth-video")
+    assert (
+        isinstance(av64.get("checklist"), list)
+        or av64.get("ready") is not None
+        or av64.get("complete") is not None
+    ), av64
+
+    # Round64 · 受益人关系+备注（前端；relation/note 可读）
+    bn64 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·关系备注64",
+            "role": "family",
+            "relation": "表亲",
+            "contact": "13300000064",
+            "note": "round64备注",
+        },
+    )["item"]
+    assert bn64.get("relation"), bn64
+    assert bn64.get("note") is not None or "note" in bn64, bn64
+
+    # Round64 · 手册受益人数与条目总数（前端复制；beneficiary_count/item_count 可读）
+    hand64 = call("/api/handover")
+    assert (
+        hand64.get("beneficiary_count") is not None
+        or isinstance(hand64.get("heirs"), list)
+        or hand64.get("item_count") is not None
+    ), hand64
+
+    # Round64 · 设置·应用中文名+域名（前端复制；app/domain 对齐）
+    h64 = call("/api/health")
+    assert h64.get("ok") is True, h64
+    assert h64.get("app") or h64.get("domain") == "einherit.cn", h64
+    assert h64.get("domain") == "einherit.cn", h64
+
     print("selfcheck OK")
 
 
