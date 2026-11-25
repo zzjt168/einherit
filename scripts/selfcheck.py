@@ -1390,6 +1390,99 @@ def main() -> None:
     assert h17.get("domain") == "einherit.cn", h17
     assert h17.get("version") == "0.5.0", h17
 
+    # Round18 · 首页下次报备温和倒计时数据源
+    ck18 = call("/api/checkin/readable")
+    assert "hours_remaining" in ck18 and "countdown_label" in ck18, ck18
+    assert "seconds_remaining" in ck18, ck18
+
+    # Round18 · 交割批量改接收人
+    lg18a = call(
+        "/api/legacy",
+        {"title": "自检·批量接收人A", "category": "其他", "action": "销毁"},
+    )["item"]
+    lg18b = call(
+        "/api/legacy",
+        {"title": "自检·批量接收人B", "category": "其他", "action": "销毁"},
+    )["item"]
+    batched_bene = call(
+        "/api/legacy/batch-beneficiary",
+        {
+            "ids": [lg18a["id"], lg18b["id"]],
+            "beneficiary": "自检批量接收人",
+        },
+    )
+    assert batched_bene.get("updated") == 2, batched_bene
+    assert batched_bene.get("beneficiary") == "自检批量接收人", batched_bene
+    lg18_list = call("/api/legacy")["items"]
+    assert all(
+        next(
+            (x for x in lg18_list if x["id"] == i),
+            {},
+        ).get("beneficiary")
+        == "自检批量接收人"
+        for i in (lg18a["id"], lg18b["id"])
+    ), lg18_list
+
+    # Round18 · 备忘按部门 chip 计数数据源
+    as18 = call(
+        "/api/assets",
+        {
+            "platform": "自检·部门计数",
+            "summary": "round18",
+            "dispose_note": "销毁",
+            "dept": "finance",
+        },
+    )["item"]
+    assert as18.get("dept") == "finance", as18
+    assets18 = call("/api/assets")
+    assert any(x.get("id") == as18["id"] for x in (assets18.get("items") or [])), assets18
+
+    # Round18 · 差旅余额门槛（首页轻条只读）
+    tf18 = call("/api/travel-fund")
+    assert "fund" in tf18 and "threshold" in tf18["fund"], tf18
+    assert tf18["fund"]["threshold"] == 2000, tf18
+    assert "balance" in tf18["fund"], tf18
+
+    # Round18 · 善后工单创建时间字段（近→远默认）
+    job18 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·排序工单",
+            "service_type": "field_visit",
+            "city": "海口",
+            "travel_budget": 500,
+            "coop_state": "cooperative",
+        },
+    )
+    job18 = job18.get("item") or job18.get("job") or job18
+    assert job18.get("created_at") is not None or job18.get("id"), job18
+    ac18 = call("/api/aftercare")
+    assert (ac18.get("items") or []), ac18
+    assert all("id" in x for x in ac18["items"]), ac18
+
+    # Round18 · 授权视频列表折叠（current_active 字段）
+    av18 = call("/api/auth-video")
+    assert "items" in av18 and "current_active_id" in av18, av18
+
+    # Round18 · 手册打印清单缺口 go 字段
+    pre18 = call("/api/handover/print-checklist")
+    assert "items" in pre18, pre18
+    for it in pre18["items"]:
+        assert "key" in it and "ok" in it and "go" in it, it
+        assert it["go"] in ("checkin", "legacy", "heirs"), it
+
+    # Round18 · 医旅意向空态依赖列表可读
+    intents18 = call("/api/hospitals/intents")
+    assert "items" in intents18, intents18
+    hospitals18 = call("/api/hospitals")["items"]
+    assert hospitals18, hospitals18
+
+    # Round18 · 设置·一键复制服务信息数据源
+    h18 = call("/api/health")
+    assert h18.get("ok") is True, h18
+    assert h18.get("domain") == "einherit.cn", h18
+    assert h18.get("version") == "0.5.0", h18
+
     print("selfcheck OK")
 
 

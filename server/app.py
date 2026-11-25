@@ -447,6 +447,17 @@ class Handler(BaseHTTPRequestHandler):
                 str(payload.get("action") or ""),
             )
 
+        if path in (
+            "/api/legacy/batch-beneficiary",
+            "/api/legacy/batch-bene",
+        ):
+            return db.batch_legacy_beneficiary(
+                1,
+                list(payload.get("ids") or []),
+                str(payload.get("beneficiary") or ""),
+                int(payload.get("beneficiary_id") or 0),
+            )
+
         if path == "/api/legacy/update":
             return db.update_legacy_action(
                 1,

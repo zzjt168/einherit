@@ -2884,6 +2884,45 @@ def batch_legacy_action(user_id: int, ids: list[int], action: str) -> dict[str, 
     return {"updated": len(ids), "action": action, "items": list_legacy(user_id)}
 
 
+def batch_legacy_beneficiary(
+    user_id: int,
+    ids: list[int],
+    beneficiary: str = "",
+    beneficiary_id: int = 0,
+) -> dict[str, Any]:
+    """批量指定交割接收人（不改处置类型 / 外呼 / 退款机）。"""
+    ids = [int(i) for i in (ids or []) if i]
+    if not ids:
+        raise ValueError("请先勾选要指定接收人的交割条目")
+    bid, bene_name = _resolve_legacy_beneficiary(
+        user_id,
+        {"beneficiary": beneficiary, "beneficiary_id": beneficiary_id},
+    )
+    if not bene_name and bid <= 0:
+        raise ValueError("请填写或选择接收人")
+    with connect() as conn:
+        cols = {r[1] for r in conn.execute("PRAGMA table_info(legacy_items)").fetchall()}
+        if "beneficiary_id" not in cols:
+            conn.execute(
+                "ALTER TABLE legacy_items ADD COLUMN beneficiary_id INTEGER DEFAULT 0"
+            )
+        for i in ids:
+            conn.execute(
+                "UPDATE legacy_items SET beneficiary=?, beneficiary_id=? "
+                "WHERE user_id=? AND id=?",
+                (bene_name, bid, user_id, i),
+            )
+        conn.commit()
+    audit(user_id, "legacy.batch_beneficiary", f"{bene_name}:{len(ids)}")
+    return {
+        "updated": len(ids),
+        "beneficiary": bene_name,
+        "beneficiary_id": bid,
+        "items": list_legacy(user_id),
+        "note": "已批量指定接收人；不改处置类型。",
+    }
+
+
 def set_asset_review_at(user_id: int, asset_id: int, review_at: str) -> dict[str, Any]:
     review_at = str(review_at or "").strip()
     with connect() as conn:
@@ -3409,6 +3448,7 @@ def handover_print_checklist(user_id: int = 1) -> dict[str, Any]:
             "ok": executor_filled,
             "value": executor_raw if executor_filled else "尚未填写",
             "hint": "已填写执行人" if executor_filled else "可到报备页填写遗产执行人",
+            "go": "checkin",
         },
         {
             "key": "items",
@@ -3416,6 +3456,7 @@ def handover_print_checklist(user_id: int = 1) -> dict[str, Any]:
             "ok": item_count > 0,
             "value": f"{item_count} 条",
             "hint": "已有交割条目" if item_count > 0 else "可到交割页先写一条安排",
+            "go": "legacy",
         },
         {
             "key": "beneficiaries",
@@ -3423,6 +3464,7 @@ def handover_print_checklist(user_id: int = 1) -> dict[str, Any]:
             "ok": beneficiary_count > 0,
             "value": f"{beneficiary_count} 人",
             "hint": "名册已有人" if beneficiary_count > 0 else "可到受益人名册添加一位",
+            "go": "heirs",
         },
     ]
     ready_n = sum(1 for it in items if it["ok"])
