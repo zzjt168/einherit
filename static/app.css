@@ -5572,3 +5572,39 @@ body.privacy-mode .privacy-hint { opacity: 0.85; }
   margin: 8px 0 10px; padding: 8px 10px; border-radius: 8px; background: #f5f8f6;
   word-break: break-word; font-weight: 600; color: var(--sage-deep, #2f5d45);
 }
+
+
+/* Round60 · 里程碑温和增量 */
+.home-round60-ready-bar {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  margin: 10px 0 12px; padding: 12px 14px; border-radius: 12px;
+  background: linear-gradient(160deg, #e8f0eb 0%, #fff 75%);
+  border: 1px solid var(--line, #e2e8e4);
+}
+.home-round60-ready-bar[hidden] { display: none; }
+.home-round60-ready-mark { font-weight: 600; color: var(--sage-deep, #2f5d45); font-size: 13px; }
+.home-round60-ready-sub { flex: 1; min-width: 8em; font-size: 12px; }
+.lg-copy-id-factory { margin-top: 8px; margin-left: 6px; }
+.as-copy-visibility-dept { margin-top: 8px; margin-left: 6px; }
+.checkin-last-next-label-copy {
+  margin-top: 10px; padding: 10px 12px; border-radius: 10px; background: #f5f8f6;
+}
+.checkin-last-next-label-copy-line { margin: 0 0 8px; }
+.travel-thr-pct-copy {
+  margin: 8px 0 10px; padding: 10px 12px; border-radius: 10px; background: #f5f8f6;
+}
+.travel-thr-pct-copy-line { margin: 0 0 8px; }
+.ac-copy-id-coop { margin-top: 8px; margin-left: 6px; }
+.av-done-total-copy {
+  margin: 8px 0 10px; padding: 10px 12px; border-radius: 10px; background: #f5f8f6;
+}
+.av-done-total-copy-line { margin: 0 0 8px; }
+.bn-copy-id-role-key { margin-top: 8px; margin-left: 6px; }
+.hand-pct-total-items-copy {
+  margin: 8px 0 12px; padding: 10px 12px; border-radius: 10px; background: #f5f8f6;
+}
+.hand-pct-total-items-copy-line { margin: 0 0 8px; }
+.round60-range-copy-card .round60-range-copy-preview {
+  margin: 8px 0 10px; padding: 8px 10px; border-radius: 8px; background: #f5f8f6;
+  word-break: break-word; font-weight: 600; color: var(--sage-deep, #2f5d45);
+}
