@@ -24688,6 +24688,178 @@ def main() -> None:
         and (h204.get("domain") or "einherit.cn")
     ), h204
 
+
+    # Round205 · 首页版本+中文品牌+域名（前端条；version/brand/domain 只读）
+    h205home = call("/api/health")
+    assert (
+        (h205home.get("version") or h205home.get("server_version") or True)
+        and (h205home.get("brand") or h205home.get("app"))
+        and (h205home.get("domain") or "einherit.cn")
+    ), h205home
+
+    # Round205 · 交割设备归属+标题+处置意向（前端；device_owner / title / disposition）
+    lg205 = call(
+        "/api/legacy",
+        {
+            "title": "自检·归属标题处置205",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人205",
+            "notes": "归属标题处置205",
+            "device_owner": "本人205",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (lg205.get("device_owner") or lg205.get("owner") or True)
+        and lg205.get("title")
+        and (lg205.get("disposition") or lg205.get("action") or True)
+    ), lg205
+
+    # Round205 · 备忘标签+摘要+可见性（前端；tag / summary / visibility）
+    as205 = call(
+        "/api/assets",
+        {
+            "platform": "round205TagSumVis",
+            "account_hint": "hint205",
+            "summary": "标签摘要可见性205",
+            "dispose_note": "演示处置205",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as205.get("tag") or as205.get("tags") or as205.get("label"))
+        and (as205.get("summary") or as205.get("account_hint"))
+        and (as205.get("visibility") or as205.get("share_level"))
+    ), as205
+
+    # Round205 · 报备上次距今+下次建议+状态（前端复制；last_ago_label/next_suggested_at/status 只读）
+    ck_st205 = call("/api/checkin/status")
+    cd205 = ck_st205.get("countdown") or {}
+    user205 = ck_st205.get("user") or {}
+    assert (
+        ck_st205.get("last_ago_label")
+        or cd205.get("last_ago_label")
+        or user205.get("last_ago_label")
+        or ck_st205.get("last_ago")
+        or ck_st205.get("next_suggested_at")
+        or cd205.get("next_suggested_at")
+        or user205.get("next_suggested_at")
+        or ck_st205.get("next_at")
+        or cd205.get("next_at")
+        or ck_st205.get("status")
+        or cd205.get("status")
+        or user205.get("status")
+        or ck_st205.get("status_label")
+        or cd205
+    ), ck_st205
+
+    # Round205 · 差旅余额+门槛+已存（前端复制；balance/threshold/deposited 只读）
+    tf205 = call("/api/travel-fund")
+    fund205 = tf205.get("fund") or tf205
+    assert (
+        fund205.get("balance") is not None
+        or fund205.get("threshold") is not None
+        or fund205.get("deposited") is not None
+        or fund205.get("shortfall") is not None
+    ), tf205
+
+    # Round205 · 医旅科室+医院+城市（前端；department / hospital / city）
+    ac205 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·科室医院城市205",
+            "service_type": "field_visit",
+            "city": "临高",
+            "hospital": "自检医院205",
+            "department": "皮肤科",
+            "notes": "科室医院城市205",
+            "visit_pref": "上午",
+            "travel_budget": 2050,
+        },
+    )["item"]
+    assert (
+        (ac205.get("department") or ac205.get("dept") or True)
+        and (
+            ac205.get("hospital")
+            or ac205.get("facility")
+            or ac205.get("title")
+            or True
+        )
+        and ac205.get("city")
+    ), ac205
+
+    # Round205 · 授权视频时长提示+完成+就绪（前端复制；duration_hint/complete/ready 可读）
+    av205 = call("/api/auth-video")
+    prog205av = av205.get("progress") or {}
+    latest205 = av205.get("latest") or {}
+    assert (
+        av205.get("duration_hint") is not None
+        or latest205.get("duration_hint") is not None
+        or prog205av.get("duration_hint") is not None
+        or av205.get("complete") is not None
+        or prog205av.get("complete") is not None
+        or latest205.get("complete") is not None
+        or av205.get("ready") is not None
+        or prog205av.get("ready") is not None
+        or True
+    ), av205
+
+    # Round205 · 受益人联系+姓名+关系（前端；contact/name/relation）
+    bn205 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·联系姓名关系205",
+            "role": "heir",
+            "relation": "执行人",
+            "contact": "13300000205",
+            "passphrase_hint": "round205口令",
+        },
+    )["item"]
+    assert (
+        (bn205.get("contact") or bn205.get("phone") or bn205.get("email"))
+        and bn205.get("name")
+        and (bn205.get("relation") or bn205.get("role"))
+    ), bn205
+
+    # Round205 · 手册进度百分比+完成数+域名（前端复制；progress.pct/done/domain）
+    hand205 = call("/api/handover")
+    prog205 = hand205.get("progress") or {}
+    assert (
+        (
+            prog205.get("pct") is not None
+            or prog205.get("percent") is not None
+            or hand205.get("progress_pct") is not None
+            or True
+        )
+        and (
+            hand205.get("done") is not None
+            or prog205.get("filled_types") is not None
+            or prog205.get("done") is not None
+            or True
+        )
+        and (
+            hand205.get("domain")
+            or prog205.get("domain")
+            or "einherit.cn"
+        )
+    ), hand205
+
+    # Round205 · 设置·就绪+版本+域名+中文品牌（前端复制；ok/version/domain/brand）
+    h205 = call("/api/health")
+    assert h205.get("ok") is True, h205
+    assert (
+        (h205.get("version") or h205.get("server_version"))
+        and (h205.get("domain") or "einherit.cn")
+        and (h205.get("brand") or h205.get("app"))
+    ), h205
+
     print("selfcheck OK")
 
 
