@@ -10241,3 +10241,38 @@ body.privacy-mode .privacy-hint { opacity: 0.85; }
   margin: 8px 0 10px; padding: 8px 10px; border-radius: 8px; background: #f5f8f6;
   word-break: break-word; font-weight: 600; color: var(--sage-deep, #2f5d45);
 }
+
+/* Round192 · 温和增量 */
+.home-brand-domain-version-calm-r192 {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px;
+  margin: 8px 0 12px; padding: 10px 12px; border-radius: 10px;
+  background: linear-gradient(160deg, #eef5f3 0%, #fff 75%);
+  border: 1px solid var(--line, #e2e8e4);
+}
+.home-brand-domain-version-calm-r192[hidden] { display: none; }
+.home-brand-domain-version-calm-r192-mark { font-weight: 600; color: var(--sage-deep, #2f5d45); font-size: 13px; }
+.home-brand-domain-version-calm-r192-sub { flex: 1; min-width: 8em; font-size: 12px; }
+.lg-copy-beneficiary-notes-disposition-r192 { margin-top: 8px; margin-left: 6px; }
+.as-copy-category-updated-tag-r192 { margin-top: 8px; margin-left: 6px; }
+.checkin-window-ends-status-last-ago-plain-r192-copy {
+  margin-top: 10px; padding: 10px 12px; border-radius: 10px; background: #f5f8f6;
+}
+.checkin-window-ends-status-last-ago-plain-r192-copy-line { margin: 0 0 8px; }
+.travel-balance-threshold-shortfall-plain-r192-copy {
+  margin: 8px 0 10px; padding: 10px 12px; border-radius: 10px; background: #f5f8f6;
+}
+.travel-balance-threshold-shortfall-plain-r192-copy-line { margin: 0 0 8px; }
+.ac-copy-hospital-city-service-type-r192 { margin-top: 8px; margin-left: 6px; }
+.av-ready-missing-complete-copy-r192 {
+  margin: 8px 0 10px; padding: 10px 12px; border-radius: 10px; background: #f5f8f6;
+}
+.av-ready-missing-complete-copy-r192-line { margin: 0 0 8px; }
+.bn-copy-relation-id-contact-r192 { margin-top: 8px; margin-left: 6px; }
+.hand-done-domain-sections-copy-r192 {
+  margin: 8px 0 12px; padding: 10px 12px; border-radius: 10px; background: #f5f8f6;
+}
+.hand-done-domain-sections-copy-r192-line { margin: 0 0 8px; }
+.settings-version-brand-domain-brand-en-r192-copy-card .settings-version-brand-domain-brand-en-r192-copy-preview {
+  margin: 8px 0 10px; padding: 8px 10px; border-radius: 8px; background: #f5f8f6;
+  word-break: break-word; font-weight: 600; color: var(--sage-deep, #2f5d45);
+}
