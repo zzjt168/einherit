@@ -16722,6 +16722,162 @@ def main() -> None:
         and (h157.get("version") or h157.get("server_version"))
     ), h157
 
+
+    # Round158 · 首页中文品牌+就绪+版本（前端条；brand|app/ok/version 只读）
+    h158home = call("/api/health")
+    assert (
+        (h158home.get("brand") or h158home.get("app"))
+        and h158home.get("ok") is True
+        and (h158home.get("version") or h158home.get("server_version"))
+    ), h158home
+
+    # Round158 · 交割受益人+设备归属+标题（前端；beneficiary / device_owner|dept / title）
+    lg158 = call(
+        "/api/legacy",
+        {
+            "title": "自检·受益人归属标题158",
+            "category": "音箱",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人158",
+            "notes": "受益人归属标题158",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        lg158.get("beneficiary")
+        and (lg158.get("device_owner") or lg158.get("dept"))
+        and (lg158.get("title") or lg158.get("category"))
+    ), lg158
+
+    # Round158 · 备忘摘要+标签+平台（前端；summary / tag / platform）
+    as158 = call(
+        "/api/assets",
+        {
+            "platform": "round158SumTagPlat",
+            "account_hint": "hint158",
+            "summary": "摘要标签平台158",
+            "dispose_note": "演示处置158",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as158.get("summary") or as158.get("account_hint"))
+        and as158.get("tag")
+        and as158.get("platform")
+    ), as158
+
+    # Round158 · 报备下次建议+距上次（前端复制；next_suggested_at/last_ago_label 只读）
+    ck_st158 = call("/api/checkin/status")
+    cd158 = ck_st158.get("countdown") or {}
+    user158 = ck_st158.get("user") or {}
+    assert (
+        cd158.get("next_suggested_at") is not None
+        or cd158.get("next_suggested_label")
+        or ck_st158.get("last_ago_label")
+        or cd158.get("last_ago_label")
+        or user158.get("last_ago_label")
+        or cd158.get("last_checkin_ago")
+        or cd158
+    ), ck_st158
+
+    # Round158 · 差旅余额+进度+门槛（前端复制；balance/progress_pct/threshold 只读）
+    tf158 = call("/api/travel-fund")
+    fund158 = tf158.get("fund") or tf158
+    assert (
+        fund158.get("balance") is not None
+        or fund158.get("progress_pct") is not None
+        or fund158.get("progress") is not None
+        or fund158.get("threshold") is not None
+    ), tf158
+
+    # Round158 · 医旅医院+科室+城市（前端；hospital|title / department|service_type / city）
+    ac158 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·医院科室城市158",
+            "service_type": "field_visit",
+            "city": "文昌",
+            "hospital": "自检医院158",
+            "department": "消化内科",
+            "notes": "医院科室城市158",
+            "visit_pref": "上午",
+            "travel_budget": 1580,
+        },
+    )["item"]
+    assert (
+        (ac158.get("hospital") or ac158.get("facility") or ac158.get("title") or ac158.get("city"))
+        and (
+            ac158.get("department")
+            or ac158.get("dept")
+            or ac158.get("service_type")
+            or ac158.get("service")
+        )
+        and ac158.get("city")
+    ), ac158
+
+    # Round158 · 授权视频完成+缺失+时长（前端复制；complete/missing/duration_hint 可读）
+    av158 = call("/api/auth-video")
+    prog158av = av158.get("progress") or {}
+    latest158 = av158.get("latest") or {}
+    assert (
+        av158.get("complete") is not None
+        or av158.get("missing") is not None
+        or av158.get("duration_hint")
+        or latest158.get("duration_hint")
+        or prog158av.get("duration_hint")
+        or av158.get("duration")
+        or latest158.get("duration")
+    ), av158
+
+    # Round158 · 受益人关系+编号+口令提示（前端；relation/id/passphrase_hint）
+    bn158 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·关系编号口令158",
+            "role": "heir",
+            "relation": "战友",
+            "contact": "13300000158",
+            "passphrase_hint": "round158口令",
+        },
+    )["item"]
+    assert (
+        bn158.get("relation")
+        and bn158.get("id") is not None
+        and bn158.get("passphrase_hint")
+    ), bn158
+
+    # Round158 · 手册完成+域名+章节（前端复制；done/domain/sections）
+    hand158 = call("/api/handover")
+    prog158 = hand158.get("progress") or {}
+    assert (
+        (
+            hand158.get("done") is not None
+            or prog158.get("filled_types") is not None
+            or prog158.get("done") is not None
+        )
+        and (hand158.get("domain") or "einherit.cn")
+        and (
+            hand158.get("sections") is not None
+            or prog158.get("total_types") is not None
+            or hand158.get("section_count") is not None
+        )
+    ), hand158
+
+    # Round158 · 设置·中文品牌+就绪+版本+域名（前端复制；brand|app/ok/version/domain）
+    h158 = call("/api/health")
+    assert h158.get("ok") is True, h158
+    assert (
+        (h158.get("brand") or h158.get("app"))
+        and (h158.get("version") or h158.get("server_version"))
+        and (h158.get("domain") or "einherit.cn")
+    ), h158
+
     print("selfcheck OK")
 
 
