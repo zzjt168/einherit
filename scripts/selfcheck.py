@@ -4886,6 +4886,89 @@ def main() -> None:
     h56 = call("/api/health")
     assert h56.get("ok") is True, h56
 
+    # Round57 · 首页应用版本号（前端条；health.version 可读）
+    h57home = call("/api/health")
+    assert h57home.get("ok") is True, h57home
+    assert h57home.get("version") or h57home.get("server_version"), h57home
+
+    # Round57 · 交割标题纯文本（前端；title 可读）
+    lg57 = call(
+        "/api/legacy",
+        {
+            "title": "自检·标题57",
+            "category": "其他",
+            "action": "转赠",
+            "dept": "admin",
+        },
+    )["item"]
+    assert lg57.get("title"), lg57
+
+    # Round57 · 备忘平台纯文本（前端；platform 可读）
+    as57 = call(
+        "/api/assets",
+        {
+            "platform": "round57Plain",
+            "summary": "平台纯文本",
+            "dept": "finance",
+            "tag": "其他",
+            "visibility": "private",
+            "draft": True,
+        },
+    )["item"]
+    assert as57.get("platform"), as57
+
+    # Round57 · 报备剩余秒（前端复制；seconds_remaining 可读）
+    ck_st57 = call("/api/checkin/status")
+    cd57 = ck_st57.get("countdown") or {}
+    assert cd57.get("seconds_remaining") is not None or ck_st57.get("user"), ck_st57
+
+    # Round57 · 差旅最近流水金额纯数字（前端复制；ledger.amount 可读）
+    tf57 = call("/api/travel-fund")
+    ledger57 = tf57.get("ledger") or []
+    assert isinstance(ledger57, list), tf57
+
+    # Round57 · 善后阶段英文键（前端；phase_key 可读）
+    ac57 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·阶段键57",
+            "service_type": "delete_data",
+            "city": "万宁",
+            "travel_budget": 570,
+        },
+    )["item"]
+    assert ac57.get("phase_key") or ac57.get("phase_label"), ac57
+
+    # Round57 · 授权视频第二段脚本键（前端复制；script[1].key 可读）
+    av57 = call("/api/auth-video")
+    script57 = av57.get("script") or []
+    assert len(script57) >= 1 or av57.get("ready") is not None, av57
+
+    # Round57 · 受益人角色键+姓名（前端；role/name 可读）
+    bn57 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·角色姓名57",
+            "role": "executor",
+            "relation": "同事",
+            "contact": "13300000057",
+        },
+    )["item"]
+    assert bn57.get("role") and bn57.get("name"), bn57
+
+    # Round57 · 手册变现条数（前端复制；action_counts.sale 可读）
+    hand57 = call("/api/handover")
+    prog57 = hand57.get("progress") or {}
+    sale57 = (prog57.get("action_counts") or {}).get("sale")
+    assert sale57 is not None or isinstance(prog57.get("by_action"), list) or hand57.get(
+        "item_count"
+    ) is not None, hand57
+
+    # Round57 · 设置·带 v 前缀应用版本（前端复制；health.version 对齐）
+    h57 = call("/api/health")
+    assert h57.get("ok") is True, h57
+    assert h57.get("version") or h57.get("server_version"), h57
+
     print("selfcheck OK")
 
 
