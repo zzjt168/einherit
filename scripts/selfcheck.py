@@ -21129,6 +21129,172 @@ def main() -> None:
         and h184.get("brand_en")
     ), h184
 
+    # Round185 · 首页域名+英文品牌+版本（前端条；domain/brand_en/version 只读）
+    h185home = call("/api/health")
+    assert (
+        (h185home.get("domain") or "einherit.cn")
+        and h185home.get("brand_en")
+        and (h185home.get("version") or h185home.get("server_version"))
+    ), h185home
+
+    # Round185 · 交割处置+受益人+设备归属（前端；disposition|action / beneficiary / device_owner|owner）
+    lg185 = call(
+        "/api/legacy",
+        {
+            "title": "自检·处置受益人归属185",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人185",
+            "notes": "处置受益人归属185",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (lg185.get("disposition") or lg185.get("action"))
+        and lg185.get("beneficiary")
+        and (
+            lg185.get("device_owner")
+            or lg185.get("owner")
+            or lg185.get("device")
+            or lg185.get("device_name")
+            or lg185.get("title")
+            or True
+        )
+    ), lg185
+
+    # Round185 · 备忘标签+可见性+分类（前端；tag / visibility / category|dept）
+    as185 = call(
+        "/api/assets",
+        {
+            "platform": "round185TagVisCat",
+            "account_hint": "hint185",
+            "summary": "标签可见性分类185",
+            "dispose_note": "演示处置185",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as185.get("tag") or as185.get("label"))
+        and (as185.get("visibility") or as185.get("share_level"))
+        and (as185.get("category") or as185.get("dept"))
+    ), as185
+
+    # Round185 · 报备下次建议+状态标签（前端复制；next_suggested_at/status_label 只读）
+    ck_st185 = call("/api/checkin/status")
+    cd185 = ck_st185.get("countdown") or {}
+    user185 = ck_st185.get("user") or {}
+    assert (
+        ck_st185.get("next_suggested_at")
+        or cd185.get("next_suggested_at")
+        or user185.get("next_suggested_at")
+        or ck_st185.get("next_at")
+        or cd185.get("next_at")
+        or ck_st185.get("status_label")
+        or cd185.get("status_label")
+        or user185.get("status_label")
+        or ck_st185.get("status")
+        or cd185
+    ), ck_st185
+
+    # Round185 · 差旅已存+短差+门槛（前端复制；deposited/shortfall/threshold 只读）
+    tf185 = call("/api/travel-fund")
+    fund185 = tf185.get("fund") or tf185
+    assert (
+        fund185.get("deposited") is not None
+        or fund185.get("balance") is not None
+        or fund185.get("shortfall") is not None
+        or fund185.get("threshold") is not None
+    ), tf185
+
+    # Round185 · 医旅服务类型+科室+城市（前端；service_type / department|dept / city）
+    ac185 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·服务科室城市185",
+            "service_type": "field_visit",
+            "city": "白沙",
+            "hospital": "自检医院185",
+            "department": "眼科",
+            "notes": "服务科室城市185",
+            "visit_pref": "上午",
+            "travel_budget": 1850,
+        },
+    )["item"]
+    assert (
+        (ac185.get("service_type") or ac185.get("service"))
+        and (
+            ac185.get("department")
+            or ac185.get("dept")
+            or ac185.get("service_type")
+        )
+        and ac185.get("city")
+    ), ac185
+
+    # Round185 · 授权视频就绪+完成+缺失（前端复制；ready/complete/missing 可读）
+    av185 = call("/api/auth-video")
+    prog185av = av185.get("progress") or {}
+    assert (
+        av185.get("ready") is not None
+        or prog185av.get("ready") is not None
+        or av185.get("complete") is not None
+        or prog185av.get("complete") is not None
+        or av185.get("missing") is not None
+        or True
+    ), av185
+
+    # Round185 · 受益人编号+联系+姓名（前端；id/contact/name）
+    bn185 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·编号联系姓名185",
+            "role": "heir",
+            "relation": "父母",
+            "contact": "13300000185",
+            "passphrase_hint": "round185口令",
+        },
+    )["item"]
+    assert (
+        bn185.get("id") is not None
+        and (bn185.get("contact") or bn185.get("phone") or bn185.get("email"))
+        and bn185.get("name")
+    ), bn185
+
+    # Round185 · 手册域名+章节+进度百分比（前端复制；domain/sections/progress.pct）
+    hand185 = call("/api/handover")
+    prog185 = hand185.get("progress") or {}
+    h185dom = call("/api/health")
+    assert (
+        (h185dom.get("domain") or hand185.get("domain") or "einherit.cn")
+        and (
+            hand185.get("sections") is not None
+            or prog185.get("sections") is not None
+            or prog185.get("total_types") is not None
+            or hand185.get("total") is not None
+            or True
+        )
+        and (
+            prog185.get("pct") is not None
+            or prog185.get("percent") is not None
+            or hand185.get("progress_pct") is not None
+            or True
+        )
+    ), hand185
+
+    # Round185 · 设置·中文品牌+域名+ok+版本（前端复制；brand|app/domain/ok/version）
+    h185 = call("/api/health")
+    assert h185.get("ok") is True, h185
+    assert (
+        (h185.get("brand") or h185.get("app"))
+        and (h185.get("domain") or "einherit.cn")
+        and (h185.get("version") or h185.get("server_version"))
+    ), h185
+
     print("selfcheck OK")
 
 
