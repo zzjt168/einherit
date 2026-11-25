@@ -1574,6 +1574,86 @@ def main() -> None:
     assert h19.get("ok") is True, h19
     assert h19.get("domain") == "einherit.cn", h19
 
+    # Round20 · 交割清除照片/聊天未勾汇总
+    lg20_dev = call(
+        "/api/legacy",
+        {
+            "title": "自检·手机设备",
+            "category": "电子设备",
+            "action": "转赠",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert lg20_dev.get("clear_photos") in (0, False, None), lg20_dev
+    assert lg20_dev.get("clear_chats") in (0, False, None), lg20_dev
+    miss_clear = call("/api/legacy/missing-clear-media")
+    assert "count" in miss_clear and "items" in miss_clear and "hint" in miss_clear, miss_clear
+    assert miss_clear["count"] >= 1, miss_clear
+    assert any(x.get("id") == lg20_dev["id"] for x in miss_clear["items"]), miss_clear
+
+    # Round20 · 报备页会员有效同行数据源
+    gentle20 = call("/api/membership/gentle")
+    assert "is_member" in gentle20 and "member_until_iso" in gentle20, gentle20
+    assert "label" in gentle20 or "hint" in gentle20, gentle20
+
+    # Round20 · 差旅充值（回首页 CTA 为前端；预存 API 仍可用）
+    tf20 = call("/api/travel-fund", {"amount": 50, "force": True})
+    assert "fund" in tf20 or "balance" in (tf20.get("fund") or tf20), tf20
+
+    # Round20 · 善后未完成工单预算合计 vs 余额
+    ac20_job = call(
+        "/api/aftercare",
+        {
+            "title": "自检·预算合计",
+            "service_type": "field_visit",
+            "city": "海口",
+            "travel_budget": 300,
+        },
+    )["item"]
+    assert ac20_job.get("id"), ac20_job
+    open_sum = call("/api/aftercare/open-budget-sum")
+    assert "budget_sum" in open_sum and "balance" in open_sum, open_sum
+    assert "open_count" in open_sum and "hint" in open_sum, open_sum
+    assert open_sum["open_count"] >= 1, open_sum
+    assert float(open_sum["budget_sum"]) >= 300, open_sum
+
+    # Round20 · 授权视频列表可读（上传成功聚焦为前端）
+    av20 = call("/api/auth-video")
+    assert "items" in av20 and "current_active_id" in av20, av20
+
+    # Round20 · 手册执行人缺席双 CTA 数据源
+    pre20 = call("/api/handover/print-checklist")
+    assert "executor_filled" in pre20, pre20
+
+    # Round20 · 备忘部门字段（去盘点深链）
+    as20 = call(
+        "/api/assets",
+        {
+            "platform": "自检·盘点深链",
+            "summary": "round20",
+            "dept": "finance",
+            "dispose_note": "转赠",
+            "draft": True,
+        },
+    )["item"]
+    assert as20.get("dept") == "finance", as20
+    assets20 = call("/api/assets")
+    assert any(
+        x.get("id") == as20["id"] and x.get("dept") == "finance"
+        for x in (assets20.get("items") or [])
+    ), assets20
+
+    # Round20 · 医旅收藏空态依赖医院列表；设置导出/导入 API
+    hospitals20 = call("/api/hospitals")["items"]
+    assert isinstance(hospitals20, list), hospitals20
+    bak20 = call("/api/export/backup")
+    assert "backup_note" in bak20 or "legacy" in bak20 or "summary" in bak20, bak20
+    h20 = call("/api/health")
+    assert h20.get("ok") is True, h20
+    assert h20.get("domain") == "einherit.cn", h20
+
     print("selfcheck OK")
 
 

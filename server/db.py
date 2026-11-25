@@ -3543,6 +3543,54 @@ def legacy_missing_factory_reset(user_id: int = 1) -> dict[str, Any]:
     }
 
 
+def legacy_missing_clear_media(user_id: int = 1) -> dict[str, Any]:
+    """设备类交割条目未勾清除照片/聊天的冷静汇总（不恐吓）。"""
+    items = [
+        it
+        for it in list_legacy(user_id)
+        if _legacy_is_device(it)
+        and not it.get("clear_photos")
+        and not it.get("clear_chats")
+    ]
+    n = len(items)
+    return {
+        "count": n,
+        "items": items,
+        "hint": (
+            f"有 {n} 条设备安排还没勾选清除照片或聊天。需要时补上即可。"
+            if n
+            else "设备类条目已勾选清除照片/聊天，或暂无设备条目。"
+        ),
+        "cta": "筛出未勾选",
+        "note": "只读汇总；不改交割 / 外呼 / 退款状态机。",
+    }
+
+
+def aftercare_open_budget_sum(user_id: int = 1) -> dict[str, Any]:
+    """未完成善后工单预算合计 vs 差旅余额（只读）。"""
+    closed = {"done", "completed", "closed", "cancelled"}
+    jobs = [
+        j
+        for j in list_aftercare(user_id)
+        if str(j.get("status") or "open").lower() not in closed
+    ]
+    budget_sum = sum(float(j.get("travel_budget") or 0) for j in jobs)
+    fund = get_travel(user_id)
+    balance = float(fund.get("balance") or 0)
+    within = budget_sum <= balance
+    return {
+        "open_count": len(jobs),
+        "budget_sum": budget_sum,
+        "balance": balance,
+        "within_balance": within,
+        "hint": (
+            f"未完成工单预算合计约 ¥{budget_sum:.0f}，当前预存 ¥{balance:.0f}"
+            + ("，看起来够用。" if within else "，可先到差旅页按节奏补存。")
+        ),
+        "note": "只读对照；不改断缴退款状态机。",
+    }
+
+
 def assets_review_calendar(user_id: int = 1, days: int = 14) -> dict[str, Any]:
     """近 N 天有 review_at 的备忘日期温和标记（对标报备日历）。"""
     days = max(1, min(int(days or 14), 60))
