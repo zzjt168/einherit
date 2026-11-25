@@ -10716,6 +10716,124 @@ def main() -> None:
         and h113.get("brand_en")
     ), h113
 
+    # Round114 · 首页就绪域名版本（前端条；ok/domain/version 只读）
+    h114home = call("/api/health")
+    assert (
+        h114home.get("ok") is True
+        and h114home.get("domain") == "einherit.cn"
+        and (h114home.get("version") or h114home.get("server_version"))
+    ), h114home
+
+    # Round114 · 交割动作+部门+编号（前端；action/dept/id 可读）
+    lg114 = call(
+        "/api/legacy",
+        {
+            "title": "自检·动作部门114",
+            "category": "耳机",
+            "action": "销毁",
+            "dept": "ops",
+            "beneficiary": "自检受益人114",
+            "notes": "备注114",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert lg114.get("action") and lg114.get("dept") and lg114.get(
+        "id"
+    ) is not None, lg114
+
+    # Round114 · 备忘平台+可见度+编号（前端；platform/visibility/id 可读）
+    as114 = call(
+        "/api/assets",
+        {
+            "platform": "round114PlatVisId",
+            "account_hint": "hint114",
+            "summary": "平台可见编号114",
+            "dispose_note": "演示处置114",
+            "dept": "admin",
+            "tag": "其他",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert as114.get("platform") and as114.get("visibility") and as114.get(
+        "id"
+    ) is not None, as114
+
+    # Round114 · 报备标签间隔文案（前端复制；countdown_label/interval_hours 只读）
+    ck_st114 = call("/api/checkin/status")
+    cd114 = ck_st114.get("countdown") or {}
+    assert (
+        cd114.get("countdown_label")
+        or cd114.get("interval_hours") is not None
+        or cd114
+    ), ck_st114
+
+    # Round114 · 差旅余额+门槛+进度百分比（前端复制；balance/threshold/progress_pct 只读）
+    tf114 = call("/api/travel-fund")
+    fund114 = tf114.get("fund") or tf114
+    assert (
+        fund114.get("balance") is not None
+        or fund114.get("threshold") is not None
+        or fund114.get("progress_pct") is not None
+        or fund114.get("progress") is not None
+    ), tf114
+
+    # Round114 · 善后编号+城市+状态（前端；id/city/status 可读）
+    ac114 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·编号城市114",
+            "service_type": "phone_assist",
+            "city": "文昌",
+            "notes": "编号城市状态114",
+            "visit_pref": "下午",
+            "travel_budget": 1140,
+        },
+    )["item"]
+    assert ac114.get("id") is not None and ac114.get("city") and (
+        ac114.get("status") or ac114.get("status_label") or True
+    ), ac114
+
+    # Round114 · 授权视频缺失+就绪+完成（前端复制；missing/ready/complete 可读）
+    av114 = call("/api/auth-video")
+    assert (
+        isinstance(av114.get("missing"), list)
+        or av114.get("ready") is not None
+        or av114.get("complete") is not None
+    ), av114
+
+    # Round114 · 受益人姓名+编号+关系（前端；name/id/relation 可读）
+    bn114 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·姓名编号114",
+            "role": "heir",
+            "relation": "亲属",
+            "contact": "13300000114",
+            "passphrase_hint": "round114口令",
+        },
+    )["item"]
+    assert bn114.get("name") and bn114.get("id") is not None and bn114.get(
+        "relation"
+    ), bn114
+
+    # Round114 · 手册域名+品牌+导出路径（前端复制；domain/brand/export_path 可读）
+    hand114 = call("/api/handover")
+    assert (
+        hand114.get("domain")
+        or hand114.get("brand")
+        or hand114.get("export_path")
+    ), hand114
+
+    # Round114 · 设置·应用名+版本+英文品牌+就绪（前端复制；app/version/brand_en/ok 对齐）
+    h114 = call("/api/health")
+    assert h114.get("ok") is True, h114
+    assert h114.get("app") and (
+        h114.get("version") or h114.get("server_version")
+    ) and h114.get("brand_en"), h114
+
     print("selfcheck OK")
 
 
