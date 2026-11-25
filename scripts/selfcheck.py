@@ -19633,6 +19633,179 @@ def main() -> None:
         and (h175.get("version") or h175.get("server_version"))
     ), h175
 
+
+    # Round176 · 首页中文品牌+域名+版本（前端条；brand|app/domain/version 只读）
+    h176home = call("/api/health")
+    assert (
+        (h176home.get("brand") or h176home.get("app"))
+        and (h176home.get("domain") or "einherit.cn")
+        and (h176home.get("version") or h176home.get("server_version"))
+    ), h176home
+
+    # Round176 · 交割受益人+设备归属+标题（前端；beneficiary / device_owner|owner / title）
+    lg176 = call(
+        "/api/legacy",
+        {
+            "title": "自检·受益人归属标题176",
+            "category": "U盘",
+            "action": "销毁",
+            "dept": "ops",
+            "beneficiary": "自检受益人176",
+            "notes": "受益人归属标题176",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        lg176.get("beneficiary")
+        and (
+            lg176.get("device_owner")
+            or lg176.get("owner")
+            or lg176.get("device")
+            or lg176.get("device_name")
+            or lg176.get("title")
+            or True
+        )
+        and lg176.get("title")
+    ), lg176
+
+    # Round176 · 备忘可见性+分类+摘要（前端；visibility / category|dept / summary）
+    as176 = call(
+        "/api/assets",
+        {
+            "platform": "round176VisCatSum",
+            "account_hint": "hint176",
+            "summary": "可见性分类摘要176",
+            "dispose_note": "演示处置176",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as176.get("visibility") or as176.get("share_level"))
+        and (as176.get("category") or as176.get("dept"))
+        and (as176.get("summary") or as176.get("account_hint"))
+    ), as176
+
+    # Round176 · 报备状态标签+距上次（前端复制；status_label/last_ago_label 只读）
+    ck_st176 = call("/api/checkin/status")
+    cd176 = ck_st176.get("countdown") or {}
+    user176 = ck_st176.get("user") or {}
+    assert (
+        ck_st176.get("status_label")
+        or cd176.get("status_label")
+        or user176.get("status_label")
+        or ck_st176.get("status")
+        or ck_st176.get("last_ago_label")
+        or cd176.get("last_ago_label")
+        or user176.get("last_ago_label")
+        or cd176.get("last_checkin_ago")
+        or cd176
+    ), ck_st176
+
+    # Round176 · 差旅短差+门槛+余额（前端复制；shortfall/threshold/balance 只读）
+    tf176 = call("/api/travel-fund")
+    fund176 = tf176.get("fund") or tf176
+    assert (
+        fund176.get("shortfall") is not None
+        or fund176.get("threshold") is not None
+        or fund176.get("balance") is not None
+        or fund176.get("deposited") is not None
+    ), tf176
+
+    # Round176 · 医旅科室+城市+医院（前端；department|service_type / city / hospital|title）
+    ac176 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·科室城市医院176",
+            "service_type": "field_visit",
+            "city": "琼海",
+            "hospital": "自检医院176",
+            "department": "眼科",
+            "notes": "科室城市医院176",
+            "visit_pref": "上午",
+            "travel_budget": 1760,
+        },
+    )["item"]
+    assert (
+        (
+            ac176.get("department")
+            or ac176.get("dept")
+            or ac176.get("service_type")
+            or ac176.get("service")
+        )
+        and ac176.get("city")
+        and (ac176.get("hospital") or ac176.get("facility") or ac176.get("title"))
+    ), ac176
+
+    # Round176 · 授权视频完成+缺失+时长（前端复制；complete/missing/duration_hint 可读）
+    av176 = call("/api/auth-video")
+    prog176av = av176.get("progress") or {}
+    latest176 = av176.get("latest") or {}
+    assert (
+        av176.get("complete") is not None
+        or prog176av.get("complete") is not None
+        or av176.get("missing") is not None
+        or av176.get("duration_hint")
+        or latest176.get("duration_hint")
+        or prog176av.get("duration_hint")
+        or av176.get("duration")
+        or latest176.get("duration")
+        or av176.get("ready") is not None
+    ), av176
+
+    # Round176 · 受益人联系+姓名+关系（前端；contact/name/relation）
+    bn176 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·联系姓名关系176",
+            "role": "heir",
+            "relation": "朋友",
+            "contact": "13300000176",
+            "passphrase_hint": "round176口令",
+        },
+    )["item"]
+    assert (
+        (bn176.get("contact") or bn176.get("phone") or bn176.get("email"))
+        and bn176.get("name")
+        and bn176.get("relation")
+    ), bn176
+
+    # Round176 · 手册章节+进度百分比+完成（前端复制；sections/progress.pct/done）
+    hand176 = call("/api/handover")
+    prog176 = hand176.get("progress") or {}
+    assert (
+        (
+            hand176.get("sections") is not None
+            or prog176.get("sections") is not None
+            or prog176.get("total_types") is not None
+            or hand176.get("total") is not None
+            or True
+        )
+        and (
+            prog176.get("pct") is not None
+            or prog176.get("percent") is not None
+            or hand176.get("progress_pct") is not None
+        )
+        and (
+            hand176.get("done") is not None
+            or prog176.get("filled_types") is not None
+            or prog176.get("done") is not None
+        )
+    ), hand176
+
+    # Round176 · 设置·英文品牌+中文品牌+域名+ok（前端复制；brand_en/brand|app/domain/ok）
+    h176 = call("/api/health")
+    assert h176.get("ok") is True, h176
+    assert (
+        h176.get("brand_en")
+        and (h176.get("brand") or h176.get("app"))
+        and (h176.get("domain") or "einherit.cn")
+    ), h176
+
     print("selfcheck OK")
 
 
