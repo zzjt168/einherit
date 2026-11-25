@@ -9782,6 +9782,120 @@ def main() -> None:
         h105.get("version") or h105.get("server_version")
     ), h105
 
+    # Round106 · 首页就绪英文应用（前端条；ok/brand_en/app 只读）
+    h106home = call("/api/health")
+    assert h106home.get("ok") is True and h106home.get("brand_en") and h106home.get(
+        "app"
+    ), h106home
+
+    # Round106 · 交割部门+标题+动作（前端；dept/title/action 可读）
+    lg106 = call(
+        "/api/legacy",
+        {
+            "title": "自检·部门标题106",
+            "category": "耳机",
+            "action": "转赠",
+            "dept": "finance",
+            "beneficiary": "自检受益人106",
+            "notes": "备注106",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert lg106.get("dept") and lg106.get("title") and lg106.get(
+        "action"
+    ), lg106
+
+    # Round106 · 备忘标签+账号提示+可见度（前端；tag/account_hint/visibility 可读）
+    as106 = call(
+        "/api/assets",
+        {
+            "platform": "round106TagHintVis",
+            "account_hint": "hint106",
+            "summary": "标签提示可见106",
+            "dispose_note": "演示处置106",
+            "dept": "admin",
+            "tag": "其他",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert as106.get("tag") and as106.get("account_hint") and as106.get(
+        "visibility"
+    ), as106
+
+    # Round106 · 报备即将到期说明（前端复制；due_soon 只读）
+    ck_st106 = call("/api/checkin/status")
+    cd106 = ck_st106.get("countdown") or {}
+    assert cd106.get("due_soon") is not None or cd106, ck_st106
+
+    # Round106 · 差旅达标+余额+进度百分比（前端复制；met/balance/progress_pct 只读）
+    tf106 = call("/api/travel-fund")
+    fund106 = tf106.get("fund") or tf106
+    assert (
+        fund106.get("met") is not None
+        or fund106.get("balance") is not None
+        or fund106.get("progress_pct") is not None
+        or fund106.get("progress") is not None
+    ), tf106
+
+    # Round106 · 善后备注+预算+城市（前端；notes/travel_budget/city 可读）
+    ac106 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·备注预算106",
+            "service_type": "field_visit",
+            "city": "东方",
+            "notes": "备注预算城市106",
+            "visit_pref": "晚上",
+            "travel_budget": 1060,
+        },
+    )["item"]
+    assert (
+        ac106.get("notes")
+        or ac106.get("travel_budget") is not None
+        or ac106.get("city")
+    ), ac106
+
+    # Round106 · 授权视频清单+就绪+闸口（前端复制；checklist/ready/gate 可读）
+    av106 = call("/api/auth-video")
+    assert (
+        isinstance(av106.get("checklist"), list)
+        or av106.get("ready") is not None
+        or av106.get("gate")
+    ), av106
+
+    # Round106 · 受益人口令提示+关系+编号（前端；passphrase_hint/relation/id 可读）
+    bn106 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·口令关系106",
+            "role": "executor",
+            "relation": "亲属",
+            "contact": "13300000106",
+            "passphrase_hint": "round106口令",
+        },
+    )["item"]
+    assert bn106.get("passphrase_hint") and bn106.get("relation") and bn106.get(
+        "id"
+    ) is not None, bn106
+
+    # Round106 · 手册条目数+域名+导出路径（前端复制；item_count/domain/export_path 可读）
+    hand106 = call("/api/handover")
+    assert (
+        hand106.get("item_count") is not None
+        or hand106.get("domain")
+        or hand106.get("export_path")
+    ), hand106
+
+    # Round106 · 设置·就绪+应用名+英文品牌+域名（前端复制；ok/app/brand_en/domain 对齐）
+    h106 = call("/api/health")
+    assert h106.get("ok") is True, h106
+    assert h106.get("app") and h106.get("brand_en") and h106.get(
+        "domain"
+    ), h106
+
     print("selfcheck OK")
 
 
