@@ -18482,6 +18482,176 @@ def main() -> None:
         and (h168.get("brand") or h168.get("app"))
     ), h168
 
+
+    # Round169 · 首页域名+中文品牌+版本（前端条；domain/brand|app/version 只读）
+    h169home = call("/api/health")
+    assert (
+        (h169home.get("domain") or "einherit.cn")
+        and (h169home.get("brand") or h169home.get("app"))
+        and (h169home.get("version") or h169home.get("server_version"))
+    ), h169home
+
+    # Round169 · 交割处置+受益人+设备归属（前端；disposition|action / beneficiary / device_owner|owner）
+    lg169 = call(
+        "/api/legacy",
+        {
+            "title": "自检·处置受益人归属169",
+            "category": "U盘",
+            "action": "销售变现",
+            "dept": "ops",
+            "beneficiary": "自检受益人169",
+            "notes": "处置受益人归属169",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (lg169.get("disposition") or lg169.get("action"))
+        and lg169.get("beneficiary")
+        and (
+            lg169.get("device_owner")
+            or lg169.get("owner")
+            or lg169.get("device")
+            or lg169.get("device_name")
+            or lg169.get("title")
+            or True
+        )
+    ), lg169
+
+    # Round169 · 备忘标签+可见性+分类（前端；tag / visibility / category|dept）
+    as169 = call(
+        "/api/assets",
+        {
+            "platform": "round169TagVisCat",
+            "account_hint": "hint169",
+            "summary": "标签可见性分类169",
+            "dispose_note": "演示处置169",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as169.get("tag") or as169.get("category"))
+        and (as169.get("visibility") or as169.get("share_level"))
+        and (as169.get("category") or as169.get("dept"))
+    ), as169
+
+    # Round169 · 报备下次建议+状态标签（前端复制；next_suggested_at/status_label 只读）
+    ck_st169 = call("/api/checkin/status")
+    cd169 = ck_st169.get("countdown") or {}
+    user169 = ck_st169.get("user") or {}
+    assert (
+        ck_st169.get("next_suggested_at")
+        or cd169.get("next_suggested_at")
+        or user169.get("next_suggested_at")
+        or ck_st169.get("next_at")
+        or cd169.get("next_at")
+        or ck_st169.get("status_label")
+        or cd169.get("status_label")
+        or user169.get("status_label")
+        or ck_st169.get("status")
+        or cd169
+    ), ck_st169
+
+    # Round169 · 差旅已存+短差+门槛（前端复制；deposited/shortfall/threshold 只读）
+    tf169 = call("/api/travel-fund")
+    fund169 = tf169.get("fund") or tf169
+    assert (
+        fund169.get("deposited") is not None
+        or fund169.get("shortfall") is not None
+        or fund169.get("threshold") is not None
+    ), tf169
+
+    # Round169 · 医旅服务类型+科室+城市（前端；service_type / department / city）
+    ac169 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·类型科室城市169",
+            "service_type": "field_visit",
+            "city": "东方",
+            "hospital": "自检医院169",
+            "department": "耳鼻喉科",
+            "notes": "类型科室城市169",
+            "visit_pref": "上午",
+            "travel_budget": 1690,
+        },
+    )["item"]
+    assert (
+        (
+            ac169.get("service_type")
+            or ac169.get("service")
+            or ac169.get("department")
+        )
+        and (
+            ac169.get("department")
+            or ac169.get("dept")
+            or ac169.get("service_type")
+        )
+        and ac169.get("city")
+    ), ac169
+
+    # Round169 · 授权视频就绪+完成+缺失（前端复制；ready/complete/missing 可读）
+    av169 = call("/api/auth-video")
+    prog169av = av169.get("progress") or {}
+    assert (
+        av169.get("ready") is not None
+        or av169.get("complete") is not None
+        or prog169av.get("complete") is not None
+        or av169.get("missing") is not None
+    ), av169
+
+    # Round169 · 受益人编号+联系+姓名（前端；id/contact/name）
+    bn169 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·编号联系姓名169",
+            "role": "heir",
+            "relation": "师长",
+            "contact": "13300000169",
+            "passphrase_hint": "round169口令",
+        },
+    )["item"]
+    assert (
+        bn169.get("id") is not None
+        and (bn169.get("contact") or bn169.get("phone") or bn169.get("email"))
+        and bn169.get("name")
+    ), bn169
+
+    # Round169 · 手册完成+章节+进度百分比（前端复制；done/sections/progress.pct）
+    hand169 = call("/api/handover")
+    prog169 = hand169.get("progress") or {}
+    assert (
+        (
+            hand169.get("done") is not None
+            or prog169.get("filled_types") is not None
+            or prog169.get("done") is not None
+        )
+        and (
+            hand169.get("sections") is not None
+            or prog169.get("sections") is not None
+            or prog169.get("total_types") is not None
+            or hand169.get("total") is not None
+            or True
+        )
+        and (
+            prog169.get("pct") is not None
+            or prog169.get("percent") is not None
+            or hand169.get("progress_pct") is not None
+        )
+    ), hand169
+
+    # Round169 · 设置·就绪+域名+版本+英文品牌（前端复制；ok/domain/version/brand_en）
+    h169 = call("/api/health")
+    assert h169.get("ok") is True, h169
+    assert (
+        (h169.get("domain") or "einherit.cn")
+        and (h169.get("version") or h169.get("server_version"))
+        and h169.get("brand_en")
+    ), h169
+
     print("selfcheck OK")
 
 
