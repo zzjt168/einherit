@@ -2620,6 +2620,89 @@ def main() -> None:
     assert h30.get("ok") is True, h30
     assert h30.get("domain") == "einherit.cn", h30
 
+    # Round31 · 首页备忘条数（前端条；counts.assets 可读）
+    summary31 = call("/api/counts-summary")
+    assert "counts" in summary31, summary31
+    assert summary31["counts"].get("assets") is not None, summary31
+
+    # Round31 · 交割处置复制（前端；action 可读）
+    lg31 = call(
+        "/api/legacy",
+        {
+            "title": "自检·处置复制",
+            "category": "其他",
+            "action": "变现",
+        },
+    )["item"]
+    assert str(lg31.get("action") or "") == "变现", lg31
+
+    # Round31 · 备忘复习日筛选（前端；review_at 可写）
+    as31 = call(
+        "/api/assets",
+        {
+            "platform": "round31Review",
+            "summary": "复习筛",
+            "dept": "admin",
+            "dispose_note": "销毁",
+            "draft": True,
+        },
+    )["item"]
+    today31 = time.strftime("%Y-%m-%d")
+    seen31 = call(
+        "/api/assets/review-at",
+        {"id": as31["id"], "review_at": today31},
+    )
+    assert "item" in seen31, seen31
+
+    # Round31 · 报备会员状态（前端复制；is_member 可读）
+    ck_st31 = call("/api/checkin/status")
+    assert "user" in ck_st31, ck_st31
+    assert "is_member" in ck_st31["user"], ck_st31
+
+    # Round31 · 差旅最近流水摘要（前端；ledger 可读）
+    tf31 = call("/api/travel-fund")
+    assert isinstance(tf31.get("ledger"), list) or "fund" in tf31, tf31
+
+    # Round31 · 善后备注筛选（前端；notes 可空）
+    ac31 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·备注筛31",
+            "service_type": "delete_data",
+            "city": "三亚",
+            "travel_budget": 450,
+            "notes": "round31 有备注",
+        },
+    )["item"]
+    assert "round31" in str(ac31.get("notes") or ""), ac31
+
+    # Round31 · 授权视频历史上传条数（前端；items 可读）
+    av31 = call("/api/auth-video")
+    assert isinstance(av31.get("items"), list), av31
+
+    # Round31 · 受益人联系复制（前端；contact 可读）
+    bn31 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·联系复制",
+            "role": "heir",
+            "relation": "演示",
+            "contact": "13500000031",
+        },
+    )["item"]
+    assert str(bn31.get("contact") or "").endswith("31"), bn31
+
+    # Round31 · 手册品牌域名（前端复制；brand/domain 可读）
+    hand31 = call("/api/handover")
+    assert hand31.get("brand") or hand31.get("domain"), hand31
+
+    # Round31 · 设置·隐私页路径（前端复制；privacy 可取）
+    with urllib.request.urlopen(BASE + "/privacy.html", timeout=5) as r:
+        assert r.status == 200, r.status
+    h31 = call("/api/health")
+    assert h31.get("ok") is True, h31
+    assert h31.get("domain") == "einherit.cn", h31
+
     print("selfcheck OK")
 
 

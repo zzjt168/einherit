@@ -3273,3 +3273,83 @@ body.privacy-mode .privacy-hint { opacity: 0.85; }
   font-weight: 600;
   color: var(--sage-deep, #2f5d45);
 }
+
+/* Round31 · 温和增量 */
+.home-assets-count-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 10px 0 12px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: linear-gradient(160deg, #f4f7f5 0%, #fff 75%);
+  border: 1px solid var(--line, #e2e8e4);
+}
+.home-assets-count-bar[hidden] {
+  display: none;
+}
+.home-as-mark {
+  font-weight: 600;
+  color: var(--sage-deep, #2f5d45);
+  font-size: 13px;
+}
+.home-as-sub {
+  flex: 1;
+  min-width: 8em;
+  font-size: 12px;
+}
+.lg-copy-action {
+  margin-top: 8px;
+  margin-left: 6px;
+}
+.as-review-chips {
+  margin: 8px 0 10px;
+}
+.checkin-member-copy {
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #f5f8f6;
+}
+.checkin-member-copy-line {
+  margin: 0 0 8px;
+}
+.travel-ledger-copy {
+  margin: 8px 0 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #f5f8f6;
+}
+.travel-ledger-copy-line {
+  margin: 0 0 8px;
+}
+.ac-notes-chips {
+  margin: 8px 0 10px;
+}
+.av-history-count {
+  margin: 6px 0 10px;
+  font-size: 12px;
+}
+.bn-copy-contact {
+  margin-top: 8px;
+  margin-left: 6px;
+}
+.hand-brand-copy {
+  margin: 8px 0 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #f5f8f6;
+}
+.hand-brand-copy-line {
+  margin: 0 0 8px;
+}
+.privacy-path-copy-card .privacy-path-copy-preview {
+  margin: 8px 0 10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: #f5f8f6;
+  word-break: break-word;
+  font-weight: 600;
+  color: var(--sage-deep, #2f5d45);
+}
