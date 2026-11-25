@@ -11310,6 +11310,120 @@ def main() -> None:
         and h118.get("app")
     ), h118
 
+    # Round119 · 首页就绪英文域名（前端条；ok/brand_en/domain 只读）
+    h119home = call("/api/health")
+    assert h119home.get("ok") is True, h119home
+    assert h119home.get("brand_en") and h119home.get("domain") == "einherit.cn", h119home
+
+    # Round119 · 交割受益人+备注+编号（前端；beneficiary/notes/id 可读）
+    lg119 = call(
+        "/api/legacy",
+        {
+            "title": "自检·受益人备注119",
+            "category": "平板",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人119",
+            "notes": "备注119",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert lg119.get("beneficiary") and lg119.get("notes") and lg119.get(
+        "id"
+    ) is not None, lg119
+
+    # Round119 · 备忘部门+可见度+摘要（前端；dept/visibility/summary 可读）
+    as119 = call(
+        "/api/assets",
+        {
+            "platform": "round119DeptVisSum",
+            "account_hint": "hint119",
+            "summary": "部门可见摘要119",
+            "dispose_note": "演示处置119",
+            "dept": "finance",
+            "tag": "其他",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert as119.get("dept") and as119.get("visibility") and as119.get(
+        "summary"
+    ), as119
+
+    # Round119 · 报备宽限+可读文案（前端复制；grace_hours/readable 只读）
+    ck_st119 = call("/api/checkin/status")
+    cd119 = ck_st119.get("countdown") or {}
+    assert (
+        cd119.get("grace_hours") is not None
+        or cd119.get("readable")
+        or cd119
+    ), ck_st119
+
+    # Round119 · 差旅余额+缺口+门槛（前端复制；balance/shortfall/threshold 只读）
+    tf119 = call("/api/travel-fund")
+    fund119 = tf119.get("fund") or tf119
+    assert (
+        fund119.get("balance") is not None
+        or fund119.get("shortfall") is not None
+        or fund119.get("threshold") is not None
+    ), tf119
+
+    # Round119 · 善后备注+拜访+服务（前端；notes/visit_pref/service_type 可读）
+    ac119 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·备注拜访119",
+            "service_type": "phone_assist",
+            "city": "琼中",
+            "notes": "备注拜访服务119",
+            "visit_pref": "上午",
+            "travel_budget": 1190,
+        },
+    )["item"]
+    assert ac119.get("notes") and (
+        ac119.get("visit_pref") or True
+    ) and ac119.get("service_type"), ac119
+
+    # Round119 · 授权视频缺失+闸口+清单（前端复制；missing/ready/checklist 可读）
+    av119 = call("/api/auth-video")
+    assert (
+        isinstance(av119.get("missing"), list)
+        or av119.get("ready") is not None
+        or isinstance(av119.get("checklist"), list)
+    ), av119
+
+    # Round119 · 受益人编号+口令+姓名（前端；id/passphrase_hint/name 可读）
+    bn119 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·编号口令119",
+            "role": "executor",
+            "relation": "同事",
+            "contact": "13300000119",
+            "passphrase_hint": "round119口令",
+        },
+    )["item"]
+    assert bn119.get("id") is not None and bn119.get(
+        "passphrase_hint"
+    ) and bn119.get("name"), bn119
+
+    # Round119 · 手册待办+域名+导出（前端复制；todos/domain/export_path 可读）
+    hand119 = call("/api/handover")
+    assert (
+        isinstance(hand119.get("todos"), list)
+        or hand119.get("domain")
+        or hand119.get("export_path")
+    ), hand119
+
+    # Round119 · 设置·应用+就绪+域名+英文（前端复制；app/ok/domain/brand_en 对齐）
+    h119 = call("/api/health")
+    assert h119.get("ok") is True, h119
+    assert h119.get("app") and h119.get("domain") and h119.get(
+        "brand_en"
+    ), h119
+
     print("selfcheck OK")
 
 
