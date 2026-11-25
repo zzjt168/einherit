@@ -8584,6 +8584,109 @@ def main() -> None:
         "app"
     ) and h94.get("domain") == "einherit.cn", h94
 
+    # Round95 · 首页就绪版本（前端条；ok/version 只读）
+    h95home = call("/api/health")
+    assert h95home.get("ok") is True and (
+        h95home.get("version") or h95home.get("server_version")
+    ), h95home
+
+    # Round95 · 交割受益人+部门+备注（前端；beneficiary/dept/notes 可读）
+    lg95 = call(
+        "/api/legacy",
+        {
+            "title": "自检·受益部门95",
+            "category": "耳机",
+            "action": "转赠",
+            "dept": "finance",
+            "beneficiary": "自检受益人95",
+            "notes": "备注95",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert lg95.get("dept") and (
+        lg95.get("beneficiary") or lg95.get("notes")
+    ), lg95
+
+    # Round95 · 备忘编号+标签+提示（前端；id/tag/account_hint 可读）
+    as95 = call(
+        "/api/assets",
+        {
+            "platform": "round95IdTagHint",
+            "account_hint": "hint95",
+            "summary": "编号标签提示95",
+            "dispose_note": "演示处置95",
+            "dept": "admin",
+            "tag": "其他",
+            "visibility": "private",
+            "draft": True,
+        },
+    )["item"]
+    assert as95.get("id") is not None and as95.get("tag") and as95.get(
+        "account_hint"
+    ), as95
+
+    # Round95 · 报备倒计时标签（前端复制；countdown_label 只读）
+    ck_st95 = call("/api/checkin/status")
+    cd95 = ck_st95.get("countdown") or {}
+    assert cd95.get("countdown_label") or cd95, ck_st95
+
+    # Round95 · 差旅进度百分比与达标（前端复制；progress_pct/met 只读）
+    tf95 = call("/api/travel-fund")
+    fund95 = tf95.get("fund") or tf95
+    assert fund95.get("progress_pct") is not None or fund95.get(
+        "met"
+    ) is not None, tf95
+
+    # Round95 · 善后阶段+预算+状态（前端；phase/travel_budget/status 可读）
+    ac95 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·阶段预算95",
+            "service_type": "field_visit",
+            "city": "乐东",
+            "notes": "阶段预算状态95",
+            "visit_pref": "傍晚",
+            "travel_budget": 950,
+        },
+    )["item"]
+    assert (
+        ac95.get("phase")
+        or ac95.get("travel_budget") is not None
+        or ac95.get("status")
+    ), ac95
+
+    # Round95 · 授权视频缺失文案+完成（前端复制；missing_text/complete 可读）
+    av95 = call("/api/auth-video")
+    assert av95.get("missing_text") or av95.get("complete") is not None, av95
+
+    # Round95 · 受益人姓名+联系+口令（前端；name/contact/passphrase_hint 可读）
+    bn95 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·姓名联系95",
+            "role": "executor",
+            "relation": "亲戚",
+            "contact": "13300000095",
+            "passphrase_hint": "round95口令",
+        },
+    )["item"]
+    assert bn95.get("name") and bn95.get("contact") and bn95.get(
+        "passphrase_hint"
+    ), bn95
+
+    # Round95 · 手册生成时间与分享提示（前端复制；generated_at/share_hint 可读）
+    hand95 = call("/api/handover")
+    assert hand95.get("generated_at") is not None or hand95.get(
+        "share_hint"
+    ), hand95
+
+    # Round95 · 设置·英文品牌+应用名+就绪（前端复制；brand_en/app/ok 对齐）
+    h95 = call("/api/health")
+    assert h95.get("ok") is True, h95
+    assert h95.get("brand_en") and h95.get("app"), h95
+
     print("selfcheck OK")
 
 
