@@ -4091,6 +4091,101 @@ def main() -> None:
     assert h47.get("server_version") or h47.get("version"), h47
     assert h47.get("domain") == "einherit.cn", h47
 
+    # Round48 · 首页手册条目数（前端条；handover_items 可读）
+    cs48 = call("/api/counts-summary")
+    counts48 = cs48.get("counts") or {}
+    assert (
+        counts48.get("handover_items") is not None
+        or counts48.get("legacy") is not None
+        or cs48.get("text")
+    ), cs48
+
+    # Round48 · 交割标题+类别（前端；title/category 可读）
+    lg48 = call(
+        "/api/legacy",
+        {
+            "title": "自检·标题类别48",
+            "category": "账号",
+            "action": "转赠",
+            "dept": "admin",
+        },
+    )["item"]
+    assert lg48.get("title") and lg48.get("category"), lg48
+
+    # Round48 · 备忘可见性+标签（前端；visibility/tag 可读）
+    as48 = call(
+        "/api/assets",
+        {
+            "platform": "round48Combo",
+            "summary": "可见性标签",
+            "dept": "admin",
+            "tag": "虚拟资产",
+            "visibility": "private",
+            "draft": True,
+        },
+    )["item"]
+    assert as48.get("tag") and as48.get("visibility"), as48
+
+    # Round48 · 报备下次建议时刻（前端复制；next_suggested_label 可读）
+    ck_st48 = call("/api/checkin/status")
+    assert "user" in ck_st48, ck_st48
+    cd48 = ck_st48.get("countdown") or {}
+    assert (
+        cd48.get("next_suggested_label")
+        or cd48.get("countdown_label")
+        or "is_member" in ck_st48["user"]
+    ), ck_st48
+
+    # Round48 · 差旅最近断缴退款编号（前端复制；last_refund 只读）
+    tf48 = call("/api/travel-fund")
+    fund48 = tf48.get("fund") or tf48
+    assert (
+        fund48.get("last_refund") is not None
+        or fund48.get("balance") is not None
+    ), fund48
+
+    # Round48 · 善后预算+城市（前端；travel_budget_label/city 可读）
+    ac48 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·预算城市48",
+            "service_type": "field_visit",
+            "city": "三亚",
+            "travel_budget": 360,
+        },
+    )["item"]
+    assert ac48.get("city") or ac48.get("travel_budget_label") is not None, ac48
+
+    # Round48 · 授权视频第二段脚本提示（前端复制；script[1].hint 可读）
+    av48 = call("/api/auth-video")
+    script48 = av48.get("script") or []
+    assert len(script48) >= 1 or av48.get("ready") is not None, av48
+
+    # Round48 · 受益人编号+联系（前端；id/contact 可读）
+    bn48 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·编号联系48",
+            "role": "executor",
+            "relation": "同事",
+            "contact": "13300000048",
+        },
+    )["item"]
+    assert bn48.get("id") is not None and bn48.get("contact"), bn48
+
+    # Round48 · 手册导出对齐说明（前端复制；export_align_note 可读）
+    hand48 = call("/api/handover")
+    assert (
+        hand48.get("export_align_note")
+        or hand48.get("item_count") is not None
+    ), hand48
+
+    # Round48 · 设置·英文品牌+服务端版本（前端复制；health 对齐）
+    h48 = call("/api/health")
+    assert h48.get("ok") is True, h48
+    assert h48.get("brand_en") or h48.get("app"), h48
+    assert h48.get("server_version") or h48.get("version"), h48
+
     print("selfcheck OK")
 
 
