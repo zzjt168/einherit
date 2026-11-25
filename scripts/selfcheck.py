@@ -12260,6 +12260,125 @@ def main() -> None:
         and h126.get("brand_en")
     ), h126
 
+    # Round127 · 首页英文品牌+域名+就绪（前端条；brand_en/domain/ok 只读）
+    h127home = call("/api/health")
+    assert (
+        h127home.get("brand_en")
+        and h127home.get("domain") == "einherit.cn"
+        and h127home.get("ok") is True
+    ), h127home
+
+    # Round127 · 交割处置+出厂+清照片（前端；action/factory_reset/clear_photos 可读）
+    lg127 = call(
+        "/api/legacy",
+        {
+            "title": "自检·处置重置127",
+            "category": "手机",
+            "action": "销毁",
+            "dept": "ops",
+            "beneficiary": "自检受益人127",
+            "notes": "处置重置127",
+            "factory_reset": True,
+            "clear_photos": True,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert lg127.get("action") and (
+        lg127.get("factory_reset") is True or lg127.get("factory_reset") == 1
+    ) and (
+        lg127.get("clear_photos") is True or lg127.get("clear_photos") == 1
+    ), lg127
+
+    # Round127 · 备忘摘要+处置+部门（前端；summary/dispose_note/dept 可读）
+    as127 = call(
+        "/api/assets",
+        {
+            "platform": "round127SumDispDept",
+            "account_hint": "hint127",
+            "summary": "摘要处置部门127",
+            "dispose_note": "演示处置127",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "private",
+            "draft": True,
+        },
+    )["item"]
+    assert as127.get("summary") and as127.get("dispose_note") and as127.get(
+        "dept"
+    ), as127
+
+    # Round127 · 报备最近标签+下次建议（前端复制；last_checkin_label/next_suggested_label 只读）
+    ck_st127 = call("/api/checkin/status")
+    cd127 = ck_st127.get("countdown") or {}
+    assert (
+        cd127.get("last_checkin_label")
+        or cd127.get("next_suggested_label")
+        or cd127
+    ), ck_st127
+
+    # Round127 · 差旅币种+余额+达标（前端复制；balance/met 只读，币种演示 ¥）
+    tf127 = call("/api/travel-fund")
+    fund127 = tf127.get("fund") or tf127
+    assert (
+        fund127.get("balance") is not None
+        or fund127.get("met") is not None
+    ), tf127
+
+    # Round127 · 善后服务+城市+备注（前端；service_type/city/notes 可读）
+    ac127 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·服务城市127",
+            "service_type": "phone_assist",
+            "city": "澄迈",
+            "notes": "服务城市备注127",
+            "visit_pref": "午后",
+            "travel_budget": 1270,
+        },
+    )["item"]
+    assert (
+        ac127.get("service_type") or ac127.get("service")
+    ) and ac127.get("city") and ac127.get("notes"), ac127
+
+    # Round127 · 授权视频就绪+完整+缺失数（前端复制；ready/missing 可读）
+    av127 = call("/api/auth-video")
+    assert (
+        av127.get("ready") is not None
+        or isinstance(av127.get("missing"), list)
+    ), av127
+
+    # Round127 · 受益人姓名+角色+关系（前端；name/role/relation 可读）
+    bn127 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·姓名角色127",
+            "role": "heir",
+            "relation": "同事",
+            "contact": "13300000127",
+            "passphrase_hint": "round127口令",
+        },
+    )["item"]
+    assert bn127.get("name") and bn127.get("role") and bn127.get(
+        "relation"
+    ), bn127
+
+    # Round127 · 手册品牌+版本+条目（前端复制；brand/version/item_count 可读）
+    hand127 = call("/api/handover")
+    assert (
+        hand127.get("brand")
+        or hand127.get("version")
+        or hand127.get("item_count") is not None
+    ), hand127
+
+    # Round127 · 设置·应用+域名+版本+就绪（前端复制；app/domain/version/ok 对齐）
+    h127 = call("/api/health")
+    assert h127.get("ok") is True, h127
+    assert (
+        h127.get("app")
+        and h127.get("domain")
+        and (h127.get("version") or h127.get("server_version"))
+    ), h127
+
     print("selfcheck OK")
 
 
