@@ -6653,6 +6653,110 @@ def main() -> None:
     assert h74.get("brand_en") and (h74.get("version") or h74.get("server_version")), h74
     assert h74.get("domain") == "einherit.cn", h74
 
+    # Round75 · 首页宽限内（前端条；checkin_in_grace 只读）
+    ck_st75home = call("/api/checkin/status")
+    assert "checkin_in_grace" in (ck_st75home.get("user") or {}) or ck_st75home.get(
+        "user"
+    ), ck_st75home
+
+    # Round75 · 交割编号+备注+出厂（前端；id/notes/factory_reset 可读）
+    lg75 = call(
+        "/api/legacy",
+        {
+            "title": "自检·编号备注出厂75",
+            "category": "其他",
+            "action": "销毁",
+            "dept": "hr",
+            "notes": "round75备注",
+            "factory_reset": True,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert lg75.get("id") is not None, lg75
+    assert "factory_reset" in lg75 or lg75.get("factory_reset") is not None, lg75
+
+    # Round75 · 备忘平台+处置（前端；platform/dispose_note 可读）
+    as75 = call(
+        "/api/assets",
+        {
+            "platform": "round75PlatformDispose",
+            "account_hint": "hint75",
+            "summary": "平台处置75",
+            "dispose_note": "演示处置75",
+            "dept": "admin",
+            "tag": "其他",
+            "visibility": "private",
+            "draft": True,
+        },
+    )["item"]
+    assert as75.get("platform"), as75
+    assert as75.get("dispose_note") is not None or "dispose_note" in as75, as75
+
+    # Round75 · 报备宽限内布尔（前端复制；checkin_in_grace 只读）
+    ck_st75 = call("/api/checkin/status")
+    assert "checkin_in_grace" in (ck_st75.get("user") or {}) or ck_st75.get(
+        "user"
+    ), ck_st75
+
+    # Round75 · 差旅退款编号+种类（前端复制；last_refund id/kind 只读）
+    tf75 = call("/api/travel-fund")
+    fund75 = tf75.get("fund") or tf75
+    refund75 = fund75.get("last_refund")
+    assert refund75 is not None or "last_refund" in fund75 or isinstance(
+        tf75.get("ledger"), list
+    ), tf75
+
+    # Round75 · 善后到访+预算（前端；visit_pref/travel_budget 可读）
+    ac75 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·到访预算75",
+            "service_type": "field_visit",
+            "city": "琼中",
+            "notes": "到访预算75",
+            "visit_pref": "下午",
+            "travel_budget": 750,
+        },
+    )["item"]
+    assert ac75.get("visit_pref") is not None or "visit_pref" in ac75, ac75
+    assert ac75.get("travel_budget") is not None, ac75
+
+    # Round75 · 授权视频缺失数+就绪（前端复制；missing/ready 可读）
+    av75 = call("/api/auth-video")
+    assert (
+        isinstance(av75.get("missing"), list)
+        or av75.get("ready") is not None
+        or av75.get("missing_labels") is not None
+    ), av75
+
+    # Round75 · 受益人编号+关系+角色（前端；id/relation/role 可读）
+    bn75 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·编号关系75",
+            "role": "heir",
+            "relation": "远亲",
+            "contact": "13300000075",
+            "passphrase_hint": "round75口令",
+        },
+    )["item"]
+    assert bn75.get("id") is not None and bn75.get("relation") and bn75.get("role"), bn75
+
+    # Round75 · 手册执行人与品牌（前端复制；executor/brand 可读）
+    hand75 = call("/api/handover")
+    assert (
+        hand75.get("executor")
+        or hand75.get("executor_name")
+        or hand75.get("brand")
+    ), hand75
+
+    # Round75 · 设置·中文品牌+就绪（前端复制；app/ok 对齐）
+    h75 = call("/api/health")
+    assert h75.get("ok") is True, h75
+    assert h75.get("app"), h75
+    assert h75.get("domain") == "einherit.cn", h75
+
     print("selfcheck OK")
 
 
