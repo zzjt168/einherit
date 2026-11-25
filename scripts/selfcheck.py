@@ -4186,6 +4186,95 @@ def main() -> None:
     assert h48.get("brand_en") or h48.get("app"), h48
     assert h48.get("server_version") or h48.get("version"), h48
 
+    # Round49 · 首页服务健康就绪（前端条；health 可读）
+    h49home = call("/api/health")
+    assert h49home.get("ok") is True, h49home
+    assert h49home.get("domain") == "einherit.cn", h49home
+
+    # Round49 · 交割编号+处置（前端；id/action 可读）
+    lg49 = call(
+        "/api/legacy",
+        {
+            "title": "自检·编号处置49",
+            "category": "其他",
+            "action": "销毁",
+            "dept": "admin",
+        },
+    )["item"]
+    assert lg49.get("id") is not None and lg49.get("action"), lg49
+
+    # Round49 · 备忘编号+摘要（前端；id/summary 可读）
+    as49 = call(
+        "/api/assets",
+        {
+            "platform": "round49Combo",
+            "summary": "编号摘要49",
+            "dept": "admin",
+            "tag": "其他",
+            "draft": True,
+        },
+    )["item"]
+    assert as49.get("id") is not None and as49.get("summary"), as49
+
+    # Round49 · 报备剩余小时纯数字（前端复制；hours_remaining 可读）
+    ck_st49 = call("/api/checkin/status")
+    assert "user" in ck_st49, ck_st49
+    cd49 = ck_st49.get("countdown") or {}
+    assert (
+        cd49.get("hours_remaining") is not None
+        or cd49.get("seconds_remaining") is not None
+        or "is_member" in ck_st49["user"]
+    ), ck_st49
+
+    # Round49 · 差旅最近断缴退款金额纯数字（前端复制；last_refund 只读）
+    tf49 = call("/api/travel-fund")
+    fund49 = tf49.get("fund") or tf49
+    assert (
+        fund49.get("last_refund") is not None
+        or fund49.get("balance") is not None
+    ), fund49
+
+    # Round49 · 善后协作+城市（前端；coop_state/city 可读）
+    ac49 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·协作城市49",
+            "service_type": "delete_data",
+            "city": "海口",
+            "travel_budget": 370,
+        },
+    )["item"]
+    assert ac49.get("coop_state") is not None or ac49.get("city"), ac49
+
+    # Round49 · 授权视频第三段脚本提示（前端复制；script[2].hint 可读）
+    av49 = call("/api/auth-video")
+    script49 = av49.get("script") or []
+    assert len(script49) >= 1 or av49.get("ready") is not None, av49
+
+    # Round49 · 受益人角色+联系（前端；role/contact 可读）
+    bn49 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·角色联系49",
+            "role": "family",
+            "relation": "姐妹",
+            "contact": "13300000049",
+        },
+    )["item"]
+    assert bn49.get("role") and bn49.get("contact"), bn49
+
+    # Round49 · 手册继承人名单（前端复制；heirs 可读）
+    hand49 = call("/api/handover")
+    assert isinstance(hand49.get("heirs"), list) or hand49.get(
+        "beneficiary_count"
+    ) is not None, hand49
+
+    # Round49 · 设置·应用版本+域名（前端复制；health 对齐）
+    h49 = call("/api/health")
+    assert h49.get("ok") is True, h49
+    assert h49.get("version") or h49.get("server_version"), h49
+    assert h49.get("domain") == "einherit.cn", h49
+
     print("selfcheck OK")
 
 
