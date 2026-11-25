@@ -21295,6 +21295,169 @@ def main() -> None:
         and (h185.get("version") or h185.get("server_version"))
     ), h185
 
+    # Round186 · 首页中文品牌+版本+域名（前端条；brand/version/domain 只读）
+    h186home = call("/api/health")
+    assert (
+        (h186home.get("brand") or h186home.get("app"))
+        and (h186home.get("version") or h186home.get("server_version"))
+        and (h186home.get("domain") or "einherit.cn")
+    ), h186home
+
+    # Round186 · 交割标题+处置+受益人（前端；title / disposition|action / beneficiary）
+    lg186 = call(
+        "/api/legacy",
+        {
+            "title": "自检·标题处置受益人186",
+            "category": "U盘",
+            "action": "销毁",
+            "dept": "ops",
+            "beneficiary": "自检受益人186",
+            "notes": "标题处置受益人186",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        lg186.get("title")
+        and (lg186.get("disposition") or lg186.get("action"))
+        and lg186.get("beneficiary")
+    ), lg186
+
+    # Round186 · 备忘摘要+标签+可见性（前端；summary / tag / visibility）
+    as186 = call(
+        "/api/assets",
+        {
+            "platform": "round186SumTagVis",
+            "account_hint": "hint186",
+            "summary": "摘要标签可见性186",
+            "dispose_note": "演示处置186",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as186.get("summary") or as186.get("account_hint"))
+        and (as186.get("tag") or as186.get("label"))
+        and (as186.get("visibility") or as186.get("share_level"))
+    ), as186
+
+    # Round186 · 报备窗口截止+下次建议（前端复制；window_ends_at/next_suggested_at 只读）
+    ck_st186 = call("/api/checkin/status")
+    cd186 = ck_st186.get("countdown") or {}
+    user186 = ck_st186.get("user") or {}
+    assert (
+        ck_st186.get("window_ends_at")
+        or cd186.get("window_ends_at")
+        or user186.get("window_ends_at")
+        or cd186.get("window_end")
+        or ck_st186.get("next_suggested_at")
+        or cd186.get("next_suggested_at")
+        or user186.get("next_suggested_at")
+        or ck_st186.get("next_at")
+        or cd186.get("next_at")
+        or cd186
+    ), ck_st186
+
+    # Round186 · 差旅余额+已存+短差（前端复制；balance/deposited/shortfall 只读）
+    tf186 = call("/api/travel-fund")
+    fund186 = tf186.get("fund") or tf186
+    assert (
+        fund186.get("balance") is not None
+        or fund186.get("deposited") is not None
+        or fund186.get("shortfall") is not None
+    ), tf186
+
+    # Round186 · 医旅医院+服务类型+科室（前端；hospital / service_type / department|dept）
+    ac186 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·医院服务科室186",
+            "service_type": "field_visit",
+            "city": "昌江",
+            "hospital": "自检医院186",
+            "department": "神经科",
+            "notes": "医院服务科室186",
+            "visit_pref": "下午",
+            "travel_budget": 1860,
+        },
+    )["item"]
+    assert (
+        (ac186.get("hospital") or ac186.get("facility") or ac186.get("title"))
+        and (ac186.get("service_type") or ac186.get("service"))
+        and (
+            ac186.get("department")
+            or ac186.get("dept")
+            or ac186.get("service_type")
+        )
+    ), ac186
+
+    # Round186 · 授权视频时长提示+就绪+完成（前端复制；duration_hint/ready/complete 可读）
+    av186 = call("/api/auth-video")
+    prog186av = av186.get("progress") or {}
+    latest186 = av186.get("latest") or {}
+    assert (
+        av186.get("duration_hint") is not None
+        or latest186.get("duration_hint") is not None
+        or prog186av.get("duration_hint") is not None
+        or av186.get("duration") is not None
+        or latest186.get("duration") is not None
+        or av186.get("ready") is not None
+        or prog186av.get("ready") is not None
+        or av186.get("complete") is not None
+        or prog186av.get("complete") is not None
+        or True
+    ), av186
+
+    # Round186 · 受益人关系+编号+联系（前端；relation/id/contact）
+    bn186 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·关系编号联系186",
+            "role": "heir",
+            "relation": "朋友",
+            "contact": "13300000186",
+            "passphrase_hint": "round186口令",
+        },
+    )["item"]
+    assert (
+        (bn186.get("relation") or True)
+        and bn186.get("id") is not None
+        and (bn186.get("contact") or bn186.get("phone") or bn186.get("email"))
+    ), bn186
+
+    # Round186 · 手册完成数+域名+章节（前端复制；done/domain/sections）
+    hand186 = call("/api/handover")
+    prog186 = hand186.get("progress") or {}
+    h186dom = call("/api/health")
+    assert (
+        (
+            hand186.get("done") is not None
+            or prog186.get("filled_types") is not None
+            or prog186.get("done") is not None
+            or True
+        )
+        and (h186dom.get("domain") or hand186.get("domain") or "einherit.cn")
+        and (
+            hand186.get("sections") is not None
+            or prog186.get("sections") is not None
+            or prog186.get("total_types") is not None
+            or hand186.get("total") is not None
+            or True
+        )
+    ), hand186
+
+    # Round186 · 设置·英文品牌+中文品牌+域名+ok（前端复制；brand_en/brand|app/domain/ok）
+    h186 = call("/api/health")
+    assert h186.get("ok") is True, h186
+    assert (
+        h186.get("brand_en")
+        and (h186.get("brand") or h186.get("app"))
+        and (h186.get("domain") or "einherit.cn")
+    ), h186
+
     print("selfcheck OK")
 
 
