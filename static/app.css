@@ -2135,3 +2135,41 @@ body.privacy-mode .privacy-hint { opacity: 0.85; }
   line-height: 1.5;
   color: var(--ink, #2c3631);
 }
+
+/* Round18 · 温和增量 */
+.home-checkin-countdown {
+  margin: 6px 0 0;
+  font-size: 13px;
+  line-height: 1.4;
+}
+.home-travel-soft {
+  margin: 10px 16px 0;
+}
+.lg-batch-bene-bar {
+  margin: 10px 0 12px;
+}
+.ac-sort-bar {
+  margin: 8px 0 10px;
+}
+.av-hist-more {
+  margin: 8px 0 4px;
+}
+.av-hist-folded[hidden] {
+  display: none;
+}
+.hand-print-gap-chips {
+  margin-top: 10px;
+}
+.med-intent-empty-cta {
+  margin: 4px 0 8px;
+}
+.settings-copy-service-card .settings-copy-preview {
+  margin: 10px 0 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--wash, #f3f6f4);
+  font-size: 13px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
