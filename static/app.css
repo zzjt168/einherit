@@ -5022,3 +5022,91 @@ body.privacy-mode .privacy-hint { opacity: 0.85; }
   font-weight: 600;
   color: var(--sage-deep, #2f5d45);
 }
+
+
+/* Round51 · 温和增量 */
+.home-server-version-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 10px 0 12px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: linear-gradient(160deg, #f4f7f5 0%, #fff 75%);
+  border: 1px solid var(--line, #e2e8e4);
+}
+.home-server-version-bar[hidden] {
+  display: none;
+}
+.home-server-version-mark {
+  font-weight: 600;
+  color: var(--sage-deep, #2f5d45);
+  font-size: 13px;
+}
+.home-server-version-sub {
+  flex: 1;
+  min-width: 8em;
+  font-size: 12px;
+}
+.lg-copy-id-dept {
+  margin-top: 8px;
+  margin-left: 6px;
+}
+.as-copy-summary-tag {
+  margin-top: 8px;
+  margin-left: 6px;
+}
+.checkin-interval-hours-num-copy {
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #f5f8f6;
+}
+.checkin-interval-hours-num-copy-line {
+  margin: 0 0 8px;
+}
+.travel-ledger-kind-copy {
+  margin: 8px 0 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #f5f8f6;
+}
+.travel-ledger-kind-copy-line {
+  margin: 0 0 8px;
+}
+.ac-copy-id-service {
+  margin-top: 8px;
+  margin-left: 6px;
+}
+.av-script-title0-copy {
+  margin: 8px 0 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #f5f8f6;
+}
+.av-script-title0-copy-line {
+  margin: 0 0 8px;
+}
+.bn-copy-id-relation {
+  margin-top: 8px;
+  margin-left: 6px;
+}
+.hand-filled-types-num-copy {
+  margin: 8px 0 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #f5f8f6;
+}
+.hand-filled-types-num-copy-line {
+  margin: 0 0 8px;
+}
+.app-version-copy-card .app-version-copy-preview {
+  margin: 8px 0 10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: #f5f8f6;
+  word-break: break-word;
+  font-weight: 600;
+  color: var(--sage-deep, #2f5d45);
+}

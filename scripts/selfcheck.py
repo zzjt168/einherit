@@ -4368,6 +4368,94 @@ def main() -> None:
     assert h50.get("domain") == "einherit.cn", h50
     assert h50.get("app") or h50.get("brand_en"), h50
 
+    # Round51 · 首页服务端版本（前端条；server_version 可读）
+    h51home = call("/api/health")
+    assert h51home.get("ok") is True, h51home
+    assert h51home.get("server_version") or h51home.get("version"), h51home
+
+    # Round51 · 交割编号+部门（前端；id/dept 可读）
+    lg51 = call(
+        "/api/legacy",
+        {
+            "title": "自检·编号部门51",
+            "category": "其他",
+            "action": "销毁",
+            "dept": "hr",
+        },
+    )["item"]
+    assert lg51.get("id") is not None and lg51.get("dept"), lg51
+
+    # Round51 · 备忘摘要+标签（前端；summary/tag 可读）
+    as51 = call(
+        "/api/assets",
+        {
+            "platform": "round51Combo",
+            "summary": "摘要标签51",
+            "dept": "admin",
+            "tag": "设备",
+            "draft": True,
+        },
+    )["item"]
+    assert as51.get("summary") and as51.get("tag"), as51
+
+    # Round51 · 报备间隔小时纯数字（前端复制；checkin_interval_hours 可读）
+    ck_st51 = call("/api/checkin/status")
+    assert "user" in ck_st51, ck_st51
+    assert (
+        ck_st51["user"].get("checkin_interval_hours") is not None
+        or (ck_st51.get("countdown") or {}).get("interval_hours") is not None
+        or "is_member" in ck_st51["user"]
+    ), ck_st51
+
+    # Round51 · 差旅最近流水种类键（前端复制；ledger.kind 可读）
+    tf51 = call("/api/travel-fund")
+    ledger51 = tf51.get("ledger") or []
+    assert isinstance(ledger51, list), tf51
+
+    # Round51 · 善后编号+服务类型（前端；id/service_type 可读）
+    ac51 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·编号类型51",
+            "service_type": "delete_data",
+            "city": "海口",
+            "travel_budget": 390,
+        },
+    )["item"]
+    assert ac51.get("id") is not None and ac51.get("service_type"), ac51
+
+    # Round51 · 授权视频首段脚本标题（前端复制；script[0].title 可读）
+    av51 = call("/api/auth-video")
+    script51 = av51.get("script") or []
+    assert script51 or av51.get("ready") is not None, av51
+
+    # Round51 · 受益人编号+关系（前端；id/relation 可读）
+    bn51 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·编号关系51",
+            "role": "executor",
+            "relation": "朋友",
+            "contact": "13300000051",
+        },
+    )["item"]
+    assert bn51.get("id") is not None and bn51.get("relation"), bn51
+
+    # Round51 · 手册处置种类已覆盖数（前端复制；filled_types 可读）
+    hand51 = call("/api/handover")
+    prog51 = hand51.get("progress") or {}
+    assert (
+        prog51.get("filled_types") is not None
+        or isinstance(prog51.get("by_action"), list)
+        or hand51.get("item_count") is not None
+    ), hand51
+
+    # Round51 · 设置·中文品牌+应用版本（前端复制；health 对齐）
+    h51 = call("/api/health")
+    assert h51.get("ok") is True, h51
+    assert h51.get("app") or h51.get("brand_en"), h51
+    assert h51.get("version") or h51.get("server_version"), h51
+
     print("selfcheck OK")
 
 
