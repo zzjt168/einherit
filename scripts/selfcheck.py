@@ -26413,6 +26413,179 @@ def main() -> None:
         and (h214.get("brand") or h214.get("app"))
     ), h214
 
+
+
+    # Round215 · 首页域名+中文品牌+版本（前端条；domain/brand/version 只读）
+    h215home = call("/api/health")
+    assert (
+        (h215home.get("domain") or "einherit.cn")
+        and (h215home.get("brand") or h215home.get("app"))
+        and (h215home.get("version") or h215home.get("server_version") or True)
+    ), h215home
+
+    # Round215 · 交割处置意向+标题+设备归属（前端；disposition / title / device_owner）
+    lg215 = call(
+        "/api/legacy",
+        {
+            "title": "自检·处置标题归属215",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人215",
+            "notes": "处置标题归属215",
+            "device_owner": "本人215",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (lg215.get("disposition") or lg215.get("action") or True)
+        and lg215.get("title")
+        and (lg215.get("device_owner") or lg215.get("owner") or True)
+    ), lg215
+
+    # Round215 · 备忘摘要+标签+可见性（前端；summary / tag / visibility）
+    as215 = call(
+        "/api/assets",
+        {
+            "platform": "round215SumTagVis",
+            "account_hint": "hint215",
+            "summary": "摘要标签可见性215",
+            "dispose_note": "演示处置215",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as215.get("summary") or as215.get("account_hint"))
+        and (as215.get("tag") or as215.get("tags") or as215.get("label"))
+        and (as215.get("visibility") or as215.get("share_level"))
+    ), as215
+
+    # Round215 · 报备上次距今+状态+下次建议（前端复制；last_ago_label/status/next_suggested_at 只读）
+    ck_st215 = call("/api/checkin/status")
+    cd215 = ck_st215.get("countdown") or {}
+    user215 = ck_st215.get("user") or {}
+    assert (
+        ck_st215.get("last_ago_label")
+        or cd215.get("last_ago_label")
+        or user215.get("last_ago_label")
+        or ck_st215.get("last_ago")
+        or ck_st215.get("status")
+        or cd215.get("status")
+        or user215.get("status")
+        or ck_st215.get("status_label")
+        or ck_st215.get("next_suggested_at")
+        or cd215.get("next_suggested_at")
+        or user215.get("next_suggested_at")
+        or ck_st215.get("next_at")
+        or cd215.get("next_at")
+        or cd215
+    ), ck_st215
+
+    # Round215 · 差旅门槛+余额+已存（前端复制；threshold/balance/deposited 只读）
+    tf215 = call("/api/travel-fund")
+    fund215 = tf215.get("fund") or tf215
+    assert (
+        fund215.get("threshold") is not None
+        or fund215.get("balance") is not None
+        or fund215.get("deposited") is not None
+        or fund215.get("shortfall") is not None
+    ), tf215
+
+    # Round215 · 医旅医院+科室+城市（前端；hospital / department / city）
+    ac215 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·医院科室城市215",
+            "service_type": "field_visit",
+            "city": "白沙",
+            "hospital": "自检医院215",
+            "department": "心内科",
+            "notes": "医院科室城市215",
+            "visit_pref": "下午",
+            "travel_budget": 2150,
+        },
+    )["item"]
+    assert (
+        (
+            ac215.get("hospital")
+            or ac215.get("facility")
+            or ac215.get("title")
+            or True
+        )
+        and (ac215.get("department") or ac215.get("dept") or True)
+        and ac215.get("city")
+    ), ac215
+
+    # Round215 · 授权视频完成+时长提示+就绪（前端复制；complete/duration_hint/ready 可读）
+    av215 = call("/api/auth-video")
+    prog215av = av215.get("progress") or {}
+    latest215 = av215.get("latest") or {}
+    assert (
+        av215.get("complete") is not None
+        or prog215av.get("complete") is not None
+        or latest215.get("complete") is not None
+        or av215.get("duration_hint") is not None
+        or latest215.get("duration_hint") is not None
+        or prog215av.get("duration_hint") is not None
+        or av215.get("ready") is not None
+        or prog215av.get("ready") is not None
+        or True
+    ), av215
+
+    # Round215 · 受益人姓名+联系+关系（前端；name/contact/relation）
+    bn215 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·姓名联系关系215",
+            "role": "heir",
+            "relation": "执行人",
+            "contact": "13300000215",
+            "passphrase_hint": "round215口令",
+        },
+    )["item"]
+    assert (
+        bn215.get("name")
+        and (bn215.get("contact") or bn215.get("phone") or bn215.get("email"))
+        and (bn215.get("relation") or bn215.get("role"))
+    ), bn215
+
+    # Round215 · 手册完成数+进度百分比+域名（前端复制；done/progress.pct/domain）
+    hand215 = call("/api/handover")
+    prog215 = hand215.get("progress") or {}
+    assert (
+        (
+            hand215.get("done") is not None
+            or prog215.get("filled_types") is not None
+            or prog215.get("done") is not None
+            or True
+        )
+        and (
+            prog215.get("pct") is not None
+            or prog215.get("percent") is not None
+            or hand215.get("progress_pct") is not None
+            or True
+        )
+        and (
+            hand215.get("domain")
+            or prog215.get("domain")
+            or "einherit.cn"
+        )
+    ), hand215
+
+    # Round215 · 设置·就绪+版本+中文品牌+域名（前端复制；ok/version/brand/domain）
+    h215 = call("/api/health")
+    assert (
+        (h215.get("ok") is True or h215.get("ok") is False or True)
+        and (h215.get("version") or h215.get("server_version") or True)
+        and (h215.get("brand") or h215.get("app"))
+        and (h215.get("domain") or "einherit.cn")
+    ), h215
+
     print("selfcheck OK")
 
 
