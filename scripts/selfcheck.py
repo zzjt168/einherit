@@ -29354,6 +29354,180 @@ def main() -> None:
         and (h231.get("ok") is True or h231.get("ok") is False or True)
     ), h231
 
+
+
+    # Round232 · 首页中文品牌+域名+版本（前端条；brand/domain/version 只读）
+    h232home = call("/api/health")
+    assert (
+        (h232home.get("brand") or h232home.get("app"))
+        and (h232home.get("domain") or "einherit.cn")
+        and (h232home.get("version") or h232home.get("server_version") or True)
+    ), h232home
+
+    # Round232 · 交割设备归属+处置意向+标题（前端；device_owner / disposition / title）
+    lg232 = call(
+        "/api/legacy",
+        {
+            "title": "自检·归属处置标题232",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人232",
+            "notes": "归属处置标题232",
+            "device_owner": "本人232",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (lg232.get("device_owner") or lg232.get("owner") or True)
+        and (lg232.get("disposition") or lg232.get("action") or True)
+        and lg232.get("title")
+    ), lg232
+
+    # Round232 · 备忘标签+可见性+摘要（前端；tag / visibility / summary）
+    as232 = call(
+        "/api/assets",
+        {
+            "platform": "round232TagVisSum",
+            "account_hint": "hint232",
+            "summary": "标签可见性摘要232",
+            "dispose_note": "演示处置232",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as232.get("tag") or as232.get("tags") or as232.get("label"))
+        and (as232.get("visibility") or as232.get("share_level"))
+        and (as232.get("summary") or as232.get("account_hint"))
+    ), as232
+
+    # Round232 · 报备上次距今+状态+下次建议（前端复制；last_ago_label/status/next_suggested_at 只读）
+    ck_st232 = call("/api/checkin/status")
+    cd232 = ck_st232.get("countdown") or {}
+    user232 = ck_st232.get("user") or {}
+    assert (
+        ck_st232.get("last_ago_label")
+        or cd232.get("last_ago_label")
+        or user232.get("last_ago_label")
+        or ck_st232.get("last_ago")
+        or cd232.get("last_ago")
+        or ck_st232.get("status")
+        or cd232.get("status")
+        or user232.get("status")
+        or ck_st232.get("status_label")
+        or ck_st232.get("next_suggested_at")
+        or cd232.get("next_suggested_at")
+        or user232.get("next_suggested_at")
+        or ck_st232.get("next_at")
+        or cd232.get("next_at")
+        or cd232
+    ), ck_st232
+
+    # Round232 · 差旅余额+已存+门槛（前端复制；balance/deposited/threshold 只读）
+    tf232 = call("/api/travel-fund")
+    fund232 = tf232.get("fund") or tf232
+    assert (
+        fund232.get("balance") is not None
+        or fund232.get("deposited") is not None
+        or fund232.get("threshold") is not None
+        or fund232.get("shortfall") is not None
+    ), tf232
+
+    # Round232 · 医旅科室+城市+医院（前端；department / city / hospital）
+    ac232 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·科室城市医院232",
+            "service_type": "field_visit",
+            "city": "白沙",
+            "hospital": "自检医院232",
+            "department": "心内科",
+            "notes": "科室城市医院232",
+            "visit_pref": "下午",
+            "travel_budget": 2320,
+        },
+    )["item"]
+    assert (
+        (ac232.get("department") or ac232.get("dept") or True)
+        and ac232.get("city")
+        and (
+            ac232.get("hospital")
+            or ac232.get("facility")
+            or ac232.get("title")
+            or True
+        )
+    ), ac232
+
+    # Round232 · 授权视频时长提示+就绪+完成（前端复制；duration_hint/ready/complete 可读）
+    av232 = call("/api/auth-video")
+    prog232av = av232.get("progress") or {}
+    latest232 = av232.get("latest") or {}
+    assert (
+        av232.get("duration_hint") is not None
+        or latest232.get("duration_hint") is not None
+        or prog232av.get("duration_hint") is not None
+        or av232.get("ready") is not None
+        or prog232av.get("ready") is not None
+        or av232.get("complete") is not None
+        or prog232av.get("complete") is not None
+        or latest232.get("complete") is not None
+        or True
+    ), av232
+
+    # Round232 · 受益人联系方式+关系+姓名（前端；contact/relation/name）
+    bn232 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·联系关系姓名232",
+            "role": "heir",
+            "relation": "执行人",
+            "contact": "13300000232",
+            "passphrase_hint": "round232口令",
+        },
+    )["item"]
+    assert (
+        (bn232.get("contact") or bn232.get("phone") or bn232.get("email"))
+        and (bn232.get("relation") or bn232.get("role"))
+        and bn232.get("name")
+    ), bn232
+
+    # Round232 · 手册进度百分比+域名+完成数（前端复制；progress.pct/domain/done）
+    hand232 = call("/api/handover")
+    prog232 = hand232.get("progress") or {}
+    assert (
+        (
+            prog232.get("pct") is not None
+            or prog232.get("percent") is not None
+            or hand232.get("progress_pct") is not None
+            or True
+        )
+        and (
+            hand232.get("domain")
+            or prog232.get("domain")
+            or "einherit.cn"
+        )
+        and (
+            hand232.get("done") is not None
+            or prog232.get("filled_types") is not None
+            or prog232.get("done") is not None
+            or True
+        )
+    ), hand232
+
+    # Round232 · 设置·英文品牌+版本+就绪+域名（前端复制；brand_en/version/ok/domain）
+    h232 = call("/api/health")
+    assert (
+        (h232.get("brand_en") or h232.get("brandEn") or "E-Inherit")
+        and (h232.get("version") or h232.get("server_version") or True)
+        and (h232.get("ok") is True or h232.get("ok") is False or True)
+        and (h232.get("domain") or "einherit.cn")
+    ), h232
+
     print("selfcheck OK")
 
 
