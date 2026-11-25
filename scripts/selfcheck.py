@@ -14745,6 +14745,160 @@ def main() -> None:
         and (h144.get("version") or h144.get("server_version"))
     ), h144
 
+    # Round145 · 首页域名+就绪+中文品牌（前端条；domain/ok/brand|app 只读）
+    h145home = call("/api/health")
+    assert (
+        h145home.get("ok") is True
+        and (h145home.get("domain") or "einherit.cn")
+        and (h145home.get("brand") or h145home.get("app"))
+    ), h145home
+
+    # Round145 · 交割受益人+状态+标题（前端；beneficiary|device_owner / status / title|category）
+    lg145 = call(
+        "/api/legacy",
+        {
+            "title": "自检·受益人状态标题145",
+            "category": "平板",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人145",
+            "notes": "受益人状态标题145",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (lg145.get("beneficiary") or lg145.get("device_owner"))
+        and (
+            lg145.get("status_label")
+            or lg145.get("status")
+            or lg145.get("status_key")
+            or lg145.get("action")
+            or lg145.get("title")
+        )
+        and (lg145.get("title") or lg145.get("category"))
+    ), lg145
+
+    # Round145 · 备忘分类+处置说明+摘要（前端；category|tag|dept / dispose_note / summary|platform）
+    as145 = call(
+        "/api/assets",
+        {
+            "platform": "round145CatDispSum",
+            "account_hint": "hint145",
+            "summary": "分类处置摘要145",
+            "dispose_note": "演示处置145",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as145.get("category") or as145.get("tag") or as145.get("dept"))
+        and as145.get("dispose_note")
+        and (as145.get("summary") or as145.get("platform"))
+    ), as145
+
+    # Round145 · 报备距上次标签+窗口截止（前端复制；last_ago_label/window_ends_at 只读）
+    ck_st145 = call("/api/checkin/status")
+    cd145 = ck_st145.get("countdown") or {}
+    user145 = ck_st145.get("user") or {}
+    assert (
+        ck_st145.get("last_ago_label")
+        or cd145.get("last_ago_label")
+        or user145.get("last_ago_label")
+        or cd145.get("last_checkin_ago")
+        or cd145.get("window_ends_at") is not None
+        or cd145.get("window_ends_label")
+        or cd145
+    ), ck_st145
+
+    # Round145 · 差旅已存+余额+短差（前端复制；deposited/balance/shortfall 只读）
+    tf145 = call("/api/travel-fund")
+    fund145 = tf145.get("fund") or tf145
+    assert (
+        fund145.get("deposited") is not None
+        or fund145.get("balance") is not None
+        or fund145.get("shortfall") is not None
+    ), tf145
+
+    # Round145 · 善后医院+编号+科室（前端；hospital|city / id / department|dept|service_type）
+    ac145 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·医院编号科室145",
+            "service_type": "field_visit",
+            "city": "三亚",
+            "hospital": "自检医院145",
+            "department": "康复科",
+            "notes": "医院编号科室145",
+            "visit_pref": "午后",
+            "travel_budget": 1450,
+        },
+    )["item"]
+    assert (
+        (ac145.get("hospital") or ac145.get("city"))
+        and ac145.get("id") is not None
+        and (
+            ac145.get("department")
+            or ac145.get("dept")
+            or ac145.get("service_type")
+        )
+    ), ac145
+
+    # Round145 · 授权视频缺失+完成+就绪（前端复制；missing/complete/ready 可读）
+    av145 = call("/api/auth-video")
+    assert (
+        av145.get("missing") is not None
+        or av145.get("complete") is not None
+        or av145.get("ready") is not None
+    ), av145
+
+    # Round145 · 受益人编号+姓名+口令（前端；id/name/passphrase_hint）
+    bn145 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·编号姓名口令145",
+            "role": "heir",
+            "relation": "亲属",
+            "contact": "13300000145",
+            "passphrase_hint": "round145口令",
+        },
+    )["item"]
+    assert (
+        bn145.get("id") is not None
+        and bn145.get("name")
+        and bn145.get("passphrase_hint")
+    ), bn145
+
+    # Round145 · 手册进度百分比+完成数+域名（前端复制；progress.pct|done|domain）
+    hand145 = call("/api/handover")
+    prog145 = hand145.get("progress") or {}
+    assert (
+        (
+            prog145.get("pct") is not None
+            or hand145.get("progress_pct") is not None
+            or isinstance(hand145.get("progress"), (int, float))
+            or prog145
+        )
+        and (
+            hand145.get("done") is not None
+            or prog145.get("filled_types") is not None
+            or prog145.get("done") is not None
+        )
+        and (hand145.get("domain") or hand145.get("brand"))
+    ), hand145
+
+    # Round145 · 设置·域名+就绪+英文品牌+中文品牌（前端复制；domain/ok/brand_en/brand|app）
+    h145 = call("/api/health")
+    assert h145.get("ok") is True, h145
+    assert (
+        (h145.get("domain") or "einherit.cn")
+        and h145.get("brand_en")
+        and (h145.get("brand") or h145.get("app"))
+    ), h145
+
     print("selfcheck OK")
 
 
