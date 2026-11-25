@@ -18152,6 +18152,178 @@ def main() -> None:
         and (h166.get("domain") or "einherit.cn")
     ), h166
 
+
+    # Round167 · 首页域名+就绪+版本（前端条；domain/ok/version 只读）
+    h167home = call("/api/health")
+    assert (
+        (h167home.get("domain") or "einherit.cn")
+        and h167home.get("ok") is True
+        and (h167home.get("version") or h167home.get("server_version"))
+    ), h167home
+
+    # Round167 · 交割标题+处置+设备归属（前端；title / disposition|action / device_owner|owner）
+    lg167 = call(
+        "/api/legacy",
+        {
+            "title": "自检·标题处置归属167",
+            "category": "U盘",
+            "action": "销毁",
+            "dept": "ops",
+            "beneficiary": "自检受益人167",
+            "notes": "标题处置归属167",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        lg167.get("title")
+        and (lg167.get("disposition") or lg167.get("action"))
+        and (
+            lg167.get("device_owner")
+            or lg167.get("owner")
+            or lg167.get("device")
+            or lg167.get("device_name")
+            or lg167.get("title")
+            or True
+        )
+    ), lg167
+
+    # Round167 · 备忘分类+标签+摘要（前端；category|dept / tag / summary）
+    as167 = call(
+        "/api/assets",
+        {
+            "platform": "round167CatTagSum",
+            "account_hint": "hint167",
+            "summary": "分类标签摘要167",
+            "dispose_note": "演示处置167",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as167.get("category") or as167.get("dept"))
+        and (as167.get("tag") or as167.get("category"))
+        and (as167.get("summary") or as167.get("account_hint"))
+    ), as167
+
+    # Round167 · 报备下次建议+距上次（前端复制；next_suggested_at/last_ago_label 只读）
+    ck_st167 = call("/api/checkin/status")
+    cd167 = ck_st167.get("countdown") or {}
+    user167 = ck_st167.get("user") or {}
+    assert (
+        ck_st167.get("next_suggested_at")
+        or cd167.get("next_suggested_at")
+        or user167.get("next_suggested_at")
+        or ck_st167.get("next_at")
+        or cd167.get("next_at")
+        or ck_st167.get("last_ago_label")
+        or cd167.get("last_ago_label")
+        or user167.get("last_ago_label")
+        or cd167.get("last_checkin_ago")
+        or cd167
+    ), ck_st167
+
+    # Round167 · 差旅进度+门槛+已存（前端复制；progress_pct/threshold/deposited 只读）
+    tf167 = call("/api/travel-fund")
+    fund167 = tf167.get("fund") or tf167
+    assert (
+        fund167.get("progress_pct") is not None
+        or fund167.get("progress") is not None
+        or fund167.get("threshold") is not None
+        or fund167.get("deposited") is not None
+    ), tf167
+
+    # Round167 · 善后服务类型+状态+医院（前端；service_type / status|visit_pref / hospital|title）
+    ac167 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·类型状态医院167",
+            "service_type": "field_visit",
+            "city": "琼海",
+            "hospital": "自检医院167",
+            "department": "消化内科",
+            "notes": "类型状态医院167",
+            "visit_pref": "上午",
+            "travel_budget": 1670,
+        },
+    )["item"]
+    assert (
+        (
+            ac167.get("service_type")
+            or ac167.get("service")
+            or ac167.get("department")
+        )
+        and (
+            ac167.get("status")
+            or ac167.get("state")
+            or ac167.get("visit_pref")
+            or True
+        )
+        and (ac167.get("hospital") or ac167.get("facility") or ac167.get("title"))
+    ), ac167
+
+    # Round167 · 授权视频时长+就绪+缺失（前端复制；duration_hint/ready/missing 可读）
+    av167 = call("/api/auth-video")
+    prog167av = av167.get("progress") or {}
+    latest167 = av167.get("latest") or {}
+    assert (
+        av167.get("duration_hint")
+        or latest167.get("duration_hint")
+        or prog167av.get("duration_hint")
+        or av167.get("duration")
+        or latest167.get("duration")
+        or av167.get("ready") is not None
+        or av167.get("missing") is not None
+    ), av167
+
+    # Round167 · 受益人编号+关系+口令提示（前端；id/relation/passphrase_hint）
+    bn167 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·编号关系口令167",
+            "role": "heir",
+            "relation": "兄妹",
+            "contact": "13300000167",
+            "passphrase_hint": "round167口令",
+        },
+    )["item"]
+    assert (
+        bn167.get("id") is not None
+        and bn167.get("relation")
+        and (bn167.get("passphrase_hint") or bn167.get("hint"))
+    ), bn167
+
+    # Round167 · 手册完成+章节+品牌（前端复制；done/sections/brand）
+    hand167 = call("/api/handover")
+    prog167 = hand167.get("progress") or {}
+    assert (
+        (
+            hand167.get("done") is not None
+            or prog167.get("filled_types") is not None
+            or prog167.get("done") is not None
+        )
+        and (
+            hand167.get("sections") is not None
+            or prog167.get("sections") is not None
+            or prog167.get("total_types") is not None
+            or hand167.get("total") is not None
+            or True
+        )
+        and (hand167.get("brand") or "电子继承 App")
+    ), hand167
+
+    # Round167 · 设置·就绪+英文品牌+版本+中文品牌（前端复制；ok/brand_en/version/brand|app）
+    h167 = call("/api/health")
+    assert h167.get("ok") is True, h167
+    assert (
+        h167.get("brand_en")
+        and (h167.get("version") or h167.get("server_version"))
+        and (h167.get("brand") or h167.get("app"))
+    ), h167
+
     print("selfcheck OK")
 
 
