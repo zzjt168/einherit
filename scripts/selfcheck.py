@@ -2541,6 +2541,85 @@ def main() -> None:
     assert h29.get("domain") == "einherit.cn", h29
     assert h29.get("version"), h29
 
+    # Round30 · 首页交割条目总数（前端条；counts/legacy 可读）
+    summary30 = call("/api/counts-summary")
+    assert "counts" in summary30, summary30
+    assert summary30["counts"].get("legacy") is not None or summary30[
+        "counts"
+    ].get("handover_items") is not None, summary30
+
+    # Round30 · 交割类别复制（前端；category 可读）
+    lg30 = call(
+        "/api/legacy",
+        {
+            "title": "自检·类别复制",
+            "category": "电子设备",
+            "action": "销毁",
+        },
+    )["item"]
+    assert str(lg30.get("category") or ""), lg30
+
+    # Round30 · 备忘标签计数（前端；tag 可读）
+    as30 = call(
+        "/api/assets",
+        {
+            "platform": "round30Tag",
+            "summary": "标签计数",
+            "dept": "admin",
+            "dispose_note": "销毁",
+            "tag": "账号",
+            "draft": True,
+        },
+    )["item"]
+    assert str(as30.get("tag") or ""), as30
+
+    # Round30 · 报备备用联系人摘要（前端复制；backup_contacts 可读）
+    ck_st30 = call("/api/checkin/status")
+    assert "user" in ck_st30, ck_st30
+    assert isinstance(ck_st30["user"].get("backup_contacts"), list), ck_st30
+
+    # Round30 · 差旅流水条数（前端；ledger 可读）
+    tf30 = call("/api/travel-fund")
+    assert isinstance(tf30.get("ledger"), list) or "fund" in tf30, tf30
+
+    # Round30 · 善后标题复制（前端；title 可读）
+    ac30 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·标题复制30",
+            "service_type": "field_visit",
+            "city": "海口",
+            "travel_budget": 350,
+        },
+    )["item"]
+    assert "标题复制30" in str(ac30.get("title") or ""), ac30
+
+    # Round30 · 授权视频生效文件名（前端复制；items 可读）
+    av30 = call("/api/auth-video")
+    assert isinstance(av30.get("items"), list), av30
+
+    # Round30 · 受益人缺关系角标（前端；可写空 relation）
+    bn30 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·待补关系",
+            "role": "family",
+            "relation": "",
+            "contact": "13600000030",
+        },
+    )["item"]
+    assert bn30.get("name"), bn30
+    assert not str(bn30.get("relation") or "").strip(), bn30
+
+    # Round30 · 手册待办条数（前端；todos/item_count 可读）
+    hand30 = call("/api/handover")
+    assert "todos" in hand30 or "item_count" in hand30, hand30
+
+    # Round30 · 设置·体验层范围（前端复制；health 仍就绪）
+    h30 = call("/api/health")
+    assert h30.get("ok") is True, h30
+    assert h30.get("domain") == "einherit.cn", h30
+
     print("selfcheck OK")
 
 
