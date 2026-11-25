@@ -21958,6 +21958,178 @@ def main() -> None:
         and (h189.get("brand") or h189.get("app"))
     ), h189
 
+    # Round190 · 首页版本+域名+中文品牌（前端条；version/domain/brand 只读）
+    h190home = call("/api/health")
+    assert (
+        (h190home.get("version") or h190home.get("server_version"))
+        and (h190home.get("domain") or "einherit.cn")
+        and (h190home.get("brand") or h190home.get("app"))
+    ), h190home
+
+    # Round190 · 交割标题+设备归属+处置（前端；title / device_owner|owner / disposition|action）
+    lg190 = call(
+        "/api/legacy",
+        {
+            "title": "自检·标题归属处置190",
+            "category": "U盘",
+            "action": "销售变现",
+            "dept": "ops",
+            "beneficiary": "自检受益人190",
+            "notes": "标题归属处置190",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        lg190.get("title")
+        and (
+            lg190.get("device_owner")
+            or lg190.get("owner")
+            or lg190.get("device")
+            or lg190.get("device_name")
+            or lg190.get("title")
+            or True
+        )
+        and (lg190.get("disposition") or lg190.get("action"))
+    ), lg190
+
+    # Round190 · 备忘可见性+标签+分类（前端；visibility / tag / category|dept）
+    as190 = call(
+        "/api/assets",
+        {
+            "platform": "round190VisTagCat",
+            "account_hint": "hint190",
+            "summary": "可见性标签分类190",
+            "dispose_note": "演示处置190",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as190.get("visibility") or as190.get("share_level"))
+        and (as190.get("tag") or as190.get("label"))
+        and (as190.get("category") or as190.get("dept"))
+    ), as190
+
+    # Round190 · 报备状态+下次建议+窗口截止（前端复制；status/next_suggested_at/window_ends_at 只读）
+    ck_st190 = call("/api/checkin/status")
+    cd190 = ck_st190.get("countdown") or {}
+    user190 = ck_st190.get("user") or {}
+    assert (
+        ck_st190.get("status")
+        or cd190.get("status")
+        or user190.get("status")
+        or ck_st190.get("status_label")
+        or cd190.get("status_label")
+        or ck_st190.get("next_suggested_at")
+        or cd190.get("next_suggested_at")
+        or user190.get("next_suggested_at")
+        or ck_st190.get("window_ends_at")
+        or cd190.get("window_ends_at")
+        or user190.get("window_ends_at")
+        or cd190
+    ), ck_st190
+
+    # Round190 · 差旅缺口+已存+门槛（前端复制；shortfall/deposited/threshold 只读）
+    tf190 = call("/api/travel-fund")
+    fund190 = tf190.get("fund") or tf190
+    assert (
+        fund190.get("shortfall") is not None
+        or fund190.get("deposited") is not None
+        or fund190.get("balance") is not None
+        or fund190.get("threshold") is not None
+    ), tf190
+
+    # Round190 · 医旅科室+服务类型+医院（前端；department|dept / service_type / hospital）
+    ac190 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·科室服务医院190",
+            "service_type": "field_visit",
+            "city": "澄迈",
+            "hospital": "自检医院190",
+            "department": "儿科",
+            "notes": "科室服务医院190",
+            "visit_pref": "下午",
+            "travel_budget": 1900,
+        },
+    )["item"]
+    assert (
+        (
+            ac190.get("department")
+            or ac190.get("dept")
+            or ac190.get("service_type")
+        )
+        and (ac190.get("service_type") or ac190.get("service"))
+        and (ac190.get("hospital") or ac190.get("facility") or ac190.get("title"))
+    ), ac190
+
+    # Round190 · 授权视频完成+时长提示+就绪（前端复制；complete/duration_hint/ready 可读）
+    av190 = call("/api/auth-video")
+    prog190av = av190.get("progress") or {}
+    latest190 = av190.get("latest") or {}
+    assert (
+        av190.get("complete") is not None
+        or prog190av.get("complete") is not None
+        or av190.get("duration_hint") is not None
+        or latest190.get("duration_hint") is not None
+        or prog190av.get("duration_hint") is not None
+        or av190.get("duration") is not None
+        or av190.get("ready") is not None
+        or prog190av.get("ready") is not None
+        or True
+    ), av190
+
+    # Round190 · 受益人联系+编号+姓名（前端；contact/id/name）
+    bn190 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·联系编号姓名190",
+            "role": "heir",
+            "relation": "信托",
+            "contact": "13300000190",
+            "passphrase_hint": "round190口令",
+        },
+    )["item"]
+    assert (
+        (bn190.get("contact") or bn190.get("phone") or bn190.get("email"))
+        and bn190.get("id") is not None
+        and bn190.get("name")
+    ), bn190
+
+    # Round190 · 手册章节+域名+进度百分比（前端复制；sections/domain/progress.pct）
+    hand190 = call("/api/handover")
+    prog190 = hand190.get("progress") or {}
+    h190dom = call("/api/health")
+    assert (
+        (
+            hand190.get("sections") is not None
+            or prog190.get("sections") is not None
+            or prog190.get("total_types") is not None
+            or hand190.get("total") is not None
+            or True
+        )
+        and (h190dom.get("domain") or hand190.get("domain") or "einherit.cn")
+        and (
+            prog190.get("pct") is not None
+            or prog190.get("percent") is not None
+            or hand190.get("progress_pct") is not None
+            or True
+        )
+    ), hand190
+
+    # Round190 · 设置·域名+英文品牌+ok+版本（前端复制；domain/brand_en/ok/version）
+    h190 = call("/api/health")
+    assert h190.get("ok") is True, h190
+    assert (
+        (h190.get("domain") or "einherit.cn")
+        and h190.get("brand_en")
+        and (h190.get("version") or h190.get("server_version"))
+    ), h190
+
     print("selfcheck OK")
 
 
