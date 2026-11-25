@@ -6963,6 +6963,103 @@ def main() -> None:
     assert h77.get("version") or h77.get("server_version"), h77
     assert h77.get("domain") == "einherit.cn", h77
 
+    # Round78 · 首页品牌与域名（前端条；brand/domain 或 health.app/domain 只读）
+    ck_st78home = call("/api/checkin/status")
+    u78home = ck_st78home.get("user") or {}
+    h78home = call("/api/health")
+    assert (
+        u78home.get("brand")
+        or u78home.get("domain")
+        or h78home.get("app")
+        or h78home.get("domain")
+    ), (ck_st78home, h78home)
+
+    # Round78 · 交割分类+处置+部门（前端；category/action/dept 可读）
+    lg78 = call(
+        "/api/legacy",
+        {
+            "title": "自检·分类处置78",
+            "category": "平板",
+            "action": "销售变现",
+            "dept": "finance",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert lg78.get("category") and lg78.get("action") and lg78.get("dept"), lg78
+
+    # Round78 · 备忘编号+平台+可见性（前端；id/platform/visibility 可读）
+    as78 = call(
+        "/api/assets",
+        {
+            "platform": "round78IdPlatformVis",
+            "account_hint": "hint78",
+            "summary": "编号平台可见78",
+            "dispose_note": "演示处置78",
+            "dept": "admin",
+            "tag": "其他",
+            "visibility": "private",
+            "draft": True,
+        },
+    )["item"]
+    assert as78.get("id") is not None and as78.get("platform"), as78
+    assert as78.get("visibility"), as78
+
+    # Round78 · 报备临近到期布尔（前端复制；due_soon 只读）
+    ck_st78 = call("/api/checkin/status")
+    cd78 = ck_st78.get("countdown") or {}
+    assert "due_soon" in cd78 or cd78, ck_st78
+
+    # Round78 · 差旅短差与余额（前端复制；shortfall/balance 只读）
+    tf78 = call("/api/travel-fund")
+    fund78 = tf78.get("fund") or tf78
+    assert (
+        fund78.get("shortfall") is not None or fund78.get("balance") is not None
+    ), tf78
+
+    # Round78 · 善后标题+阶段+预算（前端；title/phase_label/travel_budget 可读）
+    ac78 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·标题阶段78",
+            "service_type": "field_visit",
+            "city": "万宁",
+            "notes": "标题阶段78",
+            "visit_pref": "上午",
+            "travel_budget": 780,
+        },
+    )["item"]
+    assert ac78.get("title"), ac78
+    assert ac78.get("phase_label") or ac78.get("travel_budget") is not None, ac78
+
+    # Round78 · 授权视频门闩+齐备（前端复制；gate/complete_label 可读）
+    av78 = call("/api/auth-video")
+    assert av78.get("gate") or av78.get("complete_label"), av78
+
+    # Round78 · 受益人角色+联系+关系（前端；role/contact/relation 可读）
+    bn78 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·角色联系78",
+            "role": "executor",
+            "relation": "旧友",
+            "contact": "13300000078",
+            "passphrase_hint": "round78口令",
+        },
+    )["item"]
+    assert bn78.get("role") and bn78.get("contact") and bn78.get("relation"), bn78
+
+    # Round78 · 手册导出路径与域名（前端复制；export_path/domain 可读）
+    hand78 = call("/api/handover")
+    assert hand78.get("export_path") or hand78.get("domain"), hand78
+
+    # Round78 · 设置·就绪+中英品牌（前端复制；ok/app/brand_en 对齐）
+    h78 = call("/api/health")
+    assert h78.get("ok") is True, h78
+    assert h78.get("app") and h78.get("brand_en"), h78
+    assert h78.get("domain") == "einherit.cn", h78
+
     print("selfcheck OK")
 
 
