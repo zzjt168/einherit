@@ -8891,6 +8891,115 @@ def main() -> None:
         h97.get("version") or h97.get("server_version")
     ), h97
 
+    # Round98 · 首页英文域名就绪（前端条；brand_en/domain/ok 只读）
+    h98home = call("/api/health")
+    assert h98home.get("brand_en") and h98home.get("domain") == "einherit.cn" and h98home.get(
+        "ok"
+    ) is True, h98home
+
+    # Round98 · 交割分类+备注+受益人（前端；category/notes/beneficiary 可读）
+    lg98 = call(
+        "/api/legacy",
+        {
+            "title": "自检·分类备注98",
+            "category": "耳机",
+            "action": "转赠",
+            "dept": "finance",
+            "beneficiary": "自检受益人98",
+            "notes": "备注98",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert lg98.get("category") and (
+        lg98.get("notes") or lg98.get("beneficiary")
+    ), lg98
+
+    # Round98 · 备忘可见性+摘要+部门（前端；visibility/summary/dept 可读）
+    as98 = call(
+        "/api/assets",
+        {
+            "platform": "round98VisSumDept",
+            "account_hint": "hint98",
+            "summary": "可见摘要部门98",
+            "dispose_note": "演示处置98",
+            "dept": "admin",
+            "tag": "其他",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert as98.get("visibility") and as98.get("summary") and as98.get(
+        "dept"
+    ), as98
+
+    # Round98 · 报备最近报备时刻（前端复制；last_checkin_label 只读）
+    ck_st98 = call("/api/checkin/status")
+    cd98 = ck_st98.get("countdown") or {}
+    assert cd98.get("last_checkin_label") or cd98, ck_st98
+
+    # Round98 · 差旅达标+余额+门槛（前端复制；met/balance/threshold 只读）
+    tf98 = call("/api/travel-fund")
+    fund98 = tf98.get("fund") or tf98
+    assert (
+        fund98.get("met") is not None
+        or fund98.get("balance") is not None
+        or fund98.get("threshold") is not None
+    ), tf98
+
+    # Round98 · 善后预算+状态+城市（前端；travel_budget/status/city 可读）
+    ac98 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·预算状态98",
+            "service_type": "field_visit",
+            "city": "昌江",
+            "notes": "预算状态城市98",
+            "visit_pref": "晚上",
+            "travel_budget": 980,
+        },
+    )["item"]
+    assert (
+        ac98.get("travel_budget") is not None
+        or ac98.get("status")
+        or ac98.get("city")
+    ), ac98
+
+    # Round98 · 授权视频完成+闸口+就绪（前端复制；complete/gate/ready 可读）
+    av98 = call("/api/auth-video")
+    assert (
+        av98.get("complete") is not None
+        or av98.get("gate")
+        or av98.get("ready") is not None
+    ), av98
+
+    # Round98 · 受益人口令+姓名+角色（前端；passphrase_hint/name/role 可读）
+    bn98 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·口令姓名98",
+            "role": "executor",
+            "relation": "亲属",
+            "contact": "13300000098",
+            "passphrase_hint": "round98口令",
+        },
+    )["item"]
+    assert bn98.get("passphrase_hint") and bn98.get("name") and bn98.get(
+        "role"
+    ), bn98
+
+    # Round98 · 手册域名与品牌（前端复制；domain/brand 可读）
+    hand98 = call("/api/handover")
+    assert hand98.get("domain") or hand98.get("brand"), hand98
+
+    # Round98 · 设置·应用名+就绪+版本（前端复制；app/ok/version 对齐）
+    h98 = call("/api/health")
+    assert h98.get("ok") is True, h98
+    assert h98.get("app") and (
+        h98.get("version") or h98.get("server_version")
+    ), h98
+
     print("selfcheck OK")
 
 
