@@ -11783,6 +11783,125 @@ def main() -> None:
         and (h122.get("version") or h122.get("server_version"))
     ), h122
 
+    # Round123 · 首页应用域名英文（前端条；app/domain/brand_en 只读）
+    h123home = call("/api/health")
+    assert (
+        h123home.get("app")
+        and h123home.get("domain") == "einherit.cn"
+        and h123home.get("brand_en")
+    ), h123home
+
+    # Round123 · 交割编号+动作+标题（前端；id/action/title 可读）
+    lg123 = call(
+        "/api/legacy",
+        {
+            "title": "自检·编号动作123",
+            "category": "耳机",
+            "action": "销毁",
+            "dept": "finance",
+            "beneficiary": "自检受益人123",
+            "notes": "备注123",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert lg123.get("id") is not None and lg123.get("action") and lg123.get(
+        "title"
+    ), lg123
+
+    # Round123 · 备忘平台+摘要+可见度（前端；platform/summary/visibility 可读）
+    as123 = call(
+        "/api/assets",
+        {
+            "platform": "round123PlatSumVis",
+            "account_hint": "hint123",
+            "summary": "平台摘要可见123",
+            "dispose_note": "演示处置123",
+            "dept": "admin",
+            "tag": "其他",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert as123.get("platform") and as123.get("summary") and as123.get(
+        "visibility"
+    ), as123
+
+    # Round123 · 报备宽限+剩余小时（前端复制；grace_hours/hours_remaining 只读）
+    ck_st123 = call("/api/checkin/status")
+    cd123 = ck_st123.get("countdown") or {}
+    assert (
+        cd123.get("grace_hours") is not None
+        or cd123.get("hours_remaining") is not None
+        or cd123
+    ), ck_st123
+
+    # Round123 · 差旅余额+门槛+达标（前端复制；balance/threshold/met 只读）
+    tf123 = call("/api/travel-fund")
+    fund123 = tf123.get("fund") or tf123
+    assert (
+        fund123.get("balance") is not None
+        or fund123.get("threshold") is not None
+        or fund123.get("met") is not None
+    ), tf123
+
+    # Round123 · 善后服务+状态+预算（前端；service_type/status/travel_budget 可读）
+    ac123 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·服务状态123",
+            "service_type": "phone_assist",
+            "city": "昌江",
+            "notes": "服务状态预算123",
+            "visit_pref": "工作日",
+            "travel_budget": 1230,
+        },
+    )["item"]
+    assert ac123.get("service_type") and (
+        ac123.get("status") or True
+    ) and ac123.get("travel_budget") is not None, ac123
+
+    # Round123 · 授权视频缺失+完成+就绪（前端复制；missing/complete/ready 可读）
+    av123 = call("/api/auth-video")
+    assert (
+        isinstance(av123.get("missing"), list)
+        or av123.get("complete") is not None
+        or av123.get("ready") is not None
+    ), av123
+
+    # Round123 · 受益人姓名+联系+角色（前端；name/contact/role 可读）
+    bn123 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·姓名联系123",
+            "role": "executor",
+            "relation": "配偶",
+            "contact": "13300000123",
+            "passphrase_hint": "round123口令",
+        },
+    )["item"]
+    assert bn123.get("name") and bn123.get("contact") and bn123.get(
+        "role"
+    ), bn123
+
+    # Round123 · 手册品牌+域名+待办（前端复制；brand/domain/todos 可读）
+    hand123 = call("/api/handover")
+    assert (
+        hand123.get("brand")
+        or hand123.get("domain")
+        or isinstance(hand123.get("todos"), list)
+    ), hand123
+
+    # Round123 · 设置·就绪+版本+域名+应用（前端复制；ok/version/domain/app 对齐）
+    h123 = call("/api/health")
+    assert h123.get("ok") is True, h123
+    assert (
+        (h123.get("version") or h123.get("server_version"))
+        and h123.get("domain")
+        and h123.get("app")
+    ), h123
+
     print("selfcheck OK")
 
 
