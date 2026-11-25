@@ -7821,6 +7821,104 @@ def main() -> None:
     assert h86.get("ok") is True, h86
     assert (h86.get("server_version") or h86.get("version")) and h86.get("brand_en"), h86
 
+    # Round87 · 首页应用名（前端条；health.app 只读）
+    h87home = call("/api/health")
+    assert h87home.get("app"), h87home
+
+    # Round87 · 交割编号+处置+备注（前端；id/action/notes 可读）
+    lg87 = call(
+        "/api/legacy",
+        {
+            "title": "自检·编号处置87",
+            "category": "键盘",
+            "action": "转赠",
+            "dept": "admin",
+            "notes": "编号处置备注87",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert lg87.get("id") is not None and lg87.get("action"), lg87
+    assert "notes" in lg87 or lg87.get("notes") is not None, lg87
+
+    # Round87 · 备忘编号+处置+标签（前端；id/dispose_note/tag 可读）
+    as87 = call(
+        "/api/assets",
+        {
+            "platform": "round87IdDisposeTag",
+            "account_hint": "hint87",
+            "summary": "编号处置标签87",
+            "dispose_note": "演示处置87",
+            "dept": "admin",
+            "tag": "其他",
+            "visibility": "private",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        as87.get("id") is not None
+        and as87.get("dispose_note")
+        and as87.get("tag")
+    ), as87
+
+    # Round87 · 报备剩余秒数（前端复制；seconds_remaining 只读）
+    ck_st87 = call("/api/checkin/status")
+    cd87 = ck_st87.get("countdown") or {}
+    assert cd87.get("seconds_remaining") is not None or cd87, ck_st87
+
+    # Round87 · 差旅余额与短差（前端复制；balance/shortfall 只读）
+    tf87 = call("/api/travel-fund")
+    fund87 = tf87.get("fund") or tf87
+    assert (
+        fund87.get("balance") is not None or fund87.get("shortfall") is not None
+    ), tf87
+
+    # Round87 · 善后城市+状态+备注（前端；city/status/notes 可读）
+    ac87 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·城市状态87",
+            "service_type": "field_visit",
+            "city": "定安",
+            "notes": "城市状态备注87",
+            "visit_pref": "上午",
+            "travel_budget": 870,
+        },
+    )["item"]
+    assert ac87.get("city") or ac87.get("status") or ac87.get("notes"), ac87
+
+    # Round87 · 授权视频生效编号+就绪（前端复制；current_active_id/ready 可读）
+    av87 = call("/api/auth-video")
+    assert (
+        av87.get("current_active_id") is not None or av87.get("ready") is not None
+    ), av87
+
+    # Round87 · 受益人角色+口令+联系（前端；role/passphrase_hint/contact 可读）
+    bn87 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·角色口令87",
+            "role": "heir",
+            "relation": "挚友",
+            "contact": "13300000087",
+            "passphrase_hint": "round87口令",
+        },
+    )["item"]
+    assert (
+        bn87.get("role") and bn87.get("passphrase_hint") and bn87.get("contact")
+    ), bn87
+
+    # Round87 · 手册导出路径与分享提示（前端复制；export_path/share_hint 可读）
+    hand87 = call("/api/handover")
+    assert hand87.get("export_path") or hand87.get("share_hint"), hand87
+
+    # Round87 · 设置·中文品牌+版本+英文品牌（前端复制；app/version/brand_en 对齐）
+    h87 = call("/api/health")
+    assert h87.get("ok") is True, h87
+    assert h87.get("app") and h87.get("brand_en"), h87
+    assert h87.get("version") or h87.get("server_version"), h87
+
     print("selfcheck OK")
 
 
