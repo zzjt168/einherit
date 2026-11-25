@@ -9554,6 +9554,122 @@ def main() -> None:
         h103.get("version") or h103.get("server_version")
     ), h103
 
+    # Round104 · 首页英文应用版本（前端条；brand_en/app/version 只读）
+    h104home = call("/api/health")
+    assert h104home.get("brand_en") and h104home.get("app") and (
+        h104home.get("version") or h104home.get("server_version")
+    ), h104home
+
+    # Round104 · 交割受益人+分类+部门（前端；beneficiary/category/dept 可读）
+    lg104 = call(
+        "/api/legacy",
+        {
+            "title": "自检·受益人分类104",
+            "category": "耳机",
+            "action": "转赠",
+            "dept": "finance",
+            "beneficiary": "自检受益人104",
+            "notes": "备注104",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert lg104.get("beneficiary") and lg104.get("category") and lg104.get(
+        "dept"
+    ), lg104
+
+    # Round104 · 备忘可见度+平台+账号提示（前端；visibility/platform/account_hint 可读）
+    as104 = call(
+        "/api/assets",
+        {
+            "platform": "round104VisPlatHint",
+            "account_hint": "hint104",
+            "summary": "可见平台提示104",
+            "dispose_note": "演示处置104",
+            "dept": "admin",
+            "tag": "其他",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert as104.get("visibility") and as104.get("platform") and as104.get(
+        "account_hint"
+    ), as104
+
+    # Round104 · 报备宽限小时说明（前端复制；grace_hours 只读）
+    ck_st104 = call("/api/checkin/status")
+    cd104 = ck_st104.get("countdown") or {}
+    assert (
+        cd104.get("grace_hours") is not None
+        or (ck_st104.get("user") or {}).get("grace_hours") is not None
+        or cd104
+    ), ck_st104
+
+    # Round104 · 差旅余额+进度百分比+门槛（前端复制；balance/progress_pct/threshold 只读）
+    tf104 = call("/api/travel-fund")
+    fund104 = tf104.get("fund") or tf104
+    assert (
+        fund104.get("balance") is not None
+        or fund104.get("progress_pct") is not None
+        or fund104.get("progress") is not None
+        or fund104.get("threshold") is not None
+    ), tf104
+
+    # Round104 · 善后城市+服务类型+预算（前端；city/service_type/travel_budget 可读）
+    ac104 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·城市服务104",
+            "service_type": "field_visit",
+            "city": "文昌",
+            "notes": "城市服务预算104",
+            "visit_pref": "晚上",
+            "travel_budget": 1040,
+        },
+    )["item"]
+    assert ac104.get("city") and (
+        ac104.get("service_type") or ac104.get("travel_budget") is not None
+    ), ac104
+
+    # Round104 · 授权视频缺失+进度+就绪（前端复制；missing/progress/ready 可读）
+    av104 = call("/api/auth-video")
+    assert (
+        isinstance(av104.get("missing"), list)
+        or av104.get("progress")
+        or av104.get("ready") is not None
+    ), av104
+
+    # Round104 · 受益人关系+姓名+联系（前端；relation/name/contact 可读）
+    bn104 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·关系姓名104",
+            "role": "executor",
+            "relation": "亲属",
+            "contact": "13300000104",
+            "passphrase_hint": "round104口令",
+        },
+    )["item"]
+    assert bn104.get("relation") and bn104.get("name") and bn104.get(
+        "contact"
+    ), bn104
+
+    # Round104 · 手册导出路径+域名+品牌（前端复制；export_path/domain/brand 可读）
+    hand104 = call("/api/handover")
+    assert (
+        hand104.get("export_path")
+        or hand104.get("domain")
+        or hand104.get("brand")
+    ), hand104
+
+    # Round104 · 设置·应用名+英文品牌+域名+就绪（前端复制；app/brand_en/domain/ok 对齐）
+    h104 = call("/api/health")
+    assert h104.get("ok") is True, h104
+    assert h104.get("app") and h104.get("brand_en") and h104.get(
+        "domain"
+    ), h104
+
     print("selfcheck OK")
 
 
