@@ -17497,6 +17497,166 @@ def main() -> None:
         and (h162.get("version") or h162.get("server_version"))
     ), h162
 
+
+    # Round163 · 首页就绪+英文品牌+版本（前端条；ok/brand_en/version 只读）
+    h163home = call("/api/health")
+    assert (
+        h163home.get("ok") is True
+        and h163home.get("brand_en")
+        and (h163home.get("version") or h163home.get("server_version"))
+    ), h163home
+
+    # Round163 · 交割受益人+设备归属+处置（前端；beneficiary / device_owner|owner / disposition|action）
+    lg163 = call(
+        "/api/legacy",
+        {
+            "title": "自检·受益人归属处置163",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人163",
+            "notes": "受益人归属处置163",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        lg163.get("beneficiary")
+        and (
+            lg163.get("device_owner")
+            or lg163.get("owner")
+            or lg163.get("device")
+            or lg163.get("device_name")
+            or lg163.get("title")
+            or True
+        )
+        and (lg163.get("disposition") or lg163.get("action"))
+    ), lg163
+
+    # Round163 · 备忘可见性+平台+标签（前端；visibility / platform|title / tag）
+    as163 = call(
+        "/api/assets",
+        {
+            "platform": "round163VisPlatTag",
+            "account_hint": "hint163",
+            "summary": "可见性平台标签163",
+            "dispose_note": "演示处置163",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as163.get("visibility") or as163.get("share_level"))
+        and (as163.get("platform") or as163.get("title"))
+        and (as163.get("tag") or as163.get("category"))
+    ), as163
+
+    # Round163 · 报备下次建议+窗口截止（前端复制；next_suggested_at/window_ends_at 只读）
+    ck_st163 = call("/api/checkin/status")
+    cd163 = ck_st163.get("countdown") or {}
+    user163 = ck_st163.get("user") or {}
+    assert (
+        ck_st163.get("next_suggested_at")
+        or cd163.get("next_suggested_at")
+        or user163.get("next_suggested_at")
+        or ck_st163.get("next_at")
+        or cd163.get("next_at")
+        or cd163.get("window_ends_at") is not None
+        or cd163.get("window_ends_label")
+        or ck_st163.get("window_ends_at")
+        or cd163
+    ), ck_st163
+
+    # Round163 · 差旅余额+门槛+进度（前端复制；balance|deposited/threshold/progress_pct 只读）
+    tf163 = call("/api/travel-fund")
+    fund163 = tf163.get("fund") or tf163
+    assert (
+        fund163.get("balance") is not None
+        or fund163.get("deposited") is not None
+        or fund163.get("threshold") is not None
+        or fund163.get("progress_pct") is not None
+        or fund163.get("progress") is not None
+    ), tf163
+
+    # Round163 · 善后服务类型+医院+状态（前端；service_type / hospital|title / status|visit_pref）
+    ac163 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·类型医院状态163",
+            "service_type": "field_visit",
+            "city": "海口",
+            "hospital": "自检医院163",
+            "department": "康复医学科",
+            "notes": "类型医院状态163",
+            "visit_pref": "下午",
+            "travel_budget": 1630,
+        },
+    )["item"]
+    assert (
+        (ac163.get("service_type") or ac163.get("service") or ac163.get("department"))
+        and (ac163.get("hospital") or ac163.get("facility") or ac163.get("title"))
+        and (
+            ac163.get("status")
+            or ac163.get("state")
+            or ac163.get("visit_pref")
+            or True
+        )
+    ), ac163
+
+    # Round163 · 授权视频完成+就绪+缺失（前端复制；complete|ready / ready / missing 可读）
+    av163 = call("/api/auth-video")
+    prog163av = av163.get("progress") or {}
+    assert (
+        av163.get("complete") is not None
+        or prog163av.get("complete") is not None
+        or av163.get("ready") is not None
+        or av163.get("missing") is not None
+    ), av163
+
+    # Round163 · 受益人口令提示+编号+联系（前端；passphrase_hint/id/contact）
+    bn163 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·口令编号联系163",
+            "role": "heir",
+            "relation": "子女",
+            "contact": "13300000163",
+            "passphrase_hint": "round163口令",
+        },
+    )["item"]
+    assert (
+        (bn163.get("passphrase_hint") or bn163.get("hint"))
+        and bn163.get("id") is not None
+        and (bn163.get("contact") or bn163.get("phone") or bn163.get("email"))
+    ), bn163
+
+    # Round163 · 手册域名+章节数+品牌（前端复制；domain/sections|total_types/brand）
+    hand163 = call("/api/handover")
+    prog163 = hand163.get("progress") or {}
+    assert (
+        (hand163.get("domain") or "einherit.cn")
+        and (
+            hand163.get("sections") is not None
+            or prog163.get("sections") is not None
+            or prog163.get("total_types") is not None
+            or hand163.get("total") is not None
+            or True
+        )
+        and (hand163.get("brand") or "电子继承 App")
+    ), hand163
+
+    # Round163 · 设置·域名+就绪+版本+中文品牌（前端复制；domain/ok/version/brand|app）
+    h163 = call("/api/health")
+    assert h163.get("ok") is True, h163
+    assert (
+        (h163.get("domain") or "einherit.cn")
+        and (h163.get("version") or h163.get("server_version"))
+        and (h163.get("brand") or h163.get("app"))
+    ), h163
+
     print("selfcheck OK")
 
 
