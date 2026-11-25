@@ -14009,6 +14009,149 @@ def main() -> None:
         and h139.get("domain")
     ), h139
 
+    # Round140 · 首页就绪+域名+英文品牌（前端条；ok/domain/brand_en 只读）
+    h140home = call("/api/health")
+    assert (
+        h140home.get("ok") is True
+        and h140home.get("domain")
+        and h140home.get("brand_en")
+    ), h140home
+
+    # Round140 · 交割编号+处置+受益人（前端；id / disposition|action / beneficiary）
+    lg140 = call(
+        "/api/legacy",
+        {
+            "title": "自检·编号处置受益人140",
+            "category": "路由器",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人140",
+            "notes": "编号处置受益人140",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        lg140.get("id") is not None
+        and (lg140.get("disposition") or lg140.get("action"))
+        and lg140.get("beneficiary")
+    ), lg140
+
+    # Round140 · 备忘标签+摘要+可见性（前端；tag / summary / visibility）
+    as140 = call(
+        "/api/assets",
+        {
+            "platform": "round140TagSumVis",
+            "account_hint": "hint140",
+            "summary": "标签摘要可见140",
+            "dispose_note": "演示处置140",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        as140.get("tag")
+        and as140.get("summary")
+        and as140.get("visibility")
+    ), as140
+
+    # Round140 · 报备下次建议+状态标签（前端复制；next_suggested_at/status_label 只读）
+    ck_st140 = call("/api/checkin/status")
+    cd140 = ck_st140.get("countdown") or {}
+    user140 = ck_st140.get("user") or {}
+    assert (
+        cd140.get("next_suggested_at") is not None
+        or cd140.get("next_suggested_label")
+        or ck_st140.get("status_label")
+        or cd140.get("status_label")
+        or user140.get("status_label")
+        or cd140
+    ), ck_st140
+
+    # Round140 · 差旅余额+进度+短差（前端复制；balance/progress_pct/shortfall 只读）
+    tf140 = call("/api/travel-fund")
+    fund140 = tf140.get("fund") or tf140
+    assert (
+        fund140.get("balance") is not None
+        or fund140.get("progress_pct") is not None
+        or fund140.get("progress") is not None
+        or fund140.get("shortfall") is not None
+    ), tf140
+
+    # Round140 · 善后医院+状态+编号（前端；hospital|title / status / id）
+    ac140 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·医院状态编号140",
+            "service_type": "field_visit",
+            "city": "乐东",
+            "notes": "医院状态编号140",
+            "visit_pref": "傍晚",
+            "travel_budget": 1400,
+        },
+    )["item"]
+    assert (
+        (ac140.get("hospital") or ac140.get("title"))
+        and (
+            ac140.get("status_label")
+            or ac140.get("status")
+            or ac140.get("status_key")
+        )
+        and ac140.get("id") is not None
+    ), ac140
+
+    # Round140 · 授权视频就绪+时长+完成（前端复制；ready/duration_hint/complete 可读）
+    av140 = call("/api/auth-video")
+    prog140av = av140.get("progress") or {}
+    assert (
+        av140.get("ready") is not None
+        or av140.get("duration_hint")
+        or prog140av.get("duration_hint")
+        or av140.get("complete") is not None
+    ), av140
+
+    # Round140 · 受益人编号+关系+联系（前端；id/relation/contact 可读）
+    bn140 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·编号关系140",
+            "role": "heir",
+            "relation": "表亲",
+            "contact": "13300000140",
+            "passphrase_hint": "round140口令",
+        },
+    )["item"]
+    assert (
+        bn140.get("id") is not None
+        and bn140.get("relation")
+        and bn140.get("contact")
+    ), bn140
+
+    # Round140 · 手册完成+域名+进度（前端复制；done|filled_types/domain/progress.pct）
+    hand140 = call("/api/handover")
+    prog140 = hand140.get("progress") or {}
+    assert (
+        (
+            hand140.get("done") is not None
+            or prog140.get("filled_types") is not None
+            or prog140.get("done") is not None
+        )
+        and hand140.get("domain")
+        and (prog140.get("pct") is not None or hand140.get("progress_pct") is not None)
+    ), hand140
+
+    # Round140 · 设置·版本+就绪+中文品牌+英文品牌（前端复制；version/ok/brand|app/brand_en）
+    h140 = call("/api/health")
+    assert h140.get("ok") is True, h140
+    assert (
+        (h140.get("version") or h140.get("server_version"))
+        and (h140.get("brand") or h140.get("app"))
+        and h140.get("brand_en")
+    ), h140
+
     print("selfcheck OK")
 
 
