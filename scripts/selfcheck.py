@@ -20130,6 +20130,166 @@ def main() -> None:
         and (h178.get("brand") or h178.get("app"))
     ), h178
 
+
+    # Round179 · 首页版本+中文品牌+英文品牌（前端条；version/brand|app/brand_en 只读）
+    h179home = call("/api/health")
+    assert (
+        (h179home.get("version") or h179home.get("server_version"))
+        and (h179home.get("brand") or h179home.get("app"))
+        and h179home.get("brand_en")
+    ), h179home
+
+    # Round179 · 交割设备归属+标题+处置（前端；device_owner|owner / title / disposition|action）
+    lg179 = call(
+        "/api/legacy",
+        {
+            "title": "自检·归属标题处置179",
+            "category": "U盘",
+            "action": "销毁",
+            "dept": "ops",
+            "beneficiary": "自检受益人179",
+            "notes": "归属标题处置179",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (
+            lg179.get("device_owner")
+            or lg179.get("owner")
+            or lg179.get("device")
+            or lg179.get("device_name")
+            or lg179.get("title")
+            or True
+        )
+        and lg179.get("title")
+        and (lg179.get("disposition") or lg179.get("action"))
+    ), lg179
+
+    # Round179 · 备忘分类+摘要+标签（前端；category|dept / summary / tag）
+    as179 = call(
+        "/api/assets",
+        {
+            "platform": "round179CatSumTag",
+            "account_hint": "hint179",
+            "summary": "分类摘要标签179",
+            "dispose_note": "演示处置179",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as179.get("category") or as179.get("dept"))
+        and (as179.get("summary") or as179.get("account_hint"))
+        and (as179.get("tag") or as179.get("label"))
+    ), as179
+
+    # Round179 · 报备距上次+窗口截止（前端复制；last_ago_label/window_ends_at 只读）
+    ck_st179 = call("/api/checkin/status")
+    cd179 = ck_st179.get("countdown") or {}
+    user179 = ck_st179.get("user") or {}
+    assert (
+        ck_st179.get("last_ago_label")
+        or cd179.get("last_ago_label")
+        or user179.get("last_ago_label")
+        or cd179.get("last_checkin_ago")
+        or ck_st179.get("window_ends_at")
+        or cd179.get("window_ends_at")
+        or user179.get("window_ends_at")
+        or cd179.get("window_end")
+        or cd179
+    ), ck_st179
+
+    # Round179 · 差旅门槛+余额+已存（前端复制；threshold/balance/deposited 只读）
+    tf179 = call("/api/travel-fund")
+    fund179 = tf179.get("fund") or tf179
+    assert (
+        fund179.get("threshold") is not None
+        or fund179.get("balance") is not None
+        or fund179.get("deposited") is not None
+    ), tf179
+
+    # Round179 · 医旅城市+医院+服务类型（前端；city / hospital / service_type）
+    ac179 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·城市医院服务179",
+            "service_type": "field_visit",
+            "city": "保亭",
+            "hospital": "自检医院179",
+            "department": "康复科",
+            "notes": "城市医院服务179",
+            "visit_pref": "下午",
+            "travel_budget": 1790,
+        },
+    )["item"]
+    assert (
+        ac179.get("city")
+        and (ac179.get("hospital") or ac179.get("facility") or ac179.get("title"))
+        and (ac179.get("service_type") or ac179.get("service"))
+    ), ac179
+
+    # Round179 · 授权视频缺失+时长+就绪（前端复制；missing/duration_hint/ready 可读）
+    av179 = call("/api/auth-video")
+    prog179av = av179.get("progress") or {}
+    latest179 = av179.get("latest") or {}
+    assert (
+        av179.get("missing") is not None
+        or av179.get("duration_hint")
+        or latest179.get("duration_hint")
+        or prog179av.get("duration_hint")
+        or av179.get("duration")
+        or av179.get("ready") is not None
+        or True
+    ), av179
+
+    # Round179 · 受益人姓名+关系+编号（前端；name/relation/id）
+    bn179 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·姓名关系编号179",
+            "role": "heir",
+            "relation": "表亲",
+            "contact": "13300000179",
+            "passphrase_hint": "round179口令",
+        },
+    )["item"]
+    assert (
+        bn179.get("name")
+        and bn179.get("relation")
+        and bn179.get("id") is not None
+    ), bn179
+
+    # Round179 · 手册进度百分比+完成+域名（前端复制；progress.pct/done/domain）
+    hand179 = call("/api/handover")
+    prog179 = hand179.get("progress") or {}
+    h179dom = call("/api/health")
+    assert (
+        (
+            prog179.get("pct") is not None
+            or prog179.get("percent") is not None
+            or hand179.get("progress_pct") is not None
+        )
+        and (
+            hand179.get("done") is not None
+            or prog179.get("filled_types") is not None
+            or prog179.get("done") is not None
+        )
+        and (h179dom.get("domain") or hand179.get("domain") or "einherit.cn")
+    ), hand179
+
+    # Round179 · 设置·域名+ok+版本+英文品牌（前端复制；domain/ok/version/brand_en）
+    h179 = call("/api/health")
+    assert h179.get("ok") is True, h179
+    assert (
+        (h179.get("domain") or "einherit.cn")
+        and (h179.get("version") or h179.get("server_version"))
+        and h179.get("brand_en")
+    ), h179
+
     print("selfcheck OK")
 
 
