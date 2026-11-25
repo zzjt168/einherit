@@ -3202,6 +3202,37 @@ def set_asset_dispose(user_id: int, asset_id: int, dispose_note: str) -> dict[st
     return {"updated": 1, "item": items[0] if items else None}
 
 
+def set_asset_visibility(
+    user_id: int, asset_id: int, visibility: str
+) -> dict[str, Any]:
+    """备忘可见性温和切换：private ↔ family（演示级，不改处置字段）。"""
+    asset_id = int(asset_id or 0)
+    if asset_id <= 0:
+        raise ValueError("请指定备忘条目")
+    vis = str(visibility or "").strip().lower()
+    if vis not in ("private", "family"):
+        raise ValueError("可见性仅支持 private 或 family")
+    with connect() as conn:
+        row = conn.execute(
+            "SELECT id FROM assets WHERE user_id=? AND id=?", (user_id, asset_id)
+        ).fetchone()
+        if not row:
+            raise ValueError("找不到该备忘")
+        conn.execute(
+            "UPDATE assets SET visibility=? WHERE user_id=? AND id=?",
+            (vis, user_id, asset_id),
+        )
+        conn.commit()
+    audit(user_id, "asset.visibility", f"{asset_id}:{vis}")
+    items = [a for a in list_assets(user_id) if int(a["id"]) == asset_id]
+    return {
+        "updated": 1,
+        "item": items[0] if items else None,
+        "visibility": vis,
+        "hint": "仅本人可见" if vis == "private" else "家人可见（演示）",
+    }
+
+
 def backup_contacts_summary(user_id: int = 1) -> dict[str, Any]:
     """报备页只读：已登记备用联系人数量与姓名（不改外呼）。"""
     u = get_user(user_id)

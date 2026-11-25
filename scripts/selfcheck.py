@@ -1654,6 +1654,95 @@ def main() -> None:
     assert h20.get("ok") is True, h20
     assert h20.get("domain") == "einherit.cn", h20
 
+    # Round21 · 急症清册写入状态（首页只读一句）
+    icu21 = call("/api/icu-pack")
+    assert "ready" in icu21 and "items" in icu21, icu21
+
+    # Round21 · 交割出厂重置字段（chip 筛选为前端）
+    lg21 = call(
+        "/api/legacy",
+        {
+            "title": "自检·出厂筛选",
+            "category": "电子设备",
+            "action": "转赠",
+            "factory_reset": True,
+        },
+    )["item"]
+    assert lg21.get("factory_reset") in (1, True), lg21
+    lg21_list = call("/api/legacy")
+    assert any(
+        x.get("id") == lg21["id"] and x.get("factory_reset") in (1, True)
+        for x in (lg21_list.get("items") or [])
+    ), lg21_list
+
+    # Round21 · 备忘可见性一键切换
+    as21 = call(
+        "/api/assets",
+        {
+            "platform": "自检·可见性",
+            "summary": "round21",
+            "visibility": "private",
+            "dispose_note": "转赠",
+            "draft": True,
+        },
+    )["item"]
+    assert (as21.get("visibility") or "").lower() == "private", as21
+    as21_up = call(
+        "/api/assets/update",
+        {"id": as21["id"], "visibility": "family"},
+    )
+    assert as21_up.get("updated") == 1, as21_up
+    assert (as21_up.get("item") or {}).get("visibility") == "family", as21_up
+    as21_back = call(
+        "/api/assets/update",
+        {"id": as21["id"], "visibility": "private"},
+    )
+    assert (as21_back.get("item") or {}).get("visibility") == "private", as21_back
+
+    # Round21 · 报备冷静期剩余（只读字段）
+    me21 = call("/api/me")["user"]
+    assert "grace_remaining_seconds" in me21, me21
+    assert "grace_hours" in me21, me21
+    assert "checkin_in_grace" in me21, me21
+
+    # Round21 · 差旅流水导出 CSV（前端；流水 API 可读）
+    tf21 = call("/api/travel-fund")
+    assert "ledger" in tf21 and isinstance(tf21["ledger"], list), tf21
+
+    # Round21 · 善后城市快捷 chip 数据源
+    ac21 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·城市chip",
+            "service_type": "field_visit",
+            "city": "三亚",
+            "travel_budget": 200,
+        },
+    )["item"]
+    assert ac21.get("city") == "三亚", ac21
+    cities21 = call("/api/aftercare/cities")
+    assert "cities" in cities21 and "三亚" in (cities21["cities"] or []), cities21
+
+    # Round21 · 授权视频三勾门槛（上传禁用为前端）
+    av21 = call("/api/auth-video")
+    assert "items" in av21, av21
+
+    # Round21 · 受益人列表可读（空态 CTA 为前端）
+    bene21 = call("/api/beneficiaries")
+    assert "items" in bene21, bene21
+
+    # Round21 · 手册快照条数差
+    call("/api/handover/snapshot", {"label": "自检·r21A"})
+    call("/api/handover/snapshot", {"label": "自检·r21B"})
+    cmp21 = call("/api/snapshots/compare")
+    assert "ready" in cmp21 and "delta" in cmp21 and "text" in cmp21, cmp21
+    assert cmp21["ready"] is True, cmp21
+
+    # Round21 · 设置清空演示数据为前端 localStorage；health 仍可读
+    h21 = call("/api/health")
+    assert h21.get("ok") is True, h21
+    assert h21.get("domain") == "einherit.cn", h21
+
     print("selfcheck OK")
 
 
