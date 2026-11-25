@@ -13277,6 +13277,146 @@ def main() -> None:
         and (h134.get("version") or h134.get("server_version"))
     ), h134
 
+    # Round135 · 首页就绪+中文品牌+域名（前端条；ok/brand|app/domain 只读）
+    h135home = call("/api/health")
+    assert (
+        h135home.get("ok") is True
+        and (h135home.get("brand") or h135home.get("app"))
+        and h135home.get("domain")
+    ), h135home
+
+    # Round135 · 交割编号+标题+受益人（前端；id / title / beneficiary）
+    lg135 = call(
+        "/api/legacy",
+        {
+            "title": "自检·编号标题受益人135",
+            "category": "平板",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人135",
+            "notes": "编号标题受益人135",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        lg135.get("id") is not None
+        and lg135.get("title")
+        and lg135.get("beneficiary")
+    ), lg135
+
+    # Round135 · 备忘分类+标签+平台（前端；category|tag / tag / platform）
+    as135 = call(
+        "/api/assets",
+        {
+            "platform": "round135CatTagPlat",
+            "account_hint": "hint135",
+            "summary": "分类标签平台135",
+            "dispose_note": "演示处置135",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as135.get("category") or as135.get("tag"))
+        and as135.get("tag")
+        and as135.get("platform")
+    ), as135
+
+    # Round135 · 报备窗口截止+下次建议（前端复制；window_ends_at/next_suggested_at 只读）
+    ck_st135 = call("/api/checkin/status")
+    cd135 = ck_st135.get("countdown") or {}
+    user135 = ck_st135.get("user") or {}
+    assert (
+        cd135.get("window_ends_at") is not None
+        or user135.get("checkin_due_at") is not None
+        or cd135.get("next_suggested_at") is not None
+        or cd135
+    ), ck_st135
+
+    # Round135 · 差旅短差+余额+已存（前端复制；shortfall/balance/deposited|balance 只读）
+    tf135 = call("/api/travel-fund")
+    fund135 = tf135.get("fund") or tf135
+    assert (
+        fund135.get("shortfall") is not None
+        or fund135.get("balance") is not None
+        or fund135.get("deposited") is not None
+    ), tf135
+
+    # Round135 · 善后状态+城市+科室（前端；status|status_label / city / department|service_type）
+    ac135 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·状态城市科室135",
+            "service_type": "phone_assist",
+            "city": "澄迈",
+            "notes": "状态城市科室135",
+            "visit_pref": "午前",
+            "travel_budget": 1350,
+        },
+    )["item"]
+    assert (
+        (ac135.get("status_label") or ac135.get("status") or ac135.get("status_key"))
+        and ac135.get("city")
+        and (
+            ac135.get("department")
+            or ac135.get("service_type")
+            or ac135.get("service")
+        )
+    ), ac135
+
+    # Round135 · 授权视频缺失项+就绪+标题（前端复制；missing/ready/title|latest 可读）
+    av135 = call("/api/auth-video")
+    latest135 = av135.get("latest") or {}
+    assert (
+        av135.get("missing") is not None
+        or av135.get("ready") is not None
+        or latest135.get("original_name")
+        or av135.get("title")
+    ), av135
+
+    # Round135 · 受益人关系+编号+姓名（前端；relation/id/name 可读）
+    bn135 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·关系编号135",
+            "role": "heir",
+            "relation": "邻居",
+            "contact": "13300000135",
+            "passphrase_hint": "round135口令",
+        },
+    )["item"]
+    assert (
+        bn135.get("relation")
+        and bn135.get("id") is not None
+        and bn135.get("name")
+    ), bn135
+
+    # Round135 · 手册域名+进度+完成（前端复制；domain/progress.pct/done|filled_types）
+    hand135 = call("/api/handover")
+    prog135 = hand135.get("progress") or {}
+    assert (
+        hand135.get("domain")
+        and (
+            prog135.get("pct") is not None
+            or hand135.get("progress_pct") is not None
+            or hand135.get("done") is not None
+            or prog135.get("filled_types") is not None
+        )
+    ), hand135
+
+    # Round135 · 设置·英文品牌+中文品牌+就绪+域名（前端复制；brand_en/brand|app/ok/domain）
+    h135 = call("/api/health")
+    assert h135.get("ok") is True, h135
+    assert (
+        h135.get("brand_en")
+        and (h135.get("brand") or h135.get("app"))
+        and h135.get("domain")
+    ), h135
+
     print("selfcheck OK")
 
 
