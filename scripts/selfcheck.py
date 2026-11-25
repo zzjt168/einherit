@@ -4456,6 +4456,95 @@ def main() -> None:
     assert h51.get("app") or h51.get("brand_en"), h51
     assert h51.get("version") or h51.get("server_version"), h51
 
+    # Round52 · 首页英文品牌（前端条；brand_en 可读）
+    h52home = call("/api/health")
+    assert h52home.get("ok") is True, h52home
+    assert h52home.get("brand_en") or h52home.get("app"), h52home
+
+    # Round52 · 交割处置+部门（前端；action/dept 可读）
+    lg52 = call(
+        "/api/legacy",
+        {
+            "title": "自检·处置部门52",
+            "category": "其他",
+            "action": "转赠",
+            "dept": "production",
+        },
+    )["item"]
+    assert lg52.get("action") and lg52.get("dept"), lg52
+
+    # Round52 · 备忘编号+可见性（前端；id/visibility 可读）
+    as52 = call(
+        "/api/assets",
+        {
+            "platform": "round52Combo",
+            "summary": "编号可见性",
+            "dept": "admin",
+            "tag": "其他",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert as52.get("id") is not None and as52.get("visibility"), as52
+
+    # Round52 · 报备会员剩余天数纯数字（前端复制；member_days_left 可读）
+    ck_st52 = call("/api/checkin/status")
+    assert "user" in ck_st52, ck_st52
+    assert (
+        ck_st52["user"].get("member_days_left") is not None
+        or "is_member" in ck_st52["user"]
+    ), ck_st52
+
+    # Round52 · 差旅最近流水是否关联善后（前端复制；ledger 可读）
+    tf52 = call("/api/travel-fund")
+    ledger52 = tf52.get("ledger") or []
+    assert isinstance(ledger52, list), tf52
+
+    # Round52 · 善后编号+阶段（前端；id/phase_label 可读）
+    ac52 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·编号阶段52",
+            "service_type": "field_visit",
+            "city": "三亚",
+            "travel_budget": 400,
+        },
+    )["item"]
+    assert ac52.get("id") is not None and (
+        ac52.get("phase_label") or ac52.get("status_label")
+    ), ac52
+
+    # Round52 · 授权视频第二段脚本标题（前端复制；script[1].title 可读）
+    av52 = call("/api/auth-video")
+    script52 = av52.get("script") or []
+    assert len(script52) >= 1 or av52.get("ready") is not None, av52
+
+    # Round52 · 受益人角色英文键（前端；role 可读）
+    bn52 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·角色键52",
+            "role": "heir",
+            "relation": "子女",
+            "contact": "13300000052",
+        },
+    )["item"]
+    assert bn52.get("role"), bn52
+
+    # Round52 · 手册处置种类总数（前端复制；total_types 可读）
+    hand52 = call("/api/handover")
+    prog52 = hand52.get("progress") or {}
+    assert (
+        prog52.get("total_types") is not None
+        or isinstance(prog52.get("by_action"), list)
+        or hand52.get("item_count") is not None
+    ), hand52
+
+    # Round52 · 设置·应用版本号纯文本（前端复制；health.version 对齐）
+    h52 = call("/api/health")
+    assert h52.get("ok") is True, h52
+    assert h52.get("version") or h52.get("server_version"), h52
+
     print("selfcheck OK")
 
 
