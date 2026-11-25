@@ -12620,6 +12620,128 @@ def main() -> None:
         and h129.get("brand_en")
     ), h129
 
+    # Round130 · 首页中文品牌+英文+就绪（前端条；app/brand_en/ok 只读）
+    h130home = call("/api/health")
+    assert (
+        (h130home.get("brand") or h130home.get("app"))
+        and h130home.get("brand_en")
+        and h130home.get("ok") is True
+    ), h130home
+
+    # Round130 · 交割标题+受益人+编号（前端；title/beneficiary/id 可读）
+    lg130 = call(
+        "/api/legacy",
+        {
+            "title": "自检·标题编号130",
+            "category": "耳机",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人130",
+            "notes": "标题受益人编号130",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert lg130.get("title") and lg130.get("beneficiary") and lg130.get(
+        "id"
+    ) is not None, lg130
+
+    # Round130 · 备忘处置+平台+可见性（前端；dispose_note/platform/visibility 可读）
+    as130 = call(
+        "/api/assets",
+        {
+            "platform": "round130DispPlatVis",
+            "account_hint": "hint130",
+            "summary": "处置平台可见性130",
+            "dispose_note": "演示处置130",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert as130.get("dispose_note") and as130.get("platform") and as130.get(
+        "visibility"
+    ), as130
+
+    # Round130 · 报备下次建议+距上次（前端复制；next_suggested_at/last_ago_label 只读）
+    ck_st130 = call("/api/checkin/status")
+    cd130 = ck_st130.get("countdown") or {}
+    assert (
+        cd130.get("next_suggested_at") is not None
+        or cd130.get("last_ago_label")
+        or cd130
+    ), ck_st130
+
+    # Round130 · 差旅达标+进度+余额（前端复制；met/progress_pct/balance 只读）
+    tf130 = call("/api/travel-fund")
+    fund130 = tf130.get("fund") or tf130
+    assert (
+        fund130.get("met") is not None
+        or fund130.get("progress_pct") is not None
+        or fund130.get("balance") is not None
+    ), tf130
+
+    # Round130 · 善后服务+城市+编号（前端；service_type/city/id 可读）
+    ac130 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·服务城市编号130",
+            "service_type": "phone_assist",
+            "city": "万宁",
+            "notes": "服务城市编号130",
+            "visit_pref": "晚间",
+            "travel_budget": 1300,
+        },
+    )["item"]
+    assert (
+        (ac130.get("service_type") or ac130.get("service"))
+        and ac130.get("city")
+        and ac130.get("id") is not None
+    ), ac130
+
+    # Round130 · 授权视频完成+就绪+缺失（前端复制；complete/ready/missing 可读）
+    av130 = call("/api/auth-video")
+    assert (
+        av130.get("complete") is not None
+        or av130.get("ready") is not None
+        or isinstance(av130.get("missing"), list)
+    ), av130
+
+    # Round130 · 受益人关系+口令+编号（前端；relation/passphrase_hint/id 可读）
+    bn130 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·关系口令编号130",
+            "role": "heir",
+            "relation": "挚友",
+            "contact": "13300000130",
+            "passphrase_hint": "round130口令",
+        },
+    )["item"]
+    assert bn130.get("relation") and bn130.get(
+        "passphrase_hint"
+    ) and bn130.get("id") is not None, bn130
+
+    # Round130 · 手册品牌+进度+域名（前端复制；brand/progress.pct/domain 可读）
+    hand130 = call("/api/handover")
+    prog130 = hand130.get("progress") or {}
+    assert (
+        hand130.get("brand")
+        or prog130.get("pct") is not None
+        or hand130.get("domain")
+    ), hand130
+
+    # Round130 · 设置·就绪+品牌+版本+域名（前端复制；ok/app|brand/version/domain 对齐）
+    h130 = call("/api/health")
+    assert h130.get("ok") is True, h130
+    assert (
+        (h130.get("brand") or h130.get("app"))
+        and (h130.get("version") or h130.get("server_version"))
+        and h130.get("domain")
+    ), h130
+
     print("selfcheck OK")
 
 
