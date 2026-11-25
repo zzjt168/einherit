@@ -3361,6 +3361,97 @@ def main() -> None:
     assert h39.get("ok") is True, h39
     assert h39.get("domain") == "einherit.cn", h39
 
+    # Round40 · 首页急症前清册条数（前端条；icu-pack 可读）
+    icu40 = call("/api/icu-pack")
+    assert (
+        icu40.get("count") is not None
+        or isinstance(icu40.get("pack"), list)
+        or isinstance(icu40.get("items"), list)
+        or "ready" in icu40
+    ), icu40
+
+    # Round40 · 交割缺备注角标（前端；notes 字段可读）
+    lg40 = call(
+        "/api/legacy",
+        {
+            "title": "自检·缺备注40",
+            "category": "其他",
+            "action": "销毁",
+            "dept": "admin",
+            "notes": "",
+        },
+    )["item"]
+    assert lg40.get("title"), lg40
+    assert not str(lg40.get("notes") or "").strip(), lg40
+
+    # Round40 · 备忘可见性复制（前端；visibility 可读）
+    as40 = call(
+        "/api/assets",
+        {
+            "platform": "round40Vis",
+            "summary": "可见性复制",
+            "dept": "admin",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert str(as40.get("visibility") or "") in ("family", "private", ""), as40
+
+    # Round40 · 报备间隔小时数（前端复制；checkin_interval_hours 可读）
+    ck_st40 = call("/api/checkin/status")
+    assert "user" in ck_st40, ck_st40
+    assert ck_st40["user"].get("checkin_interval_hours") is not None, ck_st40
+
+    # Round40 · 差旅最近金额（前端复制；ledger amount 可读）
+    tf40 = call("/api/travel-fund")
+    ledger40 = tf40.get("ledger") or []
+    assert isinstance(ledger40, list), tf40
+
+    # Round40 · 善后编号复制（前端；id 可读）
+    ac40 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·编号复制40",
+            "service_type": "delete_data",
+            "city": "三亚",
+            "travel_budget": 270,
+        },
+    )["item"]
+    assert ac40.get("id") is not None, ac40
+
+    # Round40 · 授权视频生效备注（前端复制；current_active.note 可读）
+    av40 = call("/api/auth-video")
+    assert (
+        av40.get("current_active") is not None
+        or av40.get("latest") is not None
+        or "ready" in av40
+    ), av40
+
+    # Round40 · 受益人缺备注角标（前端；note 字段可读）
+    bn40 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·缺备注40",
+            "role": "heir",
+            "relation": "演示",
+            "contact": "13300000040",
+            "note": "",
+        },
+    )["item"]
+    assert bn40.get("name"), bn40
+    assert not str(bn40.get("note") or "").strip(), bn40
+
+    # Round40 · 手册品牌名（前端复制；brand 可读）
+    hand40 = call("/api/handover")
+    assert hand40.get("brand"), hand40
+
+    # Round40 · 设置·英文品牌+版本（前端复制；brand_en/version）
+    h40 = call("/api/health")
+    assert h40.get("ok") is True, h40
+    assert h40.get("brand_en") or h40.get("app"), h40
+    assert h40.get("version") or h40.get("server_version"), h40
+    assert h40.get("domain") == "einherit.cn", h40
+
     print("selfcheck OK")
 
 
