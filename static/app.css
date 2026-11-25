@@ -8911,3 +8911,38 @@ body.privacy-mode .privacy-hint { opacity: 0.85; }
   margin: 8px 0 10px; padding: 8px 10px; border-radius: 8px; background: #f5f8f6;
   word-break: break-word; font-weight: 600; color: var(--sage-deep, #2f5d45);
 }
+
+/* Round154 · 温和增量 */
+.home-ok-domain-brand-calm-r154 {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px;
+  margin: 8px 0 12px; padding: 10px 12px; border-radius: 10px;
+  background: linear-gradient(160deg, #eef5f3 0%, #fff 75%);
+  border: 1px solid var(--line, #e2e8e4);
+}
+.home-ok-domain-brand-calm-r154[hidden] { display: none; }
+.home-ok-domain-brand-calm-r154-mark { font-weight: 600; color: var(--sage-deep, #2f5d45); font-size: 13px; }
+.home-ok-domain-brand-calm-r154-sub { flex: 1; min-width: 8em; font-size: 12px; }
+.lg-copy-id-beneficiary-title { margin-top: 8px; margin-left: 6px; }
+.as-copy-tag-category-title { margin-top: 8px; margin-left: 6px; }
+.checkin-window-ends-status-label-plain-r154-copy {
+  margin-top: 10px; padding: 10px 12px; border-radius: 10px; background: #f5f8f6;
+}
+.checkin-window-ends-status-label-plain-r154-copy-line { margin: 0 0 8px; }
+.travel-shortfall-balance-deposited-plain-r154-copy {
+  margin: 8px 0 10px; padding: 10px 12px; border-radius: 10px; background: #f5f8f6;
+}
+.travel-shortfall-balance-deposited-plain-r154-copy-line { margin: 0 0 8px; }
+.ac-copy-city-hospital-department { margin-top: 8px; margin-left: 6px; }
+.av-duration-hint-missing-ready-copy-r154 {
+  margin: 8px 0 10px; padding: 10px 12px; border-radius: 10px; background: #f5f8f6;
+}
+.av-duration-hint-missing-ready-copy-r154-line { margin: 0 0 8px; }
+.bn-copy-passphrase-hint-relation-id-r154 { margin-top: 8px; margin-left: 6px; }
+.hand-progress-pct-domain-sections-copy-r154 {
+  margin: 8px 0 12px; padding: 10px 12px; border-radius: 10px; background: #f5f8f6;
+}
+.hand-progress-pct-domain-sections-copy-r154-line { margin: 0 0 8px; }
+.settings-ok-brand-domain-version-r154-copy-card .settings-ok-brand-domain-version-r154-copy-preview {
+  margin: 8px 0 10px; padding: 8px 10px; border-radius: 8px; background: #f5f8f6;
+  word-break: break-word; font-weight: 600; color: var(--sage-deep, #2f5d45);
+}

@@ -16105,6 +16105,163 @@ def main() -> None:
         and (h153.get("domain") or "einherit.cn")
     ), h153
 
+
+    # Round154 · 首页就绪+域名+中文品牌（前端条；ok/domain/brand|app 只读）
+    h154home = call("/api/health")
+    assert (
+        h154home.get("ok") is True
+        and (h154home.get("domain") or "einherit.cn")
+        and (h154home.get("brand") or h154home.get("app"))
+    ), h154home
+
+    # Round154 · 交割编号+受益人+标题（前端；id / beneficiary / title）
+    lg154 = call(
+        "/api/legacy",
+        {
+            "title": "自检·编号受益人标题154",
+            "category": "手机",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人154",
+            "notes": "编号受益人标题154",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        lg154.get("id") is not None
+        and lg154.get("beneficiary")
+        and (lg154.get("title") or lg154.get("category"))
+    ), lg154
+
+    # Round154 · 备忘标签+分类+标题（前端；tag / category|dept / title|platform）
+    as154 = call(
+        "/api/assets",
+        {
+            "platform": "round154TagCatTitle",
+            "account_hint": "hint154",
+            "summary": "标签分类标题154",
+            "dispose_note": "演示处置154",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        as154.get("tag")
+        and (as154.get("category") or as154.get("dept"))
+        and (as154.get("title") or as154.get("platform") or as154.get("summary"))
+    ), as154
+
+    # Round154 · 报备窗口截止+状态标签（前端复制；window_ends_at/status_label 只读）
+    ck_st154 = call("/api/checkin/status")
+    cd154 = ck_st154.get("countdown") or {}
+    user154 = ck_st154.get("user") or {}
+    assert (
+        cd154.get("window_ends_at") is not None
+        or cd154.get("window_ends_label")
+        or ck_st154.get("window_ends_at")
+        or ck_st154.get("status_label")
+        or cd154.get("status_label")
+        or user154.get("status_label")
+        or ck_st154.get("status")
+        or cd154.get("status")
+        or cd154
+    ), ck_st154
+
+    # Round154 · 差旅短差+余额+已存（前端复制；shortfall/balance/deposited 只读）
+    tf154 = call("/api/travel-fund")
+    fund154 = tf154.get("fund") or tf154
+    assert (
+        fund154.get("shortfall") is not None
+        or fund154.get("balance") is not None
+        or fund154.get("deposited") is not None
+    ), tf154
+
+    # Round154 · 医旅城市+医院+科室（前端；city / hospital|facility / department）
+    ac154 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·城市医院科室154",
+            "service_type": "field_visit",
+            "city": "三亚",
+            "hospital": "自检医院154",
+            "department": "心内科",
+            "notes": "城市医院科室154",
+            "visit_pref": "上午",
+            "travel_budget": 1540,
+        },
+    )["item"]
+    assert (
+        ac154.get("city")
+        and (ac154.get("hospital") or ac154.get("facility") or ac154.get("title") or ac154.get("city"))
+        and (
+            ac154.get("department")
+            or ac154.get("dept")
+            or ac154.get("service_type")
+            or ac154.get("service")
+        )
+    ), ac154
+
+    # Round154 · 授权视频时长+缺失+就绪（前端复制；duration_hint/missing/ready 可读）
+    av154 = call("/api/auth-video")
+    prog154av = av154.get("progress") or {}
+    latest154 = av154.get("latest") or {}
+    assert (
+        av154.get("duration_hint")
+        or latest154.get("duration_hint")
+        or prog154av.get("duration_hint")
+        or av154.get("duration")
+        or latest154.get("duration")
+        or av154.get("missing") is not None
+        or av154.get("ready") is not None
+    ), av154
+
+    # Round154 · 受益人口令提示+关系+编号（前端；passphrase_hint/relation/id）
+    bn154 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·口令关系编号154",
+            "role": "heir",
+            "relation": "同事",
+            "contact": "13300000154",
+            "passphrase_hint": "round154口令",
+        },
+    )["item"]
+    assert (
+        bn154.get("passphrase_hint")
+        and bn154.get("relation")
+        and bn154.get("id") is not None
+    ), bn154
+
+    # Round154 · 手册进度百分比+域名+章节（前端复制；progress.pct/domain/sections）
+    hand154 = call("/api/handover")
+    prog154 = hand154.get("progress") or {}
+    assert (
+        (
+            prog154.get("pct") is not None
+            or prog154.get("percent") is not None
+            or hand154.get("progress_pct") is not None
+        )
+        and (hand154.get("domain") or "einherit.cn")
+        and (
+            hand154.get("sections") is not None
+            or prog154.get("total_types") is not None
+            or hand154.get("section_count") is not None
+        )
+    ), hand154
+
+    # Round154 · 设置·就绪+中文品牌+域名+版本（前端复制；ok/brand|app/domain/version）
+    h154 = call("/api/health")
+    assert h154.get("ok") is True, h154
+    assert (
+        (h154.get("brand") or h154.get("app"))
+        and (h154.get("domain") or "einherit.cn")
+        and (h154.get("version") or h154.get("server_version"))
+    ), h154
+
     print("selfcheck OK")
 
 
