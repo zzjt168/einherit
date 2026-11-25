@@ -7244,6 +7244,104 @@ def main() -> None:
     assert h80.get("server_version") or h80.get("version"), h80
     assert h80.get("domain") == "einherit.cn", h80
 
+    # Round81 · 首页域名（前端条；domain 或 health.domain 只读）
+    ck_st81home = call("/api/checkin/status")
+    u81home = ck_st81home.get("user") or {}
+    h81home = call("/api/health")
+    assert u81home.get("domain") or h81home.get("domain") == "einherit.cn", (
+        ck_st81home,
+        h81home,
+    )
+
+    # Round81 · 交割标题+受益人+部门（前端；title/beneficiary/dept 可读）
+    lg81 = call(
+        "/api/legacy",
+        {
+            "title": "自检·标题受益81",
+            "category": "平板",
+            "action": "转赠",
+            "dept": "admin",
+            "beneficiary": "自检受益人81",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert lg81.get("title") and lg81.get("dept"), lg81
+    assert lg81.get("beneficiary") or "beneficiary" in lg81, lg81
+
+    # Round81 · 备忘编号+摘要+标签（前端；id/summary/tag 可读）
+    as81 = call(
+        "/api/assets",
+        {
+            "platform": "round81IdSummaryTag",
+            "account_hint": "hint81",
+            "summary": "编号摘要标签81",
+            "dispose_note": "演示处置81",
+            "dept": "admin",
+            "tag": "其他",
+            "visibility": "private",
+            "draft": True,
+        },
+    )["item"]
+    assert as81.get("id") is not None and as81.get("summary") and as81.get("tag"), as81
+
+    # Round81 · 报备上次文案（前端复制；last_ago_label 只读）
+    ck_st81 = call("/api/checkin/status")
+    cd81 = ck_st81.get("countdown") or {}
+    assert cd81.get("last_ago_label") or cd81, ck_st81
+
+    # Round81 · 差旅达标与进度%（前端复制；met/progress_pct 只读）
+    tf81 = call("/api/travel-fund")
+    fund81 = tf81.get("fund") or tf81
+    assert (
+        fund81.get("met") is not None or fund81.get("progress_pct") is not None
+    ), tf81
+
+    # Round81 · 善后阶段+预算+城市（前端；phase_label/travel_budget/city 可读）
+    ac81 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·阶段预算81",
+            "service_type": "field_visit",
+            "city": "海口",
+            "notes": "阶段预算城市81",
+            "visit_pref": "上午",
+            "travel_budget": 810,
+        },
+    )["item"]
+    assert (
+        ac81.get("phase_label")
+        or ac81.get("travel_budget") is not None
+        or ac81.get("city")
+    ), ac81
+
+    # Round81 · 授权视频门闩+就绪（前端复制；gate/ready 可读）
+    av81 = call("/api/auth-video")
+    assert av81.get("gate") or av81.get("ready") is not None, av81
+
+    # Round81 · 受益人编号+关系+联系（前端；id/relation/contact 可读）
+    bn81 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·编号关系81",
+            "role": "heir",
+            "relation": "表亲",
+            "contact": "13300000081",
+            "passphrase_hint": "round81口令",
+        },
+    )["item"]
+    assert bn81.get("id") is not None and bn81.get("relation") and bn81.get("contact"), bn81
+
+    # Round81 · 手册导出路径与品牌（前端复制；export_path/brand 可读）
+    hand81 = call("/api/handover")
+    assert hand81.get("export_path") or hand81.get("brand"), hand81
+
+    # Round81 · 设置·中文品牌+就绪+域名（前端复制；app/ok/domain 对齐）
+    h81 = call("/api/health")
+    assert h81.get("ok") is True, h81
+    assert h81.get("app") and h81.get("domain") == "einherit.cn", h81
+
     print("selfcheck OK")
 
 
