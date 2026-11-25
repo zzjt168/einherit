@@ -2060,6 +2060,121 @@ def main() -> None:
     assert h24.get("ok") is True, h24
     assert h24.get("domain") == "einherit.cn", h24
 
+    # Round25 · 首页五部门完成度（前端环强化；API 只读）
+    co25 = call("/api/company")
+    assert "progress" in co25, co25
+    assert int(co25["progress"].get("total") or 5) == 5, co25
+
+    # Round25 · 交割批量清除照片/聊天
+    lg25a = call(
+        "/api/legacy",
+        {
+            "title": "自检·批量清除A",
+            "category": "电子设备",
+            "action": "销毁",
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    lg25b = call(
+        "/api/legacy",
+        {
+            "title": "自检·批量清除B",
+            "category": "电子设备",
+            "action": "转赠",
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    batch_clear = call(
+        "/api/legacy/batch-clear-media",
+        {
+            "ids": [lg25a["id"], lg25b["id"]],
+            "clear_photos": True,
+            "clear_chats": True,
+        },
+    )
+    assert batch_clear.get("updated") == 2, batch_clear
+    assert batch_clear.get("clear_photos") is True, batch_clear
+    assert batch_clear.get("clear_chats") is True, batch_clear
+    lg25_list = call("/api/legacy")
+    assert all(
+        any(
+            x.get("id") == i
+            and x.get("clear_photos") in (1, True)
+            and x.get("clear_chats") in (1, True)
+            for x in (lg25_list.get("items") or [])
+        )
+        for i in (lg25a["id"], lg25b["id"])
+    ), lg25_list
+    batch_clear_off = call(
+        "/api/legacy/batch-clear-media",
+        {
+            "ids": [lg25a["id"]],
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )
+    assert batch_clear_off.get("clear_photos") is False, batch_clear_off
+
+    # Round25 · 备忘平台名（前端首字母规范；写入仍可用）
+    as25 = call(
+        "/api/assets",
+        {
+            "platform": "wechatDemo",
+            "summary": "round25",
+            "dept": "admin",
+            "dispose_note": "销毁",
+            "draft": True,
+        },
+    )["item"]
+    assert "wechat" in str(as25.get("platform") or "").lower(), as25
+
+    # Round25 · 报备轻反馈（前端本机偏好；报备仍可用）
+    ck25 = call("/api/checkin", {})
+    assert "user" in ck25, ck25
+
+    # Round25 · 会员权益三行与今日卡对齐（API 就绪）
+    bene25 = call("/api/membership/benefits")
+    assert "rows" in bene25, bene25
+    keys25 = {r.get("key") for r in (bene25.get("rows") or [])}
+    assert {"checkin", "travel", "handover_export"}.issubset(keys25), keys25
+    today25 = call("/api/today")
+    assert "items" in today25, today25
+    assert any(x.get("key") == "checkin" for x in (today25.get("items") or [])), today25
+
+    # Round25 · 差旅 last_refund 只读（强化为前端）
+    tf25 = call("/api/travel-fund")
+    fund25 = tf25.get("fund") or tf25
+    assert "last_refund" in fund25, fund25
+
+    # Round25 · 善后工单复制摘要（前端；字段可读）
+    ac25 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·摘要复制",
+            "service_type": "field_visit",
+            "city": "海口",
+            "travel_budget": 1500,
+        },
+    )["item"]
+    assert ac25.get("title") and ac25.get("city"), ac25
+    assert ac25.get("travel_budget") is not None, ac25
+
+    # Round25 · 授权视频门槛齐备（庆祝条为前端）
+    av25 = call("/api/auth-video")
+    assert "ready" in av25, av25
+    assert isinstance(av25["ready"], bool), av25
+
+    # Round25 · 手册导出条数确认（前端；handover 可读）
+    hand25 = call("/api/handover")
+    assert "item_count" in hand25 or "todos" in hand25, hand25
+
+    # Round25 · 设置 round 层清单（前端；健康仍就绪）
+    h25 = call("/api/health")
+    assert h25.get("ok") is True, h25
+    assert h25.get("domain") == "einherit.cn", h25
+
     print("selfcheck OK")
 
 

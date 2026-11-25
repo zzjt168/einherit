@@ -483,6 +483,20 @@ class Handler(BaseHTTPRequestHandler):
                 bool(payload.get("factory_reset")),
             )
 
+        if path in (
+            "/api/legacy/batch-clear-media",
+            "/api/legacy/batch-clear",
+        ):
+            # default both True when omitted — 一键勾清除照片/聊天
+            photos = payload.get("clear_photos")
+            chats = payload.get("clear_chats")
+            return db.batch_legacy_clear_media(
+                1,
+                list(payload.get("ids") or []),
+                clear_photos=True if photos is None else bool(photos),
+                clear_chats=True if chats is None else bool(chats),
+            )
+
         if path == "/api/legacy/update":
             return db.update_legacy_action(
                 1,
