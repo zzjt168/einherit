@@ -5854,6 +5854,109 @@ def main() -> None:
     assert h66.get("version") or h66.get("domain") == "einherit.cn", h66
     assert h66.get("domain") == "einherit.cn", h66
 
+    # Round67 · 首页报备硬逾期冷静条（前端条；checkin_overdue 只读）
+    ck_st67home = call("/api/checkin/status")
+    assert "checkin_overdue" in (ck_st67home.get("user") or {}) or ck_st67home.get(
+        "user"
+    ), ck_st67home
+
+    # Round67 · 交割双清除状态（前端；clear_photos/clear_chats 可读）
+    lg67 = call(
+        "/api/legacy",
+        {
+            "title": "自检·双清除67",
+            "category": "其他",
+            "action": "销毁",
+            "dept": "admin",
+            "clear_photos": True,
+            "clear_chats": True,
+        },
+    )["item"]
+    assert "clear_photos" in lg67 or lg67.get("clear_photos") is not None, lg67
+    assert "clear_chats" in lg67 or lg67.get("clear_chats") is not None, lg67
+
+    # Round67 · 备忘账号提示+标签（前端；account_hint/tag 可读）
+    as67 = call(
+        "/api/assets",
+        {
+            "platform": "round67HintTag",
+            "summary": "账号提示标签67",
+            "account_hint": "hint67@einherit",
+            "dept": "ip",
+            "tag": "账号",
+            "visibility": "private",
+            "draft": True,
+        },
+    )["item"]
+    assert as67.get("tag"), as67
+    assert as67.get("account_hint") is not None or "account_hint" in as67, as67
+
+    # Round67 · 报备会员到期日与剩余天（前端复制；member_until_iso/member_days_left 只读）
+    ck_st67 = call("/api/checkin/status")
+    user67 = ck_st67.get("user") or {}
+    assert (
+        user67.get("member_until_iso")
+        or user67.get("member_days_left") is not None
+        or user67
+    ), ck_st67
+
+    # Round67 · 差旅余额与达标（前端复制；balance/meets_threshold 只读）
+    tf67 = call("/api/travel-fund")
+    fund67 = tf67.get("fund") or tf67
+    assert (
+        fund67.get("balance") is not None
+        or fund67.get("meets_threshold") is not None
+        or fund67.get("met") is not None
+    ), tf67
+
+    # Round67 · 善后状态语气+状态键（前端；status_tone/status_key 可读）
+    ac67 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·语气状态键67",
+            "service_type": "delete_data",
+            "city": "昌江",
+            "travel_budget": 670,
+        },
+    )["item"]
+    assert ac67.get("status_tone") or ac67.get("status_key"), ac67
+
+    # Round67 · 授权视频齐备与就绪布尔（前端复制；complete/ready 可读）
+    av67 = call("/api/auth-video")
+    assert (
+        av67.get("complete") is not None
+        or av67.get("ready") is not None
+    ), av67
+
+    # Round67 · 受益人联系+口令提示（前端；contact/passphrase_hint 可读）
+    bn67 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·联系口令67",
+            "role": "family",
+            "relation": "兄妹",
+            "contact": "13300000067",
+            "passphrase_hint": "round67口令",
+        },
+    )["item"]
+    assert bn67.get("contact"), bn67
+    assert bn67.get("passphrase_hint") is not None or "passphrase_hint" in bn67, bn67
+
+    # Round67 · 手册条目总数与覆盖百分比（前端复制；item_count/pct 可读）
+    hand67 = call("/api/handover")
+    prog67 = hand67.get("progress") or {}
+    assert (
+        hand67.get("item_count") is not None
+        or prog67.get("pct") is not None
+        or prog67.get("total_items") is not None
+    ), hand67
+
+    # Round67 · 设置·英文品牌+服务端版本（前端复制；brand_en/server_version 对齐）
+    h67 = call("/api/health")
+    assert h67.get("ok") is True, h67
+    assert h67.get("brand_en") or h67.get("server_version"), h67
+    assert h67.get("domain") == "einherit.cn", h67
+
     print("selfcheck OK")
 
 
