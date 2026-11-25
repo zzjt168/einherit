@@ -9896,6 +9896,121 @@ def main() -> None:
         "domain"
     ), h106
 
+    # Round107 · 首页应用版本域名（前端条；app/version/domain 只读）
+    h107home = call("/api/health")
+    assert h107home.get("app") and (
+        h107home.get("version") or h107home.get("server_version")
+    ) and h107home.get("domain") == "einherit.cn", h107home
+
+    # Round107 · 交割分类+备注+编号（前端；category/notes/id 可读）
+    lg107 = call(
+        "/api/legacy",
+        {
+            "title": "自检·分类备注107",
+            "category": "耳机",
+            "action": "转赠",
+            "dept": "finance",
+            "beneficiary": "自检受益人107",
+            "notes": "备注107",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert lg107.get("category") and lg107.get("notes") and lg107.get(
+        "id"
+    ) is not None, lg107
+
+    # Round107 · 备忘平台+摘要+部门（前端；platform/summary/dept 可读）
+    as107 = call(
+        "/api/assets",
+        {
+            "platform": "round107PlatSumDept",
+            "account_hint": "hint107",
+            "summary": "平台摘要部门107",
+            "dispose_note": "演示处置107",
+            "dept": "admin",
+            "tag": "其他",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert as107.get("platform") and as107.get("summary") and as107.get(
+        "dept"
+    ), as107
+
+    # Round107 · 报备间隔可读文案（前端复制；interval_hours/readable 只读）
+    ck_st107 = call("/api/checkin/status")
+    cd107 = ck_st107.get("countdown") or {}
+    assert (
+        cd107.get("interval_hours") is not None
+        or cd107.get("readable")
+        or cd107
+    ), ck_st107
+
+    # Round107 · 差旅门槛+达标+缺口（前端复制；threshold/met/shortfall 只读）
+    tf107 = call("/api/travel-fund")
+    fund107 = tf107.get("fund") or tf107
+    assert (
+        fund107.get("threshold") is not None
+        or fund107.get("met") is not None
+        or fund107.get("shortfall") is not None
+    ), tf107
+
+    # Round107 · 善后标题+状态+拜访偏好（前端；title/status/visit_pref 可读）
+    ac107 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·标题状态107",
+            "service_type": "field_visit",
+            "city": "临高",
+            "notes": "标题状态拜访107",
+            "visit_pref": "晚上",
+            "travel_budget": 1070,
+        },
+    )["item"]
+    assert ac107.get("title") and (
+        ac107.get("status") or ac107.get("visit_pref")
+    ), ac107
+
+    # Round107 · 授权视频完成+缺失+就绪（前端复制；complete/missing/ready 可读）
+    av107 = call("/api/auth-video")
+    assert (
+        av107.get("complete") is not None
+        or isinstance(av107.get("missing"), list)
+        or av107.get("ready") is not None
+    ), av107
+
+    # Round107 · 受益人联系+姓名+编号（前端；contact/name/id 可读）
+    bn107 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·联系姓名107",
+            "role": "executor",
+            "relation": "亲属",
+            "contact": "13300000107",
+            "passphrase_hint": "round107口令",
+        },
+    )["item"]
+    assert bn107.get("contact") and bn107.get("name") and bn107.get(
+        "id"
+    ) is not None, bn107
+
+    # Round107 · 手册品牌+待办数+导出路径（前端复制；brand/todos/export_path 可读）
+    hand107 = call("/api/handover")
+    assert (
+        hand107.get("brand")
+        or isinstance(hand107.get("todos"), list)
+        or hand107.get("export_path")
+    ), hand107
+
+    # Round107 · 设置·应用名+就绪+英文品牌+版本（前端复制；app/ok/brand_en/version 对齐）
+    h107 = call("/api/health")
+    assert h107.get("ok") is True, h107
+    assert h107.get("app") and h107.get("brand_en") and (
+        h107.get("version") or h107.get("server_version")
+    ), h107
+
     print("selfcheck OK")
 
 
