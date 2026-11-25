@@ -7919,6 +7919,99 @@ def main() -> None:
     assert h87.get("app") and h87.get("brand_en"), h87
     assert h87.get("version") or h87.get("server_version"), h87
 
+    # Round88 · 首页英文品牌就绪（前端条；brand_en/ok 只读）
+    h88home = call("/api/health")
+    assert h88home.get("brand_en") and h88home.get("ok") is True, h88home
+
+    # Round88 · 交割分类+受益人+部门（前端；category/beneficiary/dept 可读）
+    lg88 = call(
+        "/api/legacy",
+        {
+            "title": "自检·分类受益88",
+            "category": "耳机",
+            "action": "转赠",
+            "dept": "finance",
+            "beneficiary": "自检受益人88",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert lg88.get("category") and lg88.get("dept"), lg88
+    assert lg88.get("beneficiary") or "beneficiary" in lg88, lg88
+
+    # Round88 · 备忘提示+可见性+标签（前端；account_hint/visibility/tag 可读）
+    as88 = call(
+        "/api/assets",
+        {
+            "platform": "round88HintVisTag",
+            "account_hint": "hint88",
+            "summary": "提示可见标签88",
+            "dispose_note": "演示处置88",
+            "dept": "admin",
+            "tag": "其他",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        as88.get("account_hint")
+        and as88.get("visibility")
+        and as88.get("tag")
+    ), as88
+
+    # Round88 · 报备间隔小时（前端复制；interval_hours 只读）
+    ck_st88 = call("/api/checkin/status")
+    cd88 = ck_st88.get("countdown") or {}
+    assert cd88.get("interval_hours") is not None or cd88, ck_st88
+
+    # Round88 · 差旅达标与余额（前端复制；met/balance 只读）
+    tf88 = call("/api/travel-fund")
+    fund88 = tf88.get("fund") or tf88
+    assert fund88.get("met") is not None or fund88.get("balance") is not None, tf88
+
+    # Round88 · 善后编号+探访+城市（前端；id/visit_pref/city 可读）
+    ac88 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·编号探访88",
+            "service_type": "field_visit",
+            "city": "屯昌",
+            "notes": "编号探访城市88",
+            "visit_pref": "傍晚",
+            "travel_budget": 880,
+        },
+    )["item"]
+    assert ac88.get("id") is not None and (
+        ac88.get("visit_pref") or ac88.get("city")
+    ), ac88
+
+    # Round88 · 授权视频清单+就绪（前端复制；checklist/ready 可读）
+    av88 = call("/api/auth-video")
+    assert isinstance(av88.get("checklist"), list) or av88.get("ready") is not None, av88
+
+    # Round88 · 受益人编号+联系+角色（前端；id/contact/role 可读）
+    bn88 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·编号联系88",
+            "role": "executor",
+            "relation": "同事",
+            "contact": "13300000088",
+            "passphrase_hint": "round88口令",
+        },
+    )["item"]
+    assert bn88.get("id") is not None and bn88.get("contact") and bn88.get("role"), bn88
+
+    # Round88 · 手册条目数与分享提示（前端复制；item_count/share_hint 可读）
+    hand88 = call("/api/handover")
+    assert hand88.get("item_count") is not None or hand88.get("share_hint"), hand88
+
+    # Round88 · 设置·域名+就绪+英文品牌（前端复制；domain/ok/brand_en 对齐）
+    h88 = call("/api/health")
+    assert h88.get("ok") is True, h88
+    assert h88.get("domain") == "einherit.cn" and h88.get("brand_en"), h88
+
     print("selfcheck OK")
 
 
