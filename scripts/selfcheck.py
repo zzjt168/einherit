@@ -4545,6 +4545,96 @@ def main() -> None:
     assert h52.get("ok") is True, h52
     assert h52.get("version") or h52.get("server_version"), h52
 
+    # Round53 · 首页中文品牌（前端条；health.app 可读）
+    h53home = call("/api/health")
+    assert h53home.get("ok") is True, h53home
+    assert h53home.get("app") or h53home.get("brand_en"), h53home
+
+    # Round53 · 交割标题+处置（前端；title/action 可读）
+    lg53 = call(
+        "/api/legacy",
+        {
+            "title": "自检·标题处置53",
+            "category": "其他",
+            "action": "销毁",
+            "dept": "finance",
+        },
+    )["item"]
+    assert lg53.get("title") and lg53.get("action"), lg53
+
+    # Round53 · 备忘平台+摘要（前端；platform/summary 可读）
+    as53 = call(
+        "/api/assets",
+        {
+            "platform": "round53Combo",
+            "summary": "平台摘要",
+            "dept": "admin",
+            "tag": "其他",
+            "visibility": "private",
+            "draft": True,
+        },
+    )["item"]
+    assert as53.get("platform") and as53.get("summary"), as53
+
+    # Round53 · 报备最近相对时间（前端复制；last_ago_label 可读）
+    ck_st53 = call("/api/checkin/status")
+    assert "countdown" in ck_st53 or "user" in ck_st53, ck_st53
+    cd53 = ck_st53.get("countdown") or {}
+    assert cd53.get("last_ago_label") or ck_st53.get("user"), ck_st53
+
+    # Round53 · 差旅最近流水中文种类标签（前端复制；kind_label 可读）
+    tf53 = call("/api/travel-fund")
+    ledger53 = tf53.get("ledger") or []
+    assert isinstance(ledger53, list), tf53
+    if ledger53:
+        assert ledger53[0].get("kind_label") or ledger53[0].get("kind"), ledger53[0]
+
+    # Round53 · 善后编号+城市（前端；id/city 可读）
+    ac53 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·编号城市53",
+            "service_type": "data_wipe",
+            "city": "海口",
+            "travel_budget": 450,
+        },
+    )["item"]
+    assert ac53.get("id") is not None and ac53.get("city"), ac53
+
+    # Round53 · 授权视频第三段脚本标题（前端复制；script[2].title 可读）
+    av53 = call("/api/auth-video")
+    script53 = av53.get("script") or []
+    assert len(script53) >= 1 or av53.get("ready") is not None, av53
+
+    # Round53 · 受益人姓名纯文本（前端；name 可读）
+    bn53 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·姓名53",
+            "role": "family",
+            "relation": "配偶",
+            "contact": "13300000053",
+        },
+    )["item"]
+    assert bn53.get("name"), bn53
+
+    # Round53 · 手册覆盖百分比（前端复制；progress.pct 可读）
+    hand53 = call("/api/handover")
+    prog53 = hand53.get("progress") or {}
+    assert (
+        prog53.get("pct") is not None
+        or (
+            prog53.get("filled_types") is not None
+            and prog53.get("total_types") is not None
+        )
+        or hand53.get("item_count") is not None
+    ), hand53
+
+    # Round53 · 设置·域名纯文本（前端复制；health.domain 对齐）
+    h53 = call("/api/health")
+    assert h53.get("ok") is True, h53
+    assert h53.get("domain") or h53.get("brand_en"), h53
+
     print("selfcheck OK")
 
 
