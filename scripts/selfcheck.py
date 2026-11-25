@@ -1743,6 +1743,114 @@ def main() -> None:
     assert h21.get("ok") is True, h21
     assert h21.get("domain") == "einherit.cn", h21
 
+    # Round22 · 授权视频三勾门槛（首页一句为前端）
+    av22 = call("/api/auth-video")
+    assert "ready" in av22 and "checklist" in av22, av22
+    assert "missing_labels" in av22 or "missing" in av22, av22
+
+    # Round22 · 交割批量出厂重置
+    lg22a = call(
+        "/api/legacy",
+        {
+            "title": "自检·批量出厂A",
+            "category": "电子设备",
+            "action": "转赠",
+            "factory_reset": False,
+        },
+    )["item"]
+    lg22b = call(
+        "/api/legacy",
+        {
+            "title": "自检·批量出厂B",
+            "category": "电子设备",
+            "action": "转赠",
+            "factory_reset": False,
+        },
+    )["item"]
+    batch_fr = call(
+        "/api/legacy/batch-factory-reset",
+        {"ids": [lg22a["id"], lg22b["id"]], "factory_reset": True},
+    )
+    assert batch_fr.get("updated") == 2, batch_fr
+    assert batch_fr.get("factory_reset") is True, batch_fr
+    lg22_list = call("/api/legacy")
+    assert all(
+        any(
+            x.get("id") == i and x.get("factory_reset") in (1, True)
+            for x in (lg22_list.get("items") or [])
+        )
+        for i in (lg22a["id"], lg22b["id"])
+    ), lg22_list
+    batch_fr_off = call(
+        "/api/legacy/batch-factory-reset",
+        {"ids": [lg22a["id"]], "factory_reset": False},
+    )
+    assert batch_fr_off.get("factory_reset") is False, batch_fr_off
+
+    # Round22 · 备忘部门字段（空态 CTA 为前端）
+    as22 = call(
+        "/api/assets",
+        {
+            "platform": "自检·部门空态",
+            "summary": "round22",
+            "dept": "ip",
+            "dispose_note": "转赠",
+            "draft": True,
+        },
+    )["item"]
+    assert as22.get("dept") == "ip", as22
+
+    # Round22 · 报备时间戳（复制为前端）
+    ck22 = call("/api/checkin", {})
+    assert "user" in ck22, ck22
+    assert ck22["user"].get("last_checkin_at"), ck22
+
+    # Round22 · 会员到期日（日历点为前端）
+    me22 = call("/api/me")["user"]
+    assert "member_until_iso" in me22 or "member_until" in me22, me22
+
+    # Round22 · 差旅门槛进度百分比
+    tf22 = call("/api/travel-fund")
+    fund22 = tf22.get("fund") or tf22
+    assert "progress_pct" in fund22, fund22
+    assert "threshold" in fund22, fund22
+    assert 0 <= int(fund22["progress_pct"]) <= 100, fund22
+
+    # Round22 · 善后备注（模板 chip 为前端；开单可读）
+    ac22 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·备注模板",
+            "service_type": "field_visit",
+            "city": "海口",
+            "travel_budget": 100,
+            "notes": "希望上门执行，时间可再约定。",
+        },
+    )["item"]
+    assert "上门" in (ac22.get("notes") or ""), ac22
+
+    # Round22 · ICU 清册写入（交割高亮为前端 local）
+    icu22 = call("/api/icu-pack", {"beneficiary": "自检·r22接收人"})
+    assert len(icu22.get("items") or []) >= 1, icu22
+    assert all(it.get("id") for it in (icu22.get("items") or [])), icu22
+
+    # Round22 · 医旅意向取消（确认框为前端）
+    hospitals22 = call("/api/hospitals")["items"]
+    assert hospitals22, hospitals22
+    hid22 = hospitals22[0]["id"]
+    intent22 = call(
+        "/api/hospitals/intent", {"hospital_id": hid22, "note": "自检·取消确认"}
+    )["intent"]
+    cancelled22 = call(
+        "/api/hospitals/intent/cancel", {"id": intent22["id"]}
+    )["intent"]
+    assert (cancelled22.get("status") or "") == "cancelled", cancelled22
+
+    # Round22 · 正式站域名（设置/关于外链为前端）
+    h22 = call("/api/health")
+    assert h22.get("ok") is True, h22
+    assert h22.get("domain") == "einherit.cn", h22
+
     print("selfcheck OK")
 
 

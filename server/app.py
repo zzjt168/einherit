@@ -473,6 +473,16 @@ class Handler(BaseHTTPRequestHandler):
                 int(payload.get("beneficiary_id") or 0),
             )
 
+        if path in (
+            "/api/legacy/batch-factory-reset",
+            "/api/legacy/batch-factory",
+        ):
+            return db.batch_legacy_factory_reset(
+                1,
+                list(payload.get("ids") or []),
+                bool(payload.get("factory_reset")),
+            )
+
         if path == "/api/legacy/update":
             return db.update_legacy_action(
                 1,
