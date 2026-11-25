@@ -7686,3 +7686,38 @@ body.privacy-mode .privacy-hint { opacity: 0.85; }
   margin: 8px 0 10px; padding: 8px 10px; border-radius: 8px; background: #f5f8f6;
   word-break: break-word; font-weight: 600; color: var(--sage-deep, #2f5d45);
 }
+
+/* Round119 · 温和增量 */
+.home-ok-brand-en-domain-calm-bar-r119 {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  margin: 10px 0 12px; padding: 12px 14px; border-radius: 12px;
+  background: linear-gradient(160deg, #eef5f3 0%, #fff 75%);
+  border: 1px solid var(--line, #e2e8e4);
+}
+.home-ok-brand-en-domain-calm-bar-r119[hidden] { display: none; }
+.home-ok-brand-en-domain-calm-bar-r119-mark { font-weight: 600; color: var(--sage-deep, #2f5d45); font-size: 13px; }
+.home-ok-brand-en-domain-calm-bar-r119-sub { flex: 1; min-width: 8em; font-size: 12px; }
+.lg-copy-beneficiary-notes-id { margin-top: 8px; margin-left: 6px; }
+.as-copy-dept-visibility-summary { margin-top: 8px; margin-left: 6px; }
+.checkin-grace-readable-plain-r119-copy {
+  margin-top: 10px; padding: 10px 12px; border-radius: 10px; background: #f5f8f6;
+}
+.checkin-grace-readable-plain-r119-copy-line { margin: 0 0 8px; }
+.travel-balance-shortfall-threshold-plain-r119-copy {
+  margin: 8px 0 10px; padding: 10px 12px; border-radius: 10px; background: #f5f8f6;
+}
+.travel-balance-shortfall-threshold-plain-r119-copy-line { margin: 0 0 8px; }
+.ac-copy-notes-visit-service { margin-top: 8px; margin-left: 6px; }
+.av-missing-gate-checklist-copy {
+  margin: 8px 0 10px; padding: 10px 12px; border-radius: 10px; background: #f5f8f6;
+}
+.av-missing-gate-checklist-copy-line { margin: 0 0 8px; }
+.bn-copy-id-passphrase-name { margin-top: 8px; margin-left: 6px; }
+.hand-todos-domain-export-copy {
+  margin: 8px 0 12px; padding: 10px 12px; border-radius: 10px; background: #f5f8f6;
+}
+.hand-todos-domain-export-copy-line { margin: 0 0 8px; }
+.app-ok-domain-brand-en-r119-copy-card .app-ok-domain-brand-en-r119-copy-preview {
+  margin: 8px 0 10px; padding: 8px 10px; border-radius: 8px; background: #f5f8f6;
+  word-break: break-word; font-weight: 600; color: var(--sage-deep, #2f5d45);
+}
