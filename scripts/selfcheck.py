@@ -9443,6 +9443,117 @@ def main() -> None:
         h102.get("version") or h102.get("server_version")
     ), h102
 
+    # Round103 · 首页就绪应用域名（前端条；ok/app/domain 只读）
+    h103home = call("/api/health")
+    assert h103home.get("ok") is True and h103home.get("app") and h103home.get(
+        "domain"
+    ) == "einherit.cn", h103home
+
+    # Round103 · 交割动作+分类+备注（前端；action/category/notes 可读）
+    lg103 = call(
+        "/api/legacy",
+        {
+            "title": "自检·动作分类103",
+            "category": "耳机",
+            "action": "转赠",
+            "dept": "finance",
+            "beneficiary": "自检受益人103",
+            "notes": "备注103",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert lg103.get("action") and lg103.get("category") and (
+        lg103.get("notes") is not None
+    ), lg103
+
+    # Round103 · 备忘编号+标签+部门（前端；id/tag/dept 可读）
+    as103 = call(
+        "/api/assets",
+        {
+            "platform": "round103IdTagDept",
+            "account_hint": "hint103",
+            "summary": "编号标签部门103",
+            "dispose_note": "演示处置103",
+            "dept": "admin",
+            "tag": "其他",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert as103.get("id") is not None and as103.get("tag") and as103.get(
+        "dept"
+    ), as103
+
+    # Round103 · 报备剩余小时说明（前端复制；hours_remaining 只读）
+    ck_st103 = call("/api/checkin/status")
+    cd103 = ck_st103.get("countdown") or {}
+    assert cd103.get("hours_remaining") is not None or cd103, ck_st103
+
+    # Round103 · 差旅达标+缺口+门槛（前端复制；met/shortfall/threshold 只读）
+    tf103 = call("/api/travel-fund")
+    fund103 = tf103.get("fund") or tf103
+    assert (
+        fund103.get("met") is not None
+        or fund103.get("shortfall") is not None
+        or fund103.get("threshold") is not None
+    ), tf103
+
+    # Round103 · 善后预算+状态+标题（前端；travel_budget/status/title 可读）
+    ac103 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·预算状态103",
+            "service_type": "field_visit",
+            "city": "琼海",
+            "notes": "预算状态标题103",
+            "visit_pref": "晚上",
+            "travel_budget": 1030,
+        },
+    )["item"]
+    assert ac103.get("title") and (
+        ac103.get("travel_budget") is not None or ac103.get("status")
+    ), ac103
+
+    # Round103 · 授权视频脚本+进度+就绪（前端复制；script/progress/ready 可读）
+    av103 = call("/api/auth-video")
+    assert (
+        isinstance(av103.get("script"), list)
+        or av103.get("progress")
+        or av103.get("ready") is not None
+    ), av103
+
+    # Round103 · 受益人编号+口令提示+关系（前端；id/passphrase_hint/relation 可读）
+    bn103 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·口令关系103",
+            "role": "executor",
+            "relation": "亲属",
+            "contact": "13300000103",
+            "passphrase_hint": "round103口令",
+        },
+    )["item"]
+    assert bn103.get("id") is not None and bn103.get(
+        "passphrase_hint"
+    ) and bn103.get("relation"), bn103
+
+    # Round103 · 手册进度+条目数+品牌（前端复制；progress/item_count/brand 可读）
+    hand103 = call("/api/handover")
+    assert (
+        hand103.get("progress")
+        or hand103.get("item_count") is not None
+        or hand103.get("brand")
+    ), hand103
+
+    # Round103 · 设置·就绪+域名+英文品牌+版本（前端复制；ok/domain/brand_en/version 对齐）
+    h103 = call("/api/health")
+    assert h103.get("ok") is True, h103
+    assert h103.get("domain") and h103.get("brand_en") and (
+        h103.get("version") or h103.get("server_version")
+    ), h103
+
     print("selfcheck OK")
 
 
