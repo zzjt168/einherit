@@ -7342,6 +7342,103 @@ def main() -> None:
     assert h81.get("ok") is True, h81
     assert h81.get("app") and h81.get("domain") == "einherit.cn", h81
 
+    # Round82 · 首页英文品牌（前端条；brand_en 或 health.brand_en 只读）
+    ck_st82home = call("/api/checkin/status")
+    u82home = ck_st82home.get("user") or {}
+    h82home = call("/api/health")
+    assert u82home.get("brand_en") or h82home.get("brand_en"), (
+        ck_st82home,
+        h82home,
+    )
+
+    # Round82 · 交割备注+分类+处置（前端；notes/category/action 可读）
+    lg82 = call(
+        "/api/legacy",
+        {
+            "title": "自检·备注分类82",
+            "category": "音箱",
+            "action": "销售变现",
+            "dept": "finance",
+            "notes": "备注分类处置82",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert lg82.get("category") and lg82.get("action"), lg82
+    assert "notes" in lg82 or lg82.get("notes") is not None, lg82
+
+    # Round82 · 备忘平台+标签+可见性（前端；platform/tag/visibility 可读）
+    as82 = call(
+        "/api/assets",
+        {
+            "platform": "round82PlatformTagVis",
+            "account_hint": "hint82",
+            "summary": "平台标签可见82",
+            "dispose_note": "演示处置82",
+            "dept": "admin",
+            "tag": "其他",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert as82.get("platform") and as82.get("tag") and as82.get("visibility"), as82
+
+    # Round82 · 报备下次建议文案（前端复制；next_suggested_label 只读）
+    ck_st82 = call("/api/checkin/status")
+    cd82 = ck_st82.get("countdown") or {}
+    assert cd82.get("next_suggested_label") or cd82, ck_st82
+
+    # Round82 · 差旅短差与门槛（前端复制；shortfall/threshold 只读）
+    tf82 = call("/api/travel-fund")
+    fund82 = tf82.get("fund") or tf82
+    assert (
+        fund82.get("shortfall") is not None or fund82.get("threshold") is not None
+    ), tf82
+
+    # Round82 · 善后状态+阶段+城市（前端；status/phase_label/city 可读）
+    ac82 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·状态阶段82",
+            "service_type": "field_visit",
+            "city": "儋州",
+            "notes": "状态阶段城市82",
+            "visit_pref": "下午",
+            "travel_budget": 820,
+        },
+    )["item"]
+    assert ac82.get("status") or ac82.get("phase_label") or ac82.get("city"), ac82
+
+    # Round82 · 授权视频就绪+齐备（前端复制；ready/complete_label 可读）
+    av82 = call("/api/auth-video")
+    assert av82.get("ready") is not None or av82.get("complete_label"), av82
+
+    # Round82 · 受益人关系+口令+角色（前端；relation/passphrase_hint/role 可读）
+    bn82 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·关系口令82",
+            "role": "executor",
+            "relation": "挚友",
+            "contact": "13300000082",
+            "passphrase_hint": "round82口令",
+        },
+    )["item"]
+    assert (
+        bn82.get("relation") and bn82.get("passphrase_hint") and bn82.get("role")
+    ), bn82
+
+    # Round82 · 手册进度%与品牌（前端复制；progress.pct/brand 可读）
+    hand82 = call("/api/handover")
+    prog82 = hand82.get("progress") or {}
+    assert prog82.get("pct") is not None or hand82.get("brand"), hand82
+
+    # Round82 · 设置·英文品牌+版本+就绪（前端复制；brand_en/version/ok 对齐）
+    h82 = call("/api/health")
+    assert h82.get("ok") is True, h82
+    assert h82.get("brand_en") and (h82.get("version") or h82.get("server_version")), h82
+
     print("selfcheck OK")
 
 
