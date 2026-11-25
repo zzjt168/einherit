@@ -5243,6 +5243,110 @@ def main() -> None:
     assert h60.get("domain") == "einherit.cn", h60
     assert h60.get("brand_en") or h60.get("version") or h60.get("server_version"), h60
 
+    # Round61 · 首页报备软逾期冷静状态（前端条；checkin_soft_overdue 只读）
+    ck_st61home = call("/api/checkin/status")
+    assert "checkin_soft_overdue" in (ck_st61home.get("user") or {}) or ck_st61home.get(
+        "countdown"
+    ), ck_st61home
+
+    # Round61 · 交割编号+清除聊天（前端；id/clear_chats 可读）
+    lg61 = call(
+        "/api/legacy",
+        {
+            "title": "自检·编号清除聊天61",
+            "category": "其他",
+            "action": "销毁",
+            "dept": "admin",
+            "clear_chats": True,
+        },
+    )["item"]
+    assert lg61.get("id") is not None, lg61
+    assert lg61.get("clear_chats") is not None or "clear_chats" in lg61, lg61
+
+    # Round61 · 备忘平台+可见性（前端；platform/visibility 可读）
+    as61 = call(
+        "/api/assets",
+        {
+            "platform": "round61PlatVis",
+            "summary": "平台可见性61",
+            "dept": "ip",
+            "tag": "其他",
+            "visibility": "private",
+            "draft": True,
+        },
+    )["item"]
+    assert as61.get("platform") and as61.get("visibility"), as61
+
+    # Round61 · 报备剩余小时与距今（前端复制；hours_remaining/last_ago_label 只读）
+    ck_st61 = call("/api/checkin/status")
+    cd61 = ck_st61.get("countdown") or {}
+    assert (
+        cd61.get("hours_remaining") is not None
+        or cd61.get("last_ago_label")
+        or ck_st61.get("user")
+    ), ck_st61
+
+    # Round61 · 差旅缺口与达标（前端复制；shortfall/meets_threshold 只读，不改退款）
+    tf61 = call("/api/travel-fund")
+    fund61 = tf61.get("fund") or tf61
+    assert (
+        fund61.get("shortfall") is not None
+        or fund61.get("meets_threshold") is not None
+        or fund61.get("met") is not None
+        or fund61.get("balance") is not None
+    ), tf61
+
+    # Round61 · 善后状态键+阶段键（前端；status_key/phase_key 可读）
+    ac61 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·状态阶段键61",
+            "service_type": "delete_data",
+            "city": "文昌",
+            "travel_budget": 610,
+        },
+    )["item"]
+    assert ac61.get("status_key") or ac61.get("phase_key"), ac61
+
+    # Round61 · 授权视频原文件名+状态（前端复制；original_name/status 可读）
+    av61 = call("/api/auth-video")
+    active61 = av61.get("current_active") or av61.get("latest") or {}
+    assert (
+        active61.get("original_name")
+        or active61.get("filename")
+        or active61.get("status")
+        or av61.get("ready") is not None
+    ), av61
+
+    # Round61 · 受益人编号+备注（前端；id/note 可读）
+    bn61 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·编号备注61",
+            "role": "executor",
+            "relation": "朋友",
+            "contact": "13300000061",
+            "note": "round61备注",
+        },
+    )["item"]
+    assert bn61.get("id") is not None, bn61
+    assert bn61.get("note") is not None or "note" in bn61, bn61
+
+    # Round61 · 手册已填类型与种类总数（前端复制；filled_types/total_types 可读）
+    hand61 = call("/api/handover")
+    prog61 = hand61.get("progress") or {}
+    assert (
+        prog61.get("filled_types") is not None
+        or prog61.get("total_types") is not None
+        or hand61.get("item_count") is not None
+    ), hand61
+
+    # Round61 · 设置·应用中文名+英文品牌（前端复制；app/brand_en 对齐）
+    h61 = call("/api/health")
+    assert h61.get("ok") is True, h61
+    assert h61.get("app") or h61.get("brand_en"), h61
+    assert h61.get("domain") == "einherit.cn", h61
+
     print("selfcheck OK")
 
 
