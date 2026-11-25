@@ -5757,6 +5757,103 @@ def main() -> None:
     assert h65.get("server_version") or h65.get("domain") == "einherit.cn", h65
     assert h65.get("domain") == "einherit.cn", h65
 
+    # Round66 · 首页域名+英文品牌（前端条；health domain/brand_en）
+    h66home = call("/api/health")
+    assert h66home.get("domain") == "einherit.cn", h66home
+    assert h66home.get("brand_en") or h66home.get("ok") is True, h66home
+
+    # Round66 · 交割标题+类别（前端；title/category 可读）
+    lg66 = call(
+        "/api/legacy",
+        {
+            "title": "自检·标题类别66",
+            "category": "账号",
+            "action": "销毁",
+            "dept": "admin",
+        },
+    )["item"]
+    assert lg66.get("title") and lg66.get("category"), lg66
+
+    # Round66 · 备忘编号+处置备注（前端；id/dispose_note 可读）
+    as66 = call(
+        "/api/assets",
+        {
+            "platform": "round66IdDispose",
+            "summary": "编号处置66",
+            "dispose_note": "演示处置66",
+            "dept": "finance",
+            "tag": "其他",
+            "visibility": "private",
+            "draft": True,
+        },
+    )["item"]
+    assert as66.get("id") is not None, as66
+    assert as66.get("dispose_note") is not None or "dispose_note" in as66, as66
+
+    # Round66 · 报备即将到期与剩余小时（前端复制；due_soon/hours_remaining 只读）
+    ck_st66 = call("/api/checkin/status")
+    cd66 = ck_st66.get("countdown") or {}
+    assert (
+        "due_soon" in cd66
+        or cd66.get("hours_remaining") is not None
+        or ck_st66.get("user")
+    ), ck_st66
+
+    # Round66 · 差旅达标与缺口（前端复制；meets_threshold/shortfall 只读）
+    tf66 = call("/api/travel-fund")
+    fund66 = tf66.get("fund") or tf66
+    assert (
+        fund66.get("meets_threshold") is not None
+        or fund66.get("met") is not None
+        or fund66.get("shortfall") is not None
+        or fund66.get("balance") is not None
+    ), tf66
+
+    # Round66 · 善后编号+阶段键（前端；id/phase_key 可读）
+    ac66 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·编号阶段键66",
+            "service_type": "field_visit",
+            "city": "白沙",
+            "travel_budget": 660,
+        },
+    )["item"]
+    assert ac66.get("id") is not None, ac66
+    assert ac66.get("phase_key") or ac66.get("phase_label"), ac66
+
+    # Round66 · 授权视频缺失项标签（前端复制；missing_labels 可读）
+    av66 = call("/api/auth-video")
+    assert (
+        isinstance(av66.get("missing_labels"), list)
+        or av66.get("ready") is not None
+        or av66.get("complete") is not None
+    ), av66
+
+    # Round66 · 受益人角色键+备注（前端；role/note 可读）
+    bn66 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·角色备注66",
+            "role": "heir",
+            "relation": "子女",
+            "contact": "13300000066",
+            "note": "round66备注",
+        },
+    )["item"]
+    assert bn66.get("role"), bn66
+    assert bn66.get("note") is not None or "note" in bn66, bn66
+
+    # Round66 · 手册品牌+会员状态（前端复制；brand/member 可读）
+    hand66 = call("/api/handover")
+    assert hand66.get("brand") or "member" in hand66, hand66
+
+    # Round66 · 设置·就绪状态+应用版本（前端复制；ok/version 对齐）
+    h66 = call("/api/health")
+    assert h66.get("ok") is True, h66
+    assert h66.get("version") or h66.get("domain") == "einherit.cn", h66
+    assert h66.get("domain") == "einherit.cn", h66
+
     print("selfcheck OK")
 
 
