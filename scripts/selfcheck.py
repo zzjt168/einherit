@@ -10011,6 +10011,122 @@ def main() -> None:
         h107.get("version") or h107.get("server_version")
     ), h107
 
+    # Round108 · 首页英文就绪域名（前端条；brand_en/ok/domain 只读）
+    h108home = call("/api/health")
+    assert h108home.get("brand_en") and h108home.get("ok") is True and h108home.get(
+        "domain"
+    ) == "einherit.cn", h108home
+
+    # Round108 · 交割受益人+动作+标题（前端；beneficiary/action/title 可读）
+    lg108 = call(
+        "/api/legacy",
+        {
+            "title": "自检·受益人动作108",
+            "category": "耳机",
+            "action": "转赠",
+            "dept": "finance",
+            "beneficiary": "自检受益人108",
+            "notes": "备注108",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert lg108.get("beneficiary") and lg108.get("action") and lg108.get(
+        "title"
+    ), lg108
+
+    # Round108 · 备忘编号+处置+可见度（前端；id/dispose_note/visibility 可读）
+    as108 = call(
+        "/api/assets",
+        {
+            "platform": "round108IdDispVis",
+            "account_hint": "hint108",
+            "summary": "编号处置可见108",
+            "dispose_note": "演示处置108",
+            "dept": "admin",
+            "tag": "其他",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert as108.get("id") is not None and as108.get(
+        "dispose_note"
+    ) and as108.get("visibility"), as108
+
+    # Round108 · 报备距今间隔文案（前端复制；hours_since_last/interval_hours 只读）
+    ck_st108 = call("/api/checkin/status")
+    cd108 = ck_st108.get("countdown") or {}
+    assert (
+        cd108.get("hours_since_last") is not None
+        or cd108.get("interval_hours") is not None
+        or cd108
+    ), ck_st108
+
+    # Round108 · 差旅进度百分比+缺口+余额（前端复制；progress_pct/shortfall/balance 只读）
+    tf108 = call("/api/travel-fund")
+    fund108 = tf108.get("fund") or tf108
+    assert (
+        fund108.get("progress_pct") is not None
+        or fund108.get("progress") is not None
+        or fund108.get("shortfall") is not None
+        or fund108.get("balance") is not None
+    ), tf108
+
+    # Round108 · 善后编号+服务类型+备注（前端；id/service_type/notes 可读）
+    ac108 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·编号服务108",
+            "service_type": "field_visit",
+            "city": "澄迈",
+            "notes": "编号服务备注108",
+            "visit_pref": "晚上",
+            "travel_budget": 1080,
+        },
+    )["item"]
+    assert ac108.get("id") is not None and (
+        ac108.get("service_type") or ac108.get("notes")
+    ), ac108
+
+    # Round108 · 授权视频就绪+清单+完成（前端复制；ready/checklist/complete 可读）
+    av108 = call("/api/auth-video")
+    assert (
+        av108.get("ready") is not None
+        or isinstance(av108.get("checklist"), list)
+        or av108.get("complete") is not None
+    ), av108
+
+    # Round108 · 受益人角色+姓名+编号（前端；role/name/id 可读）
+    bn108 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·角色姓名108",
+            "role": "executor",
+            "relation": "亲属",
+            "contact": "13300000108",
+            "passphrase_hint": "round108口令",
+        },
+    )["item"]
+    assert bn108.get("role") and bn108.get("name") and bn108.get(
+        "id"
+    ) is not None, bn108
+
+    # Round108 · 手册域名+待办数+条目数（前端复制；domain/todos/item_count 可读）
+    hand108 = call("/api/handover")
+    assert (
+        hand108.get("domain")
+        or isinstance(hand108.get("todos"), list)
+        or hand108.get("item_count") is not None
+    ), hand108
+
+    # Round108 · 设置·英文品牌+应用名+就绪+域名（前端复制；brand_en/app/ok/domain 对齐）
+    h108 = call("/api/health")
+    assert h108.get("ok") is True, h108
+    assert h108.get("brand_en") and h108.get("app") and h108.get(
+        "domain"
+    ), h108
+
     print("selfcheck OK")
 
 
