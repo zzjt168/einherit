@@ -3165,6 +3165,18 @@ def checkin_readable(user_id: int = 1) -> dict[str, Any]:
         mins = max(1, int(remaining_sec / 60))
         countdown_label = f"还可等约 {mins} 分钟"
         due_soon = True
+    hours_since_last = round((now - last_at) / 3600.0, 2) if last_at else None
+    if not last_at:
+        last_ago_label = "完成一次报备后，这里会显示上次成功的相对时间"
+    elif hours_since_last is not None and hours_since_last < 1:
+        mins = max(1, int((now - last_at) / 60))
+        last_ago_label = f"约 {mins} 分钟前"
+    elif hours_since_last is not None and hours_since_last < 24:
+        last_ago_label = f"约 {max(1, int(hours_since_last))} 小时前"
+    elif hours_since_last is not None:
+        last_ago_label = f"约 {max(1, int(hours_since_last / 24))} 天前"
+    else:
+        last_ago_label = ""
     return {
         "interval_hours": interval,
         "grace_hours": float(u.get("grace_hours") or 72),
@@ -3174,6 +3186,8 @@ def checkin_readable(user_id: int = 1) -> dict[str, Any]:
         "next_suggested_label": next_iso,
         "hours_remaining": round(hours_remaining, 2),
         "seconds_remaining": int(remaining_sec),
+        "hours_since_last": hours_since_last,
+        "last_ago_label": last_ago_label,
         "countdown_label": countdown_label,
         "due_soon": due_soon,
         "readable": (
@@ -3535,10 +3549,12 @@ def handover_print_checklist(user_id: int = 1) -> dict[str, Any]:
         },
     ]
     ready_n = sum(1 for it in items if it["ok"])
+    all_ready = ready_n == len(items) and len(items) > 0
     return {
         "items": items,
         "ready_count": ready_n,
         "total": len(items),
+        "all_ready": all_ready,
         "executor_filled": executor_filled,
         "item_count": item_count,
         "beneficiary_count": beneficiary_count,
@@ -3546,6 +3562,7 @@ def handover_print_checklist(user_id: int = 1) -> dict[str, Any]:
         "text": (
             f"打印前检查：执行人{'已填' if executor_filled else '未填'} · "
             f"条目 {item_count} · 受益人 {beneficiary_count}"
+            + (" · 可导出" if all_ready else "")
         ),
         "note": "只读清单，便于导出前温和核对；不改交割内容。",
     }
