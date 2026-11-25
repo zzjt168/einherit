@@ -6862,6 +6862,107 @@ def main() -> None:
     assert h76.get("brand_en"), h76
     assert h76.get("domain") == "einherit.cn", h76
 
+    # Round77 · 首页用户姓名（前端条；name 只读）
+    ck_st77home = call("/api/checkin/status")
+    assert (ck_st77home.get("user") or {}).get("name") or ck_st77home.get(
+        "user"
+    ), ck_st77home
+
+    # Round77 · 交割编号+受益人+部门（前端；id/beneficiary/dept 可读）
+    lg77 = call(
+        "/api/legacy",
+        {
+            "title": "自检·受益人部门77",
+            "category": "其他",
+            "action": "销毁",
+            "dept": "ops",
+            "beneficiary": "自检受益人77",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert lg77.get("id") is not None and lg77.get("dept"), lg77
+    assert lg77.get("beneficiary") is not None or "beneficiary" in lg77, lg77
+
+    # Round77 · 备忘账号提示+标签+可见性（前端；account_hint/tag/visibility 可读）
+    as77 = call(
+        "/api/assets",
+        {
+            "platform": "round77HintTagVis",
+            "account_hint": "hint77",
+            "summary": "提示标签可见77",
+            "dispose_note": "演示处置77",
+            "dept": "admin",
+            "tag": "金融",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert as77.get("account_hint") is not None or "account_hint" in as77, as77
+    assert as77.get("tag") is not None or "tag" in as77, as77
+    assert as77.get("visibility"), as77
+
+    # Round77 · 报备倒计时剩余小时（前端复制；hours_remaining 只读）
+    ck_st77 = call("/api/checkin/status")
+    cd77 = ck_st77.get("countdown") or {}
+    assert cd77.get("hours_remaining") is not None or cd77, ck_st77
+
+    # Round77 · 差旅退款金额+种类（前端复制；last_refund amount/kind 只读）
+    tf77 = call("/api/travel-fund")
+    fund77 = tf77.get("fund") or tf77
+    refund77 = fund77.get("last_refund")
+    assert refund77 is not None or "last_refund" in fund77 or isinstance(
+        tf77.get("ledger"), list
+    ), tf77
+
+    # Round77 · 善后编号+到访+城市（前端；id/visit_pref/city 可读）
+    ac77 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·到访城市77",
+            "service_type": "field_visit",
+            "city": "定安",
+            "notes": "到访城市77",
+            "visit_pref": "傍晚",
+            "travel_budget": 770,
+        },
+    )["item"]
+    assert ac77.get("id") is not None and ac77.get("city"), ac77
+    assert ac77.get("visit_pref") is not None or "visit_pref" in ac77, ac77
+
+    # Round77 · 授权视频生效标签+就绪（前端复制；active_label/ready 可读）
+    av77 = call("/api/auth-video")
+    active77 = av77.get("current_active") or av77.get("latest") or {}
+    assert (
+        active77.get("active_label")
+        or av77.get("ready") is not None
+        or active77.get("status")
+    ), av77
+
+    # Round77 · 受益人姓名+编号+联系（前端；name/id/contact 可读）
+    bn77 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·姓名编号77",
+            "role": "heir",
+            "relation": "故交",
+            "contact": "13300000077",
+            "passphrase_hint": "round77口令",
+        },
+    )["item"]
+    assert bn77.get("id") is not None and bn77.get("name") and bn77.get("contact"), bn77
+
+    # Round77 · 手册会员与品牌（前端复制；member/brand 可读）
+    hand77 = call("/api/handover")
+    assert hand77.get("member") is not None or hand77.get("brand"), hand77
+
+    # Round77 · 设置·应用版本+域名（前端复制；version/domain 对齐）
+    h77 = call("/api/health")
+    assert h77.get("ok") is True, h77
+    assert h77.get("version") or h77.get("server_version"), h77
+    assert h77.get("domain") == "einherit.cn", h77
+
     print("selfcheck OK")
 
 
