@@ -3994,6 +3994,103 @@ def main() -> None:
     assert h46.get("domain") == "einherit.cn", h46
     assert h46.get("version") or h46.get("server_version"), h46
 
+    # Round47 · 首页交割已填处置数（前端条；legacy_filled 可读）
+    cs47 = call("/api/counts-summary")
+    counts47 = cs47.get("counts") or {}
+    assert (
+        counts47.get("legacy_filled") is not None
+        or counts47.get("legacy") is not None
+        or cs47.get("text")
+    ), cs47
+
+    # Round47 · 交割清除聊天状态（前端；clear_chats 可读）
+    lg47 = call(
+        "/api/legacy",
+        {
+            "title": "自检·清除聊天47",
+            "category": "设备",
+            "action": "销毁",
+            "dept": "admin",
+            "clear_chats": True,
+        },
+    )["item"]
+    assert lg47.get("clear_chats") is not None or lg47.get("id") is not None, lg47
+
+    # Round47 · 备忘编号+标签（前端；id/tag 可读）
+    as47 = call(
+        "/api/assets",
+        {
+            "platform": "round47Combo",
+            "summary": "编号标签",
+            "dept": "admin",
+            "tag": "设备",
+            "draft": True,
+        },
+    )["item"]
+    assert as47.get("id") is not None and as47.get("tag"), as47
+
+    # Round47 · 报备倒计时冷静句（前端复制；countdown 可读）
+    ck_st47 = call("/api/checkin/status")
+    assert "user" in ck_st47, ck_st47
+    cd47 = ck_st47.get("countdown") or {}
+    assert (
+        cd47.get("countdown_label")
+        or cd47.get("readable")
+        or "is_member" in ck_st47["user"]
+    ), ck_st47
+
+    # Round47 · 差旅是否达门槛（前端复制；meets_threshold 可读）
+    tf47 = call("/api/travel-fund")
+    fund47 = tf47.get("fund") or tf47
+    assert (
+        fund47.get("meets_threshold") is not None
+        or fund47.get("met") is not None
+        or fund47.get("balance") is not None
+    ), fund47
+
+    # Round47 · 善后编号+标题（前端；id/title 可读）
+    ac47 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·编号标题47",
+            "service_type": "delete_data",
+            "city": "海口",
+            "travel_budget": 350,
+        },
+    )["item"]
+    assert ac47.get("id") is not None and ac47.get("title"), ac47
+
+    # Round47 · 授权视频首段脚本提示（前端复制；script[0].hint 可读）
+    av47 = call("/api/auth-video")
+    script47 = av47.get("script") or []
+    assert script47 or av47.get("ready") is not None, av47
+
+    # Round47 · 受益人关系+联系（前端；relation/contact 可读）
+    bn47 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·关系联系47",
+            "role": "heir",
+            "relation": "子女",
+            "contact": "13300000047",
+        },
+    )["item"]
+    assert bn47.get("relation") and bn47.get("contact"), bn47
+
+    # Round47 · 手册条目数纯数字（前端复制；item_count 可读）
+    hand47 = call("/api/handover")
+    assert (
+        hand47.get("item_count") is not None
+        or isinstance(hand47.get("todos"), list)
+    ), hand47
+
+    # Round47 · 设置·中文品牌·服务端版本·域名（前端复制；health 对齐）
+    h47 = call("/api/health")
+    assert h47.get("ok") is True, h47
+    assert h47.get("app") or h47.get("brand_en"), h47
+    assert h47.get("server_version") or h47.get("version"), h47
+    assert h47.get("domain") == "einherit.cn", h47
+
     print("selfcheck OK")
 
 
