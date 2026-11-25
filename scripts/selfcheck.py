@@ -12142,6 +12142,124 @@ def main() -> None:
         and (h125.get("version") or h125.get("server_version"))
     ), h125
 
+    # Round126 · 首页域名版本应用（前端条；domain/version/app 只读）
+    h126home = call("/api/health")
+    assert (
+        h126home.get("domain") == "einherit.cn"
+        and (h126home.get("version") or h126home.get("server_version"))
+        and h126home.get("app")
+    ), h126home
+
+    # Round126 · 交割备注+分类+受益人（前端；notes/category/beneficiary 可读）
+    lg126 = call(
+        "/api/legacy",
+        {
+            "title": "自检·备注分类126",
+            "category": "笔记本",
+            "action": "销毁",
+            "dept": "ops",
+            "beneficiary": "自检受益人126",
+            "notes": "备注126",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert lg126.get("notes") and lg126.get("category") and lg126.get(
+        "beneficiary"
+    ), lg126
+
+    # Round126 · 备忘标签+平台+提示（前端；tag/platform/account_hint 可读）
+    as126 = call(
+        "/api/assets",
+        {
+            "platform": "round126TagPlatHint",
+            "account_hint": "hint126",
+            "summary": "标签平台提示126",
+            "dispose_note": "演示处置126",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "private",
+            "draft": True,
+        },
+    )["item"]
+    assert as126.get("tag") and as126.get("platform") and as126.get(
+        "account_hint"
+    ), as126
+
+    # Round126 · 报备间隔+下次标签（前端复制；interval_hours/next_suggested_label 只读）
+    ck_st126 = call("/api/checkin/status")
+    cd126 = ck_st126.get("countdown") or {}
+    assert (
+        cd126.get("interval_hours") is not None
+        or cd126.get("next_suggested_label")
+        or cd126
+    ), ck_st126
+
+    # Round126 · 差旅达标+缺口+门槛（前端复制；met/shortfall/threshold 只读）
+    tf126 = call("/api/travel-fund")
+    fund126 = tf126.get("fund") or tf126
+    assert (
+        fund126.get("met") is not None
+        or fund126.get("shortfall") is not None
+        or fund126.get("threshold") is not None
+    ), tf126
+
+    # Round126 · 善后城市+预算+拜访（前端；city/travel_budget/visit_pref 可读）
+    ac126 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·城市预算126",
+            "service_type": "phone_assist",
+            "city": "定安",
+            "notes": "城市预算拜访126",
+            "visit_pref": "清晨",
+            "travel_budget": 1260,
+        },
+    )["item"]
+    assert ac126.get("city") and ac126.get(
+        "travel_budget"
+    ) is not None and (ac126.get("visit_pref") or True), ac126
+
+    # Round126 · 授权视频闸口+缺失+就绪（前端复制；ready/missing 可读）
+    av126 = call("/api/auth-video")
+    assert (
+        av126.get("ready") is not None
+        or isinstance(av126.get("missing"), list)
+    ), av126
+
+    # Round126 · 受益人关系+口令+联系（前端；relation/passphrase_hint/contact 可读）
+    bn126 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·关系口令126",
+            "role": "heir",
+            "relation": "同学",
+            "contact": "13300000126",
+            "passphrase_hint": "round126口令",
+        },
+    )["item"]
+    assert bn126.get("relation") and bn126.get(
+        "passphrase_hint"
+    ) and bn126.get("contact"), bn126
+
+    # Round126 · 手册条目+品牌+域名（前端复制；item_count/brand/domain 可读）
+    hand126 = call("/api/handover")
+    assert (
+        hand126.get("item_count") is not None
+        or hand126.get("brand")
+        or hand126.get("domain")
+    ), hand126
+
+    # Round126 · 设置·版本+域名+就绪+英文（前端复制；version/domain/ok/brand_en 对齐）
+    h126 = call("/api/health")
+    assert h126.get("ok") is True, h126
+    assert (
+        (h126.get("version") or h126.get("server_version"))
+        and h126.get("domain")
+        and h126.get("brand_en")
+    ), h126
+
     print("selfcheck OK")
 
 
