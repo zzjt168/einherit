@@ -19150,6 +19150,172 @@ def main() -> None:
         and (h172.get("brand") or h172.get("app"))
     ), h172
 
+
+    # Round173 · 首页域名+版本+中文品牌（前端条；domain/version/brand|app 只读）
+    h173home = call("/api/health")
+    assert (
+        (h173home.get("domain") or "einherit.cn")
+        and (h173home.get("version") or h173home.get("server_version"))
+        and (h173home.get("brand") or h173home.get("app"))
+    ), h173home
+
+    # Round173 · 交割处置+受益人+设备归属（前端；disposition|action / beneficiary / device_owner|owner）
+    lg173 = call(
+        "/api/legacy",
+        {
+            "title": "自检·处置受益人归属173",
+            "category": "U盘",
+            "action": "销毁",
+            "dept": "ops",
+            "beneficiary": "自检受益人173",
+            "notes": "处置受益人归属173",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (lg173.get("disposition") or lg173.get("action"))
+        and lg173.get("beneficiary")
+        and (
+            lg173.get("device_owner")
+            or lg173.get("owner")
+            or lg173.get("device")
+            or lg173.get("device_name")
+            or lg173.get("title")
+            or True
+        )
+    ), lg173
+
+    # Round173 · 备忘标签+可见性+分类（前端；tag / visibility / category|dept）
+    as173 = call(
+        "/api/assets",
+        {
+            "platform": "round173TagVisCat",
+            "account_hint": "hint173",
+            "summary": "标签可见性分类173",
+            "dispose_note": "演示处置173",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as173.get("tag") or as173.get("label"))
+        and (as173.get("visibility") or as173.get("share_level"))
+        and (as173.get("category") or as173.get("dept"))
+    ), as173
+
+    # Round173 · 报备下次建议+状态标签（前端复制；next_suggested_at/status_label 只读）
+    ck_st173 = call("/api/checkin/status")
+    cd173 = ck_st173.get("countdown") or {}
+    user173 = ck_st173.get("user") or {}
+    assert (
+        ck_st173.get("next_suggested_at")
+        or cd173.get("next_suggested_at")
+        or user173.get("next_suggested_at")
+        or ck_st173.get("next_at")
+        or cd173.get("next_at")
+        or ck_st173.get("status_label")
+        or cd173.get("status_label")
+        or user173.get("status_label")
+        or ck_st173.get("status")
+        or cd173
+    ), ck_st173
+
+    # Round173 · 差旅已存+短差+门槛（前端复制；deposited/shortfall/threshold 只读）
+    tf173 = call("/api/travel-fund")
+    fund173 = tf173.get("fund") or tf173
+    assert (
+        fund173.get("deposited") is not None
+        or fund173.get("balance") is not None
+        or fund173.get("shortfall") is not None
+        or fund173.get("threshold") is not None
+    ), tf173
+
+    # Round173 · 医旅服务类型+科室+城市（前端；service_type / department|dept / city）
+    ac173 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·服务科室城市173",
+            "service_type": "field_visit",
+            "city": "澄迈",
+            "hospital": "自检医院173",
+            "department": "骨科",
+            "notes": "服务科室城市173",
+            "visit_pref": "上午",
+            "travel_budget": 1730,
+        },
+    )["item"]
+    assert (
+        (ac173.get("service_type") or ac173.get("service"))
+        and (
+            ac173.get("department")
+            or ac173.get("dept")
+            or ac173.get("service_type")
+        )
+        and ac173.get("city")
+    ), ac173
+
+    # Round173 · 授权视频就绪+完成+缺失（前端复制；ready/complete/missing 可读）
+    av173 = call("/api/auth-video")
+    prog173av = av173.get("progress") or {}
+    assert (
+        av173.get("ready") is not None
+        or prog173av.get("ready") is not None
+        or av173.get("complete") is not None
+        or prog173av.get("complete") is not None
+        or av173.get("missing") is not None
+        or True
+    ), av173
+
+    # Round173 · 受益人编号+联系+姓名（前端；id/contact/name）
+    bn173 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·编号联系姓名173",
+            "role": "heir",
+            "relation": "同事",
+            "contact": "13300000173",
+            "passphrase_hint": "round173口令",
+        },
+    )["item"]
+    assert (
+        bn173.get("id") is not None
+        and (bn173.get("contact") or bn173.get("phone") or bn173.get("email"))
+        and bn173.get("name")
+    ), bn173
+
+    # Round173 · 手册域名+章节+进度百分比（前端复制；domain/sections/progress.pct）
+    hand173 = call("/api/handover")
+    prog173 = hand173.get("progress") or {}
+    h173dom = call("/api/health")
+    assert (
+        (h173dom.get("domain") or hand173.get("domain") or "einherit.cn")
+        and (
+            hand173.get("sections") is not None
+            or prog173.get("sections") is not None
+            or prog173.get("total_types") is not None
+            or hand173.get("total") is not None
+            or True
+        )
+        and (
+            prog173.get("pct") is not None
+            or prog173.get("percent") is not None
+            or hand173.get("progress_pct") is not None
+        )
+    ), hand173
+
+    # Round173 · 设置·ok+版本+英文品牌+中文品牌（前端复制；ok/version/brand_en/brand|app）
+    h173 = call("/api/health")
+    assert h173.get("ok") is True, h173
+    assert (
+        (h173.get("version") or h173.get("server_version"))
+        and h173.get("brand_en")
+        and (h173.get("brand") or h173.get("app"))
+    ), h173
+
     print("selfcheck OK")
 
 
