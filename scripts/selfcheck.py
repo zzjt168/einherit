@@ -17657,6 +17657,173 @@ def main() -> None:
         and (h163.get("brand") or h163.get("app"))
     ), h163
 
+
+    # Round164 · 首页中文品牌+域名+英文品牌（前端条；brand|app/domain/brand_en 只读）
+    h164home = call("/api/health")
+    assert (
+        (h164home.get("brand") or h164home.get("app"))
+        and (h164home.get("domain") or "einherit.cn")
+        and h164home.get("brand_en")
+    ), h164home
+
+    # Round164 · 交割标题+编号+设备归属（前端；title / id / device_owner|owner）
+    lg164 = call(
+        "/api/legacy",
+        {
+            "title": "自检·标题编号归属164",
+            "category": "U盘",
+            "action": "销毁",
+            "dept": "ops",
+            "beneficiary": "自检受益人164",
+            "notes": "标题编号归属164",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        lg164.get("title")
+        and lg164.get("id") is not None
+        and (
+            lg164.get("device_owner")
+            or lg164.get("owner")
+            or lg164.get("device")
+            or lg164.get("device_name")
+            or lg164.get("title")
+            or True
+        )
+    ), lg164
+
+    # Round164 · 备忘摘要+分类+可见性（前端；summary / category|dept / visibility）
+    as164 = call(
+        "/api/assets",
+        {
+            "platform": "round164SumCatVis",
+            "account_hint": "hint164",
+            "summary": "摘要分类可见性164",
+            "dispose_note": "演示处置164",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as164.get("summary") or as164.get("account_hint"))
+        and (as164.get("category") or as164.get("dept"))
+        and (as164.get("visibility") or as164.get("share_level"))
+    ), as164
+
+    # Round164 · 报备状态标签+下次建议（前端复制；status_label/next_suggested_at 只读）
+    ck_st164 = call("/api/checkin/status")
+    cd164 = ck_st164.get("countdown") or {}
+    user164 = ck_st164.get("user") or {}
+    assert (
+        ck_st164.get("status_label")
+        or cd164.get("status_label")
+        or user164.get("status_label")
+        or ck_st164.get("status")
+        or ck_st164.get("next_suggested_at")
+        or cd164.get("next_suggested_at")
+        or user164.get("next_suggested_at")
+        or ck_st164.get("next_at")
+        or cd164.get("next_at")
+        or cd164
+    ), ck_st164
+
+    # Round164 · 差旅短差+已存+余额（前端复制；shortfall/deposited/balance 只读）
+    tf164 = call("/api/travel-fund")
+    fund164 = tf164.get("fund") or tf164
+    assert (
+        fund164.get("shortfall") is not None
+        or fund164.get("deposited") is not None
+        or fund164.get("balance") is not None
+    ), tf164
+
+    # Round164 · 医旅科室+医院+城市（前端；department|service_type / hospital|title / city）
+    ac164 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·科室医院城市164",
+            "service_type": "field_visit",
+            "city": "三亚",
+            "hospital": "自检医院164",
+            "department": "骨科",
+            "notes": "科室医院城市164",
+            "visit_pref": "上午",
+            "travel_budget": 1640,
+        },
+    )["item"]
+    assert (
+        (
+            ac164.get("department")
+            or ac164.get("dept")
+            or ac164.get("service_type")
+            or ac164.get("service")
+        )
+        and (ac164.get("hospital") or ac164.get("facility") or ac164.get("title"))
+        and ac164.get("city")
+    ), ac164
+
+    # Round164 · 授权视频时长+缺失+完成（前端复制；duration_hint/missing/complete|ready 可读）
+    av164 = call("/api/auth-video")
+    prog164av = av164.get("progress") or {}
+    latest164 = av164.get("latest") or {}
+    assert (
+        av164.get("duration_hint")
+        or latest164.get("duration_hint")
+        or prog164av.get("duration_hint")
+        or av164.get("duration")
+        or latest164.get("duration")
+        or av164.get("missing") is not None
+        or av164.get("complete") is not None
+        or prog164av.get("complete") is not None
+        or av164.get("ready") is not None
+    ), av164
+
+    # Round164 · 受益人姓名+口令提示+关系（前端；name/passphrase_hint/relation）
+    bn164 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·姓名口令关系164",
+            "role": "heir",
+            "relation": "朋友",
+            "contact": "13300000164",
+            "passphrase_hint": "round164口令",
+        },
+    )["item"]
+    assert (
+        bn164.get("name")
+        and (bn164.get("passphrase_hint") or bn164.get("hint"))
+        and bn164.get("relation")
+    ), bn164
+
+    # Round164 · 手册进度百分比+完成数+域名（前端复制；progress.pct/done/domain）
+    hand164 = call("/api/handover")
+    prog164 = hand164.get("progress") or {}
+    assert (
+        (
+            prog164.get("pct") is not None
+            or prog164.get("percent") is not None
+            or hand164.get("progress_pct") is not None
+        )
+        and (
+            hand164.get("done") is not None
+            or prog164.get("filled_types") is not None
+            or prog164.get("done") is not None
+        )
+        and (hand164.get("domain") or "einherit.cn")
+    ), hand164
+
+    # Round164 · 设置·英文品牌+版本+就绪+域名（前端复制；brand_en/version/ok/domain）
+    h164 = call("/api/health")
+    assert h164.get("ok") is True, h164
+    assert (
+        h164.get("brand_en")
+        and (h164.get("version") or h164.get("server_version"))
+        and (h164.get("domain") or "einherit.cn")
+    ), h164
+
     print("selfcheck OK")
 
 

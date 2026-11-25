@@ -9261,3 +9261,38 @@ body.privacy-mode .privacy-hint { opacity: 0.85; }
   margin: 8px 0 10px; padding: 8px 10px; border-radius: 8px; background: #f5f8f6;
   word-break: break-word; font-weight: 600; color: var(--sage-deep, #2f5d45);
 }
+
+/* Round164 · 温和增量 */
+.home-brand-domain-brand-en-calm-r164 {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px;
+  margin: 8px 0 12px; padding: 10px 12px; border-radius: 10px;
+  background: linear-gradient(160deg, #eef5f3 0%, #fff 75%);
+  border: 1px solid var(--line, #e2e8e4);
+}
+.home-brand-domain-brand-en-calm-r164[hidden] { display: none; }
+.home-brand-domain-brand-en-calm-r164-mark { font-weight: 600; color: var(--sage-deep, #2f5d45); font-size: 13px; }
+.home-brand-domain-brand-en-calm-r164-sub { flex: 1; min-width: 8em; font-size: 12px; }
+.lg-copy-title-id-device-owner-r164 { margin-top: 8px; margin-left: 6px; }
+.as-copy-summary-category-visibility-r164 { margin-top: 8px; margin-left: 6px; }
+.checkin-status-label-next-suggested-plain-r164-copy {
+  margin-top: 10px; padding: 10px 12px; border-radius: 10px; background: #f5f8f6;
+}
+.checkin-status-label-next-suggested-plain-r164-copy-line { margin: 0 0 8px; }
+.travel-shortfall-deposited-balance-plain-r164-copy {
+  margin: 8px 0 10px; padding: 10px 12px; border-radius: 10px; background: #f5f8f6;
+}
+.travel-shortfall-deposited-balance-plain-r164-copy-line { margin: 0 0 8px; }
+.ac-copy-department-hospital-city-r164 { margin-top: 8px; margin-left: 6px; }
+.av-duration-hint-missing-complete-copy-r164 {
+  margin: 8px 0 10px; padding: 10px 12px; border-radius: 10px; background: #f5f8f6;
+}
+.av-duration-hint-missing-complete-copy-r164-line { margin: 0 0 8px; }
+.bn-copy-name-passphrase-hint-relation-r164 { margin-top: 8px; margin-left: 6px; }
+.hand-progress-pct-done-domain-copy-r164 {
+  margin: 8px 0 12px; padding: 10px 12px; border-radius: 10px; background: #f5f8f6;
+}
+.hand-progress-pct-done-domain-copy-r164-line { margin: 0 0 8px; }
+.settings-brand-en-version-ok-domain-r164-copy-card .settings-brand-en-version-ok-domain-r164-copy-preview {
+  margin: 8px 0 10px; padding: 8px 10px; border-radius: 8px; background: #f5f8f6;
+  word-break: break-word; font-weight: 600; color: var(--sage-deep, #2f5d45);
+}
