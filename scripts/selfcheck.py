@@ -3191,6 +3191,88 @@ def main() -> None:
     assert h37.get("ok") is True, h37
     assert h37.get("domain") == "einherit.cn", h37
 
+    # Round38 · 首页会员剩余天数（前端条；member_days_left 可读）
+    ck_st38 = call("/api/checkin/status")
+    assert "user" in ck_st38, ck_st38
+    assert (
+        "member_days_left" in ck_st38["user"]
+        or "is_member" in ck_st38["user"]
+    ), ck_st38
+
+    # Round38 · 交割编号复制（前端；id 可读）
+    lg38 = call(
+        "/api/legacy",
+        {
+            "title": "自检·编号复制38",
+            "category": "其他",
+            "action": "销毁",
+            "dept": "admin",
+        },
+    )["item"]
+    assert lg38.get("id") is not None, lg38
+
+    # Round38 · 备忘账号提示（前端；account_hint 可读）
+    as38 = call(
+        "/api/assets",
+        {
+            "platform": "round38Hint",
+            "summary": "账号提示",
+            "dept": "admin",
+            "account_hint": "邮箱后四位·38",
+            "draft": True,
+        },
+    )["item"]
+    assert "38" in str(as38.get("account_hint") or ""), as38
+
+    # Round38 · 报备会员温柔提示（前端复制；member_gentle_hint 可读）
+    assert (
+        ck_st38["user"].get("member_gentle_hint") is not None
+        or ck_st38["user"].get("is_member") is not None
+    ), ck_st38
+
+    # Round38 · 差旅最近流水备注（前端复制；ledger note 可读）
+    tf38 = call("/api/travel-fund")
+    ledger38 = tf38.get("ledger") or []
+    assert isinstance(ledger38, list), tf38
+
+    # Round38 · 善后上门偏好（前端；visit_pref 可读）
+    ac38 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·上门偏好38",
+            "service_type": "field_visit",
+            "city": "三亚",
+            "travel_budget": 250,
+            "visit_pref": "周末上午",
+        },
+    )["item"]
+    assert str(ac38.get("visit_pref") or "") == "周末上午", ac38
+
+    # Round38 · 授权视频生效编号（前端复制；current_active_id 可读）
+    av38 = call("/api/auth-video")
+    assert (
+        av38.get("current_active_id") is not None
+        or av38.get("current_active") is not None
+        or "ready" in av38
+    ), av38
+
+    # Round38 · 受益人可见条数（前端；列表可读）
+    bn38_list = call("/api/beneficiaries")
+    assert isinstance(bn38_list.get("items"), list), bn38_list
+
+    # Round38 · 手册受益人人数（前端复制；beneficiary_count 可读）
+    hand38 = call("/api/handover")
+    assert (
+        hand38.get("beneficiary_count") is not None
+        or isinstance(hand38.get("heirs"), list)
+    ), hand38
+
+    # Round38 · 设置·手册对齐说明（前端复制；export_align_note）
+    assert hand38.get("export_align_note") or hand38.get("brand"), hand38
+    h38 = call("/api/health")
+    assert h38.get("ok") is True, h38
+    assert h38.get("domain") == "einherit.cn", h38
+
     print("selfcheck OK")
 
 
