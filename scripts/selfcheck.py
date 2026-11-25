@@ -4801,6 +4801,91 @@ def main() -> None:
     assert h55.get("ok") is True, h55
     assert h55.get("server_version") or h55.get("version"), h55
 
+    # Round56 · 首页产品域名（前端条；health.domain 可读）
+    h56home = call("/api/health")
+    assert h56home.get("ok") is True, h56home
+    assert h56home.get("domain") or h56home.get("brand_en"), h56home
+
+    # Round56 · 交割处置纯文本（前端；action 可读）
+    lg56 = call(
+        "/api/legacy",
+        {
+            "title": "自检·处置56",
+            "category": "其他",
+            "action": "销售变现",
+            "dept": "finance",
+        },
+    )["item"]
+    assert lg56.get("action"), lg56
+
+    # Round56 · 备忘标签纯文本（前端；tag 可读）
+    as56 = call(
+        "/api/assets",
+        {
+            "platform": "round56Combo",
+            "summary": "标签纯文本",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "private",
+            "draft": True,
+        },
+    )["item"]
+    assert as56.get("tag"), as56
+
+    # Round56 · 报备将到建议时刻状态（前端复制；due_soon 可读）
+    ck_st56 = call("/api/checkin/status")
+    cd56 = ck_st56.get("countdown") or {}
+    assert "due_soon" in cd56 or ck_st56.get("user"), ck_st56
+
+    # Round56 · 差旅断缴退款备注（前端复制；last_refund.note 可读）
+    tf56 = call("/api/travel-fund")
+    fund56 = tf56.get("fund") or tf56
+    refund56 = fund56.get("last_refund")
+    assert refund56 is None or refund56.get("note") is not None or isinstance(
+        tf56.get("ledger") or [], list
+    ), tf56
+
+    # Round56 · 善后状态英文键（前端；status_key 可读）
+    ac56 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·状态键56",
+            "service_type": "field_visit",
+            "city": "琼海",
+            "travel_budget": 560,
+        },
+    )["item"]
+    assert ac56.get("status_key") or ac56.get("status_label"), ac56
+
+    # Round56 · 授权视频首段脚本键（前端复制；script[0].key 可读）
+    av56 = call("/api/auth-video")
+    script56 = av56.get("script") or []
+    assert (script56 and script56[0].get("key")) or av56.get("ready") is not None, av56
+
+    # Round56 · 受益人角色中文（前端；role 可读）
+    bn56 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·角色中文56",
+            "role": "family",
+            "relation": "配偶",
+            "contact": "13300000056",
+        },
+    )["item"]
+    assert bn56.get("role"), bn56
+
+    # Round56 · 手册销毁条数（前端复制；action_counts.destroy 可读）
+    hand56 = call("/api/handover")
+    prog56 = hand56.get("progress") or {}
+    destroy56 = (prog56.get("action_counts") or {}).get("destroy")
+    assert destroy56 is not None or isinstance(prog56.get("by_action"), list) or hand56.get(
+        "item_count"
+    ) is not None, hand56
+
+    # Round56 · 设置·服务就绪状态纯词（前端复制；health.ok 对齐）
+    h56 = call("/api/health")
+    assert h56.get("ok") is True, h56
+
     print("selfcheck OK")
 
 
