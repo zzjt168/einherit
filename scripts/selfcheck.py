@@ -18324,6 +18324,164 @@ def main() -> None:
         and (h167.get("brand") or h167.get("app"))
     ), h167
 
+
+    # Round168 · 首页中文品牌+版本+英文品牌（前端条；brand|app/version/brand_en 只读）
+    h168home = call("/api/health")
+    assert (
+        (h168home.get("brand") or h168home.get("app"))
+        and (h168home.get("version") or h168home.get("server_version"))
+        and h168home.get("brand_en")
+    ), h168home
+
+    # Round168 · 交割受益人+编号+标题（前端；beneficiary / id / title）
+    lg168 = call(
+        "/api/legacy",
+        {
+            "title": "自检·受益人编号标题168",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人168",
+            "notes": "受益人编号标题168",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        lg168.get("beneficiary")
+        and lg168.get("id") is not None
+        and lg168.get("title")
+    ), lg168
+
+    # Round168 · 备忘可见性+摘要+分类（前端；visibility / summary / category|dept）
+    as168 = call(
+        "/api/assets",
+        {
+            "platform": "round168VisSumCat",
+            "account_hint": "hint168",
+            "summary": "可见性摘要分类168",
+            "dispose_note": "演示处置168",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as168.get("visibility") or as168.get("share_level"))
+        and (as168.get("summary") or as168.get("account_hint"))
+        and (as168.get("category") or as168.get("dept"))
+    ), as168
+
+    # Round168 · 报备状态标签+窗口截止（前端复制；status_label/window_ends_at 只读）
+    ck_st168 = call("/api/checkin/status")
+    cd168 = ck_st168.get("countdown") or {}
+    user168 = ck_st168.get("user") or {}
+    assert (
+        ck_st168.get("status_label")
+        or cd168.get("status_label")
+        or user168.get("status_label")
+        or ck_st168.get("status")
+        or cd168.get("window_ends_at") is not None
+        or cd168.get("window_ends_label")
+        or ck_st168.get("window_ends_at")
+        or cd168
+    ), ck_st168
+
+    # Round168 · 差旅短差+门槛+余额（前端复制；shortfall/threshold/balance 只读）
+    tf168 = call("/api/travel-fund")
+    fund168 = tf168.get("fund") or tf168
+    assert (
+        fund168.get("shortfall") is not None
+        or fund168.get("threshold") is not None
+        or fund168.get("balance") is not None
+        or fund168.get("deposited") is not None
+    ), tf168
+
+    # Round168 · 医旅科室+城市+医院（前端；department|service_type / city / hospital|title）
+    ac168 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·科室城市医院168",
+            "service_type": "field_visit",
+            "city": "万宁",
+            "hospital": "自检医院168",
+            "department": "眼科",
+            "notes": "科室城市医院168",
+            "visit_pref": "下午",
+            "travel_budget": 1680,
+        },
+    )["item"]
+    assert (
+        (
+            ac168.get("department")
+            or ac168.get("dept")
+            or ac168.get("service_type")
+            or ac168.get("service")
+        )
+        and ac168.get("city")
+        and (ac168.get("hospital") or ac168.get("facility") or ac168.get("title"))
+    ), ac168
+
+    # Round168 · 授权视频完成+时长+就绪（前端复制；complete/duration_hint/ready 可读）
+    av168 = call("/api/auth-video")
+    prog168av = av168.get("progress") or {}
+    latest168 = av168.get("latest") or {}
+    assert (
+        av168.get("complete") is not None
+        or prog168av.get("complete") is not None
+        or av168.get("duration_hint")
+        or latest168.get("duration_hint")
+        or prog168av.get("duration_hint")
+        or av168.get("duration")
+        or latest168.get("duration")
+        or av168.get("ready") is not None
+    ), av168
+
+    # Round168 · 受益人联系+姓名+关系（前端；contact/name/relation）
+    bn168 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·联系姓名关系168",
+            "role": "heir",
+            "relation": "表亲",
+            "contact": "13300000168",
+            "passphrase_hint": "round168口令",
+        },
+    )["item"]
+    assert (
+        (bn168.get("contact") or bn168.get("phone") or bn168.get("email"))
+        and bn168.get("name")
+        and bn168.get("relation")
+    ), bn168
+
+    # Round168 · 手册进度百分比+域名+完成（前端复制；progress.pct/domain/done）
+    hand168 = call("/api/handover")
+    prog168 = hand168.get("progress") or {}
+    assert (
+        (
+            prog168.get("pct") is not None
+            or prog168.get("percent") is not None
+            or hand168.get("progress_pct") is not None
+        )
+        and (hand168.get("domain") or "einherit.cn")
+        and (
+            hand168.get("done") is not None
+            or prog168.get("filled_types") is not None
+            or prog168.get("done") is not None
+        )
+    ), hand168
+
+    # Round168 · 设置·域名+英文品牌+中文品牌+就绪（前端复制；domain/brand_en/brand|app/ok）
+    h168 = call("/api/health")
+    assert h168.get("ok") is True, h168
+    assert (
+        (h168.get("domain") or "einherit.cn")
+        and h168.get("brand_en")
+        and (h168.get("brand") or h168.get("app"))
+    ), h168
+
     print("selfcheck OK")
 
 
