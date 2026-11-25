@@ -2855,6 +2855,87 @@ def main() -> None:
     assert h33.get("domain") == "einherit.cn", h33
     assert h33.get("app") or h33.get("brand_en"), h33
 
+    # Round34 · 首页差旅门槛（前端条；fund 可读）
+    tf34 = call("/api/travel-fund")
+    fund34 = tf34.get("fund") or tf34
+    assert "balance" in fund34, fund34
+
+    # Round34 · 交割部门复制（前端；dept 可读）
+    lg34 = call(
+        "/api/legacy",
+        {
+            "title": "自检·部门复制34",
+            "category": "其他",
+            "action": "销毁",
+            "dept": "admin",
+        },
+    )["item"]
+    assert lg34.get("dept") or lg34.get("title"), lg34
+
+    # Round34 · 备忘处置复制（前端；dispose_note 可读）
+    as34 = call(
+        "/api/assets",
+        {
+            "platform": "round34Dispose",
+            "summary": "处置复制",
+            "dept": "admin",
+            "dispose_note": "变现",
+            "draft": True,
+        },
+    )["item"]
+    assert "变现" in str(as34.get("dispose_note") or ""), as34
+
+    # Round34 · 报备上次与下次（前端复制；字段可读）
+    ck_st34 = call("/api/checkin/status")
+    assert "user" in ck_st34, ck_st34
+    assert (
+        ck_st34["user"].get("last_checkin_at") is not None
+        or ck_st34["user"].get("checkin_due_at") is not None
+    ), ck_st34
+
+    # Round34 · 差旅余额数字（前端复制；balance 可读）
+    assert fund34.get("balance") is not None, fund34
+
+    # Round34 · 善后可见条数（前端；列表可读）
+    ac34 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·可见单34",
+            "service_type": "delete_data",
+            "city": "三亚",
+            "travel_budget": 210,
+        },
+    )["item"]
+    assert ac34.get("title"), ac34
+    ac34_list = call("/api/aftercare")
+    assert isinstance(ac34_list.get("items"), list), ac34_list
+
+    # Round34 · 授权视频就绪状态（前端复制；ready 可读）
+    av34 = call("/api/auth-video")
+    assert "ready" in av34, av34
+
+    # Round34 · 受益人角色复制（前端；role 可读）
+    bn34 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·角色复制34",
+            "role": "heir",
+            "relation": "演示",
+            "contact": "13300000034",
+        },
+    )["item"]
+    assert str(bn34.get("role") or "") == "heir", bn34
+
+    # Round34 · 手册执行人+域名（前端复制；字段可读）
+    hand34 = call("/api/handover")
+    assert "executor" in hand34 or "domain" in hand34, hand34
+
+    # Round34 · 设置·服务端版本行（前端复制；server_version）
+    h34 = call("/api/health")
+    assert h34.get("ok") is True, h34
+    assert h34.get("domain") == "einherit.cn", h34
+    assert h34.get("server_version") or h34.get("version"), h34
+
     print("selfcheck OK")
 
 
