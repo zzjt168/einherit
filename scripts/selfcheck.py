@@ -7533,6 +7533,102 @@ def main() -> None:
     assert (h83.get("version") or h83.get("server_version")) and h83.get("brand_en"), h83
     assert h83.get("domain") == "einherit.cn", h83
 
+    # Round84 · 首页就绪状态（前端条；health.ok 只读）
+    h84home = call("/api/health")
+    assert h84home.get("ok") is True, h84home
+
+    # Round84 · 交割标题+分类+备注（前端；title/category/notes 可读）
+    lg84 = call(
+        "/api/legacy",
+        {
+            "title": "自检·标题分类84",
+            "category": "路由器",
+            "action": "销毁",
+            "dept": "admin",
+            "notes": "标题分类备注84",
+            "factory_reset": True,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert lg84.get("title") and lg84.get("category"), lg84
+    assert "notes" in lg84 or lg84.get("notes") is not None, lg84
+
+    # Round84 · 备忘部门+标签+摘要（前端；dept/tag/summary 可读）
+    as84 = call(
+        "/api/assets",
+        {
+            "platform": "round84DeptTagSummary",
+            "account_hint": "hint84",
+            "summary": "部门标签摘要84",
+            "dispose_note": "演示处置84",
+            "dept": "finance",
+            "tag": "其他",
+            "visibility": "private",
+            "draft": True,
+        },
+    )["item"]
+    assert as84.get("dept") and as84.get("tag") and as84.get("summary"), as84
+
+    # Round84 · 报备可读倒计时（前端复制；readable 只读）
+    ck_st84 = call("/api/checkin/status")
+    cd84 = ck_st84.get("countdown") or {}
+    assert cd84.get("readable") or cd84, ck_st84
+
+    # Round84 · 差旅最新流水种类金额（前端复制；ledger kind/amount 只读）
+    tf84 = call("/api/travel-fund")
+    ledger84 = tf84.get("ledger") or []
+    assert ledger84 or tf84.get("fund"), tf84
+
+    # Round84 · 善后探访+预算+城市（前端；visit_pref/travel_budget/city 可读）
+    ac84 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·探访预算84",
+            "service_type": "field_visit",
+            "city": "东方",
+            "notes": "探访预算城市84",
+            "visit_pref": "傍晚",
+            "travel_budget": 840,
+        },
+    )["item"]
+    assert (
+        ac84.get("visit_pref")
+        or ac84.get("travel_budget") is not None
+        or ac84.get("city")
+    ), ac84
+
+    # Round84 · 授权视频进度+就绪（前端复制；progress/ready 可读）
+    av84 = call("/api/auth-video")
+    prog84 = av84.get("progress") or {}
+    assert (
+        prog84.get("done") is not None
+        or prog84.get("total") is not None
+        or av84.get("ready") is not None
+    ), av84
+
+    # Round84 · 受益人编号+角色+口令（前端；id/role/passphrase_hint 可读）
+    bn84 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·编号角色84",
+            "role": "executor",
+            "relation": "邻居",
+            "contact": "13300000084",
+            "passphrase_hint": "round84口令",
+        },
+    )["item"]
+    assert bn84.get("id") is not None and bn84.get("role") and bn84.get("passphrase_hint"), bn84
+
+    # Round84 · 手册分享提示与品牌（前端复制；share_hint/brand 可读）
+    hand84 = call("/api/handover")
+    assert hand84.get("share_hint") or hand84.get("brand"), hand84
+
+    # Round84 · 设置·中英品牌+就绪（前端复制；app/brand_en/ok 对齐）
+    h84 = call("/api/health")
+    assert h84.get("ok") is True, h84
+    assert h84.get("app") and h84.get("brand_en"), h84
+
     print("selfcheck OK")
 
 
