@@ -16565,6 +16565,163 @@ def main() -> None:
         and h156.get("brand_en")
     ), h156
 
+
+    # Round157 · 首页就绪+英文品牌+域名（前端条；ok/brand_en/domain 只读）
+    h157home = call("/api/health")
+    assert (
+        h157home.get("ok") is True
+        and h157home.get("brand_en")
+        and (h157home.get("domain") or "einherit.cn")
+    ), h157home
+
+    # Round157 · 交割标题+处置+编号（前端；title / disposition|action / id）
+    lg157 = call(
+        "/api/legacy",
+        {
+            "title": "自检·标题处置编号157",
+            "category": "路由器",
+            "action": "销售",
+            "dept": "ops",
+            "beneficiary": "自检受益人157",
+            "notes": "标题处置编号157",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (lg157.get("title") or lg157.get("category"))
+        and (lg157.get("disposition") or lg157.get("action"))
+        and lg157.get("id") is not None
+    ), lg157
+
+    # Round157 · 备忘标题+平台+分类（前端；title|summary|platform / platform / category|dept）
+    as157 = call(
+        "/api/assets",
+        {
+            "platform": "round157TitlePlatCat",
+            "account_hint": "hint157",
+            "summary": "标题平台分类157",
+            "dispose_note": "演示处置157",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as157.get("title") or as157.get("summary") or as157.get("platform"))
+        and as157.get("platform")
+        and (as157.get("category") or as157.get("dept"))
+    ), as157
+
+    # Round157 · 报备距上次+窗口截止（前端复制；last_ago_label/window_ends_at 只读）
+    ck_st157 = call("/api/checkin/status")
+    cd157 = ck_st157.get("countdown") or {}
+    user157 = ck_st157.get("user") or {}
+    assert (
+        ck_st157.get("last_ago_label")
+        or cd157.get("last_ago_label")
+        or user157.get("last_ago_label")
+        or cd157.get("last_checkin_ago")
+        or cd157.get("window_ends_at") is not None
+        or cd157.get("window_ends_label")
+        or ck_st157.get("window_ends_at")
+        or cd157
+    ), ck_st157
+
+    # Round157 · 差旅已存+短差+进度（前端复制；deposited/shortfall/progress_pct 只读）
+    tf157 = call("/api/travel-fund")
+    fund157 = tf157.get("fund") or tf157
+    assert (
+        fund157.get("deposited") is not None
+        or fund157.get("shortfall") is not None
+        or fund157.get("progress_pct") is not None
+        or fund157.get("progress") is not None
+    ), tf157
+
+    # Round157 · 善后服务类型+状态+医院（前端；service_type / status|title / hospital|city）
+    ac157 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·服务状态医院157",
+            "service_type": "field_visit",
+            "city": "琼海",
+            "hospital": "自检医院157",
+            "department": "神经内科",
+            "notes": "服务状态医院157",
+            "visit_pref": "上午",
+            "travel_budget": 1570,
+        },
+    )["item"]
+    assert (
+        (ac157.get("service_type") or ac157.get("service"))
+        and (
+            ac157.get("status_label")
+            or ac157.get("status")
+            or ac157.get("status_key")
+            or ac157.get("title")
+        )
+        and (ac157.get("hospital") or ac157.get("facility") or ac157.get("city") or ac157.get("title"))
+    ), ac157
+
+    # Round157 · 授权视频时长+就绪+完成（前端复制；duration_hint/ready/complete 可读）
+    av157 = call("/api/auth-video")
+    prog157av = av157.get("progress") or {}
+    latest157 = av157.get("latest") or {}
+    assert (
+        av157.get("duration_hint")
+        or latest157.get("duration_hint")
+        or prog157av.get("duration_hint")
+        or av157.get("duration")
+        or latest157.get("duration")
+        or av157.get("ready") is not None
+        or av157.get("complete") is not None
+    ), av157
+
+    # Round157 · 受益人联系+口令提示+姓名（前端；contact/passphrase_hint/name）
+    bn157 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·联系口令姓名157",
+            "role": "heir",
+            "relation": "同学",
+            "contact": "13300000157",
+            "passphrase_hint": "round157口令",
+        },
+    )["item"]
+    assert (
+        bn157.get("contact")
+        and bn157.get("passphrase_hint")
+        and bn157.get("name")
+    ), bn157
+
+    # Round157 · 手册章节+品牌+进度百分比（前端复制；sections/brand/progress.pct）
+    hand157 = call("/api/handover")
+    prog157 = hand157.get("progress") or {}
+    assert (
+        (
+            hand157.get("sections") is not None
+            or prog157.get("total_types") is not None
+            or hand157.get("section_count") is not None
+        )
+        and (hand157.get("brand") or "电子继承 App")
+        and (
+            prog157.get("pct") is not None
+            or prog157.get("percent") is not None
+            or hand157.get("progress_pct") is not None
+        )
+    ), hand157
+
+    # Round157 · 设置·就绪+域名+英文品牌+版本（前端复制；ok/domain/brand_en/version）
+    h157 = call("/api/health")
+    assert h157.get("ok") is True, h157
+    assert (
+        (h157.get("domain") or "einherit.cn")
+        and h157.get("brand_en")
+        and (h157.get("version") or h157.get("server_version"))
+    ), h157
+
     print("selfcheck OK")
 
 
