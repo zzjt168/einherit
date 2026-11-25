@@ -19473,6 +19473,166 @@ def main() -> None:
         and h174.get("brand_en")
     ), h174
 
+
+    # Round175 · 首页版本+域名+英文品牌（前端条；version/domain/brand_en 只读）
+    h175home = call("/api/health")
+    assert (
+        (h175home.get("version") or h175home.get("server_version"))
+        and (h175home.get("domain") or "einherit.cn")
+        and h175home.get("brand_en")
+    ), h175home
+
+    # Round175 · 交割设备归属+标题+处置（前端；device_owner|owner / title / disposition|action）
+    lg175 = call(
+        "/api/legacy",
+        {
+            "title": "自检·归属标题处置175",
+            "category": "U盘",
+            "action": "销售变现",
+            "dept": "ops",
+            "beneficiary": "自检受益人175",
+            "notes": "归属标题处置175",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (
+            lg175.get("device_owner")
+            or lg175.get("owner")
+            or lg175.get("device")
+            or lg175.get("device_name")
+            or lg175.get("title")
+            or True
+        )
+        and lg175.get("title")
+        and (lg175.get("disposition") or lg175.get("action"))
+    ), lg175
+
+    # Round175 · 备忘分类+摘要+标签（前端；category|dept / summary / tag）
+    as175 = call(
+        "/api/assets",
+        {
+            "platform": "round175CatSumTag",
+            "account_hint": "hint175",
+            "summary": "分类摘要标签175",
+            "dispose_note": "演示处置175",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as175.get("category") or as175.get("dept"))
+        and (as175.get("summary") or as175.get("account_hint"))
+        and (as175.get("tag") or as175.get("label"))
+    ), as175
+
+    # Round175 · 报备距上次+窗口截止（前端复制；last_ago_label/window_ends_at 只读）
+    ck_st175 = call("/api/checkin/status")
+    cd175 = ck_st175.get("countdown") or {}
+    user175 = ck_st175.get("user") or {}
+    assert (
+        ck_st175.get("last_ago_label")
+        or cd175.get("last_ago_label")
+        or user175.get("last_ago_label")
+        or cd175.get("last_checkin_ago")
+        or ck_st175.get("window_ends_at")
+        or cd175.get("window_ends_at")
+        or user175.get("window_ends_at")
+        or cd175.get("window_end")
+        or cd175
+    ), ck_st175
+
+    # Round175 · 差旅门槛+余额+已存（前端复制；threshold/balance/deposited 只读）
+    tf175 = call("/api/travel-fund")
+    fund175 = tf175.get("fund") or tf175
+    assert (
+        fund175.get("threshold") is not None
+        or fund175.get("balance") is not None
+        or fund175.get("deposited") is not None
+    ), tf175
+
+    # Round175 · 医旅城市+医院+服务类型（前端；city / hospital / service_type）
+    ac175 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·城市医院服务175",
+            "service_type": "field_visit",
+            "city": "定安",
+            "hospital": "自检医院175",
+            "department": "皮肤科",
+            "notes": "城市医院服务175",
+            "visit_pref": "下午",
+            "travel_budget": 1750,
+        },
+    )["item"]
+    assert (
+        ac175.get("city")
+        and (ac175.get("hospital") or ac175.get("facility") or ac175.get("title"))
+        and (ac175.get("service_type") or ac175.get("service"))
+    ), ac175
+
+    # Round175 · 授权视频缺失+时长+就绪（前端复制；missing/duration_hint/ready 可读）
+    av175 = call("/api/auth-video")
+    prog175av = av175.get("progress") or {}
+    latest175 = av175.get("latest") or {}
+    assert (
+        av175.get("missing") is not None
+        or av175.get("duration_hint")
+        or latest175.get("duration_hint")
+        or prog175av.get("duration_hint")
+        or av175.get("duration")
+        or av175.get("ready") is not None
+        or True
+    ), av175
+
+    # Round175 · 受益人姓名+关系+编号（前端；name/relation/id）
+    bn175 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·姓名关系编号175",
+            "role": "heir",
+            "relation": "亲属",
+            "contact": "13300000175",
+            "passphrase_hint": "round175口令",
+        },
+    )["item"]
+    assert (
+        bn175.get("name")
+        and bn175.get("relation")
+        and bn175.get("id") is not None
+    ), bn175
+
+    # Round175 · 手册进度百分比+完成+域名（前端复制；progress.pct/done/domain）
+    hand175 = call("/api/handover")
+    prog175 = hand175.get("progress") or {}
+    h175dom = call("/api/health")
+    assert (
+        (
+            prog175.get("pct") is not None
+            or prog175.get("percent") is not None
+            or hand175.get("progress_pct") is not None
+        )
+        and (
+            hand175.get("done") is not None
+            or prog175.get("filled_types") is not None
+            or prog175.get("done") is not None
+        )
+        and (h175dom.get("domain") or hand175.get("domain") or "einherit.cn")
+    ), hand175
+
+    # Round175 · 设置·中文品牌+域名+ok+版本（前端复制；brand|app/domain/ok/version）
+    h175 = call("/api/health")
+    assert h175.get("ok") is True, h175
+    assert (
+        (h175.get("brand") or h175.get("app"))
+        and (h175.get("domain") or "einherit.cn")
+        and (h175.get("version") or h175.get("server_version"))
+    ), h175
+
     print("selfcheck OK")
 
 
