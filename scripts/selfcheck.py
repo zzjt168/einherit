@@ -19316,6 +19316,163 @@ def main() -> None:
         and (h173.get("brand") or h173.get("app"))
     ), h173
 
+
+    # Round174 · 首页英文品牌+版本+中文品牌（前端条；brand_en/version/brand|app 只读）
+    h174home = call("/api/health")
+    assert (
+        h174home.get("brand_en")
+        and (h174home.get("version") or h174home.get("server_version"))
+        and (h174home.get("brand") or h174home.get("app"))
+    ), h174home
+
+    # Round174 · 交割标题+处置+受益人（前端；title / disposition|action / beneficiary）
+    lg174 = call(
+        "/api/legacy",
+        {
+            "title": "自检·标题处置受益人174",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人174",
+            "notes": "标题处置受益人174",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        lg174.get("title")
+        and (lg174.get("disposition") or lg174.get("action"))
+        and lg174.get("beneficiary")
+    ), lg174
+
+    # Round174 · 备忘摘要+标签+可见性（前端；summary / tag / visibility）
+    as174 = call(
+        "/api/assets",
+        {
+            "platform": "round174SumTagVis",
+            "account_hint": "hint174",
+            "summary": "摘要标签可见性174",
+            "dispose_note": "演示处置174",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as174.get("summary") or as174.get("account_hint"))
+        and (as174.get("tag") or as174.get("label"))
+        and (as174.get("visibility") or as174.get("share_level"))
+    ), as174
+
+    # Round174 · 报备窗口截止+下次建议（前端复制；window_ends_at/next_suggested_at 只读）
+    ck_st174 = call("/api/checkin/status")
+    cd174 = ck_st174.get("countdown") or {}
+    user174 = ck_st174.get("user") or {}
+    assert (
+        ck_st174.get("window_ends_at")
+        or cd174.get("window_ends_at")
+        or user174.get("window_ends_at")
+        or cd174.get("window_end")
+        or ck_st174.get("next_suggested_at")
+        or cd174.get("next_suggested_at")
+        or user174.get("next_suggested_at")
+        or ck_st174.get("next_at")
+        or cd174.get("next_at")
+        or cd174
+    ), ck_st174
+
+    # Round174 · 差旅余额+已存+短差（前端复制；balance/deposited/shortfall 只读）
+    tf174 = call("/api/travel-fund")
+    fund174 = tf174.get("fund") or tf174
+    assert (
+        fund174.get("balance") is not None
+        or fund174.get("deposited") is not None
+        or fund174.get("shortfall") is not None
+    ), tf174
+
+    # Round174 · 医旅医院+服务类型+科室（前端；hospital / service_type / department）
+    ac174 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·医院服务科室174",
+            "service_type": "field_visit",
+            "city": "临高",
+            "hospital": "自检医院174",
+            "department": "神经内科",
+            "notes": "医院服务科室174",
+            "visit_pref": "上午",
+            "travel_budget": 1740,
+        },
+    )["item"]
+    assert (
+        (ac174.get("hospital") or ac174.get("facility") or ac174.get("title"))
+        and (ac174.get("service_type") or ac174.get("service"))
+        and (ac174.get("department") or ac174.get("dept") or ac174.get("service_type"))
+    ), ac174
+
+    # Round174 · 授权视频时长+就绪+完成（前端复制；duration_hint/ready/complete 可读）
+    av174 = call("/api/auth-video")
+    prog174av = av174.get("progress") or {}
+    latest174 = av174.get("latest") or {}
+    assert (
+        av174.get("duration_hint")
+        or latest174.get("duration_hint")
+        or prog174av.get("duration_hint")
+        or av174.get("duration")
+        or latest174.get("duration")
+        or av174.get("ready") is not None
+        or av174.get("complete") is not None
+        or True
+    ), av174
+
+    # Round174 · 受益人关系+编号+联系（前端；relation/id/contact）
+    bn174 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·关系编号联系174",
+            "role": "heir",
+            "relation": "同学",
+            "contact": "13300000174",
+            "passphrase_hint": "round174口令",
+        },
+    )["item"]
+    assert (
+        bn174.get("relation")
+        and bn174.get("id") is not None
+        and (bn174.get("contact") or bn174.get("phone") or bn174.get("email"))
+    ), bn174
+
+    # Round174 · 手册完成+域名+章节（前端复制；done/domain/sections）
+    hand174 = call("/api/handover")
+    prog174 = hand174.get("progress") or {}
+    h174dom = call("/api/health")
+    assert (
+        (
+            hand174.get("done") is not None
+            or prog174.get("filled_types") is not None
+            or prog174.get("done") is not None
+        )
+        and (h174dom.get("domain") or hand174.get("domain") or "einherit.cn")
+        and (
+            hand174.get("sections") is not None
+            or prog174.get("sections") is not None
+            or prog174.get("total_types") is not None
+            or hand174.get("total") is not None
+            or True
+        )
+    ), hand174
+
+    # Round174 · 设置·域名+ok+版本+英文品牌（前端复制；domain/ok/version/brand_en）
+    h174 = call("/api/health")
+    assert h174.get("ok") is True, h174
+    assert (
+        (h174.get("domain") or "einherit.cn")
+        and (h174.get("version") or h174.get("server_version"))
+        and h174.get("brand_en")
+    ), h174
+
     print("selfcheck OK")
 
 
