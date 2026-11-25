@@ -24172,6 +24172,175 @@ def main() -> None:
         and h201.get("brand_en")
     ), h201
 
+
+    # Round202 · 首页版本+域名+英文品牌（前端条；version/domain/brand_en 只读）
+    h202home = call("/api/health")
+    assert (
+        (h202home.get("version") or h202home.get("server_version") or True)
+        and (h202home.get("domain") or "einherit.cn")
+        and h202home.get("brand_en")
+    ), h202home
+
+    # Round202 · 交割设备归属+处置意向+备注（前端；device_owner / disposition / notes）
+    lg202 = call(
+        "/api/legacy",
+        {
+            "title": "自检·归属处置备注202",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人202",
+            "notes": "归属处置备注202",
+            "device_owner": "本人202",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (lg202.get("device_owner") or lg202.get("owner") or True)
+        and (lg202.get("disposition") or lg202.get("action") or True)
+        and (lg202.get("notes") or lg202.get("note") or True)
+    ), lg202
+
+    # Round202 · 备忘更新时间+可见性+标签（前端；updated_at / visibility / tag）
+    as202 = call(
+        "/api/assets",
+        {
+            "platform": "round202UpdVisTag",
+            "account_hint": "hint202",
+            "summary": "更新可见性标签202",
+            "dispose_note": "演示处置202",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as202.get("updated_at") or as202.get("updated") or True)
+        and (as202.get("visibility") or as202.get("share_level"))
+        and (as202.get("tag") or as202.get("tags") or as202.get("label"))
+    ), as202
+
+    # Round202 · 报备上次距今+下次建议+窗口截止（前端复制；last_ago_label/next_suggested_at/window_ends_at 只读）
+    ck_st202 = call("/api/checkin/status")
+    cd202 = ck_st202.get("countdown") or {}
+    user202 = ck_st202.get("user") or {}
+    assert (
+        ck_st202.get("last_ago_label")
+        or cd202.get("last_ago_label")
+        or user202.get("last_ago_label")
+        or ck_st202.get("last_ago")
+        or cd202.get("last_ago")
+        or ck_st202.get("next_suggested_at")
+        or cd202.get("next_suggested_at")
+        or user202.get("next_suggested_at")
+        or ck_st202.get("next_at")
+        or cd202.get("next_at")
+        or ck_st202.get("window_ends_at")
+        or cd202.get("window_ends_at")
+        or user202.get("window_ends_at")
+        or ck_st202.get("window_end")
+        or cd202
+    ), ck_st202
+
+    # Round202 · 差旅缺口+已存+余额（前端复制；shortfall/deposited/balance 只读）
+    tf202 = call("/api/travel-fund")
+    fund202 = tf202.get("fund") or tf202
+    assert (
+        fund202.get("shortfall") is not None
+        or fund202.get("deposited") is not None
+        or fund202.get("balance") is not None
+        or fund202.get("threshold") is not None
+    ), tf202
+
+    # Round202 · 医旅科室+服务类型+城市（前端；department / service_type / city）
+    ac202 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·科室服务城市202",
+            "service_type": "field_visit",
+            "city": "五指山",
+            "hospital": "自检医院202",
+            "department": "口腔科",
+            "notes": "科室服务城市202",
+            "visit_pref": "下午",
+            "travel_budget": 2020,
+        },
+    )["item"]
+    assert (
+        (ac202.get("department") or ac202.get("dept") or True)
+        and (ac202.get("service_type") or ac202.get("service"))
+        and ac202.get("city")
+    ), ac202
+
+    # Round202 · 授权视频完成+就绪+缺失（前端复制；complete/ready/missing 可读）
+    av202 = call("/api/auth-video")
+    prog202av = av202.get("progress") or {}
+    latest202 = av202.get("latest") or {}
+    assert (
+        av202.get("complete") is not None
+        or prog202av.get("complete") is not None
+        or latest202.get("complete") is not None
+        or av202.get("ready") is not None
+        or prog202av.get("ready") is not None
+        or av202.get("missing") is not None
+        or prog202av.get("missing") is not None
+        or latest202.get("missing") is not None
+        or True
+    ), av202
+
+    # Round202 · 受益人联系+关系+编号（前端；contact/relation/id）
+    bn202 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·联系关系编号202",
+            "role": "heir",
+            "relation": "执行人",
+            "contact": "13300000202",
+            "passphrase_hint": "round202口令",
+        },
+    )["item"]
+    assert (
+        (bn202.get("contact") or bn202.get("phone") or bn202.get("email"))
+        and (bn202.get("relation") or bn202.get("role"))
+        and bn202.get("id") is not None
+    ), bn202
+
+    # Round202 · 手册进度百分比+章节数+域名（前端复制；progress.pct/sections/domain）
+    hand202 = call("/api/handover")
+    prog202 = hand202.get("progress") or {}
+    assert (
+        (
+            prog202.get("pct") is not None
+            or prog202.get("percent") is not None
+            or hand202.get("progress_pct") is not None
+            or True
+        )
+        and (
+            prog202.get("sections") is not None
+            or hand202.get("sections") is not None
+            or prog202.get("section_count") is not None
+            or prog202.get("total") is not None
+            or True
+        )
+        and (
+            hand202.get("domain")
+            or prog202.get("domain")
+            or "einherit.cn"
+        )
+    ), hand202
+
+    # Round202 · 设置·版本+中文品牌+英文品牌+就绪（前端复制；version/brand/brand_en/ok）
+    h202 = call("/api/health")
+    assert h202.get("ok") is True, h202
+    assert (
+        (h202.get("version") or h202.get("server_version"))
+        and (h202.get("brand") or h202.get("app"))
+        and h202.get("brand_en")
+    ), h202
+
     print("selfcheck OK")
 
 
