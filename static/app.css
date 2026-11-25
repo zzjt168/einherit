@@ -9471,3 +9471,38 @@ body.privacy-mode .privacy-hint { opacity: 0.85; }
   margin: 8px 0 10px; padding: 8px 10px; border-radius: 8px; background: #f5f8f6;
   word-break: break-word; font-weight: 600; color: var(--sage-deep, #2f5d45);
 }
+
+/* Round170 · 温和增量 */
+.home-brand-en-domain-brand-calm-r170 {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px;
+  margin: 8px 0 12px; padding: 10px 12px; border-radius: 10px;
+  background: linear-gradient(160deg, #eef5f3 0%, #fff 75%);
+  border: 1px solid var(--line, #e2e8e4);
+}
+.home-brand-en-domain-brand-calm-r170[hidden] { display: none; }
+.home-brand-en-domain-brand-calm-r170-mark { font-weight: 600; color: var(--sage-deep, #2f5d45); font-size: 13px; }
+.home-brand-en-domain-brand-calm-r170-sub { flex: 1; min-width: 8em; font-size: 12px; }
+.lg-copy-title-disposition-beneficiary-r170 { margin-top: 8px; margin-left: 6px; }
+.as-copy-summary-tag-visibility-r170 { margin-top: 8px; margin-left: 6px; }
+.checkin-window-ends-next-suggested-plain-r170-copy {
+  margin-top: 10px; padding: 10px 12px; border-radius: 10px; background: #f5f8f6;
+}
+.checkin-window-ends-next-suggested-plain-r170-copy-line { margin: 0 0 8px; }
+.travel-balance-deposited-shortfall-plain-r170-copy {
+  margin: 8px 0 10px; padding: 10px 12px; border-radius: 10px; background: #f5f8f6;
+}
+.travel-balance-deposited-shortfall-plain-r170-copy-line { margin: 0 0 8px; }
+.ac-copy-hospital-service-type-department-r170 { margin-top: 8px; margin-left: 6px; }
+.av-duration-hint-ready-complete-copy-r170 {
+  margin: 8px 0 10px; padding: 10px 12px; border-radius: 10px; background: #f5f8f6;
+}
+.av-duration-hint-ready-complete-copy-r170-line { margin: 0 0 8px; }
+.bn-copy-relation-id-contact-r170 { margin-top: 8px; margin-left: 6px; }
+.hand-domain-done-sections-copy-r170 {
+  margin: 8px 0 12px; padding: 10px 12px; border-radius: 10px; background: #f5f8f6;
+}
+.hand-domain-done-sections-copy-r170-line { margin: 0 0 8px; }
+.settings-brand-ok-domain-version-r170-copy-card .settings-brand-ok-domain-version-r170-copy-preview {
+  margin: 8px 0 10px; padding: 8px 10px; border-radius: 8px; background: #f5f8f6;
+  word-break: break-word; font-weight: 600; color: var(--sage-deep, #2f5d45);
+}

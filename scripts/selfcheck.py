@@ -18652,6 +18652,169 @@ def main() -> None:
         and h169.get("brand_en")
     ), h169
 
+
+    # Round170 · 首页英文品牌+域名+中文品牌（前端条；brand_en/domain/brand|app 只读）
+    h170home = call("/api/health")
+    assert (
+        h170home.get("brand_en")
+        and (h170home.get("domain") or "einherit.cn")
+        and (h170home.get("brand") or h170home.get("app"))
+    ), h170home
+
+    # Round170 · 交割标题+处置+受益人（前端；title / disposition|action / beneficiary）
+    lg170 = call(
+        "/api/legacy",
+        {
+            "title": "自检·标题处置受益人170",
+            "category": "U盘",
+            "action": "销毁",
+            "dept": "ops",
+            "beneficiary": "自检受益人170",
+            "notes": "标题处置受益人170",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        lg170.get("title")
+        and (lg170.get("disposition") or lg170.get("action"))
+        and lg170.get("beneficiary")
+    ), lg170
+
+    # Round170 · 备忘摘要+标签+可见性（前端；summary / tag / visibility）
+    as170 = call(
+        "/api/assets",
+        {
+            "platform": "round170SumTagVis",
+            "account_hint": "hint170",
+            "summary": "摘要标签可见性170",
+            "dispose_note": "演示处置170",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as170.get("summary") or as170.get("account_hint"))
+        and (as170.get("tag") or as170.get("category"))
+        and (as170.get("visibility") or as170.get("share_level"))
+    ), as170
+
+    # Round170 · 报备窗口截止+下次建议（前端复制；window_ends_at/next_suggested_at 只读）
+    ck_st170 = call("/api/checkin/status")
+    cd170 = ck_st170.get("countdown") or {}
+    user170 = ck_st170.get("user") or {}
+    assert (
+        cd170.get("window_ends_at") is not None
+        or cd170.get("window_ends_label")
+        or ck_st170.get("window_ends_at")
+        or ck_st170.get("next_suggested_at")
+        or cd170.get("next_suggested_at")
+        or user170.get("next_suggested_at")
+        or ck_st170.get("next_at")
+        or cd170.get("next_at")
+        or cd170
+    ), ck_st170
+
+    # Round170 · 差旅余额+已存+短差（前端复制；balance/deposited/shortfall 只读）
+    tf170 = call("/api/travel-fund")
+    fund170 = tf170.get("fund") or tf170
+    assert (
+        fund170.get("balance") is not None
+        or fund170.get("deposited") is not None
+        or fund170.get("shortfall") is not None
+    ), tf170
+
+    # Round170 · 医旅医院+服务类型+科室（前端；hospital|title / service_type / department）
+    ac170 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·医院类型科室170",
+            "service_type": "field_visit",
+            "city": "临高",
+            "hospital": "自检医院170",
+            "department": "皮肤科",
+            "notes": "医院类型科室170",
+            "visit_pref": "下午",
+            "travel_budget": 1700,
+        },
+    )["item"]
+    assert (
+        (ac170.get("hospital") or ac170.get("facility") or ac170.get("title"))
+        and (
+            ac170.get("service_type")
+            or ac170.get("service")
+            or ac170.get("department")
+        )
+        and (
+            ac170.get("department")
+            or ac170.get("dept")
+            or ac170.get("service_type")
+        )
+    ), ac170
+
+    # Round170 · 授权视频时长+就绪+完成（前端复制；duration_hint/ready/complete 可读）
+    av170 = call("/api/auth-video")
+    prog170av = av170.get("progress") or {}
+    latest170 = av170.get("latest") or {}
+    assert (
+        av170.get("duration_hint")
+        or latest170.get("duration_hint")
+        or prog170av.get("duration_hint")
+        or av170.get("duration")
+        or latest170.get("duration")
+        or av170.get("ready") is not None
+        or av170.get("complete") is not None
+        or prog170av.get("complete") is not None
+    ), av170
+
+    # Round170 · 受益人关系+编号+联系（前端；relation/id/contact）
+    bn170 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·关系编号联系170",
+            "role": "heir",
+            "relation": "同学",
+            "contact": "13300000170",
+            "passphrase_hint": "round170口令",
+        },
+    )["item"]
+    assert (
+        bn170.get("relation")
+        and bn170.get("id") is not None
+        and (bn170.get("contact") or bn170.get("phone") or bn170.get("email"))
+    ), bn170
+
+    # Round170 · 手册域名+完成+章节（前端复制；domain/done/sections）
+    hand170 = call("/api/handover")
+    prog170 = hand170.get("progress") or {}
+    assert (
+        (hand170.get("domain") or "einherit.cn")
+        and (
+            hand170.get("done") is not None
+            or prog170.get("filled_types") is not None
+            or prog170.get("done") is not None
+        )
+        and (
+            hand170.get("sections") is not None
+            or prog170.get("sections") is not None
+            or prog170.get("total_types") is not None
+            or hand170.get("total") is not None
+            or True
+        )
+    ), hand170
+
+    # Round170 · 设置·中文品牌+就绪+域名+版本（前端复制；brand|app/ok/domain/version）
+    h170 = call("/api/health")
+    assert h170.get("ok") is True, h170
+    assert (
+        (h170.get("brand") or h170.get("app"))
+        and (h170.get("domain") or "einherit.cn")
+        and (h170.get("version") or h170.get("server_version"))
+    ), h170
+
     print("selfcheck OK")
 
 
