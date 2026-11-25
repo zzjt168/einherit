@@ -2703,6 +2703,77 @@ def main() -> None:
     assert h31.get("ok") is True, h31
     assert h31.get("domain") == "einherit.cn", h31
 
+    # Round32 · 首页授权视频门槛（前端条；ready 可读）
+    av32 = call("/api/auth-video")
+    assert "ready" in av32, av32
+    assert isinstance(av32["ready"], bool), av32
+
+    # Round32 · 交割可见条数（前端；列表可读）
+    lg32 = call(
+        "/api/legacy",
+        {
+            "title": "自检·可见条数",
+            "category": "其他",
+            "action": "销毁",
+        },
+    )["item"]
+    assert lg32.get("title"), lg32
+    lg32_list = call("/api/legacy")
+    assert isinstance(lg32_list.get("items"), list), lg32_list
+
+    # Round32 · 备忘平台名复制（前端；platform 可读）
+    as32 = call(
+        "/api/assets",
+        {
+            "platform": "round32Platform",
+            "summary": "平台复制",
+            "dept": "admin",
+            "dispose_note": "转赠",
+            "draft": True,
+        },
+    )["item"]
+    assert "round32" in str(as32.get("platform") or "").lower(), as32
+
+    # Round32 · 报备间隔+冷静期组合（前端复制；字段可读）
+    ck_st32 = call("/api/checkin/status")
+    assert ck_st32["user"].get("checkin_interval_hours") is not None, ck_st32
+    assert ck_st32["user"].get("grace_hours") is not None, ck_st32
+
+    # Round32 · 差旅门槛状态（前端复制；fund 可读）
+    tf32 = call("/api/travel-fund")
+    fund32 = tf32.get("fund") or tf32
+    assert "balance" in fund32, fund32
+
+    # Round32 · 善后预算复制（前端；travel_budget 可读）
+    ac32 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·预算复制32",
+            "service_type": "field_visit",
+            "city": "海口",
+            "travel_budget": 888,
+        },
+    )["item"]
+    assert float(ac32.get("travel_budget") or 0) == 888, ac32
+
+    # Round32 · 授权视频三勾摘要（前端；greeting/authorize/plan 可读）
+    assert "items" in av32 or "script" in av32, av32
+
+    # Round32 · 受益人名单条数（前端；items 可读）
+    bn32_list = call("/api/beneficiaries")
+    assert isinstance(bn32_list.get("items"), list), bn32_list
+
+    # Round32 · 手册完成度百分比（前端；progress 可读）
+    hand32 = call("/api/handover")
+    assert "progress" in hand32, hand32
+    assert "pct" in (hand32.get("progress") or {}), hand32
+
+    # Round32 · 设置·英文品牌行（前端复制；health brand_en）
+    h32 = call("/api/health")
+    assert h32.get("ok") is True, h32
+    assert h32.get("domain") == "einherit.cn", h32
+    assert h32.get("brand_en") or h32.get("app"), h32
+
     print("selfcheck OK")
 
 
