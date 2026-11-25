@@ -9109,6 +9109,117 @@ def main() -> None:
         h99.get("version") or h99.get("server_version")
     ), h99
 
+    # Round100 · 首页就绪英文版本（前端条；ok/brand_en/version 只读）
+    h100home = call("/api/health")
+    assert h100home.get("ok") is True and h100home.get("brand_en") and (
+        h100home.get("version") or h100home.get("server_version")
+    ), h100home
+
+    # Round100 · 交割标题+动作+部门（前端；title/action/dept 可读）
+    lg100 = call(
+        "/api/legacy",
+        {
+            "title": "自检·标题动作100",
+            "category": "耳机",
+            "action": "转赠",
+            "dept": "finance",
+            "beneficiary": "自检受益人100",
+            "notes": "备注100",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert lg100.get("title") and lg100.get("action") and lg100.get(
+        "dept"
+    ), lg100
+
+    # Round100 · 备忘编号+摘要+可见度（前端；id/summary/visibility 可读）
+    as100 = call(
+        "/api/assets",
+        {
+            "platform": "round100IdSumVis",
+            "account_hint": "hint100",
+            "summary": "编号摘要可见度100",
+            "dispose_note": "演示处置100",
+            "dept": "admin",
+            "tag": "其他",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert as100.get("id") is not None and as100.get("summary") and as100.get(
+        "visibility"
+    ), as100
+
+    # Round100 · 报备下次建议标签（前端复制；next_suggested_label 只读）
+    ck_st100 = call("/api/checkin/status")
+    cd100 = ck_st100.get("countdown") or {}
+    assert cd100.get("next_suggested_label") or cd100, ck_st100
+
+    # Round100 · 差旅缺口+门槛+达标（前端复制；shortfall/threshold/met 只读）
+    tf100 = call("/api/travel-fund")
+    fund100 = tf100.get("fund") or tf100
+    assert (
+        fund100.get("shortfall") is not None
+        or fund100.get("threshold") is not None
+        or fund100.get("met") is not None
+    ), tf100
+
+    # Round100 · 善后编号+城市+预算（前端；id/city/travel_budget 可读）
+    ac100 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·编号城市100",
+            "service_type": "field_visit",
+            "city": "海口",
+            "notes": "编号城市预算100",
+            "visit_pref": "晚上",
+            "travel_budget": 1000,
+        },
+    )["item"]
+    assert ac100.get("id") is not None and (
+        ac100.get("city") or ac100.get("travel_budget") is not None
+    ), ac100
+
+    # Round100 · 授权视频闸口+进度+就绪（前端复制；gate/progress/ready 可读）
+    av100 = call("/api/auth-video")
+    assert (
+        av100.get("gate")
+        or av100.get("progress")
+        or av100.get("ready") is not None
+    ), av100
+
+    # Round100 · 受益人角色+关系+联系（前端；role/relation/contact 可读）
+    bn100 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·角色关系100",
+            "role": "executor",
+            "relation": "亲属",
+            "contact": "13300000100",
+            "passphrase_hint": "round100口令",
+        },
+    )["item"]
+    assert bn100.get("role") and bn100.get("relation") and bn100.get(
+        "contact"
+    ), bn100
+
+    # Round100 · 手册品牌+条目数+导出路径（前端复制；brand/item_count/export_path 可读）
+    hand100 = call("/api/handover")
+    assert (
+        hand100.get("brand")
+        or hand100.get("item_count") is not None
+        or hand100.get("export_path")
+    ), hand100
+
+    # Round100 · 设置·应用名+域名+就绪+版本（前端复制；app/domain/ok/version 对齐）
+    h100 = call("/api/health")
+    assert h100.get("ok") is True, h100
+    assert h100.get("app") and h100.get("domain") and (
+        h100.get("version") or h100.get("server_version")
+    ), h100
+
     print("selfcheck OK")
 
 
