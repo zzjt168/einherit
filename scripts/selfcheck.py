@@ -2774,6 +2774,87 @@ def main() -> None:
     assert h32.get("domain") == "einherit.cn", h32
     assert h32.get("brand_en") or h32.get("app"), h32
 
+    # Round33 · 首页会员开通状态（前端条；is_member 可读）
+    me33 = call("/api/me")["user"]
+    assert "is_member" in me33, me33
+
+    # Round33 · 交割备注复制（前端；notes 可读）
+    lg33 = call(
+        "/api/legacy",
+        {
+            "title": "自检·备注复制33",
+            "category": "其他",
+            "action": "转赠",
+            "notes": "round33 备注演示",
+        },
+    )["item"]
+    assert "round33" in str(lg33.get("notes") or ""), lg33
+
+    # Round33 · 备忘可见条数（前端；列表可读）
+    as33 = call(
+        "/api/assets",
+        {
+            "platform": "round33Vis",
+            "summary": "可见条数",
+            "dept": "admin",
+            "dispose_note": "销毁",
+            "draft": True,
+        },
+    )["item"]
+    assert as33.get("platform"), as33
+    as33_list = call("/api/assets")
+    assert isinstance(as33_list.get("items"), list), as33_list
+
+    # Round33 · 报备下次建议节点（前端复制；checkin_due_at 可读）
+    ck_st33 = call("/api/checkin/status")
+    assert "user" in ck_st33, ck_st33
+    assert ck_st33["user"].get("checkin_due_at") is not None or "checkin_due_at" in ck_st33[
+        "user"
+    ], ck_st33
+
+    # Round33 · 差旅门槛金额（前端复制；threshold 可读）
+    tf33 = call("/api/travel-fund")
+    fund33 = tf33.get("fund") or tf33
+    assert fund33.get("threshold") is not None or "balance" in fund33, fund33
+
+    # Round33 · 善后城市复制（前端；city 可读）
+    ac33 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·城市复制33",
+            "service_type": "field_visit",
+            "city": "海口",
+            "travel_budget": 320,
+        },
+    )["item"]
+    assert str(ac33.get("city") or "") == "海口", ac33
+
+    # Round33 · 授权视频脚本段数（前端；script 可读）
+    av33 = call("/api/auth-video")
+    assert isinstance(av33.get("script"), list), av33
+
+    # Round33 · 受益人关系复制（前端；relation 可读）
+    bn33 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·关系复制",
+            "role": "family",
+            "relation": "配偶",
+            "contact": "13400000033",
+        },
+    )["item"]
+    assert str(bn33.get("relation") or "") == "配偶", bn33
+
+    # Round33 · 手册导出路径（前端复制；export 可读）
+    with urllib.request.urlopen(BASE + "/export/handover.html", timeout=5) as r:
+        assert r.status == 200, r.status
+
+    # Round33 · 设置·中英品牌对照（前端复制；health 对齐）
+    h33 = call("/api/health")
+    assert h33.get("ok") is True, h33
+    assert h33.get("domain") == "einherit.cn", h33
+    assert h33.get("app") or h33.get("brand_en"), h33
+
     print("selfcheck OK")
 
 
