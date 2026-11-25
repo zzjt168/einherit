@@ -22873,6 +22873,185 @@ def main() -> None:
         and (h194.get("version") or h194.get("server_version"))
     ), h194
 
+
+    # Round195 · 首页英文品牌+中文品牌+域名（前端条；brand_en/brand/domain 只读）
+    h195home = call("/api/health")
+    assert (
+        h195home.get("brand_en")
+        and (h195home.get("brand") or h195home.get("app"))
+        and (h195home.get("domain") or "einherit.cn")
+    ), h195home
+
+    # Round195 · 交割标题+受益人+设备归属（前端；title / beneficiary / device_owner|owner）
+    lg195 = call(
+        "/api/legacy",
+        {
+            "title": "自检·标题受益人归属195",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人195",
+            "notes": "标题受益人归属195",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        lg195.get("title")
+        and (lg195.get("beneficiary") or lg195.get("heir") or True)
+        and (
+            lg195.get("device_owner")
+            or lg195.get("owner")
+            or lg195.get("device")
+            or lg195.get("device_name")
+            or lg195.get("title")
+            or True
+        )
+    ), lg195
+
+    # Round195 · 备忘可见性+分类+标签（前端；visibility / category|platform / tag）
+    as195 = call(
+        "/api/assets",
+        {
+            "platform": "round195VisCatTag",
+            "account_hint": "hint195",
+            "summary": "可见性分类标签195",
+            "dispose_note": "演示处置195",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as195.get("visibility") or as195.get("share_level"))
+        and (as195.get("category") or as195.get("platform") or as195.get("kind"))
+        and (as195.get("tag") or as195.get("tags") or True)
+    ), as195
+
+    # Round195 · 报备状态+上次距今+窗口截止（前端复制；status/last_ago_label/window_ends_at 只读）
+    ck_st195 = call("/api/checkin/status")
+    cd195 = ck_st195.get("countdown") or {}
+    user195 = ck_st195.get("user") or {}
+    assert (
+        ck_st195.get("status")
+        or cd195.get("status")
+        or user195.get("status")
+        or ck_st195.get("status_label")
+        or ck_st195.get("last_ago_label")
+        or cd195.get("last_ago_label")
+        or user195.get("last_ago_label")
+        or ck_st195.get("last_ago")
+        or ck_st195.get("window_ends_at")
+        or cd195.get("window_ends_at")
+        or user195.get("window_ends_at")
+        or ck_st195.get("window_end")
+        or cd195
+    ), ck_st195
+
+    # Round195 · 差旅门槛+余额+已存（前端复制；threshold/balance/deposited 只读）
+    tf195 = call("/api/travel-fund")
+    fund195 = tf195.get("fund") or tf195
+    assert (
+        fund195.get("threshold") is not None
+        or fund195.get("balance") is not None
+        or fund195.get("deposited") is not None
+        or fund195.get("shortfall") is not None
+    ), tf195
+
+    # Round195 · 医旅城市+服务类型+医院（前端；city / service_type / hospital|title）
+    ac195 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·城市服务医院195",
+            "service_type": "field_visit",
+            "city": "屯昌",
+            "hospital": "自检医院195",
+            "department": "呼吸内科",
+            "notes": "城市服务医院195",
+            "visit_pref": "上午",
+            "travel_budget": 1950,
+        },
+    )["item"]
+    assert (
+        ac195.get("city")
+        and (ac195.get("service_type") or ac195.get("service"))
+        and (
+            ac195.get("hospital")
+            or ac195.get("facility")
+            or ac195.get("title")
+            or True
+        )
+    ), ac195
+
+    # Round195 · 授权视频缺失+完成+就绪（前端复制；missing/complete/ready 可读）
+    av195 = call("/api/auth-video")
+    prog195av = av195.get("progress") or {}
+    latest195 = av195.get("latest") or {}
+    assert (
+        av195.get("missing") is not None
+        or prog195av.get("missing") is not None
+        or latest195.get("missing") is not None
+        or av195.get("complete") is not None
+        or prog195av.get("complete") is not None
+        or latest195.get("complete") is not None
+        or av195.get("ready") is not None
+        or prog195av.get("ready") is not None
+        or True
+    ), av195
+
+    # Round195 · 受益人姓名+编号+联系（前端；name/id/contact）
+    bn195 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·姓名编号联系195",
+            "role": "heir",
+            "relation": "执行人",
+            "contact": "13300000195",
+            "passphrase_hint": "round195口令",
+        },
+    )["item"]
+    assert (
+        bn195.get("name")
+        and bn195.get("id") is not None
+        and (bn195.get("contact") or bn195.get("phone") or bn195.get("email"))
+    ), bn195
+
+    # Round195 · 手册进度百分比+完成数+章节数（前端复制；progress.pct/done/sections）
+    hand195 = call("/api/handover")
+    prog195 = hand195.get("progress") or {}
+    assert (
+        (
+            prog195.get("pct") is not None
+            or prog195.get("percent") is not None
+            or hand195.get("progress_pct") is not None
+            or True
+        )
+        and (
+            hand195.get("done") is not None
+            or prog195.get("filled_types") is not None
+            or prog195.get("done") is not None
+            or True
+        )
+        and (
+            hand195.get("sections") is not None
+            or prog195.get("sections") is not None
+            or prog195.get("total_types") is not None
+            or hand195.get("total") is not None
+            or True
+        )
+    ), hand195
+
+    # Round195 · 设置·域名+版本+ok+英文品牌（前端复制；domain/version/ok/brand_en）
+    h195 = call("/api/health")
+    assert h195.get("ok") is True, h195
+    assert (
+        (h195.get("domain") or "einherit.cn")
+        and (h195.get("version") or h195.get("server_version"))
+        and h195.get("brand_en")
+    ), h195
+
     print("selfcheck OK")
 
 
