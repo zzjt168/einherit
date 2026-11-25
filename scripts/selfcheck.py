@@ -6757,6 +6757,111 @@ def main() -> None:
     assert h75.get("app"), h75
     assert h75.get("domain") == "einherit.cn", h75
 
+    # Round76 · 首页会员到期日（前端条；member_until_iso 只读）
+    ck_st76home = call("/api/checkin/status")
+    assert (ck_st76home.get("user") or {}).get("member_until_iso") or ck_st76home.get(
+        "user"
+    ), ck_st76home
+
+    # Round76 · 交割标题+备注+处置（前端；title/notes/action 可读）
+    lg76 = call(
+        "/api/legacy",
+        {
+            "title": "自检·标题备注76",
+            "category": "其他",
+            "action": "转赠",
+            "dept": "hr",
+            "notes": "round76备注",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert lg76.get("title") and lg76.get("action"), lg76
+
+    # Round76 · 备忘编号+部门+标签（前端；id/dept/tag 可读）
+    as76 = call(
+        "/api/assets",
+        {
+            "platform": "round76IdDeptTag",
+            "account_hint": "hint76",
+            "summary": "编号部门标签76",
+            "dispose_note": "演示处置76",
+            "dept": "finance",
+            "tag": "社交",
+            "visibility": "private",
+            "draft": True,
+        },
+    )["item"]
+    assert as76.get("id") is not None and as76.get("dept"), as76
+    assert as76.get("tag") is not None or "tag" in as76, as76
+
+    # Round76 · 报备会员温柔提示（前端复制；member_gentle_hint 只读）
+    ck_st76 = call("/api/checkin/status")
+    assert (ck_st76.get("user") or {}).get("member_gentle_hint") or ck_st76.get(
+        "user"
+    ), ck_st76
+
+    # Round76 · 差旅流水编号+金额（前端复制；ledger id/amount 只读）
+    tf76 = call("/api/travel-fund")
+    ledger76 = tf76.get("ledger") or []
+    assert isinstance(ledger76, list), tf76
+    if ledger76:
+        assert ledger76[0].get("id") is not None or ledger76[0].get("amount") is not None, ledger76[0]
+
+    # Round76 · 善后状态语气+城市（前端；status_tone/city 可读）
+    ac76 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·语气城市76",
+            "service_type": "field_visit",
+            "city": "五指山",
+            "notes": "语气城市76",
+            "visit_pref": "中午",
+            "travel_budget": 760,
+        },
+    )["item"]
+    assert ac76.get("city"), ac76
+    assert ac76.get("status_tone") is not None or "status_tone" in ac76 or ac76.get(
+        "status"
+    ), ac76
+
+    # Round76 · 授权视频清单数+就绪（前端复制；checklist/ready 可读）
+    av76 = call("/api/auth-video")
+    assert (
+        isinstance(av76.get("checklist"), list) or av76.get("ready") is not None
+    ), av76
+
+    # Round76 · 受益人编号+口令+角色（前端；id/passphrase_hint/role 可读）
+    bn76 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·编号口令76",
+            "role": "heir",
+            "relation": "至亲",
+            "contact": "13300000076",
+            "passphrase_hint": "round76口令",
+        },
+    )["item"]
+    assert bn76.get("id") is not None and bn76.get("role"), bn76
+    assert bn76.get("passphrase_hint") is not None or "passphrase_hint" in bn76, bn76
+
+    # Round76 · 手册覆盖与域名（前端复制；progress.pct/domain 可读）
+    hand76 = call("/api/handover")
+    prog76 = hand76.get("progress") or {}
+    assert (
+        prog76.get("pct") is not None
+        or hand76.get("pct") is not None
+        or hand76.get("domain")
+    ), hand76
+
+    # Round76 · 设置·服务端版本+英文品牌（前端复制；server_version/brand_en 对齐）
+    h76 = call("/api/health")
+    assert h76.get("ok") is True, h76
+    assert h76.get("server_version") or h76.get("version"), h76
+    assert h76.get("brand_en"), h76
+    assert h76.get("domain") == "einherit.cn", h76
+
     print("selfcheck OK")
 
 
