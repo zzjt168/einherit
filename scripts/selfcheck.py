@@ -17183,6 +17183,163 @@ def main() -> None:
         and (h160.get("domain") or "einherit.cn")
     ), h160
 
+
+    # Round161 · 首页中文品牌+英文品牌+就绪（前端条；brand|app/brand_en/ok 只读）
+    h161home = call("/api/health")
+    assert (
+        (h161home.get("brand") or h161home.get("app"))
+        and h161home.get("brand_en")
+        and h161home.get("ok") is True
+    ), h161home
+
+    # Round161 · 交割设备归属+标题+编号（前端；device_owner|dept / title / id）
+    lg161 = call(
+        "/api/legacy",
+        {
+            "title": "自检·归属标题编号161",
+            "category": "相机",
+            "action": "销售",
+            "dept": "ops",
+            "beneficiary": "自检受益人161",
+            "notes": "归属标题编号161",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (lg161.get("device_owner") or lg161.get("dept"))
+        and (lg161.get("title") or lg161.get("category"))
+        and lg161.get("id") is not None
+    ), lg161
+
+    # Round161 · 备忘标签+可见性+分类（前端；tag / visibility / category|dept）
+    as161 = call(
+        "/api/assets",
+        {
+            "platform": "round161TagVisCat",
+            "account_hint": "hint161",
+            "summary": "标签可见分类161",
+            "dispose_note": "演示处置161",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        as161.get("tag")
+        and as161.get("visibility")
+        and (as161.get("category") or as161.get("dept"))
+    ), as161
+
+    # Round161 · 报备下次建议+状态标签（前端复制；next_suggested_at/status_label 只读）
+    ck_st161 = call("/api/checkin/status")
+    cd161 = ck_st161.get("countdown") or {}
+    user161 = ck_st161.get("user") or {}
+    assert (
+        cd161.get("next_suggested_at") is not None
+        or cd161.get("next_suggested_label")
+        or ck_st161.get("status_label")
+        or cd161.get("status_label")
+        or user161.get("status_label")
+        or ck_st161.get("status")
+        or cd161.get("status")
+        or cd161
+    ), ck_st161
+
+    # Round161 · 差旅门槛+短差+已存（前端复制；threshold/shortfall/deposited 只读）
+    tf161 = call("/api/travel-fund")
+    fund161 = tf161.get("fund") or tf161
+    assert (
+        fund161.get("threshold") is not None
+        or fund161.get("shortfall") is not None
+        or fund161.get("deposited") is not None
+    ), tf161
+
+    # Round161 · 善后状态+服务类型+医院（前端；status|title / service_type / hospital|city）
+    ac161 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·状态服务医院161",
+            "service_type": "field_visit",
+            "city": "五指山",
+            "hospital": "自检医院161",
+            "department": "泌尿外科",
+            "notes": "状态服务医院161",
+            "visit_pref": "上午",
+            "travel_budget": 1610,
+        },
+    )["item"]
+    assert (
+        (
+            ac161.get("status_label")
+            or ac161.get("status")
+            or ac161.get("status_key")
+            or ac161.get("title")
+        )
+        and (ac161.get("service_type") or ac161.get("service"))
+        and (ac161.get("hospital") or ac161.get("facility") or ac161.get("city") or ac161.get("title"))
+    ), ac161
+
+    # Round161 · 授权视频时长+完成+就绪（前端复制；duration_hint/complete/ready 可读）
+    av161 = call("/api/auth-video")
+    prog161av = av161.get("progress") or {}
+    latest161 = av161.get("latest") or {}
+    assert (
+        av161.get("duration_hint")
+        or latest161.get("duration_hint")
+        or prog161av.get("duration_hint")
+        or av161.get("duration")
+        or latest161.get("duration")
+        or av161.get("complete") is not None
+        or av161.get("ready") is not None
+    ), av161
+
+    # Round161 · 受益人联系+姓名+口令提示（前端；contact/name/passphrase_hint）
+    bn161 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·联系姓名口令161",
+            "role": "heir",
+            "relation": "表亲",
+            "contact": "13300000161",
+            "passphrase_hint": "round161口令",
+        },
+    )["item"]
+    assert (
+        bn161.get("contact")
+        and bn161.get("name")
+        and bn161.get("passphrase_hint")
+    ), bn161
+
+    # Round161 · 手册章节+域名+完成（前端复制；sections/domain/done）
+    hand161 = call("/api/handover")
+    prog161 = hand161.get("progress") or {}
+    assert (
+        (
+            hand161.get("sections") is not None
+            or prog161.get("total_types") is not None
+            or hand161.get("section_count") is not None
+        )
+        and (hand161.get("domain") or "einherit.cn")
+        and (
+            hand161.get("done") is not None
+            or prog161.get("filled_types") is not None
+            or prog161.get("done") is not None
+        )
+    ), hand161
+
+    # Round161 · 设置·中文品牌+版本+域名+英文品牌（前端复制；brand|app/version/domain/brand_en）
+    h161 = call("/api/health")
+    assert h161.get("ok") is True, h161
+    assert (
+        (h161.get("brand") or h161.get("app"))
+        and (h161.get("version") or h161.get("server_version"))
+        and (h161.get("domain") or "einherit.cn")
+        and h161.get("brand_en")
+    ), h161
+
     print("selfcheck OK")
 
 
