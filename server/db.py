@@ -2916,6 +2916,61 @@ def batch_legacy_factory_reset(
     }
 
 
+def batch_legacy_clear_media(
+    user_id: int,
+    ids: list[int],
+    *,
+    clear_photos: bool = True,
+    clear_chats: bool = True,
+) -> dict[str, Any]:
+    """批量勾选清除照片 / 聊天（不改处置类型 / 外呼 / 退款机）。"""
+    ids = [int(i) for i in (ids or []) if i]
+    if not ids:
+        raise ValueError("请先勾选要标记清除照片/聊天的交割条目")
+    photos = 1 if clear_photos else 0
+    chats = 1 if clear_chats else 0
+    with connect() as conn:
+        cols = {r[1] for r in conn.execute("PRAGMA table_info(legacy_items)").fetchall()}
+        has_photos = "clear_photos" in cols
+        has_chats = "clear_chats" in cols
+        for i in ids:
+            if has_photos and has_chats:
+                conn.execute(
+                    "UPDATE legacy_items SET clear_photos=?, clear_chats=? "
+                    "WHERE user_id=? AND id=?",
+                    (photos, chats, user_id, i),
+                )
+            elif has_photos:
+                conn.execute(
+                    "UPDATE legacy_items SET clear_photos=? WHERE user_id=? AND id=?",
+                    (photos, user_id, i),
+                )
+            elif has_chats:
+                conn.execute(
+                    "UPDATE legacy_items SET clear_chats=? WHERE user_id=? AND id=?",
+                    (chats, user_id, i),
+                )
+        conn.commit()
+    audit(
+        user_id,
+        "legacy.batch_clear_media",
+        f"photos={photos},chats={chats},n={len(ids)}",
+    )
+    parts = []
+    if photos:
+        parts.append("清除照片")
+    if chats:
+        parts.append("清除聊天")
+    label = "、".join(parts) if parts else "清除标记"
+    return {
+        "updated": len(ids),
+        "clear_photos": bool(photos),
+        "clear_chats": bool(chats),
+        "items": list_legacy(user_id),
+        "note": f"已为勾选条目标上{label}" if (photos or chats) else "已更新勾选条目",
+    }
+
+
 def batch_legacy_beneficiary(
     user_id: int,
     ids: list[int],
