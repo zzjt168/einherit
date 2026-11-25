@@ -13715,6 +13715,153 @@ def main() -> None:
         and (h137.get("brand") or h137.get("app"))
     ), h137
 
+    # Round138 · 首页就绪+英文品牌+版本（前端条；ok/brand_en/version 只读）
+    h138home = call("/api/health")
+    assert (
+        h138home.get("ok") is True
+        and h138home.get("brand_en")
+        and (h138home.get("version") or h138home.get("server_version"))
+    ), h138home
+
+    # Round138 · 交割受益人+编号+设备归属（前端；beneficiary / id / device_owner|beneficiary|dept）
+    lg138 = call(
+        "/api/legacy",
+        {
+            "title": "自检·受益人编号归属138",
+            "category": "键盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人138",
+            "notes": "受益人编号归属138",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        lg138.get("beneficiary")
+        and lg138.get("id") is not None
+        and (
+            lg138.get("device_owner")
+            or lg138.get("beneficiary")
+            or lg138.get("dept")
+        )
+    ), lg138
+
+    # Round138 · 备忘分类+可见性+处置说明（前端；category|tag / visibility / dispose_note）
+    as138 = call(
+        "/api/assets",
+        {
+            "platform": "round138CatVisDisp",
+            "account_hint": "hint138",
+            "summary": "分类可见处置138",
+            "dispose_note": "演示处置138",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as138.get("category") or as138.get("tag"))
+        and as138.get("visibility")
+        and as138.get("dispose_note")
+    ), as138
+
+    # Round138 · 报备状态标签+距上次（前端复制；status_label/last_ago_label 只读）
+    ck_st138 = call("/api/checkin/status")
+    cd138 = ck_st138.get("countdown") or {}
+    user138 = ck_st138.get("user") or {}
+    assert (
+        ck_st138.get("status_label")
+        or cd138.get("status_label")
+        or user138.get("status_label")
+        or cd138.get("last_ago_label")
+        or ck_st138.get("last_ago_label")
+        or cd138
+    ), ck_st138
+
+    # Round138 · 差旅门槛+进度+达标（前端复制；threshold/progress_pct/met 只读）
+    tf138 = call("/api/travel-fund")
+    fund138 = tf138.get("fund") or tf138
+    assert (
+        fund138.get("threshold") is not None
+        or fund138.get("progress_pct") is not None
+        or fund138.get("progress") is not None
+        or fund138.get("met") is not None
+    ), tf138
+
+    # Round138 · 善后服务类型+状态+城市（前端；service_type / status|status_label / city）
+    ac138 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·服务状态城市138",
+            "service_type": "field_visit",
+            "city": "琼中",
+            "notes": "服务状态城市138",
+            "visit_pref": "清晨",
+            "travel_budget": 1380,
+        },
+    )["item"]
+    assert (
+        (ac138.get("service_type") or ac138.get("service"))
+        and (
+            ac138.get("status_label")
+            or ac138.get("status")
+            or ac138.get("status_key")
+        )
+        and ac138.get("city")
+    ), ac138
+
+    # Round138 · 授权视频缺失+时长+就绪（前端复制；missing/duration_hint/ready 可读）
+    av138 = call("/api/auth-video")
+    prog138av = av138.get("progress") or {}
+    assert (
+        av138.get("missing") is not None
+        or av138.get("duration_hint")
+        or prog138av.get("duration_hint")
+        or av138.get("ready") is not None
+    ), av138
+
+    # Round138 · 受益人姓名+联系+编号（前端；name/contact/id 可读）
+    bn138 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·姓名联系138",
+            "role": "heir",
+            "relation": "同事",
+            "contact": "13300000138",
+            "passphrase_hint": "round138口令",
+        },
+    )["item"]
+    assert (
+        bn138.get("name")
+        and bn138.get("contact")
+        and bn138.get("id") is not None
+    ), bn138
+
+    # Round138 · 手册进度+域名+章节（前端复制；progress.pct/domain/sections|total_types）
+    hand138 = call("/api/handover")
+    prog138 = hand138.get("progress") or {}
+    assert (
+        (prog138.get("pct") is not None or hand138.get("progress_pct") is not None)
+        and hand138.get("domain")
+        and (
+            hand138.get("sections") is not None
+            or prog138.get("total_types") is not None
+            or hand138.get("section_count") is not None
+        )
+    ), hand138
+
+    # Round138 · 设置·就绪+版本+域名+英文品牌（前端复制；ok/version/domain/brand_en）
+    h138 = call("/api/health")
+    assert h138.get("ok") is True, h138
+    assert (
+        (h138.get("version") or h138.get("server_version"))
+        and h138.get("domain")
+        and h138.get("brand_en")
+    ), h138
+
     print("selfcheck OK")
 
 
