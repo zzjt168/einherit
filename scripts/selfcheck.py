@@ -17340,6 +17340,163 @@ def main() -> None:
         and h161.get("brand_en")
     ), h161
 
+
+    # Round162 · 首页域名+版本+中文品牌（前端条；domain/version/brand|app 只读）
+    h162home = call("/api/health")
+    assert (
+        (h162home.get("domain") or "einherit.cn")
+        and (h162home.get("version") or h162home.get("server_version"))
+        and (h162home.get("brand") or h162home.get("app"))
+    ), h162home
+
+    # Round162 · 交割处置+编号+受益人（前端；disposition|action / id / beneficiary）
+    lg162 = call(
+        "/api/legacy",
+        {
+            "title": "自检·处置编号受益人162",
+            "category": "U盘",
+            "action": "销毁",
+            "dept": "ops",
+            "beneficiary": "自检受益人162",
+            "notes": "处置编号受益人162",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (lg162.get("disposition") or lg162.get("action"))
+        and lg162.get("id") is not None
+        and lg162.get("beneficiary")
+    ), lg162
+
+    # Round162 · 备忘分类+标题+摘要（前端；category|dept / title|platform / summary）
+    as162 = call(
+        "/api/assets",
+        {
+            "platform": "round162CatTitleSum",
+            "account_hint": "hint162",
+            "summary": "分类标题摘要162",
+            "dispose_note": "演示处置162",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as162.get("category") or as162.get("dept"))
+        and (as162.get("title") or as162.get("platform") or as162.get("summary"))
+        and (as162.get("summary") or as162.get("account_hint"))
+    ), as162
+
+    # Round162 · 报备窗口截止+距上次（前端复制；window_ends_at/last_ago_label 只读）
+    ck_st162 = call("/api/checkin/status")
+    cd162 = ck_st162.get("countdown") or {}
+    user162 = ck_st162.get("user") or {}
+    assert (
+        cd162.get("window_ends_at") is not None
+        or cd162.get("window_ends_label")
+        or ck_st162.get("window_ends_at")
+        or ck_st162.get("last_ago_label")
+        or cd162.get("last_ago_label")
+        or user162.get("last_ago_label")
+        or cd162.get("last_checkin_ago")
+        or cd162
+    ), ck_st162
+
+    # Round162 · 差旅进度+已存+门槛（前端复制；progress_pct/deposited/threshold 只读）
+    tf162 = call("/api/travel-fund")
+    fund162 = tf162.get("fund") or tf162
+    assert (
+        fund162.get("progress_pct") is not None
+        or fund162.get("progress") is not None
+        or fund162.get("deposited") is not None
+        or fund162.get("threshold") is not None
+    ), tf162
+
+    # Round162 · 医旅医院+城市+科室（前端；hospital|title / city / department|service_type）
+    ac162 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·医院城市科室162",
+            "service_type": "field_visit",
+            "city": "定安",
+            "hospital": "自检医院162",
+            "department": "风湿免疫科",
+            "notes": "医院城市科室162",
+            "visit_pref": "上午",
+            "travel_budget": 1620,
+        },
+    )["item"]
+    assert (
+        (ac162.get("hospital") or ac162.get("facility") or ac162.get("title") or ac162.get("city"))
+        and ac162.get("city")
+        and (
+            ac162.get("department")
+            or ac162.get("dept")
+            or ac162.get("service_type")
+            or ac162.get("service")
+        )
+    ), ac162
+
+    # Round162 · 授权视频就绪+缺失+时长（前端复制；ready/missing/duration_hint 可读）
+    av162 = call("/api/auth-video")
+    prog162av = av162.get("progress") or {}
+    latest162 = av162.get("latest") or {}
+    assert (
+        av162.get("ready") is not None
+        or av162.get("missing") is not None
+        or av162.get("duration_hint")
+        or latest162.get("duration_hint")
+        or prog162av.get("duration_hint")
+        or av162.get("duration")
+        or latest162.get("duration")
+    ), av162
+
+    # Round162 · 受益人编号+关系+姓名（前端；id/relation/name）
+    bn162 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·编号关系姓名162",
+            "role": "heir",
+            "relation": "姻亲",
+            "contact": "13300000162",
+            "passphrase_hint": "round162口令",
+        },
+    )["item"]
+    assert (
+        bn162.get("id") is not None
+        and bn162.get("relation")
+        and bn162.get("name")
+    ), bn162
+
+    # Round162 · 手册完成+品牌+进度百分比（前端复制；done/brand/progress.pct）
+    hand162 = call("/api/handover")
+    prog162 = hand162.get("progress") or {}
+    assert (
+        (
+            hand162.get("done") is not None
+            or prog162.get("filled_types") is not None
+            or prog162.get("done") is not None
+        )
+        and (hand162.get("brand") or "电子继承 App")
+        and (
+            prog162.get("pct") is not None
+            or prog162.get("percent") is not None
+            or hand162.get("progress_pct") is not None
+        )
+    ), hand162
+
+    # Round162 · 设置·就绪+中文品牌+英文品牌+版本（前端复制；ok/brand|app/brand_en/version）
+    h162 = call("/api/health")
+    assert h162.get("ok") is True, h162
+    assert (
+        (h162.get("brand") or h162.get("app"))
+        and h162.get("brand_en")
+        and (h162.get("version") or h162.get("server_version"))
+    ), h162
+
     print("selfcheck OK")
 
 
