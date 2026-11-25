@@ -2276,6 +2276,105 @@ def main() -> None:
     assert h26.get("ok") is True, h26
     assert h26.get("domain") == "einherit.cn", h26
 
+    # Round27 · 首页受益人就绪（前端条；API 只读）
+    bn27_list = call("/api/beneficiaries")
+    assert "items" in bn27_list, bn27_list
+    assert isinstance(bn27_list.get("items"), list), bn27_list
+
+    # Round27 · 交割备注字段可读（筛选为前端）
+    lg27 = call(
+        "/api/legacy",
+        {
+            "title": "自检·备注筛",
+            "category": "其他",
+            "action": "转赠",
+            "notes": "round27 备注演示",
+        },
+    )["item"]
+    assert "round27" in str(lg27.get("notes") or ""), lg27
+    lg27_empty = call(
+        "/api/legacy",
+        {
+            "title": "自检·无备注筛",
+            "category": "其他",
+            "action": "销毁",
+            "notes": "",
+        },
+    )["item"]
+    assert not str(lg27_empty.get("notes") or "").strip(), lg27_empty
+
+    # Round27 · 备忘摘要复制（前端；字段可读）
+    as27 = call(
+        "/api/assets",
+        {
+            "platform": "round27Copy",
+            "summary": "摘要复制演示",
+            "dept": "admin",
+            "dispose_note": "销毁",
+            "draft": True,
+        },
+    )["item"]
+    assert "round27" in str(as27.get("platform") or "").lower(), as27
+    assert "摘要" in str(as27.get("summary") or ""), as27
+
+    # Round27 · 报备上次时间（前端复制；history 可读）
+    ck27 = call("/api/checkin", {})
+    assert "user" in ck27, ck27
+    hist27 = call("/api/checkin/history?limit=1")
+    assert "items" in hist27, hist27
+    assert isinstance(hist27.get("items"), list), hist27
+
+    # Round27 · 差旅余额摘要（前端复制；fund 可读）
+    tf27 = call("/api/travel-fund")
+    fund27 = tf27.get("fund") or tf27
+    assert "balance" in fund27, fund27
+    assert fund27.get("threshold") is not None or "balance" in fund27, fund27
+
+    # Round27 · 善后缺城市角标（前端；可写无 city）
+    ac27 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·待补城市",
+            "service_type": "field_visit",
+            "city": "",
+            "travel_budget": 500,
+        },
+    )["item"]
+    assert ac27.get("title"), ac27
+    assert not str(ac27.get("city") or "").strip(), ac27
+
+    # Round27 · 授权视频脚本字数（前端；script 可读）
+    av27 = call("/api/auth-video")
+    script27 = av27.get("script") or []
+    assert isinstance(script27, list), av27
+    assert len(script27) >= 1, av27
+
+    # Round27 · 受益人角色小计（前端；role 可读）
+    bn27 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·角色小计",
+            "role": "heir",
+            "relation": "演示",
+            "contact": "13800000027",
+        },
+    )["item"]
+    assert str(bn27.get("role") or "") == "heir", bn27
+
+    # Round27 · 手册最近快照（前端条；snapshots 可读）
+    snap27 = call("/api/handover/snapshot", {"label": "round27自检快照"})["item"]
+    assert snap27.get("id") or snap27.get("label"), snap27
+    snaps27 = call("/api/snapshots")
+    assert isinstance(snaps27.get("items"), list), snaps27
+    assert any(
+        "round27" in str(x.get("label") or "") for x in (snaps27.get("items") or [])
+    ), snaps27
+
+    # Round27 · 设置·品牌署名（前端复制；健康域名对齐）
+    h27 = call("/api/health")
+    assert h27.get("ok") is True, h27
+    assert h27.get("domain") == "einherit.cn", h27
+
     print("selfcheck OK")
 
 

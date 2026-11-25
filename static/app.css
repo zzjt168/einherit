@@ -2910,3 +2910,101 @@ body.privacy-mode .privacy-hint { opacity: 0.85; }
   background: #f5f8f6;
   word-break: break-word;
 }
+
+/* Round27 · 温和增量 */
+.home-heirs-ready-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 10px 0 12px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: linear-gradient(160deg, #f4f7f5 0%, #fff 75%);
+  border: 1px solid var(--line, #e2e8e4);
+}
+.home-heirs-ready-bar[hidden] {
+  display: none;
+}
+.home-heirs-mark {
+  font-weight: 600;
+  color: var(--sage-deep, #2f5d45);
+  font-size: 13px;
+}
+.home-heirs-sub {
+  flex: 1;
+  min-width: 8em;
+  font-size: 12px;
+}
+.lg-note-chips {
+  margin: 8px 0 10px;
+}
+.as-copy-summary {
+  margin-top: 8px;
+  margin-left: 6px;
+}
+.checkin-last-copy {
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #f5f8f6;
+}
+.checkin-last-copy-line {
+  margin: 0 0 8px;
+}
+.travel-balance-copy {
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #f5f8f6;
+}
+.travel-balance-copy-line {
+  margin: 0 0 8px;
+}
+.ac-missing-city {
+  background: #eef3f0;
+  color: #4a6558;
+  margin-left: 6px;
+}
+.av-script-char-count {
+  margin: 8px 0 0;
+  font-size: 12px;
+}
+.bn-role-counts-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  margin: 0 0 10px;
+  font-size: 12px;
+}
+.hand-last-snap-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 10px 0 12px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: linear-gradient(160deg, #f3f7f4 0%, #fff 75%);
+  border: 1px solid var(--line, #e2e8e4);
+}
+.hand-snap-mark {
+  font-weight: 600;
+  color: var(--sage-deep, #2f5d45);
+  font-size: 13px;
+}
+.hand-snap-focus {
+  outline: 2px solid var(--sage, #6b8f7a);
+  outline-offset: 3px;
+  transition: outline-color 0.3s ease;
+}
+.brand-copy-card .brand-copy-preview {
+  margin: 8px 0 10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: #f5f8f6;
+  word-break: break-word;
+  font-weight: 600;
+  color: var(--sage-deep, #2f5d45);
+}
