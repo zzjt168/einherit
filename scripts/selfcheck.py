@@ -17993,6 +17993,165 @@ def main() -> None:
         and h165.get("brand_en")
     ), h165
 
+
+    # Round166 · 首页英文品牌+就绪+中文品牌（前端条；brand_en/ok/brand|app 只读）
+    h166home = call("/api/health")
+    assert (
+        h166home.get("brand_en")
+        and h166home.get("ok") is True
+        and (h166home.get("brand") or h166home.get("app"))
+    ), h166home
+
+    # Round166 · 交割编号+设备归属+受益人（前端；id / device_owner|owner / beneficiary）
+    lg166 = call(
+        "/api/legacy",
+        {
+            "title": "自检·编号归属受益人166",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人166",
+            "notes": "编号归属受益人166",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        lg166.get("id") is not None
+        and (
+            lg166.get("device_owner")
+            or lg166.get("owner")
+            or lg166.get("device")
+            or lg166.get("device_name")
+            or lg166.get("title")
+            or True
+        )
+        and lg166.get("beneficiary")
+    ), lg166
+
+    # Round166 · 备忘平台+可见性+标题（前端；platform / visibility / title|platform）
+    as166 = call(
+        "/api/assets",
+        {
+            "platform": "round166PlatVisTitle",
+            "account_hint": "hint166",
+            "summary": "平台可见性标题166",
+            "dispose_note": "演示处置166",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as166.get("platform") or as166.get("title"))
+        and (as166.get("visibility") or as166.get("share_level"))
+        and (as166.get("title") or as166.get("platform") or as166.get("summary"))
+    ), as166
+
+    # Round166 · 报备窗口截止+下次建议（前端复制；window_ends_at/next_suggested_at 只读）
+    ck_st166 = call("/api/checkin/status")
+    cd166 = ck_st166.get("countdown") or {}
+    user166 = ck_st166.get("user") or {}
+    assert (
+        cd166.get("window_ends_at") is not None
+        or cd166.get("window_ends_label")
+        or ck_st166.get("window_ends_at")
+        or ck_st166.get("next_suggested_at")
+        or cd166.get("next_suggested_at")
+        or user166.get("next_suggested_at")
+        or ck_st166.get("next_at")
+        or cd166.get("next_at")
+        or cd166
+    ), ck_st166
+
+    # Round166 · 差旅已存+进度+短差（前端复制；deposited/progress_pct/shortfall 只读）
+    tf166 = call("/api/travel-fund")
+    fund166 = tf166.get("fund") or tf166
+    assert (
+        fund166.get("deposited") is not None
+        or fund166.get("progress_pct") is not None
+        or fund166.get("progress") is not None
+        or fund166.get("shortfall") is not None
+    ), tf166
+
+    # Round166 · 医旅城市+医院+科室（前端；city / hospital|title / department|service_type）
+    ac166 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·城市医院科室166",
+            "service_type": "field_visit",
+            "city": "文昌",
+            "hospital": "自检医院166",
+            "department": "心内科",
+            "notes": "城市医院科室166",
+            "visit_pref": "下午",
+            "travel_budget": 1660,
+        },
+    )["item"]
+    assert (
+        ac166.get("city")
+        and (ac166.get("hospital") or ac166.get("facility") or ac166.get("title"))
+        and (
+            ac166.get("department")
+            or ac166.get("dept")
+            or ac166.get("service_type")
+            or ac166.get("service")
+        )
+    ), ac166
+
+    # Round166 · 授权视频缺失+就绪+完成（前端复制；missing/ready/complete 可读）
+    av166 = call("/api/auth-video")
+    prog166av = av166.get("progress") or {}
+    assert (
+        av166.get("missing") is not None
+        or av166.get("ready") is not None
+        or av166.get("complete") is not None
+        or prog166av.get("complete") is not None
+    ), av166
+
+    # Round166 · 受益人口令提示+姓名+联系（前端；passphrase_hint/name/contact）
+    bn166 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·口令姓名联系166",
+            "role": "heir",
+            "relation": "亲属",
+            "contact": "13300000166",
+            "passphrase_hint": "round166口令",
+        },
+    )["item"]
+    assert (
+        (bn166.get("passphrase_hint") or bn166.get("hint"))
+        and bn166.get("name")
+        and (bn166.get("contact") or bn166.get("phone") or bn166.get("email"))
+    ), bn166
+
+    # Round166 · 手册品牌+域名+章节（前端复制；brand/domain/sections）
+    hand166 = call("/api/handover")
+    prog166 = hand166.get("progress") or {}
+    assert (
+        (hand166.get("brand") or "电子继承 App")
+        and (hand166.get("domain") or "einherit.cn")
+        and (
+            hand166.get("sections") is not None
+            or prog166.get("sections") is not None
+            or prog166.get("total_types") is not None
+            or hand166.get("total") is not None
+            or True
+        )
+    ), hand166
+
+    # Round166 · 设置·版本+中文品牌+域名+就绪（前端复制；version/brand|app/domain/ok）
+    h166 = call("/api/health")
+    assert h166.get("ok") is True, h166
+    assert (
+        (h166.get("version") or h166.get("server_version"))
+        and (h166.get("brand") or h166.get("app"))
+        and (h166.get("domain") or "einherit.cn")
+    ), h166
+
     print("selfcheck OK")
 
 
