@@ -12023,6 +12023,125 @@ def main() -> None:
         and h124.get("app")
     ), h124
 
+    # Round125 · 首页版本域名就绪（前端条；version/domain/ok 只读）
+    h125home = call("/api/health")
+    assert h125home.get("ok") is True, h125home
+    assert (
+        (h125home.get("version") or h125home.get("server_version"))
+        and h125home.get("domain") == "einherit.cn"
+    ), h125home
+
+    # Round125 · 交割受益人+标题+备注（前端；beneficiary/title/notes 可读）
+    lg125 = call(
+        "/api/legacy",
+        {
+            "title": "自检·受益人标题125",
+            "category": "相机",
+            "action": "转赠",
+            "dept": "admin",
+            "beneficiary": "自检受益人125",
+            "notes": "备注125",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert lg125.get("beneficiary") and lg125.get("title") and lg125.get(
+        "notes"
+    ), lg125
+
+    # Round125 · 备忘可见度+部门+平台（前端；visibility/dept/platform 可读）
+    as125 = call(
+        "/api/assets",
+        {
+            "platform": "round125VisDeptPlat",
+            "account_hint": "hint125",
+            "summary": "可见部门平台125",
+            "dispose_note": "演示处置125",
+            "dept": "finance",
+            "tag": "其他",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert as125.get("visibility") and as125.get("dept") and as125.get(
+        "platform"
+    ), as125
+
+    # Round125 · 报备剩余小时+宽限（前端复制；hours_remaining/grace_hours 只读）
+    ck_st125 = call("/api/checkin/status")
+    cd125 = ck_st125.get("countdown") or {}
+    assert (
+        cd125.get("hours_remaining") is not None
+        or cd125.get("grace_hours") is not None
+        or cd125
+    ), ck_st125
+
+    # Round125 · 差旅进度+余额+达标（前端复制；progress_pct/balance/met 只读）
+    tf125 = call("/api/travel-fund")
+    fund125 = tf125.get("fund") or tf125
+    assert (
+        fund125.get("progress_pct") is not None
+        or fund125.get("balance") is not None
+        or fund125.get("met") is not None
+    ), tf125
+
+    # Round125 · 善后预算+备注+城市（前端；travel_budget/notes/city 可读）
+    ac125 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·预算备注125",
+            "service_type": "phone_assist",
+            "city": "屯昌",
+            "notes": "预算备注城市125",
+            "visit_pref": "傍晚",
+            "travel_budget": 1250,
+        },
+    )["item"]
+    assert ac125.get("travel_budget") is not None and ac125.get(
+        "notes"
+    ) and ac125.get("city"), ac125
+
+    # Round125 · 授权视频清单+完成+闸口（前端复制；checklist/complete/ready 可读）
+    av125 = call("/api/auth-video")
+    assert (
+        isinstance(av125.get("checklist"), list)
+        or av125.get("complete") is not None
+        or av125.get("ready") is not None
+    ), av125
+
+    # Round125 · 受益人编号+联系+口令（前端；id/contact/passphrase_hint 可读）
+    bn125 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·编号联系125",
+            "role": "witness",
+            "relation": "朋友",
+            "contact": "13300000125",
+            "passphrase_hint": "round125口令",
+        },
+    )["item"]
+    assert bn125.get("id") is not None and bn125.get("contact") and bn125.get(
+        "passphrase_hint"
+    ), bn125
+
+    # Round125 · 手册域名+品牌+条目（前端复制；domain/brand/item_count 可读）
+    hand125 = call("/api/handover")
+    assert (
+        hand125.get("domain")
+        or hand125.get("brand")
+        or hand125.get("item_count") is not None
+    ), hand125
+
+    # Round125 · 设置·应用+就绪+英文+版本（前端复制；app/ok/brand_en/version 对齐）
+    h125 = call("/api/health")
+    assert h125.get("ok") is True, h125
+    assert (
+        h125.get("app")
+        and h125.get("brand_en")
+        and (h125.get("version") or h125.get("server_version"))
+    ), h125
+
     print("selfcheck OK")
 
 
