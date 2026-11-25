@@ -6161,6 +6161,105 @@ def main() -> None:
     assert h69.get("brand_en") or h69.get("domain") == "einherit.cn", h69
     assert h69.get("domain") == "einherit.cn", h69
 
+    # Round70 · 首页中文品牌（前端条；app 只读）
+    h70home = call("/api/health")
+    assert h70home.get("app") or h70home.get("brand_en"), h70home
+
+    # Round70 · 交割标题+部门+处置（前端；title/dept/action 可读）
+    lg70 = call(
+        "/api/legacy",
+        {
+            "title": "自检·标题部门70",
+            "category": "其他",
+            "action": "转赠",
+            "dept": "finance",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert lg70.get("title") and lg70.get("dept") and lg70.get("action"), lg70
+
+    # Round70 · 备忘摘要+账号提示（前端；summary/account_hint 可读）
+    as70 = call(
+        "/api/assets",
+        {
+            "platform": "round70SummaryHint",
+            "account_hint": "hint70",
+            "summary": "摘要提示70",
+            "dispose_note": "演示处置70",
+            "dept": "admin",
+            "tag": "其他",
+            "visibility": "private",
+            "draft": True,
+        },
+    )["item"]
+    assert as70.get("summary") is not None or "summary" in as70, as70
+    assert as70.get("account_hint") is not None or "account_hint" in as70, as70
+
+    # Round70 · 报备手机号（前端复制；phone 只读）
+    ck_st70 = call("/api/checkin/status")
+    assert (ck_st70.get("user") or {}).get("phone") or ck_st70.get("user"), ck_st70
+
+    # Round70 · 差旅善后关联+金额（前端复制；ledger has_aftercare_ref/amount 只读）
+    tf70 = call("/api/travel-fund")
+    ledger70 = tf70.get("ledger") or []
+    assert isinstance(ledger70, list), tf70
+    if ledger70:
+        assert (
+            "has_aftercare_ref" in ledger70[0]
+            or ledger70[0].get("amount") is not None
+        ), ledger70[0]
+
+    # Round70 · 善后备注+城市（前端；notes/city 可读）
+    ac70 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·备注城市70",
+            "service_type": "field_visit",
+            "city": "临高",
+            "notes": "里程碑备注70",
+            "visit_pref": "傍晚",
+            "travel_budget": 700,
+        },
+    )["item"]
+    assert ac70.get("city"), ac70
+    assert ac70.get("notes") is not None or "notes" in ac70, ac70
+
+    # Round70 · 授权视频生效编号+状态（前端复制；id/status 可读）
+    av70 = call("/api/auth-video")
+    active70 = av70.get("current_active") or av70.get("latest") or {}
+    assert (
+        active70.get("id") is not None
+        or av70.get("current_active_id") is not None
+        or active70.get("status")
+    ), av70
+
+    # Round70 · 受益人姓名+关系+角色（前端；name/relation/role 可读）
+    bn70 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·姓名关系70",
+            "role": "heir",
+            "relation": "挚友",
+            "contact": "13300000070",
+            "passphrase_hint": "round70口令",
+        },
+    )["item"]
+    assert bn70.get("name") and bn70.get("relation") and bn70.get("role"), bn70
+
+    # Round70 · 手册条目与域名（前端复制；item_count/domain 可读）
+    hand70 = call("/api/handover")
+    assert (
+        hand70.get("item_count") is not None or hand70.get("domain")
+    ), hand70
+
+    # Round70 · 设置·品牌+域名+英文（前端复制；app/domain/brand_en 对齐）
+    h70 = call("/api/health")
+    assert h70.get("ok") is True, h70
+    assert h70.get("app") and h70.get("domain") == "einherit.cn", h70
+    assert h70.get("brand_en"), h70
+
     print("selfcheck OK")
 
 
