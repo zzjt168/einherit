@@ -7439,6 +7439,100 @@ def main() -> None:
     assert h82.get("ok") is True, h82
     assert h82.get("brand_en") and (h82.get("version") or h82.get("server_version")), h82
 
+    # Round83 · 首页版本（前端条；health.version 只读）
+    h83home = call("/api/health")
+    assert h83home.get("version") or h83home.get("server_version"), h83home
+
+    # Round83 · 交割编号+受益人+处置（前端；id/beneficiary/action 可读）
+    lg83 = call(
+        "/api/legacy",
+        {
+            "title": "自检·编号受益83",
+            "category": "相机",
+            "action": "转赠",
+            "dept": "admin",
+            "beneficiary": "自检受益人83",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert lg83.get("id") is not None and lg83.get("action"), lg83
+    assert lg83.get("beneficiary") or "beneficiary" in lg83, lg83
+
+    # Round83 · 备忘编号+提示+处置（前端；id/account_hint/dispose_note 可读）
+    as83 = call(
+        "/api/assets",
+        {
+            "platform": "round83IdHintDispose",
+            "account_hint": "hint83",
+            "summary": "编号提示处置83",
+            "dispose_note": "演示处置83",
+            "dept": "admin",
+            "tag": "其他",
+            "visibility": "private",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        as83.get("id") is not None
+        and as83.get("account_hint")
+        and as83.get("dispose_note")
+    ), as83
+
+    # Round83 · 报备距上次小时数（前端复制；hours_since_last 只读）
+    ck_st83 = call("/api/checkin/status")
+    cd83 = ck_st83.get("countdown") or {}
+    assert cd83.get("hours_since_last") is not None or cd83, ck_st83
+
+    # Round83 · 差旅余额与达标（前端复制；balance/met 只读）
+    tf83 = call("/api/travel-fund")
+    fund83 = tf83.get("fund") or tf83
+    assert fund83.get("balance") is not None or fund83.get("met") is not None, tf83
+
+    # Round83 · 善后编号+备注+城市（前端；id/notes/city 可读）
+    ac83 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·编号备注83",
+            "service_type": "field_visit",
+            "city": "文昌",
+            "notes": "编号备注城市83",
+            "visit_pref": "上午",
+            "travel_budget": 830,
+        },
+    )["item"]
+    assert ac83.get("id") is not None and (ac83.get("notes") or ac83.get("city")), ac83
+
+    # Round83 · 授权视频缺失文案+就绪（前端复制；missing_text/ready 可读）
+    av83 = call("/api/auth-video")
+    assert av83.get("missing_text") or av83.get("ready") is not None, av83
+
+    # Round83 · 受益人姓名+口令+联系（前端；name/passphrase_hint/contact 可读）
+    bn83 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·姓名口令83",
+            "role": "heir",
+            "relation": "姻亲",
+            "contact": "13300000083",
+            "passphrase_hint": "round83口令",
+        },
+    )["item"]
+    assert (
+        bn83.get("name") and bn83.get("passphrase_hint") and bn83.get("contact")
+    ), bn83
+
+    # Round83 · 手册域名与品牌（前端复制；domain/brand 可读）
+    hand83 = call("/api/handover")
+    assert hand83.get("domain") or hand83.get("brand"), hand83
+
+    # Round83 · 设置·版本+英文品牌+域名（前端复制；version/brand_en/domain 对齐）
+    h83 = call("/api/health")
+    assert h83.get("ok") is True, h83
+    assert (h83.get("version") or h83.get("server_version")) and h83.get("brand_en"), h83
+    assert h83.get("domain") == "einherit.cn", h83
+
     print("selfcheck OK")
 
 
