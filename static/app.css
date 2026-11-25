@@ -5536,3 +5536,39 @@ body.privacy-mode .privacy-hint { opacity: 0.85; }
   margin: 8px 0 10px; padding: 8px 10px; border-radius: 8px; background: #f5f8f6;
   word-break: break-word; font-weight: 600; color: var(--sage-deep, #2f5d45);
 }
+
+
+/* Round59 · 温和增量 */
+.home-travel-pct-bar {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  margin: 10px 0 12px; padding: 12px 14px; border-radius: 12px;
+  background: linear-gradient(160deg, #edf2ef 0%, #fff 75%);
+  border: 1px solid var(--line, #e2e8e4);
+}
+.home-travel-pct-bar[hidden] { display: none; }
+.home-travel-pct-mark { font-weight: 600; color: var(--sage-deep, #2f5d45); font-size: 13px; }
+.home-travel-pct-sub { flex: 1; min-width: 8em; font-size: 12px; }
+.lg-copy-id-plain { margin-top: 8px; margin-left: 6px; }
+.as-copy-visibility-key { margin-top: 8px; margin-left: 6px; }
+.checkin-in-grace-status-copy {
+  margin-top: 10px; padding: 10px 12px; border-radius: 10px; background: #f5f8f6;
+}
+.checkin-in-grace-status-copy-line { margin: 0 0 8px; }
+.travel-ledger-id-kind-copy {
+  margin: 8px 0 10px; padding: 10px 12px; border-radius: 10px; background: #f5f8f6;
+}
+.travel-ledger-id-kind-copy-line { margin: 0 0 8px; }
+.ac-copy-service-type-key { margin-top: 8px; margin-left: 6px; }
+.av-filename-plain-copy {
+  margin: 8px 0 10px; padding: 10px 12px; border-radius: 10px; background: #f5f8f6;
+}
+.av-filename-plain-copy-line { margin: 0 0 8px; }
+.bn-copy-role-relation-key { margin-top: 8px; margin-left: 6px; }
+.hand-action-counts-en-copy {
+  margin: 8px 0 12px; padding: 10px 12px; border-radius: 10px; background: #f5f8f6;
+}
+.hand-action-counts-en-copy-line { margin: 0 0 8px; }
+.server-app-version-copy-card .server-app-version-copy-preview {
+  margin: 8px 0 10px; padding: 8px 10px; border-radius: 8px; background: #f5f8f6;
+  word-break: break-word; font-weight: 600; color: var(--sage-deep, #2f5d45);
+}
