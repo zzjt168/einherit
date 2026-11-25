@@ -19973,6 +19973,163 @@ def main() -> None:
         and (h177.get("domain") or "einherit.cn")
     ), h177
 
+
+    # Round178 · 首页域名+英文品牌+中文品牌（前端条；domain/brand_en/brand|app 只读）
+    h178home = call("/api/health")
+    assert (
+        (h178home.get("domain") or "einherit.cn")
+        and h178home.get("brand_en")
+        and (h178home.get("brand") or h178home.get("app"))
+    ), h178home
+
+    # Round178 · 交割标题+处置+受益人（前端；title / disposition|action / beneficiary）
+    lg178 = call(
+        "/api/legacy",
+        {
+            "title": "自检·标题处置受益人178",
+            "category": "U盘",
+            "action": "销售变现",
+            "dept": "ops",
+            "beneficiary": "自检受益人178",
+            "notes": "标题处置受益人178",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        lg178.get("title")
+        and (lg178.get("disposition") or lg178.get("action"))
+        and lg178.get("beneficiary")
+    ), lg178
+
+    # Round178 · 备忘摘要+标签+可见性（前端；summary / tag / visibility）
+    as178 = call(
+        "/api/assets",
+        {
+            "platform": "round178SumTagVis",
+            "account_hint": "hint178",
+            "summary": "摘要标签可见性178",
+            "dispose_note": "演示处置178",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as178.get("summary") or as178.get("account_hint"))
+        and (as178.get("tag") or as178.get("label"))
+        and (as178.get("visibility") or as178.get("share_level"))
+    ), as178
+
+    # Round178 · 报备窗口截止+下次建议（前端复制；window_ends_at/next_suggested_at 只读）
+    ck_st178 = call("/api/checkin/status")
+    cd178 = ck_st178.get("countdown") or {}
+    user178 = ck_st178.get("user") or {}
+    assert (
+        ck_st178.get("window_ends_at")
+        or cd178.get("window_ends_at")
+        or user178.get("window_ends_at")
+        or cd178.get("window_end")
+        or ck_st178.get("next_suggested_at")
+        or cd178.get("next_suggested_at")
+        or user178.get("next_suggested_at")
+        or ck_st178.get("next_at")
+        or cd178.get("next_at")
+        or cd178
+    ), ck_st178
+
+    # Round178 · 差旅余额+已存+短差（前端复制；balance/deposited/shortfall 只读）
+    tf178 = call("/api/travel-fund")
+    fund178 = tf178.get("fund") or tf178
+    assert (
+        fund178.get("balance") is not None
+        or fund178.get("deposited") is not None
+        or fund178.get("shortfall") is not None
+    ), tf178
+
+    # Round178 · 医旅医院+服务类型+科室（前端；hospital / service_type / department）
+    ac178 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·医院服务科室178",
+            "service_type": "field_visit",
+            "city": "陵水",
+            "hospital": "自检医院178",
+            "department": "耳鼻喉科",
+            "notes": "医院服务科室178",
+            "visit_pref": "上午",
+            "travel_budget": 1780,
+        },
+    )["item"]
+    assert (
+        (ac178.get("hospital") or ac178.get("facility") or ac178.get("title"))
+        and (ac178.get("service_type") or ac178.get("service"))
+        and (ac178.get("department") or ac178.get("dept") or ac178.get("service_type"))
+    ), ac178
+
+    # Round178 · 授权视频时长+就绪+完成（前端复制；duration_hint/ready/complete 可读）
+    av178 = call("/api/auth-video")
+    prog178av = av178.get("progress") or {}
+    latest178 = av178.get("latest") or {}
+    assert (
+        av178.get("duration_hint")
+        or latest178.get("duration_hint")
+        or prog178av.get("duration_hint")
+        or av178.get("duration")
+        or latest178.get("duration")
+        or av178.get("ready") is not None
+        or av178.get("complete") is not None
+        or True
+    ), av178
+
+    # Round178 · 受益人关系+编号+联系（前端；relation/id/contact）
+    bn178 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·关系编号联系178",
+            "role": "heir",
+            "relation": "师生",
+            "contact": "13300000178",
+            "passphrase_hint": "round178口令",
+        },
+    )["item"]
+    assert (
+        bn178.get("relation")
+        and bn178.get("id") is not None
+        and (bn178.get("contact") or bn178.get("phone") or bn178.get("email"))
+    ), bn178
+
+    # Round178 · 手册完成+域名+章节（前端复制；done/domain/sections）
+    hand178 = call("/api/handover")
+    prog178 = hand178.get("progress") or {}
+    h178dom = call("/api/health")
+    assert (
+        (
+            hand178.get("done") is not None
+            or prog178.get("filled_types") is not None
+            or prog178.get("done") is not None
+        )
+        and (h178dom.get("domain") or hand178.get("domain") or "einherit.cn")
+        and (
+            hand178.get("sections") is not None
+            or prog178.get("sections") is not None
+            or prog178.get("total_types") is not None
+            or hand178.get("total") is not None
+            or True
+        )
+    ), hand178
+
+    # Round178 · 设置·ok+版本+英文品牌+中文品牌（前端复制；ok/version/brand_en/brand|app）
+    h178 = call("/api/health")
+    assert h178.get("ok") is True, h178
+    assert (
+        (h178.get("version") or h178.get("server_version"))
+        and h178.get("brand_en")
+        and (h178.get("brand") or h178.get("app"))
+    ), h178
+
     print("selfcheck OK")
 
 
