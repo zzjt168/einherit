@@ -9000,6 +9000,115 @@ def main() -> None:
         h98.get("version") or h98.get("server_version")
     ), h98
 
+    # Round99 · 首页应用域名版本（前端条；app/domain/version 只读）
+    h99home = call("/api/health")
+    assert h99home.get("app") and h99home.get("domain") == "einherit.cn" and (
+        h99home.get("version") or h99home.get("server_version")
+    ), h99home
+
+    # Round99 · 交割编号+部门+受益人（前端；id/dept/beneficiary 可读）
+    lg99 = call(
+        "/api/legacy",
+        {
+            "title": "自检·编号部门99",
+            "category": "耳机",
+            "action": "转赠",
+            "dept": "finance",
+            "beneficiary": "自检受益人99",
+            "notes": "备注99",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert lg99.get("id") is not None and lg99.get("dept") and lg99.get(
+        "beneficiary"
+    ), lg99
+
+    # Round99 · 备忘平台+标签+提示（前端；platform/tag/account_hint 可读）
+    as99 = call(
+        "/api/assets",
+        {
+            "platform": "round99PlatTagHint",
+            "account_hint": "hint99",
+            "summary": "平台标签提示99",
+            "dispose_note": "演示处置99",
+            "dept": "admin",
+            "tag": "其他",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert as99.get("platform") and as99.get("tag") and as99.get(
+        "account_hint"
+    ), as99
+
+    # Round99 · 报备间隔小时说明（前端复制；interval_hours 只读）
+    ck_st99 = call("/api/checkin/status")
+    cd99 = ck_st99.get("countdown") or {}
+    assert cd99.get("interval_hours") is not None or cd99, ck_st99
+
+    # Round99 · 差旅进度百分比与缺口（前端复制；progress_pct/shortfall 只读）
+    tf99 = call("/api/travel-fund")
+    fund99 = tf99.get("fund") or tf99
+    assert (
+        fund99.get("progress_pct") is not None
+        or fund99.get("progress") is not None
+        or fund99.get("shortfall") is not None
+    ), tf99
+
+    # Round99 · 善后标题+备注+状态（前端；title/notes/status 可读）
+    ac99 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·标题备注99",
+            "service_type": "field_visit",
+            "city": "三亚",
+            "notes": "标题备注状态99",
+            "visit_pref": "晚上",
+            "travel_budget": 990,
+        },
+    )["item"]
+    assert ac99.get("title") and (
+        ac99.get("notes") or ac99.get("status")
+    ), ac99
+
+    # Round99 · 授权视频清单+进度+就绪（前端复制；checklist/progress/ready 可读）
+    av99 = call("/api/auth-video")
+    assert (
+        isinstance(av99.get("checklist"), list)
+        or av99.get("progress")
+        or av99.get("ready") is not None
+    ), av99
+
+    # Round99 · 受益人编号+姓名+口令提示（前端；id/name/passphrase_hint 可读）
+    bn99 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·编号口令99",
+            "role": "executor",
+            "relation": "亲属",
+            "contact": "13300000099",
+            "passphrase_hint": "round99口令",
+        },
+    )["item"]
+    assert bn99.get("id") is not None and bn99.get("name") and bn99.get(
+        "passphrase_hint"
+    ), bn99
+
+    # Round99 · 手册待办数与导出路径（前端复制；todos/export_path 可读）
+    hand99 = call("/api/handover")
+    assert (
+        isinstance(hand99.get("todos"), list) or hand99.get("export_path")
+    ), hand99
+
+    # Round99 · 设置·英文品牌+域名+版本（前端复制；brand_en/domain/version 对齐）
+    h99 = call("/api/health")
+    assert h99.get("ok") is True, h99
+    assert h99.get("brand_en") and h99.get("domain") and (
+        h99.get("version") or h99.get("server_version")
+    ), h99
+
     print("selfcheck OK")
 
 
