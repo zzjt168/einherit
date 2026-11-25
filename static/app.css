@@ -10661,3 +10661,38 @@ body.privacy-mode .privacy-hint { opacity: 0.85; }
   margin: 8px 0 10px; padding: 8px 10px; border-radius: 8px; background: #f5f8f6;
   word-break: break-word; font-weight: 600; color: var(--sage-deep, #2f5d45);
 }
+
+/* Round204 · 温和增量 */
+.home-brand-en-version-brand-calm-r204 {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px;
+  margin: 8px 0 12px; padding: 10px 12px; border-radius: 10px;
+  background: linear-gradient(160deg, #eef5f3 0%, #fff 75%);
+  border: 1px solid var(--line, #e2e8e4);
+}
+.home-brand-en-version-brand-calm-r204[hidden] { display: none; }
+.home-brand-en-version-brand-calm-r204-mark { font-weight: 600; color: var(--sage-deep, #2f5d45); font-size: 13px; }
+.home-brand-en-version-brand-calm-r204-sub { flex: 1; min-width: 8em; font-size: 12px; }
+.lg-copy-title-disposition-device-owner-r204 { margin-top: 8px; margin-left: 6px; }
+.as-copy-visibility-tag-summary-r204 { margin-top: 8px; margin-left: 6px; }
+.checkin-next-suggested-status-last-ago-plain-r204-copy {
+  margin-top: 10px; padding: 10px 12px; border-radius: 10px; background: #f5f8f6;
+}
+.checkin-next-suggested-status-last-ago-plain-r204-copy-line { margin: 0 0 8px; }
+.travel-deposited-balance-threshold-plain-r204-copy {
+  margin: 8px 0 10px; padding: 10px 12px; border-radius: 10px; background: #f5f8f6;
+}
+.travel-deposited-balance-threshold-plain-r204-copy-line { margin: 0 0 8px; }
+.ac-copy-city-department-hospital-r204 { margin-top: 8px; margin-left: 6px; }
+.av-ready-duration-hint-complete-copy-r204 {
+  margin: 8px 0 10px; padding: 10px 12px; border-radius: 10px; background: #f5f8f6;
+}
+.av-ready-duration-hint-complete-copy-r204-line { margin: 0 0 8px; }
+.bn-copy-relation-contact-name-r204 { margin-top: 8px; margin-left: 6px; }
+.hand-domain-progress-pct-done-copy-r204 {
+  margin: 8px 0 12px; padding: 10px 12px; border-radius: 10px; background: #f5f8f6;
+}
+.hand-domain-progress-pct-done-copy-r204-line { margin: 0 0 8px; }
+.settings-brand-en-ok-version-domain-r204-copy-card .settings-brand-en-ok-version-domain-r204-copy-preview {
+  margin: 8px 0 10px; padding: 8px 10px; border-radius: 8px; background: #f5f8f6;
+  word-break: break-word; font-weight: 600; color: var(--sage-deep, #2f5d45);
+}
