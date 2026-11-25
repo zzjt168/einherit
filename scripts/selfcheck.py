@@ -5143,6 +5143,106 @@ def main() -> None:
     assert h59.get("ok") is True, h59
     assert h59.get("server_version") or h59.get("version"), h59
 
+    # Round60 · 首页六十批体验层就绪（前端条；脚本挂载由 UI 判定）
+    h60home = call("/api/health")
+    assert h60home.get("ok") is True, h60home
+    assert h60home.get("domain") == "einherit.cn", h60home
+
+    # Round60 · 交割编号+出厂重置（前端；id/factory_reset 可读）
+    lg60 = call(
+        "/api/legacy",
+        {
+            "title": "自检·编号出厂60",
+            "category": "其他",
+            "action": "销毁",
+            "dept": "production",
+            "factory_reset": True,
+        },
+    )["item"]
+    assert lg60.get("id") is not None, lg60
+    assert lg60.get("factory_reset") is not None or "factory_reset" in lg60, lg60
+
+    # Round60 · 备忘可见性+部门（前端；visibility/dept 可读）
+    as60 = call(
+        "/api/assets",
+        {
+            "platform": "round60VisDept",
+            "summary": "可见性部门60",
+            "dept": "finance",
+            "tag": "其他",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert as60.get("visibility") and as60.get("dept"), as60
+
+    # Round60 · 报备最近与下次建议时刻标签（前端复制；label 只读，不改外呼）
+    ck_st60 = call("/api/checkin/status")
+    cd60 = ck_st60.get("countdown") or {}
+    assert (
+        cd60.get("last_checkin_label")
+        or cd60.get("next_suggested_label")
+        or ck_st60.get("user")
+    ), ck_st60
+
+    # Round60 · 差旅门槛与进度百分比（前端复制；threshold/progress_pct 只读，不改退款）
+    tf60 = call("/api/travel-fund")
+    fund60 = tf60.get("fund") or tf60
+    assert (
+        fund60.get("threshold") is not None
+        or fund60.get("progress_pct") is not None
+        or fund60.get("balance") is not None
+    ), tf60
+
+    # Round60 · 善后编号+协作状态（前端；id/coop_state 可读）
+    ac60 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·编号协作60",
+            "service_type": "field_visit",
+            "city": "琼海",
+            "travel_budget": 600,
+        },
+    )["item"]
+    assert ac60.get("id") is not None, ac60
+    assert ac60.get("coop_state") is not None or "coop_state" in ac60, ac60
+
+    # Round60 · 授权视频三勾已完成/总数（前端复制；progress.done/total 可读）
+    av60 = call("/api/auth-video")
+    prog60 = av60.get("progress") or {}
+    assert (
+        (prog60.get("done") is not None and prog60.get("total") is not None)
+        or av60.get("complete") is not None
+        or av60.get("ready") is not None
+    ), av60
+
+    # Round60 · 受益人编号+角色键（前端；id/role 可读）
+    bn60 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·编号角色60",
+            "role": "heir",
+            "relation": "侄子",
+            "contact": "13300000060",
+        },
+    )["item"]
+    assert bn60.get("id") is not None and bn60.get("role"), bn60
+
+    # Round60 · 手册覆盖百分比+条目总数（前端复制；pct/total_items 可读）
+    hand60 = call("/api/handover")
+    prog_h60 = hand60.get("progress") or {}
+    assert (
+        prog_h60.get("pct") is not None
+        or prog_h60.get("total_items") is not None
+        or hand60.get("item_count") is not None
+    ), hand60
+
+    # Round60 · 设置·六十批体验层范围（前端复制；health 对齐）
+    h60 = call("/api/health")
+    assert h60.get("ok") is True, h60
+    assert h60.get("domain") == "einherit.cn", h60
+    assert h60.get("brand_en") or h60.get("version") or h60.get("server_version"), h60
+
     print("selfcheck OK")
 
 
