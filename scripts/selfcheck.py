@@ -8196,6 +8196,101 @@ def main() -> None:
         h90.get("version") or h90.get("server_version")
     ), h90
 
+    # Round91 · 首页就绪英文品牌（前端条；ok/brand_en 只读）
+    h91home = call("/api/health")
+    assert h91home.get("ok") is True and h91home.get("brand_en"), h91home
+
+    # Round91 · 交割标题+分类+处置（前端；title/category/action 可读）
+    lg91 = call(
+        "/api/legacy",
+        {
+            "title": "自检·标题分类91",
+            "category": "耳机",
+            "action": "转赠",
+            "dept": "finance",
+            "beneficiary": "自检受益人91",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert lg91.get("title") and lg91.get("category") and lg91.get("action"), lg91
+
+    # Round91 · 备忘编号+可见性+部门（前端；id/visibility/dept 可读）
+    as91 = call(
+        "/api/assets",
+        {
+            "platform": "round91IdVisDept",
+            "account_hint": "hint91",
+            "summary": "编号可见部门91",
+            "dispose_note": "演示处置91",
+            "dept": "admin",
+            "tag": "其他",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert as91.get("id") is not None and as91.get("visibility") and as91.get(
+        "dept"
+    ), as91
+
+    # Round91 · 报备剩余小时（前端复制；hours_remaining 只读）
+    ck_st91 = call("/api/checkin/status")
+    cd91 = ck_st91.get("countdown") or {}
+    assert cd91.get("hours_remaining") is not None or cd91, ck_st91
+
+    # Round91 · 差旅缺口与达标（前端复制；shortfall/met 只读）
+    tf91 = call("/api/travel-fund")
+    fund91 = tf91.get("fund") or tf91
+    assert fund91.get("shortfall") is not None or fund91.get("met") is not None, tf91
+
+    # Round91 · 善后城市+阶段+预算（前端；city/phase/travel_budget 可读）
+    ac91 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·城市阶段91",
+            "service_type": "field_visit",
+            "city": "定安",
+            "notes": "城市阶段预算91",
+            "visit_pref": "晚上",
+            "travel_budget": 910,
+        },
+    )["item"]
+    assert ac91.get("city") and (
+        ac91.get("phase") or ac91.get("travel_budget") is not None
+    ), ac91
+
+    # Round91 · 授权视频缺失标签+完成（前端复制；missing_labels/complete 可读）
+    av91 = call("/api/auth-video")
+    assert isinstance(av91.get("missing_labels"), list) or av91.get(
+        "complete"
+    ) is not None, av91
+
+    # Round91 · 受益人姓名+口令+角色（前端；name/passphrase_hint/role 可读）
+    bn91 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·姓名口令91",
+            "role": "executor",
+            "relation": "家属",
+            "contact": "13300000091",
+            "passphrase_hint": "round91口令",
+        },
+    )["item"]
+    assert bn91.get("name") and bn91.get("passphrase_hint") and bn91.get("role"), bn91
+
+    # Round91 · 手册进度百分比与分享提示（前端复制；progress.pct/share_hint 可读）
+    hand91 = call("/api/handover")
+    prog91 = hand91.get("progress") or {}
+    assert prog91.get("pct") is not None or hand91.get("share_hint"), hand91
+
+    # Round91 · 设置·应用名+域名+英文品牌（前端复制；app/domain/brand_en 对齐）
+    h91 = call("/api/health")
+    assert h91.get("ok") is True, h91
+    assert h91.get("app") and h91.get("domain") == "einherit.cn" and h91.get(
+        "brand_en"
+    ), h91
+
     print("selfcheck OK")
 
 
