@@ -8790,6 +8790,107 @@ def main() -> None:
         h96.get("version") or h96.get("server_version")
     ), h96
 
+    # Round97 · 首页就绪域名版本（前端条；ok/domain/version 只读）
+    h97home = call("/api/health")
+    assert h97home.get("ok") is True and h97home.get("domain") == "einherit.cn" and (
+        h97home.get("version") or h97home.get("server_version")
+    ), h97home
+
+    # Round97 · 交割处置+备注+部门（前端；action/notes/dept 可读）
+    lg97 = call(
+        "/api/legacy",
+        {
+            "title": "自检·处置备注97",
+            "category": "耳机",
+            "action": "转赠",
+            "dept": "finance",
+            "beneficiary": "自检受益人97",
+            "notes": "备注97",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert lg97.get("action") and lg97.get("dept"), lg97
+
+    # Round97 · 备忘提示+平台+标签（前端；account_hint/platform/tag 可读）
+    as97 = call(
+        "/api/assets",
+        {
+            "platform": "round97HintPlatTag",
+            "account_hint": "hint97",
+            "summary": "提示平台标签97",
+            "dispose_note": "演示处置97",
+            "dept": "admin",
+            "tag": "其他",
+            "visibility": "private",
+            "draft": True,
+        },
+    )["item"]
+    assert as97.get("account_hint") and as97.get("platform") and as97.get(
+        "tag"
+    ), as97
+
+    # Round97 · 报备剩余秒数（前端复制；seconds_remaining 只读）
+    ck_st97 = call("/api/checkin/status")
+    cd97 = ck_st97.get("countdown") or {}
+    assert cd97.get("seconds_remaining") is not None or cd97, ck_st97
+
+    # Round97 · 差旅门槛与缺口（前端复制；threshold/shortfall 只读）
+    tf97 = call("/api/travel-fund")
+    fund97 = tf97.get("fund") or tf97
+    assert fund97.get("threshold") is not None or fund97.get(
+        "shortfall"
+    ) is not None, tf97
+
+    # Round97 · 善后城市+备注+预算（前端；city/notes/travel_budget 可读）
+    ac97 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·城市备注97",
+            "service_type": "field_visit",
+            "city": "东方",
+            "notes": "城市备注预算97",
+            "visit_pref": "午后",
+            "travel_budget": 970,
+        },
+    )["item"]
+    assert ac97.get("city") and (
+        ac97.get("notes") or ac97.get("travel_budget") is not None
+    ), ac97
+
+    # Round97 · 授权视频就绪+缺失数（前端复制；ready/missing_labels 可读）
+    av97 = call("/api/auth-video")
+    assert av97.get("ready") is not None or isinstance(
+        av97.get("missing_labels"), list
+    ), av97
+
+    # Round97 · 受益人关系+角色+联系（前端；relation/role/contact 可读）
+    bn97 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·关系角色97",
+            "role": "executor",
+            "relation": "好友",
+            "contact": "13300000097",
+            "passphrase_hint": "round97口令",
+        },
+    )["item"]
+    assert bn97.get("relation") and bn97.get("role") and bn97.get(
+        "contact"
+    ), bn97
+
+    # Round97 · 手册条目数与品牌（前端复制；item_count/brand 可读）
+    hand97 = call("/api/handover")
+    assert hand97.get("item_count") is not None or hand97.get("brand"), hand97
+
+    # Round97 · 设置·就绪+英文品牌+版本（前端复制；ok/brand_en/version 对齐）
+    h97 = call("/api/health")
+    assert h97.get("ok") is True, h97
+    assert h97.get("brand_en") and (
+        h97.get("version") or h97.get("server_version")
+    ), h97
+
     print("selfcheck OK")
 
 
