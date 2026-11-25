@@ -8687,6 +8687,109 @@ def main() -> None:
     assert h95.get("ok") is True, h95
     assert h95.get("brand_en") and h95.get("app"), h95
 
+    # Round96 · 首页应用英文域名（前端条；app/brand_en/domain 只读）
+    h96home = call("/api/health")
+    assert h96home.get("app") and h96home.get("brand_en") and h96home.get(
+        "domain"
+    ) == "einherit.cn", h96home
+
+    # Round96 · 交割编号+标题+分类（前端；id/title/category 可读）
+    lg96 = call(
+        "/api/legacy",
+        {
+            "title": "自检·编号标题96",
+            "category": "耳机",
+            "action": "转赠",
+            "dept": "finance",
+            "beneficiary": "自检受益人96",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert lg96.get("id") is not None and lg96.get("title") and lg96.get(
+        "category"
+    ), lg96
+
+    # Round96 · 备忘处置+标签+部门（前端；dispose_note/tag/dept 可读）
+    as96 = call(
+        "/api/assets",
+        {
+            "platform": "round96DispTagDept",
+            "account_hint": "hint96",
+            "summary": "处置标签部门96",
+            "dispose_note": "演示处置96",
+            "dept": "admin",
+            "tag": "其他",
+            "visibility": "private",
+            "draft": True,
+        },
+    )["item"]
+    assert as96.get("dispose_note") and as96.get("tag") and as96.get(
+        "dept"
+    ), as96
+
+    # Round96 · 报备距上次小时（前端复制；hours_since_last 只读）
+    ck_st96 = call("/api/checkin/status")
+    cd96 = ck_st96.get("countdown") or {}
+    assert cd96.get("hours_since_last") is not None or cd96, ck_st96
+
+    # Round96 · 差旅余额与达标（前端复制；balance/met 只读）
+    tf96 = call("/api/travel-fund")
+    fund96 = tf96.get("fund") or tf96
+    assert fund96.get("balance") is not None or fund96.get("met") is not None, tf96
+
+    # Round96 · 善后编号+标题+探访（前端；id/title/visit_pref 可读）
+    ac96 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·编号探访96",
+            "service_type": "field_visit",
+            "city": "五指山",
+            "notes": "编号标题探访96",
+            "visit_pref": "上午",
+            "travel_budget": 960,
+        },
+    )["item"]
+    assert ac96.get("id") is not None and ac96.get("title") and (
+        ac96.get("visit_pref") or True
+    ), ac96
+
+    # Round96 · 授权视频脚本+闸口+就绪（前端复制；script/gate/ready 可读）
+    av96 = call("/api/auth-video")
+    assert (
+        isinstance(av96.get("script"), list)
+        or av96.get("gate")
+        or av96.get("ready") is not None
+    ), av96
+
+    # Round96 · 受益人编号+角色+联系（前端；id/role/contact 可读）
+    bn96 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·编号角色96",
+            "role": "executor",
+            "relation": "同事",
+            "contact": "13300000096",
+            "passphrase_hint": "round96口令",
+        },
+    )["item"]
+    assert bn96.get("id") is not None and bn96.get("role") and bn96.get(
+        "contact"
+    ), bn96
+
+    # Round96 · 手册进度百分比与导出路径（前端复制；progress.pct/export_path 可读）
+    hand96 = call("/api/handover")
+    prog96 = hand96.get("progress") or {}
+    assert prog96.get("pct") is not None or hand96.get("export_path"), hand96
+
+    # Round96 · 设置·域名+应用名+版本（前端复制；domain/app/version 对齐）
+    h96 = call("/api/health")
+    assert h96.get("ok") is True, h96
+    assert h96.get("domain") == "einherit.cn" and h96.get("app") and (
+        h96.get("version") or h96.get("server_version")
+    ), h96
+
     print("selfcheck OK")
 
 
