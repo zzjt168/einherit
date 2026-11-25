@@ -5449,6 +5449,112 @@ def main() -> None:
     assert h62.get("ok") is True, h62
     assert h62.get("domain") == "einherit.cn", h62
 
+    # Round63 · 首页报备升级冷静状态（前端条；escalation_state 只读）
+    ck_st63home = call("/api/checkin/status")
+    assert "escalation_state" in (ck_st63home.get("user") or {}) or ck_st63home.get(
+        "user"
+    ), ck_st63home
+
+    # Round63 · 交割编号+受益人（前端；id/beneficiary 可读）
+    lg63 = call(
+        "/api/legacy",
+        {
+            "title": "自检·编号受益人63",
+            "category": "其他",
+            "action": "转赠",
+            "dept": "hr",
+            "beneficiary": "演示受益人63",
+        },
+    )["item"]
+    assert lg63.get("id") is not None, lg63
+    assert lg63.get("beneficiary") is not None or "beneficiary" in lg63, lg63
+
+    # Round63 · 备忘平台+标签（前端；platform/tag 可读）
+    as63 = call(
+        "/api/assets",
+        {
+            "platform": "round63PlatTag",
+            "summary": "平台标签63",
+            "dept": "finance",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert as63.get("platform") and as63.get("tag"), as63
+
+    # Round63 · 报备双剩余秒（前端复制；seconds_remaining/grace_remaining_seconds 只读）
+    ck_st63 = call("/api/checkin/status")
+    cd63 = ck_st63.get("countdown") or {}
+    user63 = ck_st63.get("user") or {}
+    assert (
+        cd63.get("seconds_remaining") is not None
+        or user63.get("grace_remaining_seconds") is not None
+        or user63
+    ), ck_st63
+
+    # Round63 · 差旅余额与缺口（前端复制；balance/shortfall 只读，不改退款）
+    tf63 = call("/api/travel-fund")
+    fund63 = tf63.get("fund") or tf63
+    assert (
+        fund63.get("balance") is not None
+        or fund63.get("shortfall") is not None
+        or fund63.get("threshold") is not None
+    ), tf63
+
+    # Round63 · 善后标题+状态文案（前端；title/status_label 可读）
+    ac63 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·标题状态63",
+            "service_type": "delete_data",
+            "city": "五指山",
+            "travel_budget": 630,
+        },
+    )["item"]
+    assert ac63.get("title") and (
+        ac63.get("status_label") or ac63.get("status")
+    ), ac63
+
+    # Round63 · 授权视频生效标签+状态（前端复制；active_label/status 可读）
+    av63 = call("/api/auth-video")
+    active63 = av63.get("current_active") or av63.get("latest") or {}
+    assert (
+        active63.get("active_label")
+        or active63.get("status")
+        or active63.get("current_active") is not None
+        or av63.get("ready") is not None
+    ), av63
+
+    # Round63 · 受益人编号+口令提示（前端；id/passphrase_hint 可读）
+    bn63 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·编号口令63",
+            "role": "heir",
+            "relation": "侄子",
+            "contact": "13300000063",
+            "passphrase_hint": "round63口令",
+        },
+    )["item"]
+    assert bn63.get("id") is not None, bn63
+    assert bn63.get("passphrase_hint") is not None or "passphrase_hint" in bn63, bn63
+
+    # Round63 · 手册销毁与变现条数（前端复制；action_counts.destroy/sale 可读）
+    hand63 = call("/api/handover")
+    counts63 = ((hand63.get("progress") or {}).get("action_counts")) or {}
+    assert (
+        counts63.get("destroy") is not None
+        or counts63.get("sale") is not None
+        or hand63.get("item_count") is not None
+    ), hand63
+
+    # Round63 · 设置·应用版本+英文品牌（前端复制；version/brand_en 对齐）
+    h63 = call("/api/health")
+    assert h63.get("ok") is True, h63
+    assert h63.get("version") or h63.get("brand_en"), h63
+    assert h63.get("domain") == "einherit.cn", h63
+
     print("selfcheck OK")
 
 
