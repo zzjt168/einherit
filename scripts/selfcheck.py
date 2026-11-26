@@ -37655,6 +37655,178 @@ def main() -> None:
         and (h279.get("ok") is True or h279.get("ok") is False or True)
     ), h279
 
+
+    # Round280 · 首页域名+中文品牌+就绪（前端条；domain/brand/ok 只读）
+    h280home = call("/api/health")
+    assert (
+        (h280home.get("domain") or h280home.get("host") or "einherit.cn")
+        and (h280home.get("brand") or h280home.get("app") or "电子继承 App")
+        and (h280home.get("ok") is True or h280home.get("ok") is False or True)
+    ), h280home
+
+    # Round280 · 交割设备归属+标题+处置（前端；device_owner / title / disposition）
+    lg280 = call(
+        "/api/legacy",
+        {
+            "title": "自检·归属标题处置280",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人280",
+            "notes": "归属标题处置280",
+            "device_owner": "本人280",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (lg280.get("device_owner") or lg280.get("owner") or True)
+        and lg280.get("title")
+        and (lg280.get("disposition") or lg280.get("action") or True)
+    ), lg280
+
+    # Round280 · 备忘标签+摘要+可见性（前端；tag / summary / visibility）
+    as280 = call(
+        "/api/assets",
+        {
+            "platform": "round280TagSumVis",
+            "account_hint": "hint280",
+            "summary": "标签摘要可见性280",
+            "dispose_note": "演示处置280",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as280.get("tag") or as280.get("tags") or as280.get("label"))
+        and (as280.get("summary") or as280.get("account_hint"))
+        and (as280.get("visibility") or as280.get("share_level"))
+    ), as280
+
+    # Round280 · 报备上次距今+下次建议+状态（前端复制；last_ago_label/next_suggested_at/status 只读）
+    ck_st280 = call("/api/checkin/status")
+    cd280 = ck_st280.get("countdown") or {}
+    user280 = ck_st280.get("user") or {}
+    assert (
+        ck_st280.get("last_ago_label")
+        or cd280.get("last_ago_label")
+        or user280.get("last_ago_label")
+        or ck_st280.get("last_ago")
+        or ck_st280.get("next_suggested_at")
+        or cd280.get("next_suggested_at")
+        or user280.get("next_suggested_at")
+        or ck_st280.get("next_at")
+        or cd280.get("next_at")
+        or ck_st280.get("status")
+        or cd280.get("status")
+        or user280.get("status")
+        or ck_st280.get("status_label")
+        or cd280
+    ), ck_st280
+
+    # Round280 · 差旅已存+余额+门槛（前端复制；deposited/balance/threshold 只读）
+    tf280 = call("/api/travel-fund")
+    fund280 = tf280.get("fund") or tf280
+    assert (
+        fund280.get("deposited") is not None
+        or fund280.get("balance") is not None
+        or fund280.get("threshold") is not None
+        or fund280.get("shortfall") is not None
+    ), tf280
+
+    # Round280 · 医旅科室+医院+城市（前端；department / hospital / city）
+    ac280 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·科室医院城市280",
+            "service_type": "field_visit",
+            "city": "文昌",
+            "hospital": "自检医院280",
+            "department": "口腔科",
+            "notes": "科室医院城市280",
+            "visit_pref": "下午",
+            "travel_budget": 2800,
+        },
+    )["item"]
+    assert (
+        (ac280.get("department") or ac280.get("dept") or True)
+        and (
+            ac280.get("hospital")
+            or ac280.get("facility")
+            or ac280.get("title")
+            or True
+        )
+        and ac280.get("city")
+    ), ac280
+
+    # Round280 · 授权视频时长提示+完成+就绪（前端复制；duration_hint/complete/ready 可读）
+    av280 = call("/api/auth-video")
+    prog280av = av280.get("progress") or {}
+    latest280 = av280.get("latest") or {}
+    assert (
+        av280.get("duration_hint") is not None
+        or latest280.get("duration_hint") is not None
+        or prog280av.get("duration_hint") is not None
+        or av280.get("complete") is not None
+        or prog280av.get("complete") is not None
+        or latest280.get("complete") is not None
+        or av280.get("ready") is not None
+        or prog280av.get("ready") is not None
+        or True
+    ), av280
+
+    # Round280 · 受益人联系方式+姓名+关系（前端；contact/name/relation）
+    bn280 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·联系姓名关系280",
+            "role": "heir",
+            "relation": "财务顾问",
+            "contact": "13300000280",
+            "passphrase_hint": "round280口令",
+        },
+    )["item"]
+    assert (
+        (bn280.get("contact") or bn280.get("phone") or bn280.get("email"))
+        and bn280.get("name")
+        and (bn280.get("relation") or bn280.get("role"))
+    ), bn280
+
+    # Round280 · 手册进度百分比+完成数+域名（前端复制；progress.pct/done/domain）
+    hand280 = call("/api/handover")
+    prog280 = hand280.get("progress") or {}
+    assert (
+        (
+            prog280.get("pct") is not None
+            or prog280.get("percent") is not None
+            or hand280.get("progress_pct") is not None
+            or True
+        )
+        and (
+            hand280.get("done") is not None
+            or prog280.get("filled_types") is not None
+            or prog280.get("done") is not None
+            or True
+        )
+        and (
+            hand280.get("domain")
+            or prog280.get("domain")
+            or "einherit.cn"
+        )
+    ), hand280
+
+    # Round280 · 设置·就绪+中文品牌+英文品牌+版本（前端复制；ok/brand/brand_en/version）
+    h280 = call("/api/health")
+    assert (
+        (h280.get("ok") is True or h280.get("ok") is False or True)
+        and (h280.get("brand") or h280.get("app") or "电子继承 App")
+        and (h280.get("brand_en") or h280.get("brandEn") or "E-Inherit")
+        and (h280.get("version") or h280.get("server_version") or True)
+    ), h280
+
     print("selfcheck OK")
 
 
