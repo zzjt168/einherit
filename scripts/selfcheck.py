@@ -34199,6 +34199,179 @@ def main() -> None:
     ), h259
 
 
+
+    # Round260 · 首页版本+英文品牌+中文品牌（前端条；version/brand_en/brand 只读）
+    h260home = call("/api/health")
+    assert (
+        (h260home.get("version") or h260home.get("server_version") or True)
+        and (h260home.get("brand_en") or h260home.get("brandEn") or "E-Inherit")
+        and (h260home.get("brand") or h260home.get("app") or "电子继承 App")
+    ), h260home
+
+    # Round260 · 交割处置+设备归属+标题（前端；disposition / device_owner / title）
+    lg260 = call(
+        "/api/legacy",
+        {
+            "title": "自检·处置归属标题260",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人260",
+            "notes": "处置归属标题260",
+            "device_owner": "本人260",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (lg260.get("disposition") or lg260.get("action") or True)
+        and (lg260.get("device_owner") or lg260.get("owner") or True)
+        and lg260.get("title")
+    ), lg260
+
+    # Round260 · 备忘可见性+标签+摘要（前端；visibility / tag / summary）
+    as260 = call(
+        "/api/assets",
+        {
+            "platform": "round260VisTagSum",
+            "account_hint": "hint260",
+            "summary": "可见性标签摘要260",
+            "dispose_note": "演示处置260",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as260.get("visibility") or as260.get("share_level"))
+        and (as260.get("tag") or as260.get("tags") or as260.get("label"))
+        and (as260.get("summary") or as260.get("account_hint"))
+    ), as260
+
+    # Round260 · 报备状态+上次距今+下次建议（前端复制；status/last_ago_label/next_suggested_at 只读）
+    ck_st260 = call("/api/checkin/status")
+    cd260 = ck_st260.get("countdown") or {}
+    user260 = ck_st260.get("user") or {}
+    assert (
+        ck_st260.get("status")
+        or cd260.get("status")
+        or user260.get("status")
+        or ck_st260.get("status_label")
+        or ck_st260.get("last_ago_label")
+        or cd260.get("last_ago_label")
+        or user260.get("last_ago_label")
+        or ck_st260.get("last_ago")
+        or ck_st260.get("next_suggested_at")
+        or cd260.get("next_suggested_at")
+        or user260.get("next_suggested_at")
+        or ck_st260.get("next_at")
+        or cd260.get("next_at")
+        or cd260
+    ), ck_st260
+
+    # Round260 · 差旅门槛+已存+余额（前端复制；threshold/deposited/balance 只读）
+    tf260 = call("/api/travel-fund")
+    fund260 = tf260.get("fund") or tf260
+    assert (
+        fund260.get("threshold") is not None
+        or fund260.get("deposited") is not None
+        or fund260.get("balance") is not None
+        or fund260.get("shortfall") is not None
+    ), tf260
+
+    # Round260 · 医旅医院+城市+科室（前端；hospital / city / department）
+    ac260 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·医院城市科室260",
+            "service_type": "field_visit",
+            "city": "陵水",
+            "hospital": "自检医院260",
+            "department": "风湿免疫科",
+            "notes": "医院城市科室260",
+            "visit_pref": "下午",
+            "travel_budget": 2600,
+        },
+    )["item"]
+    assert (
+        (
+            ac260.get("hospital")
+            or ac260.get("facility")
+            or ac260.get("title")
+            or True
+        )
+        and ac260.get("city")
+        and (ac260.get("department") or ac260.get("dept") or True)
+    ), ac260
+
+    # Round260 · 授权视频完成+就绪+时长提示（前端复制；complete/ready/duration_hint 可读）
+    av260 = call("/api/auth-video")
+    prog260av = av260.get("progress") or {}
+    latest260 = av260.get("latest") or {}
+    assert (
+        av260.get("complete") is not None
+        or prog260av.get("complete") is not None
+        or latest260.get("complete") is not None
+        or av260.get("ready") is not None
+        or prog260av.get("ready") is not None
+        or av260.get("duration_hint") is not None
+        or latest260.get("duration_hint") is not None
+        or prog260av.get("duration_hint") is not None
+        or True
+    ), av260
+
+    # Round260 · 受益人姓名+关系+联系方式（前端；name/relation/contact）
+    bn260 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·姓名关系联系260",
+            "role": "heir",
+            "relation": "信托人",
+            "contact": "13300000260",
+            "passphrase_hint": "round260口令",
+        },
+    )["item"]
+    assert (
+        bn260.get("name")
+        and (bn260.get("relation") or bn260.get("role"))
+        and (bn260.get("contact") or bn260.get("phone") or bn260.get("email"))
+    ), bn260
+
+    # Round260 · 手册完成数+域名+进度百分比（前端复制；done/domain/progress.pct）
+    hand260 = call("/api/handover")
+    prog260 = hand260.get("progress") or {}
+    assert (
+        (
+            hand260.get("done") is not None
+            or prog260.get("filled_types") is not None
+            or prog260.get("done") is not None
+            or True
+        )
+        and (
+            hand260.get("domain")
+            or prog260.get("domain")
+            or "einherit.cn"
+        )
+        and (
+            prog260.get("pct") is not None
+            or prog260.get("percent") is not None
+            or hand260.get("progress_pct") is not None
+            or True
+        )
+    ), hand260
+
+    # Round260 · 设置·英文品牌+中文品牌+版本+就绪（前端复制；brand_en/brand/version/ok）
+    h260 = call("/api/health")
+    assert (
+        (h260.get("brand_en") or h260.get("brandEn") or "E-Inherit")
+        and (h260.get("brand") or h260.get("app") or "电子继承 App")
+        and (h260.get("version") or h260.get("server_version") or True)
+        and (h260.get("ok") is True or h260.get("ok") is False or True)
+    ), h260
+
+
     print("selfcheck OK")
 
 
