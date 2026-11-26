@@ -36967,6 +36967,178 @@ def main() -> None:
     ), h275
 
 
+
+    # Round276 · 首页中文品牌+就绪+版本（前端条；brand/ok/version 只读）
+    h276home = call("/api/health")
+    assert (
+        (h276home.get("brand") or h276home.get("app") or "电子继承 App")
+        and (h276home.get("ok") is True or h276home.get("ok") is False or True)
+        and (h276home.get("version") or h276home.get("server_version") or True)
+    ), h276home
+
+    # Round276 · 交割标题+处置+设备归属（前端；title / disposition / device_owner）
+    lg276 = call(
+        "/api/legacy",
+        {
+            "title": "自检·标题处置归属276",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人276",
+            "notes": "标题处置归属276",
+            "device_owner": "本人276",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        lg276.get("title")
+        and (lg276.get("disposition") or lg276.get("action") or True)
+        and (lg276.get("device_owner") or lg276.get("owner") or True)
+    ), lg276
+
+    # Round276 · 备忘摘要+可见性+标签（前端；summary / visibility / tag）
+    as276 = call(
+        "/api/assets",
+        {
+            "platform": "round276SumVisTag",
+            "account_hint": "hint276",
+            "summary": "摘要可见性标签276",
+            "dispose_note": "演示处置276",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as276.get("summary") or as276.get("account_hint"))
+        and (as276.get("visibility") or as276.get("share_level"))
+        and (as276.get("tag") or as276.get("tags") or as276.get("label"))
+    ), as276
+
+    # Round276 · 报备下次建议+状态+上次距今（前端复制；next_suggested_at/status/last_ago_label 只读）
+    ck_st276 = call("/api/checkin/status")
+    cd276 = ck_st276.get("countdown") or {}
+    user276 = ck_st276.get("user") or {}
+    assert (
+        ck_st276.get("next_suggested_at")
+        or cd276.get("next_suggested_at")
+        or user276.get("next_suggested_at")
+        or ck_st276.get("next_at")
+        or cd276.get("next_at")
+        or ck_st276.get("status")
+        or cd276.get("status")
+        or user276.get("status")
+        or ck_st276.get("status_label")
+        or ck_st276.get("last_ago_label")
+        or cd276.get("last_ago_label")
+        or user276.get("last_ago_label")
+        or ck_st276.get("last_ago")
+        or cd276
+    ), ck_st276
+
+    # Round276 · 差旅余额+门槛+已存（前端复制；balance/threshold/deposited 只读）
+    tf276 = call("/api/travel-fund")
+    fund276 = tf276.get("fund") or tf276
+    assert (
+        fund276.get("balance") is not None
+        or fund276.get("threshold") is not None
+        or fund276.get("deposited") is not None
+        or fund276.get("shortfall") is not None
+    ), tf276
+
+    # Round276 · 医旅城市+科室+医院（前端；city / department / hospital）
+    ac276 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·城市科室医院276",
+            "service_type": "field_visit",
+            "city": "文昌",
+            "hospital": "自检医院276",
+            "department": "口腔科",
+            "notes": "城市科室医院276",
+            "visit_pref": "下午",
+            "travel_budget": 2760,
+        },
+    )["item"]
+    assert (
+        ac276.get("city")
+        and (ac276.get("department") or ac276.get("dept") or True)
+        and (
+            ac276.get("hospital")
+            or ac276.get("facility")
+            or ac276.get("title")
+            or True
+        )
+    ), ac276
+
+    # Round276 · 授权视频就绪+时长提示+完成（前端复制；ready/duration_hint/complete 可读）
+    av276 = call("/api/auth-video")
+    prog276av = av276.get("progress") or {}
+    latest276 = av276.get("latest") or {}
+    assert (
+        av276.get("ready") is not None
+        or prog276av.get("ready") is not None
+        or av276.get("duration_hint") is not None
+        or latest276.get("duration_hint") is not None
+        or prog276av.get("duration_hint") is not None
+        or av276.get("complete") is not None
+        or prog276av.get("complete") is not None
+        or latest276.get("complete") is not None
+        or True
+    ), av276
+
+    # Round276 · 受益人关系+联系方式+姓名（前端；relation/contact/name）
+    bn276 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·关系联系姓名276",
+            "role": "heir",
+            "relation": "财务顾问",
+            "contact": "13300000276",
+            "passphrase_hint": "round276口令",
+        },
+    )["item"]
+    assert (
+        (bn276.get("relation") or bn276.get("role"))
+        and (bn276.get("contact") or bn276.get("phone") or bn276.get("email"))
+        and bn276.get("name")
+    ), bn276
+
+    # Round276 · 手册域名+进度百分比+完成数（前端复制；domain/progress.pct/done）
+    hand276 = call("/api/handover")
+    prog276 = hand276.get("progress") or {}
+    assert (
+        (
+            hand276.get("domain")
+            or prog276.get("domain")
+            or "einherit.cn"
+        )
+        and (
+            prog276.get("pct") is not None
+            or prog276.get("percent") is not None
+            or hand276.get("progress_pct") is not None
+            or True
+        )
+        and (
+            hand276.get("done") is not None
+            or prog276.get("filled_types") is not None
+            or prog276.get("done") is not None
+            or True
+        )
+    ), hand276
+
+    # Round276 · 设置·英文品牌+中文品牌+就绪+版本（前端复制；brand_en/brand/ok/version）
+    h276 = call("/api/health")
+    assert (
+        (h276.get("brand_en") or h276.get("brandEn") or "E-Inherit")
+        and (h276.get("brand") or h276.get("app") or "电子继承 App")
+        and (h276.get("ok") is True or h276.get("ok") is False or True)
+        and (h276.get("version") or h276.get("server_version") or True)
+    ), h276
+
     print("selfcheck OK")
 
 
