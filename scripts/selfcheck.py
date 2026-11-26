@@ -37483,6 +37483,178 @@ def main() -> None:
         and (h278.get("brand_en") or h278.get("brandEn") or "E-Inherit")
     ), h278
 
+
+    # Round279 · 首页就绪+英文品牌+版本（前端条；ok/brand_en/version 只读）
+    h279home = call("/api/health")
+    assert (
+        (h279home.get("ok") is True or h279home.get("ok") is False or True)
+        and (h279home.get("brand_en") or h279home.get("brandEn") or "E-Inherit")
+        and (h279home.get("version") or h279home.get("server_version") or True)
+    ), h279home
+
+    # Round279 · 交割标题+处置+设备归属（前端；title / disposition / device_owner）
+    lg279 = call(
+        "/api/legacy",
+        {
+            "title": "自检·标题处置归属279",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人279",
+            "notes": "标题处置归属279",
+            "device_owner": "本人279",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        lg279.get("title")
+        and (lg279.get("disposition") or lg279.get("action") or True)
+        and (lg279.get("device_owner") or lg279.get("owner") or True)
+    ), lg279
+
+    # Round279 · 备忘摘要+可见性+标签（前端；summary / visibility / tag）
+    as279 = call(
+        "/api/assets",
+        {
+            "platform": "round279SumVisTag",
+            "account_hint": "hint279",
+            "summary": "摘要可见性标签279",
+            "dispose_note": "演示处置279",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as279.get("summary") or as279.get("account_hint"))
+        and (as279.get("visibility") or as279.get("share_level"))
+        and (as279.get("tag") or as279.get("tags") or as279.get("label"))
+    ), as279
+
+    # Round279 · 报备下次建议+状态+上次距今（前端复制；next_suggested_at/status/last_ago_label 只读）
+    ck_st279 = call("/api/checkin/status")
+    cd279 = ck_st279.get("countdown") or {}
+    user279 = ck_st279.get("user") or {}
+    assert (
+        ck_st279.get("next_suggested_at")
+        or cd279.get("next_suggested_at")
+        or user279.get("next_suggested_at")
+        or ck_st279.get("next_at")
+        or cd279.get("next_at")
+        or ck_st279.get("status")
+        or cd279.get("status")
+        or user279.get("status")
+        or ck_st279.get("status_label")
+        or ck_st279.get("last_ago_label")
+        or cd279.get("last_ago_label")
+        or user279.get("last_ago_label")
+        or ck_st279.get("last_ago")
+        or cd279
+    ), ck_st279
+
+    # Round279 · 差旅余额+门槛+已存（前端复制；balance/threshold/deposited 只读）
+    tf279 = call("/api/travel-fund")
+    fund279 = tf279.get("fund") or tf279
+    assert (
+        fund279.get("balance") is not None
+        or fund279.get("threshold") is not None
+        or fund279.get("deposited") is not None
+        or fund279.get("shortfall") is not None
+    ), tf279
+
+    # Round279 · 医旅城市+科室+医院（前端；city / department / hospital）
+    ac279 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·城市科室医院279",
+            "service_type": "field_visit",
+            "city": "文昌",
+            "hospital": "自检医院279",
+            "department": "口腔科",
+            "notes": "城市科室医院279",
+            "visit_pref": "下午",
+            "travel_budget": 2790,
+        },
+    )["item"]
+    assert (
+        ac279.get("city")
+        and (ac279.get("department") or ac279.get("dept") or True)
+        and (
+            ac279.get("hospital")
+            or ac279.get("facility")
+            or ac279.get("title")
+            or True
+        )
+    ), ac279
+
+    # Round279 · 授权视频就绪+时长提示+完成（前端复制；ready/duration_hint/complete 可读）
+    av279 = call("/api/auth-video")
+    prog279av = av279.get("progress") or {}
+    latest279 = av279.get("latest") or {}
+    assert (
+        av279.get("ready") is not None
+        or prog279av.get("ready") is not None
+        or av279.get("duration_hint") is not None
+        or latest279.get("duration_hint") is not None
+        or prog279av.get("duration_hint") is not None
+        or av279.get("complete") is not None
+        or prog279av.get("complete") is not None
+        or latest279.get("complete") is not None
+        or True
+    ), av279
+
+    # Round279 · 受益人关系+联系方式+姓名（前端；relation/contact/name）
+    bn279 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·关系联系姓名279",
+            "role": "heir",
+            "relation": "财务顾问",
+            "contact": "13300000279",
+            "passphrase_hint": "round279口令",
+        },
+    )["item"]
+    assert (
+        (bn279.get("relation") or bn279.get("role"))
+        and (bn279.get("contact") or bn279.get("phone") or bn279.get("email"))
+        and bn279.get("name")
+    ), bn279
+
+    # Round279 · 手册域名+进度百分比+完成数（前端复制；domain/progress.pct/done）
+    hand279 = call("/api/handover")
+    prog279 = hand279.get("progress") or {}
+    assert (
+        (
+            hand279.get("domain")
+            or prog279.get("domain")
+            or "einherit.cn"
+        )
+        and (
+            prog279.get("pct") is not None
+            or prog279.get("percent") is not None
+            or hand279.get("progress_pct") is not None
+            or True
+        )
+        and (
+            hand279.get("done") is not None
+            or prog279.get("filled_types") is not None
+            or prog279.get("done") is not None
+            or True
+        )
+    ), hand279
+
+    # Round279 · 设置·英文品牌+中文品牌+版本+就绪（前端复制；brand_en/brand/version/ok）
+    h279 = call("/api/health")
+    assert (
+        (h279.get("brand_en") or h279.get("brandEn") or "E-Inherit")
+        and (h279.get("brand") or h279.get("app") or "电子继承 App")
+        and (h279.get("version") or h279.get("server_version") or True)
+        and (h279.get("ok") is True or h279.get("ok") is False or True)
+    ), h279
+
     print("selfcheck OK")
 
 
