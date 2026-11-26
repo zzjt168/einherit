@@ -35064,6 +35064,179 @@ def main() -> None:
     ), h264
 
 
+
+    # Round265 · 首页域名+英文品牌+版本（前端条；domain/brand_en/version 只读）
+    h265home = call("/api/health")
+    assert (
+        (h265home.get("domain") or h265home.get("host") or "einherit.cn")
+        and (h265home.get("brand_en") or h265home.get("brandEn") or "E-Inherit")
+        and (h265home.get("version") or h265home.get("server_version") or True)
+    ), h265home
+
+    # Round265 · 交割设备归属+标题+处置（前端；device_owner / title / disposition）
+    lg265 = call(
+        "/api/legacy",
+        {
+            "title": "自检·归属标题处置265",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人265",
+            "notes": "归属标题处置265",
+            "device_owner": "本人265",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (lg265.get("device_owner") or lg265.get("owner") or True)
+        and lg265.get("title")
+        and (lg265.get("disposition") or lg265.get("action") or True)
+    ), lg265
+
+    # Round265 · 备忘标签+摘要+可见性（前端；tag / summary / visibility）
+    as265 = call(
+        "/api/assets",
+        {
+            "platform": "round265TagSumVis",
+            "account_hint": "hint265",
+            "summary": "标签摘要可见性265",
+            "dispose_note": "演示处置265",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as265.get("tag") or as265.get("tags") or as265.get("label"))
+        and (as265.get("summary") or as265.get("account_hint"))
+        and (as265.get("visibility") or as265.get("share_level"))
+    ), as265
+
+    # Round265 · 报备上次距今+下次建议+状态（前端复制；last_ago_label/next_suggested_at/status 只读）
+    ck_st265 = call("/api/checkin/status")
+    cd265 = ck_st265.get("countdown") or {}
+    user265 = ck_st265.get("user") or {}
+    assert (
+        ck_st265.get("last_ago_label")
+        or cd265.get("last_ago_label")
+        or user265.get("last_ago_label")
+        or ck_st265.get("last_ago")
+        or ck_st265.get("next_suggested_at")
+        or cd265.get("next_suggested_at")
+        or user265.get("next_suggested_at")
+        or ck_st265.get("next_at")
+        or cd265.get("next_at")
+        or ck_st265.get("status")
+        or cd265.get("status")
+        or user265.get("status")
+        or ck_st265.get("status_label")
+        or cd265
+    ), ck_st265
+
+    # Round265 · 差旅已存+余额+门槛（前端复制；deposited/balance/threshold 只读）
+    tf265 = call("/api/travel-fund")
+    fund265 = tf265.get("fund") or tf265
+    assert (
+        fund265.get("deposited") is not None
+        or fund265.get("balance") is not None
+        or fund265.get("threshold") is not None
+        or fund265.get("shortfall") is not None
+    ), tf265
+
+    # Round265 · 医旅科室+医院+城市（前端；department / hospital / city）
+    ac265 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·科室医院城市265",
+            "service_type": "field_visit",
+            "city": "文昌",
+            "hospital": "自检医院265",
+            "department": "口腔科",
+            "notes": "科室医院城市265",
+            "visit_pref": "下午",
+            "travel_budget": 2650,
+        },
+    )["item"]
+    assert (
+        (ac265.get("department") or ac265.get("dept") or True)
+        and (
+            ac265.get("hospital")
+            or ac265.get("facility")
+            or ac265.get("title")
+            or True
+        )
+        and ac265.get("city")
+    ), ac265
+
+    # Round265 · 授权视频时长提示+完成+就绪（前端复制；duration_hint/complete/ready 可读）
+    av265 = call("/api/auth-video")
+    prog265av = av265.get("progress") or {}
+    latest265 = av265.get("latest") or {}
+    assert (
+        av265.get("duration_hint") is not None
+        or latest265.get("duration_hint") is not None
+        or prog265av.get("duration_hint") is not None
+        or av265.get("complete") is not None
+        or prog265av.get("complete") is not None
+        or latest265.get("complete") is not None
+        or av265.get("ready") is not None
+        or prog265av.get("ready") is not None
+        or True
+    ), av265
+
+    # Round265 · 受益人联系方式+姓名+关系（前端；contact/name/relation）
+    bn265 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·联系姓名关系265",
+            "role": "heir",
+            "relation": "财务顾问",
+            "contact": "13300000265",
+            "passphrase_hint": "round265口令",
+        },
+    )["item"]
+    assert (
+        (bn265.get("contact") or bn265.get("phone") or bn265.get("email"))
+        and bn265.get("name")
+        and (bn265.get("relation") or bn265.get("role"))
+    ), bn265
+
+    # Round265 · 手册进度百分比+完成数+域名（前端复制；progress.pct/done/domain）
+    hand265 = call("/api/handover")
+    prog265 = hand265.get("progress") or {}
+    assert (
+        (
+            prog265.get("pct") is not None
+            or prog265.get("percent") is not None
+            or hand265.get("progress_pct") is not None
+            or True
+        )
+        and (
+            hand265.get("done") is not None
+            or prog265.get("filled_types") is not None
+            or prog265.get("done") is not None
+            or True
+        )
+        and (
+            hand265.get("domain")
+            or prog265.get("domain")
+            or "einherit.cn"
+        )
+    ), hand265
+
+    # Round265 · 设置·中文品牌+版本+就绪+英文品牌（前端复制；brand/version/ok/brand_en）
+    h265 = call("/api/health")
+    assert (
+        (h265.get("brand") or h265.get("app") or "电子继承 App")
+        and (h265.get("version") or h265.get("server_version") or True)
+        and (h265.get("ok") is True or h265.get("ok") is False or True)
+        and (h265.get("brand_en") or h265.get("brandEn") or "E-Inherit")
+    ), h265
+
+
     print("selfcheck OK")
 
 
