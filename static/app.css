@@ -13207,3 +13207,38 @@ body.privacy-mode .privacy-hint { opacity: 0.85; }
   margin: 8px 0 10px; padding: 8px 10px; border-radius: 8px; background: #f5f8f6;
   word-break: break-word; font-weight: 600; color: var(--sage-deep, #2f5d45);
 }
+
+/* Round277 · 温和增量 */
+.home-brand-en-domain-ok-calm-r277 {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px;
+  margin: 8px 0 12px; padding: 10px 12px; border-radius: 10px;
+  background: linear-gradient(160deg, #eef5f3 0%, #fff 75%);
+  border: 1px solid var(--line, #e2e8e4);
+}
+.home-brand-en-domain-ok-calm-r277[hidden] { display: none; }
+.home-brand-en-domain-ok-calm-r277-mark { font-weight: 600; color: var(--sage-deep, #2f5d45); font-size: 13px; }
+.home-brand-en-domain-ok-calm-r277-sub { flex: 1; min-width: 8em; font-size: 12px; }
+.lg-copy-device-owner-title-disposition-r277 { margin-top: 8px; margin-left: 6px; }
+.as-copy-tag-summary-visibility-r277 { margin-top: 8px; margin-left: 6px; }
+.checkin-last-ago-next-suggested-status-plain-r277-copy {
+  margin-top: 10px; padding: 10px 12px; border-radius: 10px; background: #f5f8f6;
+}
+.checkin-last-ago-next-suggested-status-plain-r277-copy-line { margin: 0 0 8px; }
+.travel-deposited-balance-threshold-plain-r277-copy {
+  margin: 8px 0 10px; padding: 10px 12px; border-radius: 10px; background: #f5f8f6;
+}
+.travel-deposited-balance-threshold-plain-r277-copy-line { margin: 0 0 8px; }
+.ac-copy-department-hospital-city-r277 { margin-top: 8px; margin-left: 6px; }
+.av-duration-hint-complete-ready-copy-r277 {
+  margin: 8px 0 10px; padding: 10px 12px; border-radius: 10px; background: #f5f8f6;
+}
+.av-duration-hint-complete-ready-copy-r277-line { margin: 0 0 8px; }
+.bn-copy-contact-name-relation-r277 { margin-top: 8px; margin-left: 6px; }
+.hand-progress-pct-done-domain-copy-r277 {
+  margin: 8px 0 12px; padding: 10px 12px; border-radius: 10px; background: #f5f8f6;
+}
+.hand-progress-pct-done-domain-copy-r277-line { margin: 0 0 8px; }
+.settings-version-brand-en-ok-brand-r277-copy-card .settings-version-brand-en-ok-brand-r277-copy-preview {
+  margin: 8px 0 10px; padding: 8px 10px; border-radius: 8px; background: #f5f8f6;
+  word-break: break-word; font-weight: 600; color: var(--sage-deep, #2f5d45);
+}
