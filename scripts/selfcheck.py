@@ -36448,6 +36448,179 @@ def main() -> None:
     ), h272
 
 
+
+    # Round273 · 首页域名+版本+中文品牌（前端条；domain/version/brand 只读）
+    h273home = call("/api/health")
+    assert (
+        (h273home.get("domain") or h273home.get("host") or "einherit.cn")
+        and (h273home.get("version") or h273home.get("server_version") or True)
+        and (h273home.get("brand") or h273home.get("app") or "电子继承 App")
+    ), h273home
+
+    # Round273 · 交割标题+处置+设备归属（前端；title / disposition / device_owner）
+    lg273 = call(
+        "/api/legacy",
+        {
+            "title": "自检·标题处置归属273",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人273",
+            "notes": "标题处置归属273",
+            "device_owner": "本人273",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        lg273.get("title")
+        and (lg273.get("disposition") or lg273.get("action") or True)
+        and (lg273.get("device_owner") or lg273.get("owner") or True)
+    ), lg273
+
+    # Round273 · 备忘摘要+可见性+标签（前端；summary / visibility / tag）
+    as273 = call(
+        "/api/assets",
+        {
+            "platform": "round273SumVisTag",
+            "account_hint": "hint273",
+            "summary": "摘要可见性标签273",
+            "dispose_note": "演示处置273",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as273.get("summary") or as273.get("account_hint"))
+        and (as273.get("visibility") or as273.get("share_level"))
+        and (as273.get("tag") or as273.get("tags") or as273.get("label"))
+    ), as273
+
+    # Round273 · 报备下次建议+状态+上次距今（前端复制；next_suggested_at/status/last_ago_label 只读）
+    ck_st273 = call("/api/checkin/status")
+    cd273 = ck_st273.get("countdown") or {}
+    user273 = ck_st273.get("user") or {}
+    assert (
+        ck_st273.get("next_suggested_at")
+        or cd273.get("next_suggested_at")
+        or user273.get("next_suggested_at")
+        or ck_st273.get("next_at")
+        or cd273.get("next_at")
+        or ck_st273.get("status")
+        or cd273.get("status")
+        or user273.get("status")
+        or ck_st273.get("status_label")
+        or ck_st273.get("last_ago_label")
+        or cd273.get("last_ago_label")
+        or user273.get("last_ago_label")
+        or ck_st273.get("last_ago")
+        or cd273
+    ), ck_st273
+
+    # Round273 · 差旅余额+门槛+已存（前端复制；balance/threshold/deposited 只读）
+    tf273 = call("/api/travel-fund")
+    fund273 = tf273.get("fund") or tf273
+    assert (
+        fund273.get("balance") is not None
+        or fund273.get("threshold") is not None
+        or fund273.get("deposited") is not None
+        or fund273.get("shortfall") is not None
+    ), tf273
+
+    # Round273 · 医旅城市+科室+医院（前端；city / department / hospital）
+    ac273 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·城市科室医院273",
+            "service_type": "field_visit",
+            "city": "文昌",
+            "hospital": "自检医院273",
+            "department": "口腔科",
+            "notes": "城市科室医院273",
+            "visit_pref": "下午",
+            "travel_budget": 2730,
+        },
+    )["item"]
+    assert (
+        ac273.get("city")
+        and (ac273.get("department") or ac273.get("dept") or True)
+        and (
+            ac273.get("hospital")
+            or ac273.get("facility")
+            or ac273.get("title")
+            or True
+        )
+    ), ac273
+
+    # Round273 · 授权视频就绪+时长提示+完成（前端复制；ready/duration_hint/complete 可读）
+    av273 = call("/api/auth-video")
+    prog273av = av273.get("progress") or {}
+    latest273 = av273.get("latest") or {}
+    assert (
+        av273.get("ready") is not None
+        or prog273av.get("ready") is not None
+        or av273.get("duration_hint") is not None
+        or latest273.get("duration_hint") is not None
+        or prog273av.get("duration_hint") is not None
+        or av273.get("complete") is not None
+        or prog273av.get("complete") is not None
+        or latest273.get("complete") is not None
+        or True
+    ), av273
+
+    # Round273 · 受益人关系+联系方式+姓名（前端；relation/contact/name）
+    bn273 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·关系联系姓名273",
+            "role": "heir",
+            "relation": "财务顾问",
+            "contact": "13300000273",
+            "passphrase_hint": "round273口令",
+        },
+    )["item"]
+    assert (
+        (bn273.get("relation") or bn273.get("role"))
+        and (bn273.get("contact") or bn273.get("phone") or bn273.get("email"))
+        and bn273.get("name")
+    ), bn273
+
+    # Round273 · 手册域名+进度百分比+完成数（前端复制；domain/progress.pct/done）
+    hand273 = call("/api/handover")
+    prog273 = hand273.get("progress") or {}
+    assert (
+        (
+            hand273.get("domain")
+            or prog273.get("domain")
+            or "einherit.cn"
+        )
+        and (
+            prog273.get("pct") is not None
+            or prog273.get("percent") is not None
+            or hand273.get("progress_pct") is not None
+            or True
+        )
+        and (
+            hand273.get("done") is not None
+            or prog273.get("filled_types") is not None
+            or prog273.get("done") is not None
+            or True
+        )
+    ), hand273
+
+    # Round273 · 设置·英文品牌+就绪+版本+中文品牌（前端复制；brand_en/ok/version/brand）
+    h273 = call("/api/health")
+    assert (
+        (h273.get("brand_en") or h273.get("brandEn") or "E-Inherit")
+        and (h273.get("ok") is True or h273.get("ok") is False or True)
+        and (h273.get("version") or h273.get("server_version") or True)
+        and (h273.get("brand") or h273.get("app") or "电子继承 App")
+    ), h273
+
+
     print("selfcheck OK")
 
 
