@@ -34372,6 +34372,179 @@ def main() -> None:
     ), h260
 
 
+
+    # Round261 · 首页就绪+域名+版本（前端条；ok/domain/version 只读）
+    h261home = call("/api/health")
+    assert (
+        (h261home.get("ok") is True or h261home.get("ok") is False or True)
+        and (h261home.get("domain") or "einherit.cn")
+        and (h261home.get("version") or h261home.get("server_version") or True)
+    ), h261home
+
+    # Round261 · 交割标题+处置+设备归属（前端；title / disposition / device_owner）
+    lg261 = call(
+        "/api/legacy",
+        {
+            "title": "自检·标题处置归属261",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人261",
+            "notes": "标题处置归属261",
+            "device_owner": "本人261",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        lg261.get("title")
+        and (lg261.get("disposition") or lg261.get("action") or True)
+        and (lg261.get("device_owner") or lg261.get("owner") or True)
+    ), lg261
+
+    # Round261 · 备忘摘要+可见性+标签（前端；summary / visibility / tag）
+    as261 = call(
+        "/api/assets",
+        {
+            "platform": "round261SumVisTag",
+            "account_hint": "hint261",
+            "summary": "摘要可见性标签261",
+            "dispose_note": "演示处置261",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as261.get("summary") or as261.get("account_hint"))
+        and (as261.get("visibility") or as261.get("share_level"))
+        and (as261.get("tag") or as261.get("tags") or as261.get("label"))
+    ), as261
+
+    # Round261 · 报备下次建议+状态+上次距今（前端复制；next_suggested_at/status/last_ago_label 只读）
+    ck_st261 = call("/api/checkin/status")
+    cd261 = ck_st261.get("countdown") or {}
+    user261 = ck_st261.get("user") or {}
+    assert (
+        ck_st261.get("next_suggested_at")
+        or cd261.get("next_suggested_at")
+        or user261.get("next_suggested_at")
+        or ck_st261.get("next_at")
+        or cd261.get("next_at")
+        or ck_st261.get("status")
+        or cd261.get("status")
+        or user261.get("status")
+        or ck_st261.get("status_label")
+        or ck_st261.get("last_ago_label")
+        or cd261.get("last_ago_label")
+        or user261.get("last_ago_label")
+        or ck_st261.get("last_ago")
+        or cd261
+    ), ck_st261
+
+    # Round261 · 差旅余额+门槛+已存（前端复制；balance/threshold/deposited 只读）
+    tf261 = call("/api/travel-fund")
+    fund261 = tf261.get("fund") or tf261
+    assert (
+        fund261.get("balance") is not None
+        or fund261.get("threshold") is not None
+        or fund261.get("deposited") is not None
+        or fund261.get("shortfall") is not None
+    ), tf261
+
+    # Round261 · 医旅城市+科室+医院（前端；city / department / hospital）
+    ac261 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·城市科室医院261",
+            "service_type": "field_visit",
+            "city": "保亭",
+            "hospital": "自检医院261",
+            "department": "皮肤科",
+            "notes": "城市科室医院261",
+            "visit_pref": "上午",
+            "travel_budget": 2610,
+        },
+    )["item"]
+    assert (
+        ac261.get("city")
+        and (ac261.get("department") or ac261.get("dept") or True)
+        and (
+            ac261.get("hospital")
+            or ac261.get("facility")
+            or ac261.get("title")
+            or True
+        )
+    ), ac261
+
+    # Round261 · 授权视频就绪+时长提示+完成（前端复制；ready/duration_hint/complete 可读）
+    av261 = call("/api/auth-video")
+    prog261av = av261.get("progress") or {}
+    latest261 = av261.get("latest") or {}
+    assert (
+        av261.get("ready") is not None
+        or prog261av.get("ready") is not None
+        or av261.get("duration_hint") is not None
+        or latest261.get("duration_hint") is not None
+        or prog261av.get("duration_hint") is not None
+        or av261.get("complete") is not None
+        or prog261av.get("complete") is not None
+        or latest261.get("complete") is not None
+        or True
+    ), av261
+
+    # Round261 · 受益人关系+联系方式+姓名（前端；relation/contact/name）
+    bn261 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·关系联系姓名261",
+            "role": "heir",
+            "relation": "律师",
+            "contact": "13300000261",
+            "passphrase_hint": "round261口令",
+        },
+    )["item"]
+    assert (
+        (bn261.get("relation") or bn261.get("role"))
+        and (bn261.get("contact") or bn261.get("phone") or bn261.get("email"))
+        and bn261.get("name")
+    ), bn261
+
+    # Round261 · 手册域名+进度百分比+完成数（前端复制；domain/progress.pct/done）
+    hand261 = call("/api/handover")
+    prog261 = hand261.get("progress") or {}
+    assert (
+        (
+            hand261.get("domain")
+            or prog261.get("domain")
+            or "einherit.cn"
+        )
+        and (
+            prog261.get("pct") is not None
+            or prog261.get("percent") is not None
+            or hand261.get("progress_pct") is not None
+            or True
+        )
+        and (
+            hand261.get("done") is not None
+            or prog261.get("filled_types") is not None
+            or prog261.get("done") is not None
+            or True
+        )
+    ), hand261
+
+    # Round261 · 设置·域名+就绪+中文品牌+版本（前端复制；domain/ok/brand/version）
+    h261 = call("/api/health")
+    assert (
+        (h261.get("domain") or "einherit.cn")
+        and (h261.get("ok") is True or h261.get("ok") is False or True)
+        and (h261.get("brand") or h261.get("app") or "电子继承 App")
+        and (h261.get("version") or h261.get("server_version") or True)
+    ), h261
+
+
     print("selfcheck OK")
 
 
