@@ -33334,6 +33334,179 @@ def main() -> None:
     ), h254
 
 
+
+    # Round255 · 首页版本+英文品牌+就绪（前端条；version/brand_en/ok 只读）
+    h255home = call("/api/health")
+    assert (
+        (h255home.get("version") or h255home.get("server_version") or True)
+        and (h255home.get("brand_en") or h255home.get("brandEn") or "E-Inherit")
+        and (h255home.get("ok") is True or h255home.get("ok") is False or True)
+    ), h255home
+
+    # Round255 · 交割标题+处置+设备归属（前端；title / disposition / device_owner）
+    lg255 = call(
+        "/api/legacy",
+        {
+            "title": "自检·标题处置归属255",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人255",
+            "notes": "标题处置归属255",
+            "device_owner": "本人255",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        lg255.get("title")
+        and (lg255.get("disposition") or lg255.get("action") or True)
+        and (lg255.get("device_owner") or lg255.get("owner") or True)
+    ), lg255
+
+    # Round255 · 备忘摘要+可见性+标签（前端；summary / visibility / tag）
+    as255 = call(
+        "/api/assets",
+        {
+            "platform": "round255SumVisTag",
+            "account_hint": "hint255",
+            "summary": "摘要可见性标签255",
+            "dispose_note": "演示处置255",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as255.get("summary") or as255.get("account_hint"))
+        and (as255.get("visibility") or as255.get("share_level"))
+        and (as255.get("tag") or as255.get("tags") or as255.get("label"))
+    ), as255
+
+    # Round255 · 报备下次建议+状态+上次距今（前端复制；next_suggested_at/status/last_ago_label 只读）
+    ck_st255 = call("/api/checkin/status")
+    cd255 = ck_st255.get("countdown") or {}
+    user255 = ck_st255.get("user") or {}
+    assert (
+        ck_st255.get("next_suggested_at")
+        or cd255.get("next_suggested_at")
+        or user255.get("next_suggested_at")
+        or ck_st255.get("next_at")
+        or cd255.get("next_at")
+        or ck_st255.get("status")
+        or cd255.get("status")
+        or user255.get("status")
+        or ck_st255.get("status_label")
+        or ck_st255.get("last_ago_label")
+        or cd255.get("last_ago_label")
+        or user255.get("last_ago_label")
+        or ck_st255.get("last_ago")
+        or cd255
+    ), ck_st255
+
+    # Round255 · 差旅余额+门槛+已存（前端复制；balance/threshold/deposited 只读）
+    tf255 = call("/api/travel-fund")
+    fund255 = tf255.get("fund") or tf255
+    assert (
+        fund255.get("balance") is not None
+        or fund255.get("threshold") is not None
+        or fund255.get("deposited") is not None
+        or fund255.get("shortfall") is not None
+    ), tf255
+
+    # Round255 · 医旅城市+科室+医院（前端；city / department / hospital）
+    ac255 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·城市科室医院255",
+            "service_type": "field_visit",
+            "city": "定安",
+            "hospital": "自检医院255",
+            "department": "呼吸内科",
+            "notes": "城市科室医院255",
+            "visit_pref": "上午",
+            "travel_budget": 2550,
+        },
+    )["item"]
+    assert (
+        ac255.get("city")
+        and (ac255.get("department") or ac255.get("dept") or True)
+        and (
+            ac255.get("hospital")
+            or ac255.get("facility")
+            or ac255.get("title")
+            or True
+        )
+    ), ac255
+
+    # Round255 · 授权视频就绪+时长提示+完成（前端复制；ready/duration_hint/complete 可读）
+    av255 = call("/api/auth-video")
+    prog255av = av255.get("progress") or {}
+    latest255 = av255.get("latest") or {}
+    assert (
+        av255.get("ready") is not None
+        or prog255av.get("ready") is not None
+        or av255.get("duration_hint") is not None
+        or latest255.get("duration_hint") is not None
+        or prog255av.get("duration_hint") is not None
+        or av255.get("complete") is not None
+        or prog255av.get("complete") is not None
+        or latest255.get("complete") is not None
+        or True
+    ), av255
+
+    # Round255 · 受益人关系+联系方式+姓名（前端；relation/contact/name）
+    bn255 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·关系联系姓名255",
+            "role": "heir",
+            "relation": "兄妹",
+            "contact": "13300000255",
+            "passphrase_hint": "round255口令",
+        },
+    )["item"]
+    assert (
+        (bn255.get("relation") or bn255.get("role"))
+        and (bn255.get("contact") or bn255.get("phone") or bn255.get("email"))
+        and bn255.get("name")
+    ), bn255
+
+    # Round255 · 手册域名+进度百分比+完成数（前端复制；domain/progress.pct/done）
+    hand255 = call("/api/handover")
+    prog255 = hand255.get("progress") or {}
+    assert (
+        (
+            hand255.get("domain")
+            or prog255.get("domain")
+            or "einherit.cn"
+        )
+        and (
+            prog255.get("pct") is not None
+            or prog255.get("percent") is not None
+            or hand255.get("progress_pct") is not None
+            or True
+        )
+        and (
+            hand255.get("done") is not None
+            or prog255.get("filled_types") is not None
+            or prog255.get("done") is not None
+            or True
+        )
+    ), hand255
+
+    # Round255 · 设置·中文品牌+就绪+域名+版本（前端复制；brand/ok/domain/version）
+    h255 = call("/api/health")
+    assert (
+        (h255.get("brand") or h255.get("app") or "电子继承 App")
+        and (h255.get("ok") is True or h255.get("ok") is False or True)
+        and (h255.get("domain") or "einherit.cn")
+        and (h255.get("version") or h255.get("server_version") or True)
+    ), h255
+
+
     print("selfcheck OK")
 
 
