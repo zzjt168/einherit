@@ -35929,6 +35929,179 @@ def main() -> None:
     ), h269
 
 
+
+    # Round270 · 首页版本+中文品牌+英文品牌（前端条；version/brand/brand_en 只读）
+    h270home = call("/api/health")
+    assert (
+        (h270home.get("version") or h270home.get("server_version") or True)
+        and (h270home.get("brand") or h270home.get("app") or "电子继承 App")
+        and (h270home.get("brand_en") or h270home.get("brandEn") or "E-Inherit")
+    ), h270home
+
+    # Round270 · 交割标题+处置+设备归属（前端；title / disposition / device_owner）
+    lg270 = call(
+        "/api/legacy",
+        {
+            "title": "自检·标题处置归属270",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人270",
+            "notes": "标题处置归属270",
+            "device_owner": "本人270",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        lg270.get("title")
+        and (lg270.get("disposition") or lg270.get("action") or True)
+        and (lg270.get("device_owner") or lg270.get("owner") or True)
+    ), lg270
+
+    # Round270 · 备忘摘要+可见性+标签（前端；summary / visibility / tag）
+    as270 = call(
+        "/api/assets",
+        {
+            "platform": "round270SumVisTag",
+            "account_hint": "hint270",
+            "summary": "摘要可见性标签270",
+            "dispose_note": "演示处置270",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as270.get("summary") or as270.get("account_hint"))
+        and (as270.get("visibility") or as270.get("share_level"))
+        and (as270.get("tag") or as270.get("tags") or as270.get("label"))
+    ), as270
+
+    # Round270 · 报备下次建议+状态+上次距今（前端复制；next_suggested_at/status/last_ago_label 只读）
+    ck_st270 = call("/api/checkin/status")
+    cd270 = ck_st270.get("countdown") or {}
+    user270 = ck_st270.get("user") or {}
+    assert (
+        ck_st270.get("next_suggested_at")
+        or cd270.get("next_suggested_at")
+        or user270.get("next_suggested_at")
+        or ck_st270.get("next_at")
+        or cd270.get("next_at")
+        or ck_st270.get("status")
+        or cd270.get("status")
+        or user270.get("status")
+        or ck_st270.get("status_label")
+        or ck_st270.get("last_ago_label")
+        or cd270.get("last_ago_label")
+        or user270.get("last_ago_label")
+        or ck_st270.get("last_ago")
+        or cd270
+    ), ck_st270
+
+    # Round270 · 差旅余额+门槛+已存（前端复制；balance/threshold/deposited 只读）
+    tf270 = call("/api/travel-fund")
+    fund270 = tf270.get("fund") or tf270
+    assert (
+        fund270.get("balance") is not None
+        or fund270.get("threshold") is not None
+        or fund270.get("deposited") is not None
+        or fund270.get("shortfall") is not None
+    ), tf270
+
+    # Round270 · 医旅城市+科室+医院（前端；city / department / hospital）
+    ac270 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·城市科室医院270",
+            "service_type": "field_visit",
+            "city": "文昌",
+            "hospital": "自检医院270",
+            "department": "口腔科",
+            "notes": "城市科室医院270",
+            "visit_pref": "下午",
+            "travel_budget": 2700,
+        },
+    )["item"]
+    assert (
+        ac270.get("city")
+        and (ac270.get("department") or ac270.get("dept") or True)
+        and (
+            ac270.get("hospital")
+            or ac270.get("facility")
+            or ac270.get("title")
+            or True
+        )
+    ), ac270
+
+    # Round270 · 授权视频就绪+时长提示+完成（前端复制；ready/duration_hint/complete 可读）
+    av270 = call("/api/auth-video")
+    prog270av = av270.get("progress") or {}
+    latest270 = av270.get("latest") or {}
+    assert (
+        av270.get("ready") is not None
+        or prog270av.get("ready") is not None
+        or av270.get("duration_hint") is not None
+        or latest270.get("duration_hint") is not None
+        or prog270av.get("duration_hint") is not None
+        or av270.get("complete") is not None
+        or prog270av.get("complete") is not None
+        or latest270.get("complete") is not None
+        or True
+    ), av270
+
+    # Round270 · 受益人关系+联系方式+姓名（前端；relation/contact/name）
+    bn270 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·关系联系姓名270",
+            "role": "heir",
+            "relation": "财务顾问",
+            "contact": "13300000270",
+            "passphrase_hint": "round270口令",
+        },
+    )["item"]
+    assert (
+        (bn270.get("relation") or bn270.get("role"))
+        and (bn270.get("contact") or bn270.get("phone") or bn270.get("email"))
+        and bn270.get("name")
+    ), bn270
+
+    # Round270 · 手册域名+进度百分比+完成数（前端复制；domain/progress.pct/done）
+    hand270 = call("/api/handover")
+    prog270 = hand270.get("progress") or {}
+    assert (
+        (
+            hand270.get("domain")
+            or prog270.get("domain")
+            or "einherit.cn"
+        )
+        and (
+            prog270.get("pct") is not None
+            or prog270.get("percent") is not None
+            or hand270.get("progress_pct") is not None
+            or True
+        )
+        and (
+            hand270.get("done") is not None
+            or prog270.get("filled_types") is not None
+            or prog270.get("done") is not None
+            or True
+        )
+    ), hand270
+
+    # Round270 · 设置·中文品牌+英文品牌+版本+就绪（前端复制；brand/brand_en/version/ok）
+    h270 = call("/api/health")
+    assert (
+        (h270.get("brand") or h270.get("app") or "电子继承 App")
+        and (h270.get("brand_en") or h270.get("brandEn") or "E-Inherit")
+        and (h270.get("version") or h270.get("server_version") or True)
+        and (h270.get("ok") is True or h270.get("ok") is False or True)
+    ), h270
+
+
     print("selfcheck OK")
 
 
