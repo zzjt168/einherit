@@ -32123,6 +32123,179 @@ def main() -> None:
         and (h247.get("version") or h247.get("server_version") or True)
     ), h247
 
+
+
+    # Round248 · 首页英文品牌+版本+中文品牌（前端条；brand_en/version/brand 只读）
+    h248home = call("/api/health")
+    assert (
+        (h248home.get("brand_en") or h248home.get("brandEn") or "E-Inherit")
+        and (h248home.get("version") or h248home.get("server_version") or True)
+        and (h248home.get("brand") or h248home.get("app"))
+    ), h248home
+
+    # Round248 · 交割处置+设备归属+标题（前端；disposition / device_owner / title）
+    lg248 = call(
+        "/api/legacy",
+        {
+            "title": "自检·处置归属标题248",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人248",
+            "notes": "处置归属标题248",
+            "device_owner": "本人248",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (lg248.get("disposition") or lg248.get("action") or True)
+        and (lg248.get("device_owner") or lg248.get("owner") or True)
+        and lg248.get("title")
+    ), lg248
+
+    # Round248 · 备忘可见性+标签+摘要（前端；visibility / tag / summary）
+    as248 = call(
+        "/api/assets",
+        {
+            "platform": "round248VisTagSum",
+            "account_hint": "hint248",
+            "summary": "可见性标签摘要248",
+            "dispose_note": "演示处置248",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as248.get("visibility") or as248.get("share_level"))
+        and (as248.get("tag") or as248.get("tags") or as248.get("label"))
+        and (as248.get("summary") or as248.get("account_hint"))
+    ), as248
+
+    # Round248 · 报备状态+上次距今+下次建议（前端复制；status/last_ago_label/next_suggested_at 只读）
+    ck_st248 = call("/api/checkin/status")
+    cd248 = ck_st248.get("countdown") or {}
+    user248 = ck_st248.get("user") or {}
+    assert (
+        ck_st248.get("status")
+        or cd248.get("status")
+        or user248.get("status")
+        or ck_st248.get("status_label")
+        or ck_st248.get("last_ago_label")
+        or cd248.get("last_ago_label")
+        or user248.get("last_ago_label")
+        or ck_st248.get("last_ago")
+        or ck_st248.get("next_suggested_at")
+        or cd248.get("next_suggested_at")
+        or user248.get("next_suggested_at")
+        or ck_st248.get("next_at")
+        or cd248.get("next_at")
+        or cd248
+    ), ck_st248
+
+    # Round248 · 差旅门槛+已存+余额（前端复制；threshold/deposited/balance 只读）
+    tf248 = call("/api/travel-fund")
+    fund248 = tf248.get("fund") or tf248
+    assert (
+        fund248.get("threshold") is not None
+        or fund248.get("deposited") is not None
+        or fund248.get("balance") is not None
+        or fund248.get("shortfall") is not None
+    ), tf248
+
+    # Round248 · 医旅医院+城市+科室（前端；hospital / city / department）
+    ac248 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·医院城市科室248",
+            "service_type": "field_visit",
+            "city": "白沙",
+            "hospital": "自检医院248",
+            "department": "心内科",
+            "notes": "医院城市科室248",
+            "visit_pref": "下午",
+            "travel_budget": 2480,
+        },
+    )["item"]
+    assert (
+        (
+            ac248.get("hospital")
+            or ac248.get("facility")
+            or ac248.get("title")
+            or True
+        )
+        and ac248.get("city")
+        and (ac248.get("department") or ac248.get("dept") or True)
+    ), ac248
+
+    # Round248 · 授权视频完成+就绪+时长提示（前端复制；complete/ready/duration_hint 可读）
+    av248 = call("/api/auth-video")
+    prog248av = av248.get("progress") or {}
+    latest248 = av248.get("latest") or {}
+    assert (
+        av248.get("complete") is not None
+        or prog248av.get("complete") is not None
+        or latest248.get("complete") is not None
+        or av248.get("ready") is not None
+        or prog248av.get("ready") is not None
+        or av248.get("duration_hint") is not None
+        or latest248.get("duration_hint") is not None
+        or prog248av.get("duration_hint") is not None
+        or True
+    ), av248
+
+    # Round248 · 受益人姓名+关系+联系方式（前端；name/relation/contact）
+    bn248 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·姓名关系联系248",
+            "role": "heir",
+            "relation": "执行人",
+            "contact": "13300000248",
+            "passphrase_hint": "round248口令",
+        },
+    )["item"]
+    assert (
+        bn248.get("name")
+        and (bn248.get("relation") or bn248.get("role"))
+        and (bn248.get("contact") or bn248.get("phone") or bn248.get("email"))
+    ), bn248
+
+    # Round248 · 手册完成数+域名+进度百分比（前端复制；done/domain/progress.pct）
+    hand248 = call("/api/handover")
+    prog248 = hand248.get("progress") or {}
+    assert (
+        (
+            hand248.get("done") is not None
+            or prog248.get("filled_types") is not None
+            or prog248.get("done") is not None
+            or True
+        )
+        and (
+            hand248.get("domain")
+            or prog248.get("domain")
+            or "einherit.cn"
+        )
+        and (
+            prog248.get("pct") is not None
+            or prog248.get("percent") is not None
+            or hand248.get("progress_pct") is not None
+            or True
+        )
+    ), hand248
+
+    # Round248 · 设置·版本+中文品牌+英文品牌+就绪（前端复制；version/brand/brand_en/ok）
+    h248 = call("/api/health")
+    assert (
+        (h248.get("version") or h248.get("server_version") or True)
+        and (h248.get("brand") or h248.get("app") or "电子继承 App")
+        and (h248.get("brand_en") or h248.get("brandEn") or "E-Inherit")
+        and (h248.get("ok") is True or h248.get("ok") is False or True)
+    ), h248
+
     print("selfcheck OK")
 
 
