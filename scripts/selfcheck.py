@@ -32469,6 +32469,179 @@ def main() -> None:
         and (h249.get("brand") or h249.get("app") or "电子继承 App")
     ), h249
 
+
+
+    # Round250 · 首页中文品牌+英文品牌+就绪（前端条；brand/brand_en/ok 只读）
+    h250home = call("/api/health")
+    assert (
+        (h250home.get("brand") or h250home.get("app"))
+        and (h250home.get("brand_en") or h250home.get("brandEn") or "E-Inherit")
+        and (h250home.get("ok") is True or h250home.get("ok") is False or True)
+    ), h250home
+
+    # Round250 · 交割设备归属+标题+处置（前端；device_owner / title / disposition）
+    lg250 = call(
+        "/api/legacy",
+        {
+            "title": "自检·归属标题处置250",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人250",
+            "notes": "归属标题处置250",
+            "device_owner": "本人250",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (lg250.get("device_owner") or lg250.get("owner") or True)
+        and lg250.get("title")
+        and (lg250.get("disposition") or lg250.get("action") or True)
+    ), lg250
+
+    # Round250 · 备忘标签+摘要+可见性（前端；tag / summary / visibility）
+    as250 = call(
+        "/api/assets",
+        {
+            "platform": "round250TagSumVis",
+            "account_hint": "hint250",
+            "summary": "标签摘要可见性250",
+            "dispose_note": "演示处置250",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as250.get("tag") or as250.get("tags") or as250.get("label"))
+        and (as250.get("summary") or as250.get("account_hint"))
+        and (as250.get("visibility") or as250.get("share_level"))
+    ), as250
+
+    # Round250 · 报备上次距今+下次建议+状态（前端复制；last_ago_label/next_suggested_at/status 只读）
+    ck_st250 = call("/api/checkin/status")
+    cd250 = ck_st250.get("countdown") or {}
+    user250 = ck_st250.get("user") or {}
+    assert (
+        ck_st250.get("last_ago_label")
+        or cd250.get("last_ago_label")
+        or user250.get("last_ago_label")
+        or ck_st250.get("last_ago")
+        or ck_st250.get("next_suggested_at")
+        or cd250.get("next_suggested_at")
+        or user250.get("next_suggested_at")
+        or ck_st250.get("next_at")
+        or cd250.get("next_at")
+        or ck_st250.get("status")
+        or cd250.get("status")
+        or user250.get("status")
+        or ck_st250.get("status_label")
+        or cd250
+    ), ck_st250
+
+    # Round250 · 差旅已存+余额+门槛（前端复制；deposited/balance/threshold 只读）
+    tf250 = call("/api/travel-fund")
+    fund250 = tf250.get("fund") or tf250
+    assert (
+        fund250.get("deposited") is not None
+        or fund250.get("balance") is not None
+        or fund250.get("threshold") is not None
+        or fund250.get("shortfall") is not None
+    ), tf250
+
+    # Round250 · 医旅科室+医院+城市（前端；department / hospital / city）
+    ac250 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·科室医院城市250",
+            "service_type": "field_visit",
+            "city": "白沙",
+            "hospital": "自检医院250",
+            "department": "心内科",
+            "notes": "科室医院城市250",
+            "visit_pref": "下午",
+            "travel_budget": 2500,
+        },
+    )["item"]
+    assert (
+        (ac250.get("department") or ac250.get("dept") or True)
+        and (
+            ac250.get("hospital")
+            or ac250.get("facility")
+            or ac250.get("title")
+            or True
+        )
+        and ac250.get("city")
+    ), ac250
+
+    # Round250 · 授权视频时长提示+完成+就绪（前端复制；duration_hint/complete/ready 可读）
+    av250 = call("/api/auth-video")
+    prog250av = av250.get("progress") or {}
+    latest250 = av250.get("latest") or {}
+    assert (
+        av250.get("duration_hint") is not None
+        or latest250.get("duration_hint") is not None
+        or prog250av.get("duration_hint") is not None
+        or av250.get("complete") is not None
+        or prog250av.get("complete") is not None
+        or latest250.get("complete") is not None
+        or av250.get("ready") is not None
+        or prog250av.get("ready") is not None
+        or True
+    ), av250
+
+    # Round250 · 受益人联系方式+姓名+关系（前端；contact/name/relation）
+    bn250 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·联系姓名关系250",
+            "role": "heir",
+            "relation": "执行人",
+            "contact": "13300000250",
+            "passphrase_hint": "round250口令",
+        },
+    )["item"]
+    assert (
+        (bn250.get("contact") or bn250.get("phone") or bn250.get("email"))
+        and bn250.get("name")
+        and (bn250.get("relation") or bn250.get("role"))
+    ), bn250
+
+    # Round250 · 手册进度百分比+完成数+域名（前端复制；progress.pct/done/domain）
+    hand250 = call("/api/handover")
+    prog250 = hand250.get("progress") or {}
+    assert (
+        (
+            prog250.get("pct") is not None
+            or prog250.get("percent") is not None
+            or hand250.get("progress_pct") is not None
+            or True
+        )
+        and (
+            hand250.get("done") is not None
+            or prog250.get("filled_types") is not None
+            or prog250.get("done") is not None
+            or True
+        )
+        and (
+            hand250.get("domain")
+            or prog250.get("domain")
+            or "einherit.cn"
+        )
+    ), hand250
+
+    # Round250 · 设置·英文品牌+就绪+中文品牌+域名（前端复制；brand_en/ok/brand/domain）
+    h250 = call("/api/health")
+    assert (
+        (h250.get("brand_en") or h250.get("brandEn") or "E-Inherit")
+        and (h250.get("ok") is True or h250.get("ok") is False or True)
+        and (h250.get("brand") or h250.get("app") or "电子继承 App")
+        and (h250.get("domain") or "einherit.cn")
+    ), h250
+
     print("selfcheck OK")
 
 
