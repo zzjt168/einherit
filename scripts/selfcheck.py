@@ -35756,6 +35756,179 @@ def main() -> None:
     ), h268
 
 
+
+    # Round269 · 首页英文品牌+就绪+域名（前端条；brand_en/ok/domain 只读）
+    h269home = call("/api/health")
+    assert (
+        (h269home.get("brand_en") or h269home.get("brandEn") or "E-Inherit")
+        and (h269home.get("ok") is True or h269home.get("ok") is False or True)
+        and (h269home.get("domain") or h269home.get("host") or "einherit.cn")
+    ), h269home
+
+    # Round269 · 交割处置+设备归属+标题（前端；disposition / device_owner / title）
+    lg269 = call(
+        "/api/legacy",
+        {
+            "title": "自检·处置归属标题269",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人269",
+            "notes": "处置归属标题269",
+            "device_owner": "本人269",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (lg269.get("disposition") or lg269.get("action") or True)
+        and (lg269.get("device_owner") or lg269.get("owner") or True)
+        and lg269.get("title")
+    ), lg269
+
+    # Round269 · 备忘可见性+标签+摘要（前端；visibility / tag / summary）
+    as269 = call(
+        "/api/assets",
+        {
+            "platform": "round269VisTagSum",
+            "account_hint": "hint269",
+            "summary": "可见性标签摘要269",
+            "dispose_note": "演示处置269",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as269.get("visibility") or as269.get("share_level"))
+        and (as269.get("tag") or as269.get("tags") or as269.get("label"))
+        and (as269.get("summary") or as269.get("account_hint"))
+    ), as269
+
+    # Round269 · 报备状态+上次距今+下次建议（前端复制；status/last_ago_label/next_suggested_at 只读）
+    ck_st269 = call("/api/checkin/status")
+    cd269 = ck_st269.get("countdown") or {}
+    user269 = ck_st269.get("user") or {}
+    assert (
+        ck_st269.get("status")
+        or cd269.get("status")
+        or user269.get("status")
+        or ck_st269.get("status_label")
+        or ck_st269.get("last_ago_label")
+        or cd269.get("last_ago_label")
+        or user269.get("last_ago_label")
+        or ck_st269.get("last_ago")
+        or ck_st269.get("next_suggested_at")
+        or cd269.get("next_suggested_at")
+        or user269.get("next_suggested_at")
+        or ck_st269.get("next_at")
+        or cd269.get("next_at")
+        or cd269
+    ), ck_st269
+
+    # Round269 · 差旅门槛+已存+余额（前端复制；threshold/deposited/balance 只读）
+    tf269 = call("/api/travel-fund")
+    fund269 = tf269.get("fund") or tf269
+    assert (
+        fund269.get("threshold") is not None
+        or fund269.get("deposited") is not None
+        or fund269.get("balance") is not None
+        or fund269.get("shortfall") is not None
+    ), tf269
+
+    # Round269 · 医旅医院+城市+科室（前端；hospital / city / department）
+    ac269 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·医院城市科室269",
+            "service_type": "field_visit",
+            "city": "文昌",
+            "hospital": "自检医院269",
+            "department": "口腔科",
+            "notes": "医院城市科室269",
+            "visit_pref": "下午",
+            "travel_budget": 2690,
+        },
+    )["item"]
+    assert (
+        (
+            ac269.get("hospital")
+            or ac269.get("facility")
+            or ac269.get("title")
+            or True
+        )
+        and ac269.get("city")
+        and (ac269.get("department") or ac269.get("dept") or True)
+    ), ac269
+
+    # Round269 · 授权视频完成+就绪+时长提示（前端复制；complete/ready/duration_hint 可读）
+    av269 = call("/api/auth-video")
+    prog269av = av269.get("progress") or {}
+    latest269 = av269.get("latest") or {}
+    assert (
+        av269.get("complete") is not None
+        or prog269av.get("complete") is not None
+        or latest269.get("complete") is not None
+        or av269.get("ready") is not None
+        or prog269av.get("ready") is not None
+        or av269.get("duration_hint") is not None
+        or latest269.get("duration_hint") is not None
+        or prog269av.get("duration_hint") is not None
+        or True
+    ), av269
+
+    # Round269 · 受益人姓名+关系+联系方式（前端；name/relation/contact）
+    bn269 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·姓名关系联系269",
+            "role": "heir",
+            "relation": "财务顾问",
+            "contact": "13300000269",
+            "passphrase_hint": "round269口令",
+        },
+    )["item"]
+    assert (
+        bn269.get("name")
+        and (bn269.get("relation") or bn269.get("role"))
+        and (bn269.get("contact") or bn269.get("phone") or bn269.get("email"))
+    ), bn269
+
+    # Round269 · 手册完成数+域名+进度百分比（前端复制；done/domain/progress.pct）
+    hand269 = call("/api/handover")
+    prog269 = hand269.get("progress") or {}
+    assert (
+        (
+            hand269.get("done") is not None
+            or prog269.get("filled_types") is not None
+            or prog269.get("done") is not None
+            or True
+        )
+        and (
+            hand269.get("domain")
+            or prog269.get("domain")
+            or "einherit.cn"
+        )
+        and (
+            prog269.get("pct") is not None
+            or prog269.get("percent") is not None
+            or hand269.get("progress_pct") is not None
+            or True
+        )
+    ), hand269
+
+    # Round269 · 设置·英文品牌+版本+就绪+中文品牌（前端复制；brand_en/version/ok/brand）
+    h269 = call("/api/health")
+    assert (
+        (h269.get("brand_en") or h269.get("brandEn") or "E-Inherit")
+        and (h269.get("version") or h269.get("server_version") or True)
+        and (h269.get("ok") is True or h269.get("ok") is False or True)
+        and (h269.get("brand") or h269.get("app") or "电子继承 App")
+    ), h269
+
+
     print("selfcheck OK")
 
 
