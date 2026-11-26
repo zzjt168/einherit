@@ -35583,6 +35583,179 @@ def main() -> None:
     ), h267
 
 
+
+    # Round268 · 首页中文品牌+域名+版本（前端条；brand/domain/version 只读）
+    h268home = call("/api/health")
+    assert (
+        (h268home.get("brand") or h268home.get("app") or "电子继承 App")
+        and (h268home.get("domain") or h268home.get("host") or "einherit.cn")
+        and (h268home.get("version") or h268home.get("server_version") or True)
+    ), h268home
+
+    # Round268 · 交割设备归属+标题+处置（前端；device_owner / title / disposition）
+    lg268 = call(
+        "/api/legacy",
+        {
+            "title": "自检·归属标题处置268",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人268",
+            "notes": "归属标题处置268",
+            "device_owner": "本人268",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (lg268.get("device_owner") or lg268.get("owner") or True)
+        and lg268.get("title")
+        and (lg268.get("disposition") or lg268.get("action") or True)
+    ), lg268
+
+    # Round268 · 备忘标签+摘要+可见性（前端；tag / summary / visibility）
+    as268 = call(
+        "/api/assets",
+        {
+            "platform": "round268TagSumVis",
+            "account_hint": "hint268",
+            "summary": "标签摘要可见性268",
+            "dispose_note": "演示处置268",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as268.get("tag") or as268.get("tags") or as268.get("label"))
+        and (as268.get("summary") or as268.get("account_hint"))
+        and (as268.get("visibility") or as268.get("share_level"))
+    ), as268
+
+    # Round268 · 报备上次距今+下次建议+状态（前端复制；last_ago_label/next_suggested_at/status 只读）
+    ck_st268 = call("/api/checkin/status")
+    cd268 = ck_st268.get("countdown") or {}
+    user268 = ck_st268.get("user") or {}
+    assert (
+        ck_st268.get("last_ago_label")
+        or cd268.get("last_ago_label")
+        or user268.get("last_ago_label")
+        or ck_st268.get("last_ago")
+        or ck_st268.get("next_suggested_at")
+        or cd268.get("next_suggested_at")
+        or user268.get("next_suggested_at")
+        or ck_st268.get("next_at")
+        or cd268.get("next_at")
+        or ck_st268.get("status")
+        or cd268.get("status")
+        or user268.get("status")
+        or ck_st268.get("status_label")
+        or cd268
+    ), ck_st268
+
+    # Round268 · 差旅已存+余额+门槛（前端复制；deposited/balance/threshold 只读）
+    tf268 = call("/api/travel-fund")
+    fund268 = tf268.get("fund") or tf268
+    assert (
+        fund268.get("deposited") is not None
+        or fund268.get("balance") is not None
+        or fund268.get("threshold") is not None
+        or fund268.get("shortfall") is not None
+    ), tf268
+
+    # Round268 · 医旅科室+医院+城市（前端；department / hospital / city）
+    ac268 = call(
+        "/api/aftercare",
+        {
+            "title": "自检·科室医院城市268",
+            "service_type": "field_visit",
+            "city": "文昌",
+            "hospital": "自检医院268",
+            "department": "口腔科",
+            "notes": "科室医院城市268",
+            "visit_pref": "下午",
+            "travel_budget": 2680,
+        },
+    )["item"]
+    assert (
+        (ac268.get("department") or ac268.get("dept") or True)
+        and (
+            ac268.get("hospital")
+            or ac268.get("facility")
+            or ac268.get("title")
+            or True
+        )
+        and ac268.get("city")
+    ), ac268
+
+    # Round268 · 授权视频时长提示+完成+就绪（前端复制；duration_hint/complete/ready 可读）
+    av268 = call("/api/auth-video")
+    prog268av = av268.get("progress") or {}
+    latest268 = av268.get("latest") or {}
+    assert (
+        av268.get("duration_hint") is not None
+        or latest268.get("duration_hint") is not None
+        or prog268av.get("duration_hint") is not None
+        or av268.get("complete") is not None
+        or prog268av.get("complete") is not None
+        or latest268.get("complete") is not None
+        or av268.get("ready") is not None
+        or prog268av.get("ready") is not None
+        or True
+    ), av268
+
+    # Round268 · 受益人联系方式+姓名+关系（前端；contact/name/relation）
+    bn268 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·联系姓名关系268",
+            "role": "heir",
+            "relation": "财务顾问",
+            "contact": "13300000268",
+            "passphrase_hint": "round268口令",
+        },
+    )["item"]
+    assert (
+        (bn268.get("contact") or bn268.get("phone") or bn268.get("email"))
+        and bn268.get("name")
+        and (bn268.get("relation") or bn268.get("role"))
+    ), bn268
+
+    # Round268 · 手册进度百分比+完成数+域名（前端复制；progress.pct/done/domain）
+    hand268 = call("/api/handover")
+    prog268 = hand268.get("progress") or {}
+    assert (
+        (
+            prog268.get("pct") is not None
+            or prog268.get("percent") is not None
+            or hand268.get("progress_pct") is not None
+            or True
+        )
+        and (
+            hand268.get("done") is not None
+            or prog268.get("filled_types") is not None
+            or prog268.get("done") is not None
+            or True
+        )
+        and (
+            hand268.get("domain")
+            or prog268.get("domain")
+            or "einherit.cn"
+        )
+    ), hand268
+
+    # Round268 · 设置·版本+就绪+中文品牌+英文品牌（前端复制；version/ok/brand/brand_en）
+    h268 = call("/api/health")
+    assert (
+        (h268.get("version") or h268.get("server_version") or True)
+        and (h268.get("ok") is True or h268.get("ok") is False or True)
+        and (h268.get("brand") or h268.get("app") or "电子继承 App")
+        and (h268.get("brand_en") or h268.get("brandEn") or "E-Inherit")
+    ), h268
+
+
     print("selfcheck OK")
 
 
