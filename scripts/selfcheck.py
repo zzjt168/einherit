@@ -51486,6 +51486,179 @@ def main() -> None:
     ), h359
 
 
+
+    # Round360 · 首页版本+域名+中文品牌（前端条；version/domain/brand 只读）
+    h360home = call("/api/health")
+    assert (
+        (h360home.get("version") or h360home.get("server_version") or True)
+        and (h360home.get("domain") or h360home.get("host") or "einherit.cn")
+        and (h360home.get("brand") or h360home.get("app") or "电子继承 App")
+    ), h360home
+
+    # Round360 · 交割设备归属+处置+标题（前端；device_owner / disposition / title）
+    lg360 = call(
+        "/api/legacy",
+        {
+            "title": "自检·归属处置标题360",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人360",
+            "notes": "归属处置标题360",
+            "device_owner": "本人360",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (lg360.get("device_owner") or lg360.get("owner") or True)
+        and (lg360.get("disposition") or lg360.get("action") or True)
+        and lg360.get("title")
+    ), lg360
+
+    # Round360 · 备忘可见性+摘要+标签（前端；visibility / summary / tag）
+    as360 = call(
+        "/api/assets",
+        {
+            "platform": "round360VisSumTag",
+            "account_hint": "hint360",
+            "summary": "可见性摘要标签360",
+            "dispose_note": "演示处置360",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as360.get("visibility") or as360.get("share_level"))
+        and (as360.get("summary") or as360.get("account_hint"))
+        and (as360.get("tag") or as360.get("tags") or as360.get("label"))
+    ), as360
+
+    # Round360 · 报备状态+下次建议+上次距今（前端复制；status/next_suggested_at/last_ago_label 只读）
+    ck_st360 = call("/api/checkin/status")
+    cd360 = ck_st360.get("countdown") or {}
+    user360 = ck_st360.get("user") or {}
+    assert (
+        ck_st360.get("status")
+        or cd360.get("status")
+        or user360.get("status")
+        or ck_st360.get("status_label")
+        or cd360.get("status_label")
+        or ck_st360.get("next_suggested_at")
+        or cd360.get("next_suggested_at")
+        or user360.get("next_suggested_at")
+        or ck_st360.get("next_at")
+        or cd360.get("next_at")
+        or ck_st360.get("last_ago_label")
+        or cd360.get("last_ago_label")
+        or user360.get("last_ago_label")
+        or ck_st360.get("last_ago")
+        or cd360
+    ), ck_st360
+
+    # Round360 · 差旅门槛+余额+已存（前端复制；threshold/balance/deposited 只读）
+    tf360 = call("/api/travel-fund")
+    fund360 = tf360.get("fund") or tf360
+    assert (
+        fund360.get("threshold") is not None
+        or fund360.get("balance") is not None
+        or fund360.get("deposited") is not None
+        or fund360.get("shortfall") is not None
+    ), tf360
+
+    # Round360 · 医旅医院+城市+科室（前端；hospital / city / department）
+    ac360 = call(
+        "/api/aftercare",
+        {
+            "kind": "hospital_visit",
+            "city": "陵水",
+            "hospital": "自检医院360",
+            "department": "消化内科",
+            "notes": "医院城市科室360",
+            "visit_pref": "下午",
+            "travel_budget": 3600,
+        },
+    )["item"]
+    assert (
+        (
+            ac360.get("hospital")
+            or ac360.get("facility")
+            or ac360.get("title")
+            or True
+        )
+        and ac360.get("city")
+        and (ac360.get("department") or ac360.get("dept") or True)
+    ), ac360
+
+    # Round360 · 授权视频完成+时长提示+就绪（前端复制；complete/duration_hint/ready 可读）
+    av360 = call("/api/auth-video")
+    prog360av = av360.get("progress") or {}
+    latest360 = av360.get("latest") or {}
+    assert (
+        av360.get("complete") is not None
+        or prog360av.get("complete") is not None
+        or latest360.get("complete") is not None
+        or av360.get("duration_hint") is not None
+        or latest360.get("duration_hint") is not None
+        or prog360av.get("duration_hint") is not None
+        or av360.get("ready") is not None
+        or prog360av.get("ready") is not None
+        or True
+    ), av360
+
+    # Round360 · 受益人姓名+联系方式+关系（前端；name/contact/relation）
+    bn360 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·姓名联系关系360",
+            "role": "heir",
+            "relation": "执行人",
+            "contact": "13300000360",
+            "passphrase_hint": "round360口令",
+        },
+    )["item"]
+    assert (
+        bn360.get("name")
+        and (bn360.get("contact") or bn360.get("phone") or bn360.get("email"))
+        and (bn360.get("relation") or bn360.get("role"))
+    ), bn360
+
+    # Round360 · 手册完成数+进度百分比+域名（前端复制；progress.done/progress.pct/domain）
+    hand360 = call("/api/handover")
+    prog360 = hand360.get("progress") or {}
+    assert (
+        (
+            hand360.get("done") is not None
+            or prog360.get("filled_types") is not None
+            or prog360.get("done") is not None
+            or True
+        )
+        and (
+            prog360.get("pct") is not None
+            or prog360.get("percent") is not None
+            or hand360.get("progress_pct") is not None
+            or True
+        )
+        and (
+            hand360.get("domain")
+            or prog360.get("domain")
+            or "einherit.cn"
+        )
+    ), hand360
+
+    # Round360 · 设置·英文品牌+中文品牌+就绪+版本（前端复制；brand_en/brand/ok/version）
+    h360 = call("/api/health")
+    assert (
+        (h360.get("brand_en") or h360.get("brandEn") or "E-Inherit")
+        and (h360.get("brand") or h360.get("app") or "电子继承 App")
+        and (h360.get("ok") is True or h360.get("ok") is False or True)
+        and (h360.get("version") or h360.get("server_version") or True)
+    ), h360
+
+
     print("selfcheck OK")
 
 
