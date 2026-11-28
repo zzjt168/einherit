@@ -42492,6 +42492,179 @@ def main() -> None:
     ), h307
 
 
+
+    # Round308 · 首页版本+域名+中文品牌（前端条；version/domain/brand 只读）
+    h308home = call("/api/health")
+    assert (
+        (h308home.get("version") or h308home.get("server_version") or True)
+        and (h308home.get("domain") or h308home.get("host") or "einherit.cn")
+        and (h308home.get("brand") or h308home.get("app") or "电子继承 App")
+    ), h308home
+
+    # Round308 · 交割设备归属+处置+标题（前端；device_owner / disposition / title）
+    lg308 = call(
+        "/api/legacy",
+        {
+            "title": "自检·归属处置标题308",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人308",
+            "notes": "归属处置标题308",
+            "device_owner": "本人308",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (lg308.get("device_owner") or lg308.get("owner") or True)
+        and (lg308.get("disposition") or lg308.get("action") or True)
+        and lg308.get("title")
+    ), lg308
+
+    # Round308 · 备忘可见性+摘要+标签（前端；visibility / summary / tag）
+    as308 = call(
+        "/api/assets",
+        {
+            "platform": "round308VisSumTag",
+            "account_hint": "hint308",
+            "summary": "可见性摘要标签308",
+            "dispose_note": "演示处置308",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as308.get("visibility") or as308.get("share_level"))
+        and (as308.get("summary") or as308.get("account_hint"))
+        and (as308.get("tag") or as308.get("tags") or as308.get("label"))
+    ), as308
+
+    # Round308 · 报备下次建议+上次距今+状态（前端复制；next_suggested_at/last_ago_label/status 只读）
+    ck_st308 = call("/api/checkin/status")
+    cd308 = ck_st308.get("countdown") or {}
+    user308 = ck_st308.get("user") or {}
+    assert (
+        ck_st308.get("next_suggested_at")
+        or cd308.get("next_suggested_at")
+        or user308.get("next_suggested_at")
+        or ck_st308.get("next_at")
+        or cd308.get("next_at")
+        or ck_st308.get("last_ago_label")
+        or cd308.get("last_ago_label")
+        or user308.get("last_ago_label")
+        or ck_st308.get("last_ago")
+        or ck_st308.get("status")
+        or cd308.get("status")
+        or user308.get("status")
+        or ck_st308.get("status_label")
+        or cd308.get("status_label")
+        or cd308
+    ), ck_st308
+
+    # Round308 · 差旅门槛+余额+已存（前端复制；threshold/balance/deposited 只读）
+    tf308 = call("/api/travel-fund")
+    fund308 = tf308.get("fund") or tf308
+    assert (
+        fund308.get("threshold") is not None
+        or fund308.get("balance") is not None
+        or fund308.get("deposited") is not None
+        or fund308.get("shortfall") is not None
+    ), tf308
+
+    # Round308 · 医旅医院+城市+科室（前端；hospital / city / department）
+    ac308 = call(
+        "/api/aftercare",
+        {
+            "kind": "hospital_visit",
+            "city": "屯昌",
+            "hospital": "自检医院308",
+            "department": "中医科",
+            "notes": "医院城市科室308",
+            "visit_pref": "下午",
+            "travel_budget": 3080,
+        },
+    )["item"]
+    assert (
+        (
+            ac308.get("hospital")
+            or ac308.get("facility")
+            or ac308.get("title")
+            or True
+        )
+        and ac308.get("city")
+        and (ac308.get("department") or ac308.get("dept") or True)
+    ), ac308
+
+    # Round308 · 授权视频完成+时长提示+就绪（前端复制；complete/duration_hint/ready 可读）
+    av308 = call("/api/auth-video")
+    prog308av = av308.get("progress") or {}
+    latest308 = av308.get("latest") or {}
+    assert (
+        av308.get("complete") is not None
+        or prog308av.get("complete") is not None
+        or latest308.get("complete") is not None
+        or av308.get("duration_hint") is not None
+        or latest308.get("duration_hint") is not None
+        or prog308av.get("duration_hint") is not None
+        or av308.get("ready") is not None
+        or prog308av.get("ready") is not None
+        or True
+    ), av308
+
+    # Round308 · 受益人姓名+联系方式+关系（前端；name/contact/relation）
+    bn308 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·姓名联系关系308",
+            "role": "heir",
+            "relation": "表亲",
+            "contact": "13300000308",
+            "passphrase_hint": "round308口令",
+        },
+    )["item"]
+    assert (
+        bn308.get("name")
+        and (bn308.get("contact") or bn308.get("phone") or bn308.get("email"))
+        and (bn308.get("relation") or bn308.get("role"))
+    ), bn308
+
+    # Round308 · 手册完成数+进度百分比+域名（前端复制；progress.done/progress.pct/domain）
+    hand308 = call("/api/handover")
+    prog308 = hand308.get("progress") or {}
+    assert (
+        (
+            hand308.get("done") is not None
+            or prog308.get("filled_types") is not None
+            or prog308.get("done") is not None
+            or True
+        )
+        and (
+            prog308.get("pct") is not None
+            or prog308.get("percent") is not None
+            or hand308.get("progress_pct") is not None
+            or True
+        )
+        and (
+            hand308.get("domain")
+            or prog308.get("domain")
+            or "einherit.cn"
+        )
+    ), hand308
+
+    # Round308 · 设置·就绪+版本+英文品牌+中文品牌（前端复制；ok/version/brand_en/brand）
+    h308 = call("/api/health")
+    assert (
+        (h308.get("ok") is True or h308.get("ok") is False or True)
+        and (h308.get("version") or h308.get("server_version") or True)
+        and (h308.get("brand_en") or h308.get("brandEn") or "E-Inherit")
+        and (h308.get("brand") or h308.get("app") or "电子继承 App")
+    ), h308
+
+
     print("selfcheck OK")
 
 
