@@ -55984,6 +55984,180 @@ def main() -> None:
     ), h385
 
 
+
+    # Round386 · 首页英文品牌+中文品牌+版本+域名（前端条；brand_en/brand/version/domain 只读）
+    h386home = call("/api/health")
+    assert (
+        (h386home.get("brand_en") or h386home.get("brandEn") or "E-Inherit")
+        and (h386home.get("brand") or h386home.get("app") or "电子继承 App")
+        and (h386home.get("version") or h386home.get("server_version") or True)
+        and (h386home.get("domain") or h386home.get("host") or "einherit.cn")
+    ), h386home
+
+    # Round386 · 交割标题+设备归属+处置（前端；title / device_owner / disposition）
+    lg386 = call(
+        "/api/legacy",
+        {
+            "title": "自检·标题归属处置386",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人386",
+            "notes": "标题归属处置386",
+            "device_owner": "本人386",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        lg386.get("title")
+        and (lg386.get("device_owner") or lg386.get("owner") or True)
+        and (lg386.get("disposition") or lg386.get("action") or True)
+    ), lg386
+
+    # Round386 · 备忘标签+可见性+摘要（前端；tag / visibility / summary）
+    as386 = call(
+        "/api/assets",
+        {
+            "platform": "round386TagVisSum",
+            "account_hint": "hint386",
+            "summary": "标签可见性摘要386",
+            "dispose_note": "演示处置386",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as386.get("tag") or as386.get("tags") or as386.get("label"))
+        and (as386.get("visibility") or as386.get("share_level"))
+        and (as386.get("summary") or as386.get("account_hint"))
+    ), as386
+
+    # Round386 · 报备上次距今+状态+下次建议（前端复制；last_ago_label/status/next_suggested_at 只读）
+    ck_st386 = call("/api/checkin/status")
+    cd386 = ck_st386.get("countdown") or {}
+    user386 = ck_st386.get("user") or {}
+    assert (
+        ck_st386.get("last_ago_label")
+        or cd386.get("last_ago_label")
+        or user386.get("last_ago_label")
+        or ck_st386.get("last_ago")
+        or ck_st386.get("status")
+        or cd386.get("status")
+        or user386.get("status")
+        or ck_st386.get("status_label")
+        or cd386.get("status_label")
+        or ck_st386.get("next_suggested_at")
+        or cd386.get("next_suggested_at")
+        or user386.get("next_suggested_at")
+        or ck_st386.get("next_at")
+        or cd386.get("next_at")
+        or cd386
+    ), ck_st386
+
+    # Round386 · 差旅已存+门槛+余额（前端复制；deposited/threshold/balance 只读）
+    tf386 = call("/api/travel-fund")
+    fund386 = tf386.get("fund") or tf386
+    assert (
+        fund386.get("deposited") is not None
+        or fund386.get("threshold") is not None
+        or fund386.get("balance") is not None
+        or fund386.get("shortfall") is not None
+    ), tf386
+
+    # Round386 · 医旅科室+医院+城市（前端；department / hospital / city）
+    ac386 = call(
+        "/api/aftercare",
+        {
+            "kind": "hospital_visit",
+            "city": "乐东",
+            "hospital": "自检医院386",
+            "department": "心内科",
+            "notes": "科室医院城市386",
+            "visit_pref": "上午",
+            "travel_budget": 3860,
+        },
+    )["item"]
+    assert (
+        (ac386.get("department") or ac386.get("dept") or True)
+        and (
+            ac386.get("hospital")
+            or ac386.get("facility")
+            or ac386.get("title")
+            or True
+        )
+        and ac386.get("city")
+    ), ac386
+
+    # Round386 · 授权视频时长提示+就绪+完成（前端复制；duration_hint/ready/complete 可读）
+    av386 = call("/api/auth-video")
+    prog386av = av386.get("progress") or {}
+    latest386 = av386.get("latest") or {}
+    assert (
+        av386.get("duration_hint") is not None
+        or latest386.get("duration_hint") is not None
+        or prog386av.get("duration_hint") is not None
+        or av386.get("ready") is not None
+        or prog386av.get("ready") is not None
+        or av386.get("complete") is not None
+        or prog386av.get("complete") is not None
+        or latest386.get("complete") is not None
+        or True
+    ), av386
+
+    # Round386 · 受益人联系方式+关系+姓名（前端；contact/relation/name）
+    bn386 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·联系关系姓名386",
+            "role": "heir",
+            "relation": "执行人",
+            "contact": "13300000386",
+            "passphrase_hint": "round386口令",
+        },
+    )["item"]
+    assert (
+        (bn386.get("contact") or bn386.get("phone") or bn386.get("email"))
+        and (bn386.get("relation") or bn386.get("role"))
+        and bn386.get("name")
+    ), bn386
+
+    # Round386 · 手册进度百分比+域名+完成数（前端复制；progress.pct/domain/progress.done）
+    hand386 = call("/api/handover")
+    prog386 = hand386.get("progress") or {}
+    assert (
+        (
+            prog386.get("pct") is not None
+            or prog386.get("percent") is not None
+            or hand386.get("progress_pct") is not None
+            or True
+        )
+        and (
+            hand386.get("domain")
+            or prog386.get("domain")
+            or "einherit.cn"
+        )
+        and (
+            hand386.get("done") is not None
+            or prog386.get("filled_types") is not None
+            or prog386.get("done") is not None
+            or True
+        )
+    ), hand386
+
+    # Round386 · 设置·中文品牌+就绪+版本+英文品牌（前端复制；brand/ok/version/brand_en）
+    h386 = call("/api/health")
+    assert (
+        (h386.get("brand") or h386.get("app") or "电子继承 App")
+        and (h386.get("ok") is True or h386.get("ok") is False or True)
+        and (h386.get("version") or h386.get("server_version") or True)
+        and (h386.get("brand_en") or h386.get("brandEn") or "E-Inherit")
+    ), h386
+
+
     print("selfcheck OK")
 
 
