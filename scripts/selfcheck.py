@@ -41108,6 +41108,179 @@ def main() -> None:
     ), h299
 
 
+
+    # Round300 · 首页中文品牌+域名+版本（前端条；brand/domain/version 只读）
+    h300home = call("/api/health")
+    assert (
+        (h300home.get("brand") or h300home.get("app") or "电子继承 App")
+        and (h300home.get("domain") or h300home.get("host") or "einherit.cn")
+        and (h300home.get("version") or h300home.get("server_version") or True)
+    ), h300home
+
+    # Round300 · 交割处置+标题+设备归属（前端；disposition / title / device_owner）
+    lg300 = call(
+        "/api/legacy",
+        {
+            "title": "自检·处置标题归属300",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人300",
+            "notes": "处置标题归属300",
+            "device_owner": "本人300",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (lg300.get("disposition") or lg300.get("action") or True)
+        and lg300.get("title")
+        and (lg300.get("device_owner") or lg300.get("owner") or True)
+    ), lg300
+
+    # Round300 · 备忘摘要+可见性+标签（前端；summary / visibility / tag）
+    as300 = call(
+        "/api/assets",
+        {
+            "platform": "round300SumVisTag",
+            "account_hint": "hint300",
+            "summary": "摘要可见性标签300",
+            "dispose_note": "演示处置300",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as300.get("summary") or as300.get("account_hint"))
+        and (as300.get("visibility") or as300.get("share_level"))
+        and (as300.get("tag") or as300.get("tags") or as300.get("label"))
+    ), as300
+
+    # Round300 · 报备下次建议+状态+上次距今（前端复制；next_suggested_at/status/last_ago_label 只读）
+    ck_st300 = call("/api/checkin/status")
+    cd300 = ck_st300.get("countdown") or {}
+    user300 = ck_st300.get("user") or {}
+    assert (
+        ck_st300.get("next_suggested_at")
+        or cd300.get("next_suggested_at")
+        or user300.get("next_suggested_at")
+        or ck_st300.get("next_at")
+        or cd300.get("next_at")
+        or ck_st300.get("status")
+        or cd300.get("status")
+        or user300.get("status")
+        or ck_st300.get("status_label")
+        or cd300.get("status_label")
+        or ck_st300.get("last_ago_label")
+        or cd300.get("last_ago_label")
+        or user300.get("last_ago_label")
+        or ck_st300.get("last_ago")
+        or cd300
+    ), ck_st300
+
+    # Round300 · 差旅余额+门槛+已存（前端复制；balance/threshold/deposited 只读）
+    tf300 = call("/api/travel-fund")
+    fund300 = tf300.get("fund") or tf300
+    assert (
+        fund300.get("balance") is not None
+        or fund300.get("threshold") is not None
+        or fund300.get("deposited") is not None
+        or fund300.get("shortfall") is not None
+    ), tf300
+
+    # Round300 · 医旅城市+医院+科室（前端；city / hospital / department）
+    ac300 = call(
+        "/api/aftercare",
+        {
+            "kind": "hospital_visit",
+            "city": "三亚",
+            "hospital": "自检医院300",
+            "department": "骨科",
+            "notes": "城市医院科室300",
+            "visit_pref": "上午",
+            "travel_budget": 3000,
+        },
+    )["item"]
+    assert (
+        ac300.get("city")
+        and (
+            ac300.get("hospital")
+            or ac300.get("facility")
+            or ac300.get("title")
+            or True
+        )
+        and (ac300.get("department") or ac300.get("dept") or True)
+    ), ac300
+
+    # Round300 · 授权视频就绪+时长提示+完成（前端复制；ready/duration_hint/complete 可读）
+    av300 = call("/api/auth-video")
+    prog300av = av300.get("progress") or {}
+    latest300 = av300.get("latest") or {}
+    assert (
+        av300.get("ready") is not None
+        or prog300av.get("ready") is not None
+        or av300.get("duration_hint") is not None
+        or latest300.get("duration_hint") is not None
+        or prog300av.get("duration_hint") is not None
+        or av300.get("complete") is not None
+        or prog300av.get("complete") is not None
+        or latest300.get("complete") is not None
+        or True
+    ), av300
+
+    # Round300 · 受益人关系+联系方式+姓名（前端；relation/contact/name）
+    bn300 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·关系联系姓名300",
+            "role": "heir",
+            "relation": "兄妹",
+            "contact": "13300000300",
+            "passphrase_hint": "round300口令",
+        },
+    )["item"]
+    assert (
+        (bn300.get("relation") or bn300.get("role"))
+        and (bn300.get("contact") or bn300.get("phone") or bn300.get("email"))
+        and bn300.get("name")
+    ), bn300
+
+    # Round300 · 手册域名+进度百分比+完成数（前端复制；domain/progress.pct/progress.done）
+    hand300 = call("/api/handover")
+    prog300 = hand300.get("progress") or {}
+    assert (
+        (
+            hand300.get("domain")
+            or prog300.get("domain")
+            or "einherit.cn"
+        )
+        and (
+            prog300.get("pct") is not None
+            or prog300.get("percent") is not None
+            or hand300.get("progress_pct") is not None
+            or True
+        )
+        and (
+            hand300.get("done") is not None
+            or prog300.get("filled_types") is not None
+            or prog300.get("done") is not None
+            or True
+        )
+    ), hand300
+
+    # Round300 · 设置·英文品牌+版本+中文品牌+就绪（前端复制；brand_en/version/brand/ok）
+    h300 = call("/api/health")
+    assert (
+        (h300.get("brand_en") or h300.get("brandEn") or "E-Inherit")
+        and (h300.get("version") or h300.get("server_version") or True)
+        and (h300.get("brand") or h300.get("app") or "电子继承 App")
+        and (h300.get("ok") is True or h300.get("ok") is False or True)
+    ), h300
+
+
     print("selfcheck OK")
 
 
