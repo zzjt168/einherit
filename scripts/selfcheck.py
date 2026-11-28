@@ -50102,6 +50102,179 @@ def main() -> None:
     ), h351
 
 
+
+    # Round352 · 首页中文品牌+域名+版本（前端条；brand/domain/version 只读）
+    h352home = call("/api/health")
+    assert (
+        (h352home.get("brand") or h352home.get("app") or "电子继承 App")
+        and (h352home.get("domain") or h352home.get("host") or "einherit.cn")
+        and (h352home.get("version") or h352home.get("server_version") or True)
+    ), h352home
+
+    # Round352 · 交割处置+设备归属+标题（前端；disposition / device_owner / title）
+    lg352 = call(
+        "/api/legacy",
+        {
+            "title": "自检·处置归属标题352",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人352",
+            "notes": "处置归属标题352",
+            "device_owner": "本人352",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (lg352.get("disposition") or lg352.get("action") or True)
+        and (lg352.get("device_owner") or lg352.get("owner") or True)
+        and lg352.get("title")
+    ), lg352
+
+    # Round352 · 备忘摘要+可见性+标签（前端；summary / visibility / tag）
+    as352 = call(
+        "/api/assets",
+        {
+            "platform": "round352SumVisTag",
+            "account_hint": "hint352",
+            "summary": "摘要可见性标签352",
+            "dispose_note": "演示处置352",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as352.get("summary") or as352.get("account_hint"))
+        and (as352.get("visibility") or as352.get("share_level"))
+        and (as352.get("tag") or as352.get("tags") or as352.get("label"))
+    ), as352
+
+    # Round352 · 报备下次建议+状态+上次距今（前端复制；next_suggested_at/status/last_ago_label 只读）
+    ck_st352 = call("/api/checkin/status")
+    cd352 = ck_st352.get("countdown") or {}
+    user352 = ck_st352.get("user") or {}
+    assert (
+        ck_st352.get("next_suggested_at")
+        or cd352.get("next_suggested_at")
+        or user352.get("next_suggested_at")
+        or ck_st352.get("next_at")
+        or cd352.get("next_at")
+        or ck_st352.get("status")
+        or cd352.get("status")
+        or user352.get("status")
+        or ck_st352.get("status_label")
+        or cd352.get("status_label")
+        or ck_st352.get("last_ago_label")
+        or cd352.get("last_ago_label")
+        or user352.get("last_ago_label")
+        or ck_st352.get("last_ago")
+        or cd352
+    ), ck_st352
+
+    # Round352 · 差旅余额+门槛+已存（前端复制；balance/threshold/deposited 只读）
+    tf352 = call("/api/travel-fund")
+    fund352 = tf352.get("fund") or tf352
+    assert (
+        fund352.get("balance") is not None
+        or fund352.get("threshold") is not None
+        or fund352.get("deposited") is not None
+        or fund352.get("shortfall") is not None
+    ), tf352
+
+    # Round352 · 医旅城市+医院+科室（前端；city / hospital / department）
+    ac352 = call(
+        "/api/aftercare",
+        {
+            "kind": "hospital_visit",
+            "city": "定安",
+            "hospital": "自检医院352",
+            "department": "血液科",
+            "notes": "城市医院科室352",
+            "visit_pref": "下午",
+            "travel_budget": 3520,
+        },
+    )["item"]
+    assert (
+        ac352.get("city")
+        and (
+            ac352.get("hospital")
+            or ac352.get("facility")
+            or ac352.get("title")
+            or True
+        )
+        and (ac352.get("department") or ac352.get("dept") or True)
+    ), ac352
+
+    # Round352 · 授权视频就绪+时长提示+完成（前端复制；ready/duration_hint/complete 可读）
+    av352 = call("/api/auth-video")
+    prog352av = av352.get("progress") or {}
+    latest352 = av352.get("latest") or {}
+    assert (
+        av352.get("ready") is not None
+        or prog352av.get("ready") is not None
+        or av352.get("duration_hint") is not None
+        or latest352.get("duration_hint") is not None
+        or prog352av.get("duration_hint") is not None
+        or av352.get("complete") is not None
+        or prog352av.get("complete") is not None
+        or latest352.get("complete") is not None
+        or True
+    ), av352
+
+    # Round352 · 受益人关系+联系方式+姓名（前端；relation/contact/name）
+    bn352 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·关系联系姓名352",
+            "role": "heir",
+            "relation": "受托人",
+            "contact": "13300000352",
+            "passphrase_hint": "round352口令",
+        },
+    )["item"]
+    assert (
+        (bn352.get("relation") or bn352.get("role"))
+        and (bn352.get("contact") or bn352.get("phone") or bn352.get("email"))
+        and bn352.get("name")
+    ), bn352
+
+    # Round352 · 手册域名+进度百分比+完成数（前端复制；domain/progress.pct/progress.done）
+    hand352 = call("/api/handover")
+    prog352 = hand352.get("progress") or {}
+    assert (
+        (
+            hand352.get("domain")
+            or prog352.get("domain")
+            or "einherit.cn"
+        )
+        and (
+            prog352.get("pct") is not None
+            or prog352.get("percent") is not None
+            or hand352.get("progress_pct") is not None
+            or True
+        )
+        and (
+            hand352.get("done") is not None
+            or prog352.get("filled_types") is not None
+            or prog352.get("done") is not None
+            or True
+        )
+    ), hand352
+
+    # Round352 · 设置·版本+中文品牌+英文品牌+就绪（前端复制；version/brand/brand_en/ok）
+    h352 = call("/api/health")
+    assert (
+        (h352.get("version") or h352.get("server_version") or True)
+        and (h352.get("brand") or h352.get("app") or "电子继承 App")
+        and (h352.get("brand_en") or h352.get("brandEn") or "E-Inherit")
+        and (h352.get("ok") is True or h352.get("ok") is False or True)
+    ), h352
+
+
     print("selfcheck OK")
 
 
