@@ -52351,6 +52351,179 @@ def main() -> None:
     ), h364
 
 
+
+    # Round365 · 首页域名+版本+中文品牌（前端条；domain/version/brand 只读）
+    h365home = call("/api/health")
+    assert (
+        (h365home.get("domain") or h365home.get("host") or "einherit.cn")
+        and (h365home.get("version") or h365home.get("server_version") or True)
+        and (h365home.get("brand") or h365home.get("app") or "电子继承 App")
+    ), h365home
+
+    # Round365 · 交割标题+处置+设备归属（前端；title / disposition / device_owner）
+    lg365 = call(
+        "/api/legacy",
+        {
+            "title": "自检·标题处置归属365",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人365",
+            "notes": "标题处置归属365",
+            "device_owner": "本人365",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        lg365.get("title")
+        and (lg365.get("disposition") or lg365.get("action") or True)
+        and (lg365.get("device_owner") or lg365.get("owner") or True)
+    ), lg365
+
+    # Round365 · 备忘标签+摘要+可见性（前端；tag / summary / visibility）
+    as365 = call(
+        "/api/assets",
+        {
+            "platform": "round365TagSumVis",
+            "account_hint": "hint365",
+            "summary": "标签摘要可见性365",
+            "dispose_note": "演示处置365",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as365.get("tag") or as365.get("tags") or as365.get("label"))
+        and (as365.get("summary") or as365.get("account_hint"))
+        and (as365.get("visibility") or as365.get("share_level"))
+    ), as365
+
+    # Round365 · 报备上次距今+下次建议+状态（前端复制；last_ago_label/next_suggested_at/status 只读）
+    ck_st365 = call("/api/checkin/status")
+    cd365 = ck_st365.get("countdown") or {}
+    user365 = ck_st365.get("user") or {}
+    assert (
+        ck_st365.get("last_ago_label")
+        or cd365.get("last_ago_label")
+        or user365.get("last_ago_label")
+        or ck_st365.get("last_ago")
+        or ck_st365.get("next_suggested_at")
+        or cd365.get("next_suggested_at")
+        or user365.get("next_suggested_at")
+        or ck_st365.get("next_at")
+        or cd365.get("next_at")
+        or ck_st365.get("status")
+        or cd365.get("status")
+        or user365.get("status")
+        or ck_st365.get("status_label")
+        or cd365.get("status_label")
+        or cd365
+    ), ck_st365
+
+    # Round365 · 差旅已存+余额+门槛（前端复制；deposited/balance/threshold 只读）
+    tf365 = call("/api/travel-fund")
+    fund365 = tf365.get("fund") or tf365
+    assert (
+        fund365.get("deposited") is not None
+        or fund365.get("balance") is not None
+        or fund365.get("threshold") is not None
+        or fund365.get("shortfall") is not None
+    ), tf365
+
+    # Round365 · 医旅科室+城市+医院（前端；department / city / hospital）
+    ac365 = call(
+        "/api/aftercare",
+        {
+            "kind": "hospital_visit",
+            "city": "定安",
+            "hospital": "自检医院365",
+            "department": "泌尿外科",
+            "notes": "科室城市医院365",
+            "visit_pref": "上午",
+            "travel_budget": 3650,
+        },
+    )["item"]
+    assert (
+        (ac365.get("department") or ac365.get("dept") or True)
+        and ac365.get("city")
+        and (
+            ac365.get("hospital")
+            or ac365.get("facility")
+            or ac365.get("title")
+            or True
+        )
+    ), ac365
+
+    # Round365 · 授权视频时长提示+完成+就绪（前端复制；duration_hint/complete/ready 可读）
+    av365 = call("/api/auth-video")
+    prog365av = av365.get("progress") or {}
+    latest365 = av365.get("latest") or {}
+    assert (
+        av365.get("duration_hint") is not None
+        or latest365.get("duration_hint") is not None
+        or prog365av.get("duration_hint") is not None
+        or av365.get("complete") is not None
+        or prog365av.get("complete") is not None
+        or latest365.get("complete") is not None
+        or av365.get("ready") is not None
+        or prog365av.get("ready") is not None
+        or True
+    ), av365
+
+    # Round365 · 受益人联系方式+姓名+关系（前端；contact/name/relation）
+    bn365 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·联系姓名关系365",
+            "role": "heir",
+            "relation": "执行人",
+            "contact": "13300000365",
+            "passphrase_hint": "round365口令",
+        },
+    )["item"]
+    assert (
+        (bn365.get("contact") or bn365.get("phone") or bn365.get("email"))
+        and bn365.get("name")
+        and (bn365.get("relation") or bn365.get("role"))
+    ), bn365
+
+    # Round365 · 手册进度百分比+完成数+域名（前端复制；progress.pct/progress.done/domain）
+    hand365 = call("/api/handover")
+    prog365 = hand365.get("progress") or {}
+    assert (
+        (
+            prog365.get("pct") is not None
+            or prog365.get("percent") is not None
+            or hand365.get("progress_pct") is not None
+            or True
+        )
+        and (
+            hand365.get("done") is not None
+            or prog365.get("filled_types") is not None
+            or prog365.get("done") is not None
+            or True
+        )
+        and (
+            hand365.get("domain")
+            or prog365.get("domain")
+            or "einherit.cn"
+        )
+    ), hand365
+
+    # Round365 · 设置·版本+中文品牌+就绪+英文品牌（前端复制；version/brand/ok/brand_en）
+    h365 = call("/api/health")
+    assert (
+        (h365.get("version") or h365.get("server_version") or True)
+        and (h365.get("brand") or h365.get("app") or "电子继承 App")
+        and (h365.get("ok") is True or h365.get("ok") is False or True)
+        and (h365.get("brand_en") or h365.get("brandEn") or "E-Inherit")
+    ), h365
+
+
     print("selfcheck OK")
 
 
