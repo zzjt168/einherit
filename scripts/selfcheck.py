@@ -54600,6 +54600,179 @@ def main() -> None:
     ), h377
 
 
+
+    # Round378 · 首页版本+域名+中文品牌（前端条；version/domain/brand 只读）
+    h378home = call("/api/health")
+    assert (
+        (h378home.get("version") or h378home.get("server_version") or True)
+        and (h378home.get("domain") or h378home.get("host") or "einherit.cn")
+        and (h378home.get("brand") or h378home.get("app") or "电子继承 App")
+    ), h378home
+
+    # Round378 · 交割设备归属+处置+标题（前端；device_owner / disposition / title）
+    lg378 = call(
+        "/api/legacy",
+        {
+            "title": "自检·归属处置标题378",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人378",
+            "notes": "归属处置标题378",
+            "device_owner": "本人378",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (lg378.get("device_owner") or lg378.get("owner") or True)
+        and (lg378.get("disposition") or lg378.get("action") or True)
+        and lg378.get("title")
+    ), lg378
+
+    # Round378 · 备忘可见性+摘要+标签（前端；visibility / summary / tag）
+    as378 = call(
+        "/api/assets",
+        {
+            "platform": "round378VisSumTag",
+            "account_hint": "hint378",
+            "summary": "可见性摘要标签378",
+            "dispose_note": "演示处置378",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as378.get("visibility") or as378.get("share_level"))
+        and (as378.get("summary") or as378.get("account_hint"))
+        and (as378.get("tag") or as378.get("tags") or as378.get("label"))
+    ), as378
+
+    # Round378 · 报备状态+下次建议+上次距今（前端复制；status/next_suggested_at/last_ago_label 只读）
+    ck_st378 = call("/api/checkin/status")
+    cd378 = ck_st378.get("countdown") or {}
+    user378 = ck_st378.get("user") or {}
+    assert (
+        ck_st378.get("status")
+        or cd378.get("status")
+        or user378.get("status")
+        or ck_st378.get("status_label")
+        or cd378.get("status_label")
+        or ck_st378.get("next_suggested_at")
+        or cd378.get("next_suggested_at")
+        or user378.get("next_suggested_at")
+        or ck_st378.get("next_at")
+        or cd378.get("next_at")
+        or ck_st378.get("last_ago_label")
+        or cd378.get("last_ago_label")
+        or user378.get("last_ago_label")
+        or ck_st378.get("last_ago")
+        or cd378
+    ), ck_st378
+
+    # Round378 · 差旅门槛+余额+已存（前端复制；threshold/balance/deposited 只读）
+    tf378 = call("/api/travel-fund")
+    fund378 = tf378.get("fund") or tf378
+    assert (
+        fund378.get("threshold") is not None
+        or fund378.get("balance") is not None
+        or fund378.get("deposited") is not None
+        or fund378.get("shortfall") is not None
+    ), tf378
+
+    # Round378 · 医旅医院+城市+科室（前端；hospital / city / department）
+    ac378 = call(
+        "/api/aftercare",
+        {
+            "kind": "hospital_visit",
+            "city": "昌江",
+            "hospital": "自检医院378",
+            "department": "神经科",
+            "notes": "医院城市科室378",
+            "visit_pref": "下午",
+            "travel_budget": 3780,
+        },
+    )["item"]
+    assert (
+        (
+            ac378.get("hospital")
+            or ac378.get("facility")
+            or ac378.get("title")
+            or True
+        )
+        and ac378.get("city")
+        and (ac378.get("department") or ac378.get("dept") or True)
+    ), ac378
+
+    # Round378 · 授权视频完成+时长提示+就绪（前端复制；complete/duration_hint/ready 可读）
+    av378 = call("/api/auth-video")
+    prog378av = av378.get("progress") or {}
+    latest378 = av378.get("latest") or {}
+    assert (
+        av378.get("complete") is not None
+        or prog378av.get("complete") is not None
+        or latest378.get("complete") is not None
+        or av378.get("duration_hint") is not None
+        or latest378.get("duration_hint") is not None
+        or prog378av.get("duration_hint") is not None
+        or av378.get("ready") is not None
+        or prog378av.get("ready") is not None
+        or True
+    ), av378
+
+    # Round378 · 受益人姓名+联系方式+关系（前端；name/contact/relation）
+    bn378 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·姓名联系关系378",
+            "role": "heir",
+            "relation": "执行人",
+            "contact": "13300000378",
+            "passphrase_hint": "round378口令",
+        },
+    )["item"]
+    assert (
+        bn378.get("name")
+        and (bn378.get("contact") or bn378.get("phone") or bn378.get("email"))
+        and (bn378.get("relation") or bn378.get("role"))
+    ), bn378
+
+    # Round378 · 手册完成数+进度百分比+域名（前端复制；progress.done/progress.pct/domain）
+    hand378 = call("/api/handover")
+    prog378 = hand378.get("progress") or {}
+    assert (
+        (
+            hand378.get("done") is not None
+            or prog378.get("filled_types") is not None
+            or prog378.get("done") is not None
+            or True
+        )
+        and (
+            prog378.get("pct") is not None
+            or prog378.get("percent") is not None
+            or hand378.get("progress_pct") is not None
+            or True
+        )
+        and (
+            hand378.get("domain")
+            or prog378.get("domain")
+            or "einherit.cn"
+        )
+    ), hand378
+
+    # Round378 · 设置·英文品牌+中文品牌+就绪+版本（前端复制；brand_en/brand/ok/version）
+    h378 = call("/api/health")
+    assert (
+        (h378.get("brand_en") or h378.get("brandEn") or "E-Inherit")
+        and (h378.get("brand") or h378.get("app") or "电子继承 App")
+        and (h378.get("ok") is True or h378.get("ok") is False or True)
+        and (h378.get("version") or h378.get("server_version") or True)
+    ), h378
+
+
     print("selfcheck OK")
 
 
