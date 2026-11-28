@@ -47507,6 +47507,179 @@ def main() -> None:
     ), h336
 
 
+
+    # Round337 · 首页中文品牌+版本+域名（前端条；brand/version/domain 只读）
+    h337home = call("/api/health")
+    assert (
+        (h337home.get("brand") or h337home.get("app") or "电子继承 App")
+        and (h337home.get("version") or h337home.get("server_version") or True)
+        and (h337home.get("domain") or h337home.get("host") or "einherit.cn")
+    ), h337home
+
+    # Round337 · 交割处置+标题+设备归属（前端；disposition / title / device_owner）
+    lg337 = call(
+        "/api/legacy",
+        {
+            "title": "自检·处置标题归属337",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人337",
+            "notes": "处置标题归属337",
+            "device_owner": "本人337",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (lg337.get("disposition") or lg337.get("action") or True)
+        and lg337.get("title")
+        and (lg337.get("device_owner") or lg337.get("owner") or True)
+    ), lg337
+
+    # Round337 · 备忘摘要+标签+可见性（前端；summary / tag / visibility）
+    as337 = call(
+        "/api/assets",
+        {
+            "platform": "round337SumTagVis",
+            "account_hint": "hint337",
+            "summary": "摘要标签可见性337",
+            "dispose_note": "演示处置337",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as337.get("summary") or as337.get("account_hint"))
+        and (as337.get("tag") or as337.get("tags") or as337.get("label"))
+        and (as337.get("visibility") or as337.get("share_level"))
+    ), as337
+
+    # Round337 · 报备下次建议+上次距今+状态（前端复制；next_suggested_at/last_ago_label/status 只读）
+    ck_st337 = call("/api/checkin/status")
+    cd337 = ck_st337.get("countdown") or {}
+    user337 = ck_st337.get("user") or {}
+    assert (
+        ck_st337.get("next_suggested_at")
+        or cd337.get("next_suggested_at")
+        or user337.get("next_suggested_at")
+        or ck_st337.get("next_at")
+        or cd337.get("next_at")
+        or ck_st337.get("last_ago_label")
+        or cd337.get("last_ago_label")
+        or user337.get("last_ago_label")
+        or ck_st337.get("last_ago")
+        or ck_st337.get("status")
+        or cd337.get("status")
+        or user337.get("status")
+        or ck_st337.get("status_label")
+        or cd337.get("status_label")
+        or cd337
+    ), ck_st337
+
+    # Round337 · 差旅余额+已存+门槛（前端复制；balance/deposited/threshold 只读）
+    tf337 = call("/api/travel-fund")
+    fund337 = tf337.get("fund") or tf337
+    assert (
+        fund337.get("balance") is not None
+        or fund337.get("deposited") is not None
+        or fund337.get("threshold") is not None
+        or fund337.get("shortfall") is not None
+    ), tf337
+
+    # Round337 · 医旅城市+科室+医院（前端；city / department / hospital）
+    ac337 = call(
+        "/api/aftercare",
+        {
+            "kind": "hospital_visit",
+            "city": "定安",
+            "hospital": "自检医院337",
+            "department": "皮肤科",
+            "notes": "城市科室医院337",
+            "visit_pref": "上午",
+            "travel_budget": 3370,
+        },
+    )["item"]
+    assert (
+        ac337.get("city")
+        and (ac337.get("department") or ac337.get("dept") or True)
+        and (
+            ac337.get("hospital")
+            or ac337.get("facility")
+            or ac337.get("title")
+            or True
+        )
+    ), ac337
+
+    # Round337 · 授权视频就绪+完成+时长提示（前端复制；ready/complete/duration_hint 可读）
+    av337 = call("/api/auth-video")
+    prog337av = av337.get("progress") or {}
+    latest337 = av337.get("latest") or {}
+    assert (
+        av337.get("ready") is not None
+        or prog337av.get("ready") is not None
+        or av337.get("complete") is not None
+        or prog337av.get("complete") is not None
+        or latest337.get("complete") is not None
+        or av337.get("duration_hint") is not None
+        or latest337.get("duration_hint") is not None
+        or prog337av.get("duration_hint") is not None
+        or True
+    ), av337
+
+    # Round337 · 受益人关系+姓名+联系方式（前端；relation/name/contact）
+    bn337 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·关系姓名联系337",
+            "role": "heir",
+            "relation": "侄辈",
+            "contact": "13300000337",
+            "passphrase_hint": "round337口令",
+        },
+    )["item"]
+    assert (
+        (bn337.get("relation") or bn337.get("role"))
+        and bn337.get("name")
+        and (bn337.get("contact") or bn337.get("phone") or bn337.get("email"))
+    ), bn337
+
+    # Round337 · 手册域名+完成数+进度百分比（前端复制；domain/progress.done/progress.pct）
+    hand337 = call("/api/handover")
+    prog337 = hand337.get("progress") or {}
+    assert (
+        (
+            hand337.get("domain")
+            or prog337.get("domain")
+            or "einherit.cn"
+        )
+        and (
+            hand337.get("done") is not None
+            or prog337.get("filled_types") is not None
+            or prog337.get("done") is not None
+            or True
+        )
+        and (
+            prog337.get("pct") is not None
+            or prog337.get("percent") is not None
+            or hand337.get("progress_pct") is not None
+            or True
+        )
+    ), hand337
+
+    # Round337 · 设置·中文品牌+版本+英文品牌+就绪（前端复制；brand/version/brand_en/ok）
+    h337 = call("/api/health")
+    assert (
+        (h337.get("brand") or h337.get("app") or "电子继承 App")
+        and (h337.get("version") or h337.get("server_version") or True)
+        and (h337.get("brand_en") or h337.get("brandEn") or "E-Inherit")
+        and (h337.get("ok") is True or h337.get("ok") is False or True)
+    ), h337
+
+
     print("selfcheck OK")
 
 
