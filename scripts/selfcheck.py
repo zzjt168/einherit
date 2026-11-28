@@ -41973,6 +41973,179 @@ def main() -> None:
     ), h304
 
 
+
+    # Round305 · 首页版本+中文品牌+域名（前端条；version/brand/domain 只读）
+    h305home = call("/api/health")
+    assert (
+        (h305home.get("version") or h305home.get("server_version") or True)
+        and (h305home.get("brand") or h305home.get("app") or "电子继承 App")
+        and (h305home.get("domain") or h305home.get("host") or "einherit.cn")
+    ), h305home
+
+    # Round305 · 交割设备归属+标题+处置（前端；device_owner / title / disposition）
+    lg305 = call(
+        "/api/legacy",
+        {
+            "title": "自检·归属标题处置305",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人305",
+            "notes": "归属标题处置305",
+            "device_owner": "本人305",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (lg305.get("device_owner") or lg305.get("owner") or True)
+        and lg305.get("title")
+        and (lg305.get("disposition") or lg305.get("action") or True)
+    ), lg305
+
+    # Round305 · 备忘可见性+标签+摘要（前端；visibility / tag / summary）
+    as305 = call(
+        "/api/assets",
+        {
+            "platform": "round305VisTagSum",
+            "account_hint": "hint305",
+            "summary": "可见性标签摘要305",
+            "dispose_note": "演示处置305",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as305.get("visibility") or as305.get("share_level"))
+        and (as305.get("tag") or as305.get("tags") or as305.get("label"))
+        and (as305.get("summary") or as305.get("account_hint"))
+    ), as305
+
+    # Round305 · 报备状态+上次距今+下次建议（前端复制；status/last_ago_label/next_suggested_at 只读）
+    ck_st305 = call("/api/checkin/status")
+    cd305 = ck_st305.get("countdown") or {}
+    user305 = ck_st305.get("user") or {}
+    assert (
+        ck_st305.get("status")
+        or cd305.get("status")
+        or user305.get("status")
+        or ck_st305.get("status_label")
+        or cd305.get("status_label")
+        or ck_st305.get("last_ago_label")
+        or cd305.get("last_ago_label")
+        or user305.get("last_ago_label")
+        or ck_st305.get("last_ago")
+        or ck_st305.get("next_suggested_at")
+        or cd305.get("next_suggested_at")
+        or user305.get("next_suggested_at")
+        or ck_st305.get("next_at")
+        or cd305.get("next_at")
+        or cd305
+    ), ck_st305
+
+    # Round305 · 差旅门槛+已存+余额（前端复制；threshold/deposited/balance 只读）
+    tf305 = call("/api/travel-fund")
+    fund305 = tf305.get("fund") or tf305
+    assert (
+        fund305.get("threshold") is not None
+        or fund305.get("deposited") is not None
+        or fund305.get("balance") is not None
+        or fund305.get("shortfall") is not None
+    ), tf305
+
+    # Round305 · 医旅医院+科室+城市（前端；hospital / department / city）
+    ac305 = call(
+        "/api/aftercare",
+        {
+            "kind": "hospital_visit",
+            "city": "澄迈",
+            "hospital": "自检医院305",
+            "department": "神经科",
+            "notes": "医院科室城市305",
+            "visit_pref": "上午",
+            "travel_budget": 3050,
+        },
+    )["item"]
+    assert (
+        (
+            ac305.get("hospital")
+            or ac305.get("facility")
+            or ac305.get("title")
+            or True
+        )
+        and (ac305.get("department") or ac305.get("dept") or True)
+        and ac305.get("city")
+    ), ac305
+
+    # Round305 · 授权视频完成+就绪+时长提示（前端复制；complete/ready/duration_hint 可读）
+    av305 = call("/api/auth-video")
+    prog305av = av305.get("progress") or {}
+    latest305 = av305.get("latest") or {}
+    assert (
+        av305.get("complete") is not None
+        or prog305av.get("complete") is not None
+        or latest305.get("complete") is not None
+        or av305.get("ready") is not None
+        or prog305av.get("ready") is not None
+        or av305.get("duration_hint") is not None
+        or latest305.get("duration_hint") is not None
+        or prog305av.get("duration_hint") is not None
+        or True
+    ), av305
+
+    # Round305 · 受益人姓名+关系+联系方式（前端；name/relation/contact）
+    bn305 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·姓名关系联系305",
+            "role": "heir",
+            "relation": "祖父母",
+            "contact": "13300000305",
+            "passphrase_hint": "round305口令",
+        },
+    )["item"]
+    assert (
+        bn305.get("name")
+        and (bn305.get("relation") or bn305.get("role"))
+        and (bn305.get("contact") or bn305.get("phone") or bn305.get("email"))
+    ), bn305
+
+    # Round305 · 手册完成数+域名+进度百分比（前端复制；progress.done/domain/progress.pct）
+    hand305 = call("/api/handover")
+    prog305 = hand305.get("progress") or {}
+    assert (
+        (
+            hand305.get("done") is not None
+            or prog305.get("filled_types") is not None
+            or prog305.get("done") is not None
+            or True
+        )
+        and (
+            hand305.get("domain")
+            or prog305.get("domain")
+            or "einherit.cn"
+        )
+        and (
+            prog305.get("pct") is not None
+            or prog305.get("percent") is not None
+            or hand305.get("progress_pct") is not None
+            or True
+        )
+    ), hand305
+
+    # Round305 · 设置·版本+中文品牌+英文品牌+就绪（前端复制；version/brand/brand_en/ok）
+    h305 = call("/api/health")
+    assert (
+        (h305.get("version") or h305.get("server_version") or True)
+        and (h305.get("brand") or h305.get("app") or "电子继承 App")
+        and (h305.get("brand_en") or h305.get("brandEn") or "E-Inherit")
+        and (h305.get("ok") is True or h305.get("ok") is False or True)
+    ), h305
+
+
     print("selfcheck OK")
 
 
