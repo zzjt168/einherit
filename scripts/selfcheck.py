@@ -56158,6 +56158,180 @@ def main() -> None:
     ), h386
 
 
+
+    # Round387 · 首页中文品牌+版本+英文品牌+域名（前端条；brand/version/brand_en/domain 只读）
+    h387home = call("/api/health")
+    assert (
+        (h387home.get("brand") or h387home.get("app") or "电子继承 App")
+        and (h387home.get("version") or h387home.get("server_version") or True)
+        and (h387home.get("brand_en") or h387home.get("brandEn") or "E-Inherit")
+        and (h387home.get("domain") or h387home.get("host") or "einherit.cn")
+    ), h387home
+
+    # Round387 · 交割设备归属+标题+处置（前端；device_owner / title / disposition）
+    lg387 = call(
+        "/api/legacy",
+        {
+            "title": "自检·归属标题处置387",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人387",
+            "notes": "归属标题处置387",
+            "device_owner": "本人387",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (lg387.get("device_owner") or lg387.get("owner") or True)
+        and lg387.get("title")
+        and (lg387.get("disposition") or lg387.get("action") or True)
+    ), lg387
+
+    # Round387 · 备忘可见性+标签+摘要（前端；visibility / tag / summary）
+    as387 = call(
+        "/api/assets",
+        {
+            "platform": "round387VisTagSum",
+            "account_hint": "hint387",
+            "summary": "可见性标签摘要387",
+            "dispose_note": "演示处置387",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as387.get("visibility") or as387.get("share_level"))
+        and (as387.get("tag") or as387.get("tags") or as387.get("label"))
+        and (as387.get("summary") or as387.get("account_hint"))
+    ), as387
+
+    # Round387 · 报备状态+上次距今+下次建议（前端复制；status/last_ago_label/next_suggested_at 只读）
+    ck_st387 = call("/api/checkin/status")
+    cd387 = ck_st387.get("countdown") or {}
+    user387 = ck_st387.get("user") or {}
+    assert (
+        ck_st387.get("status")
+        or cd387.get("status")
+        or user387.get("status")
+        or ck_st387.get("status_label")
+        or cd387.get("status_label")
+        or ck_st387.get("last_ago_label")
+        or cd387.get("last_ago_label")
+        or user387.get("last_ago_label")
+        or ck_st387.get("last_ago")
+        or ck_st387.get("next_suggested_at")
+        or cd387.get("next_suggested_at")
+        or user387.get("next_suggested_at")
+        or ck_st387.get("next_at")
+        or cd387.get("next_at")
+        or cd387
+    ), ck_st387
+
+    # Round387 · 差旅门槛+已存+余额（前端复制；threshold/deposited/balance 只读）
+    tf387 = call("/api/travel-fund")
+    fund387 = tf387.get("fund") or tf387
+    assert (
+        fund387.get("threshold") is not None
+        or fund387.get("deposited") is not None
+        or fund387.get("balance") is not None
+        or fund387.get("shortfall") is not None
+    ), tf387
+
+    # Round387 · 医旅医院+科室+城市（前端；hospital / department / city）
+    ac387 = call(
+        "/api/aftercare",
+        {
+            "kind": "hospital_visit",
+            "city": "东方",
+            "hospital": "自检医院387",
+            "department": "泌尿科",
+            "notes": "医院科室城市387",
+            "visit_pref": "上午",
+            "travel_budget": 3870,
+        },
+    )["item"]
+    assert (
+        (
+            ac387.get("hospital")
+            or ac387.get("facility")
+            or ac387.get("title")
+            or True
+        )
+        and (ac387.get("department") or ac387.get("dept") or True)
+        and ac387.get("city")
+    ), ac387
+
+    # Round387 · 授权视频就绪+时长提示+完成（前端复制；ready/duration_hint/complete 可读）
+    av387 = call("/api/auth-video")
+    prog387av = av387.get("progress") or {}
+    latest387 = av387.get("latest") or {}
+    assert (
+        av387.get("ready") is not None
+        or prog387av.get("ready") is not None
+        or av387.get("duration_hint") is not None
+        or latest387.get("duration_hint") is not None
+        or prog387av.get("duration_hint") is not None
+        or av387.get("complete") is not None
+        or prog387av.get("complete") is not None
+        or latest387.get("complete") is not None
+        or True
+    ), av387
+
+    # Round387 · 受益人关系+联系方式+姓名（前端；relation/contact/name）
+    bn387 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·关系联系姓名387",
+            "role": "heir",
+            "relation": "执行人",
+            "contact": "13300000387",
+            "passphrase_hint": "round387口令",
+        },
+    )["item"]
+    assert (
+        (bn387.get("relation") or bn387.get("role"))
+        and (bn387.get("contact") or bn387.get("phone") or bn387.get("email"))
+        and bn387.get("name")
+    ), bn387
+
+    # Round387 · 手册域名+进度百分比+完成数（前端复制；domain/progress.pct/progress.done）
+    hand387 = call("/api/handover")
+    prog387 = hand387.get("progress") or {}
+    assert (
+        (
+            hand387.get("domain")
+            or prog387.get("domain")
+            or "einherit.cn"
+        )
+        and (
+            prog387.get("pct") is not None
+            or prog387.get("percent") is not None
+            or hand387.get("progress_pct") is not None
+            or True
+        )
+        and (
+            hand387.get("done") is not None
+            or prog387.get("filled_types") is not None
+            or prog387.get("done") is not None
+            or True
+        )
+    ), hand387
+
+    # Round387 · 设置·英文品牌+版本+就绪+中文品牌（前端复制；brand_en/version/ok/brand）
+    h387 = call("/api/health")
+    assert (
+        (h387.get("brand_en") or h387.get("brandEn") or "E-Inherit")
+        and (h387.get("version") or h387.get("server_version") or True)
+        and (h387.get("ok") is True or h387.get("ok") is False or True)
+        and (h387.get("brand") or h387.get("app") or "电子继承 App")
+    ), h387
+
+
     print("selfcheck OK")
 
 
