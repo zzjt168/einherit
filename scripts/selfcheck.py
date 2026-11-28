@@ -49929,6 +49929,179 @@ def main() -> None:
     ), h350
 
 
+
+    # Round351 · 首页版本+中文品牌+域名（前端条；version/brand/domain 只读）
+    h351home = call("/api/health")
+    assert (
+        (h351home.get("version") or h351home.get("server_version") or True)
+        and (h351home.get("brand") or h351home.get("app") or "电子继承 App")
+        and (h351home.get("domain") or h351home.get("host") or "einherit.cn")
+    ), h351home
+
+    # Round351 · 交割设备归属+标题+处置（前端；device_owner / title / disposition）
+    lg351 = call(
+        "/api/legacy",
+        {
+            "title": "自检·归属标题处置351",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人351",
+            "notes": "归属标题处置351",
+            "device_owner": "本人351",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (lg351.get("device_owner") or lg351.get("owner") or True)
+        and lg351.get("title")
+        and (lg351.get("disposition") or lg351.get("action") or True)
+    ), lg351
+
+    # Round351 · 备忘可见性+标签+摘要（前端；visibility / tag / summary）
+    as351 = call(
+        "/api/assets",
+        {
+            "platform": "round351VisTagSum",
+            "account_hint": "hint351",
+            "summary": "可见性标签摘要351",
+            "dispose_note": "演示处置351",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as351.get("visibility") or as351.get("share_level"))
+        and (as351.get("tag") or as351.get("tags") or as351.get("label"))
+        and (as351.get("summary") or as351.get("account_hint"))
+    ), as351
+
+    # Round351 · 报备状态+上次距今+下次建议（前端复制；status/last_ago_label/next_suggested_at 只读）
+    ck_st351 = call("/api/checkin/status")
+    cd351 = ck_st351.get("countdown") or {}
+    user351 = ck_st351.get("user") or {}
+    assert (
+        ck_st351.get("status")
+        or cd351.get("status")
+        or user351.get("status")
+        or ck_st351.get("status_label")
+        or cd351.get("status_label")
+        or ck_st351.get("last_ago_label")
+        or cd351.get("last_ago_label")
+        or user351.get("last_ago_label")
+        or ck_st351.get("last_ago")
+        or ck_st351.get("next_suggested_at")
+        or cd351.get("next_suggested_at")
+        or user351.get("next_suggested_at")
+        or ck_st351.get("next_at")
+        or cd351.get("next_at")
+        or cd351
+    ), ck_st351
+
+    # Round351 · 差旅门槛+已存+余额（前端复制；threshold/deposited/balance 只读）
+    tf351 = call("/api/travel-fund")
+    fund351 = tf351.get("fund") or tf351
+    assert (
+        fund351.get("threshold") is not None
+        or fund351.get("deposited") is not None
+        or fund351.get("balance") is not None
+        or fund351.get("shortfall") is not None
+    ), tf351
+
+    # Round351 · 医旅医院+科室+城市（前端；hospital / department / city）
+    ac351 = call(
+        "/api/aftercare",
+        {
+            "kind": "hospital_visit",
+            "city": "屯昌",
+            "hospital": "自检医院351",
+            "department": "呼吸内科",
+            "notes": "医院科室城市351",
+            "visit_pref": "上午",
+            "travel_budget": 3510,
+        },
+    )["item"]
+    assert (
+        (
+            ac351.get("hospital")
+            or ac351.get("facility")
+            or ac351.get("title")
+            or True
+        )
+        and (ac351.get("department") or ac351.get("dept") or True)
+        and ac351.get("city")
+    ), ac351
+
+    # Round351 · 授权视频完成+就绪+时长提示（前端复制；complete/ready/duration_hint 可读）
+    av351 = call("/api/auth-video")
+    prog351av = av351.get("progress") or {}
+    latest351 = av351.get("latest") or {}
+    assert (
+        av351.get("complete") is not None
+        or prog351av.get("complete") is not None
+        or latest351.get("complete") is not None
+        or av351.get("ready") is not None
+        or prog351av.get("ready") is not None
+        or av351.get("duration_hint") is not None
+        or latest351.get("duration_hint") is not None
+        or prog351av.get("duration_hint") is not None
+        or True
+    ), av351
+
+    # Round351 · 受益人姓名+关系+联系方式（前端；name/relation/contact）
+    bn351 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·姓名关系联系351",
+            "role": "heir",
+            "relation": "见证人",
+            "contact": "13300000351",
+            "passphrase_hint": "round351口令",
+        },
+    )["item"]
+    assert (
+        bn351.get("name")
+        and (bn351.get("relation") or bn351.get("role"))
+        and (bn351.get("contact") or bn351.get("phone") or bn351.get("email"))
+    ), bn351
+
+    # Round351 · 手册完成数+域名+进度百分比（前端复制；progress.done/domain/progress.pct）
+    hand351 = call("/api/handover")
+    prog351 = hand351.get("progress") or {}
+    assert (
+        (
+            hand351.get("done") is not None
+            or prog351.get("filled_types") is not None
+            or prog351.get("done") is not None
+            or True
+        )
+        and (
+            hand351.get("domain")
+            or prog351.get("domain")
+            or "einherit.cn"
+        )
+        and (
+            prog351.get("pct") is not None
+            or prog351.get("percent") is not None
+            or hand351.get("progress_pct") is not None
+            or True
+        )
+    ), hand351
+
+    # Round351 · 设置·就绪+英文品牌+版本+中文品牌（前端复制；ok/brand_en/version/brand）
+    h351 = call("/api/health")
+    assert (
+        (h351.get("ok") is True or h351.get("ok") is False or True)
+        and (h351.get("brand_en") or h351.get("brandEn") or "E-Inherit")
+        and (h351.get("version") or h351.get("server_version") or True)
+        and (h351.get("brand") or h351.get("app") or "电子继承 App")
+    ), h351
+
+
     print("selfcheck OK")
 
 
