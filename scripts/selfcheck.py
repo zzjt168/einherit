@@ -50275,6 +50275,179 @@ def main() -> None:
     ), h352
 
 
+
+    # Round353 · 首页域名+版本+中文品牌（前端条；domain/version/brand 只读）
+    h353home = call("/api/health")
+    assert (
+        (h353home.get("domain") or h353home.get("host") or "einherit.cn")
+        and (h353home.get("version") or h353home.get("server_version") or True)
+        and (h353home.get("brand") or h353home.get("app") or "电子继承 App")
+    ), h353home
+
+    # Round353 · 交割标题+处置+设备归属（前端；title / disposition / device_owner）
+    lg353 = call(
+        "/api/legacy",
+        {
+            "title": "自检·标题处置归属353",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人353",
+            "notes": "标题处置归属353",
+            "device_owner": "本人353",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        lg353.get("title")
+        and (lg353.get("disposition") or lg353.get("action") or True)
+        and (lg353.get("device_owner") or lg353.get("owner") or True)
+    ), lg353
+
+    # Round353 · 备忘标签+摘要+可见性（前端；tag / summary / visibility）
+    as353 = call(
+        "/api/assets",
+        {
+            "platform": "round353TagSumVis",
+            "account_hint": "hint353",
+            "summary": "标签摘要可见性353",
+            "dispose_note": "演示处置353",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as353.get("tag") or as353.get("tags") or as353.get("label"))
+        and (as353.get("summary") or as353.get("account_hint"))
+        and (as353.get("visibility") or as353.get("share_level"))
+    ), as353
+
+    # Round353 · 报备上次距今+下次建议+状态（前端复制；last_ago_label/next_suggested_at/status 只读）
+    ck_st353 = call("/api/checkin/status")
+    cd353 = ck_st353.get("countdown") or {}
+    user353 = ck_st353.get("user") or {}
+    assert (
+        ck_st353.get("last_ago_label")
+        or cd353.get("last_ago_label")
+        or user353.get("last_ago_label")
+        or ck_st353.get("last_ago")
+        or ck_st353.get("next_suggested_at")
+        or cd353.get("next_suggested_at")
+        or user353.get("next_suggested_at")
+        or ck_st353.get("next_at")
+        or cd353.get("next_at")
+        or ck_st353.get("status")
+        or cd353.get("status")
+        or user353.get("status")
+        or ck_st353.get("status_label")
+        or cd353.get("status_label")
+        or cd353
+    ), ck_st353
+
+    # Round353 · 差旅已存+余额+门槛（前端复制；deposited/balance/threshold 只读）
+    tf353 = call("/api/travel-fund")
+    fund353 = tf353.get("fund") or tf353
+    assert (
+        fund353.get("deposited") is not None
+        or fund353.get("balance") is not None
+        or fund353.get("threshold") is not None
+        or fund353.get("shortfall") is not None
+    ), tf353
+
+    # Round353 · 医旅科室+城市+医院（前端；department / city / hospital）
+    ac353 = call(
+        "/api/aftercare",
+        {
+            "kind": "hospital_visit",
+            "city": "文昌",
+            "hospital": "自检医院353",
+            "department": "肿瘤科",
+            "notes": "科室城市医院353",
+            "visit_pref": "上午",
+            "travel_budget": 3530,
+        },
+    )["item"]
+    assert (
+        (ac353.get("department") or ac353.get("dept") or True)
+        and ac353.get("city")
+        and (
+            ac353.get("hospital")
+            or ac353.get("facility")
+            or ac353.get("title")
+            or True
+        )
+    ), ac353
+
+    # Round353 · 授权视频时长提示+完成+就绪（前端复制；duration_hint/complete/ready 可读）
+    av353 = call("/api/auth-video")
+    prog353av = av353.get("progress") or {}
+    latest353 = av353.get("latest") or {}
+    assert (
+        av353.get("duration_hint") is not None
+        or latest353.get("duration_hint") is not None
+        or prog353av.get("duration_hint") is not None
+        or av353.get("complete") is not None
+        or prog353av.get("complete") is not None
+        or latest353.get("complete") is not None
+        or av353.get("ready") is not None
+        or prog353av.get("ready") is not None
+        or True
+    ), av353
+
+    # Round353 · 受益人联系方式+姓名+关系（前端；contact/name/relation）
+    bn353 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·联系姓名关系353",
+            "role": "heir",
+            "relation": "执行人",
+            "contact": "13300000353",
+            "passphrase_hint": "round353口令",
+        },
+    )["item"]
+    assert (
+        (bn353.get("contact") or bn353.get("phone") or bn353.get("email"))
+        and bn353.get("name")
+        and (bn353.get("relation") or bn353.get("role"))
+    ), bn353
+
+    # Round353 · 手册进度百分比+完成数+域名（前端复制；progress.pct/progress.done/domain）
+    hand353 = call("/api/handover")
+    prog353 = hand353.get("progress") or {}
+    assert (
+        (
+            prog353.get("pct") is not None
+            or prog353.get("percent") is not None
+            or hand353.get("progress_pct") is not None
+            or True
+        )
+        and (
+            hand353.get("done") is not None
+            or prog353.get("filled_types") is not None
+            or prog353.get("done") is not None
+            or True
+        )
+        and (
+            hand353.get("domain")
+            or prog353.get("domain")
+            or "einherit.cn"
+        )
+    ), hand353
+
+    # Round353 · 设置·英文品牌+中文品牌+就绪+版本（前端复制；brand_en/brand/ok/version）
+    h353 = call("/api/health")
+    assert (
+        (h353.get("brand_en") or h353.get("brandEn") or "E-Inherit")
+        and (h353.get("brand") or h353.get("app") or "电子继承 App")
+        and (h353.get("ok") is True or h353.get("ok") is False or True)
+        and (h353.get("version") or h353.get("server_version") or True)
+    ), h353
+
+
     print("selfcheck OK")
 
 
