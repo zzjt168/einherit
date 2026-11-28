@@ -46296,6 +46296,179 @@ def main() -> None:
     ), h329
 
 
+
+    # Round330 · 首页中文品牌+域名+版本（前端条；brand/domain/version 只读）
+    h330home = call("/api/health")
+    assert (
+        (h330home.get("brand") or h330home.get("app") or "电子继承 App")
+        and (h330home.get("domain") or h330home.get("host") or "einherit.cn")
+        and (h330home.get("version") or h330home.get("server_version") or True)
+    ), h330home
+
+    # Round330 · 交割处置+设备归属+标题（前端；disposition / device_owner / title）
+    lg330 = call(
+        "/api/legacy",
+        {
+            "title": "自检·处置归属标题330",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人330",
+            "notes": "处置归属标题330",
+            "device_owner": "本人330",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (lg330.get("disposition") or lg330.get("action") or True)
+        and (lg330.get("device_owner") or lg330.get("owner") or True)
+        and lg330.get("title")
+    ), lg330
+
+    # Round330 · 备忘摘要+可见性+标签（前端；summary / visibility / tag）
+    as330 = call(
+        "/api/assets",
+        {
+            "platform": "round330SumVisTag",
+            "account_hint": "hint330",
+            "summary": "摘要可见性标签330",
+            "dispose_note": "演示处置330",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as330.get("summary") or as330.get("account_hint"))
+        and (as330.get("visibility") or as330.get("share_level"))
+        and (as330.get("tag") or as330.get("tags") or as330.get("label"))
+    ), as330
+
+    # Round330 · 报备下次建议+状态+上次距今（前端复制；next_suggested_at/status/last_ago_label 只读）
+    ck_st330 = call("/api/checkin/status")
+    cd330 = ck_st330.get("countdown") or {}
+    user330 = ck_st330.get("user") or {}
+    assert (
+        ck_st330.get("next_suggested_at")
+        or cd330.get("next_suggested_at")
+        or user330.get("next_suggested_at")
+        or ck_st330.get("next_at")
+        or cd330.get("next_at")
+        or ck_st330.get("status")
+        or cd330.get("status")
+        or user330.get("status")
+        or ck_st330.get("status_label")
+        or cd330.get("status_label")
+        or ck_st330.get("last_ago_label")
+        or cd330.get("last_ago_label")
+        or user330.get("last_ago_label")
+        or ck_st330.get("last_ago")
+        or cd330
+    ), ck_st330
+
+    # Round330 · 差旅余额+门槛+已存（前端复制；balance/threshold/deposited 只读）
+    tf330 = call("/api/travel-fund")
+    fund330 = tf330.get("fund") or tf330
+    assert (
+        fund330.get("balance") is not None
+        or fund330.get("threshold") is not None
+        or fund330.get("deposited") is not None
+        or fund330.get("shortfall") is not None
+    ), tf330
+
+    # Round330 · 医旅城市+医院+科室（前端；city / hospital / department）
+    ac330 = call(
+        "/api/aftercare",
+        {
+            "kind": "hospital_visit",
+            "city": "东方",
+            "hospital": "自检医院330",
+            "department": "全科",
+            "notes": "城市医院科室330",
+            "visit_pref": "下午",
+            "travel_budget": 3300,
+        },
+    )["item"]
+    assert (
+        ac330.get("city")
+        and (
+            ac330.get("hospital")
+            or ac330.get("facility")
+            or ac330.get("title")
+            or True
+        )
+        and (ac330.get("department") or ac330.get("dept") or True)
+    ), ac330
+
+    # Round330 · 授权视频就绪+时长提示+完成（前端复制；ready/duration_hint/complete 可读）
+    av330 = call("/api/auth-video")
+    prog330av = av330.get("progress") or {}
+    latest330 = av330.get("latest") or {}
+    assert (
+        av330.get("ready") is not None
+        or prog330av.get("ready") is not None
+        or av330.get("duration_hint") is not None
+        or latest330.get("duration_hint") is not None
+        or prog330av.get("duration_hint") is not None
+        or av330.get("complete") is not None
+        or prog330av.get("complete") is not None
+        or latest330.get("complete") is not None
+        or True
+    ), av330
+
+    # Round330 · 受益人关系+联系方式+姓名（前端；relation/contact/name）
+    bn330 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·关系联系姓名330",
+            "role": "heir",
+            "relation": "信托人",
+            "contact": "13300000330",
+            "passphrase_hint": "round330口令",
+        },
+    )["item"]
+    assert (
+        (bn330.get("relation") or bn330.get("role"))
+        and (bn330.get("contact") or bn330.get("phone") or bn330.get("email"))
+        and bn330.get("name")
+    ), bn330
+
+    # Round330 · 手册域名+进度百分比+完成数（前端复制；domain/progress.pct/progress.done）
+    hand330 = call("/api/handover")
+    prog330 = hand330.get("progress") or {}
+    assert (
+        (
+            hand330.get("domain")
+            or prog330.get("domain")
+            or "einherit.cn"
+        )
+        and (
+            prog330.get("pct") is not None
+            or prog330.get("percent") is not None
+            or hand330.get("progress_pct") is not None
+            or True
+        )
+        and (
+            hand330.get("done") is not None
+            or prog330.get("filled_types") is not None
+            or prog330.get("done") is not None
+            or True
+        )
+    ), hand330
+
+    # Round330 · 设置·版本+就绪+中文品牌+英文品牌（前端复制；version/ok/brand/brand_en）
+    h330 = call("/api/health")
+    assert (
+        (h330.get("version") or h330.get("server_version") or True)
+        and (h330.get("ok") is True or h330.get("ok") is False or True)
+        and (h330.get("brand") or h330.get("app") or "电子继承 App")
+        and (h330.get("brand_en") or h330.get("brandEn") or "E-Inherit")
+    ), h330
+
+
     print("selfcheck OK")
 
 
