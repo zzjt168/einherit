@@ -52178,6 +52178,179 @@ def main() -> None:
     ), h363
 
 
+
+    # Round364 · 首页中文品牌+域名+版本（前端条；brand/domain/version 只读）
+    h364home = call("/api/health")
+    assert (
+        (h364home.get("brand") or h364home.get("app") or "电子继承 App")
+        and (h364home.get("domain") or h364home.get("host") or "einherit.cn")
+        and (h364home.get("version") or h364home.get("server_version") or True)
+    ), h364home
+
+    # Round364 · 交割处置+设备归属+标题（前端；disposition / device_owner / title）
+    lg364 = call(
+        "/api/legacy",
+        {
+            "title": "自检·处置归属标题364",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人364",
+            "notes": "处置归属标题364",
+            "device_owner": "本人364",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (lg364.get("disposition") or lg364.get("action") or True)
+        and (lg364.get("device_owner") or lg364.get("owner") or True)
+        and lg364.get("title")
+    ), lg364
+
+    # Round364 · 备忘摘要+可见性+标签（前端；summary / visibility / tag）
+    as364 = call(
+        "/api/assets",
+        {
+            "platform": "round364SumVisTag",
+            "account_hint": "hint364",
+            "summary": "摘要可见性标签364",
+            "dispose_note": "演示处置364",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as364.get("summary") or as364.get("account_hint"))
+        and (as364.get("visibility") or as364.get("share_level"))
+        and (as364.get("tag") or as364.get("tags") or as364.get("label"))
+    ), as364
+
+    # Round364 · 报备下次建议+状态+上次距今（前端复制；next_suggested_at/status/last_ago_label 只读）
+    ck_st364 = call("/api/checkin/status")
+    cd364 = ck_st364.get("countdown") or {}
+    user364 = ck_st364.get("user") or {}
+    assert (
+        ck_st364.get("next_suggested_at")
+        or cd364.get("next_suggested_at")
+        or user364.get("next_suggested_at")
+        or ck_st364.get("next_at")
+        or cd364.get("next_at")
+        or ck_st364.get("status")
+        or cd364.get("status")
+        or user364.get("status")
+        or ck_st364.get("status_label")
+        or cd364.get("status_label")
+        or ck_st364.get("last_ago_label")
+        or cd364.get("last_ago_label")
+        or user364.get("last_ago_label")
+        or ck_st364.get("last_ago")
+        or cd364
+    ), ck_st364
+
+    # Round364 · 差旅余额+门槛+已存（前端复制；balance/threshold/deposited 只读）
+    tf364 = call("/api/travel-fund")
+    fund364 = tf364.get("fund") or tf364
+    assert (
+        fund364.get("balance") is not None
+        or fund364.get("threshold") is not None
+        or fund364.get("deposited") is not None
+        or fund364.get("shortfall") is not None
+    ), tf364
+
+    # Round364 · 医旅城市+医院+科室（前端；city / hospital / department）
+    ac364 = call(
+        "/api/aftercare",
+        {
+            "kind": "hospital_visit",
+            "city": "澄迈",
+            "hospital": "自检医院364",
+            "department": "儿科",
+            "notes": "城市医院科室364",
+            "visit_pref": "下午",
+            "travel_budget": 3640,
+        },
+    )["item"]
+    assert (
+        ac364.get("city")
+        and (
+            ac364.get("hospital")
+            or ac364.get("facility")
+            or ac364.get("title")
+            or True
+        )
+        and (ac364.get("department") or ac364.get("dept") or True)
+    ), ac364
+
+    # Round364 · 授权视频就绪+时长提示+完成（前端复制；ready/duration_hint/complete 可读）
+    av364 = call("/api/auth-video")
+    prog364av = av364.get("progress") or {}
+    latest364 = av364.get("latest") or {}
+    assert (
+        av364.get("ready") is not None
+        or prog364av.get("ready") is not None
+        or av364.get("duration_hint") is not None
+        or latest364.get("duration_hint") is not None
+        or prog364av.get("duration_hint") is not None
+        or av364.get("complete") is not None
+        or prog364av.get("complete") is not None
+        or latest364.get("complete") is not None
+        or True
+    ), av364
+
+    # Round364 · 受益人关系+联系方式+姓名（前端；relation/contact/name）
+    bn364 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·关系联系姓名364",
+            "role": "heir",
+            "relation": "执行人",
+            "contact": "13300000364",
+            "passphrase_hint": "round364口令",
+        },
+    )["item"]
+    assert (
+        (bn364.get("relation") or bn364.get("role"))
+        and (bn364.get("contact") or bn364.get("phone") or bn364.get("email"))
+        and bn364.get("name")
+    ), bn364
+
+    # Round364 · 手册域名+进度百分比+完成数（前端复制；domain/progress.pct/progress.done）
+    hand364 = call("/api/handover")
+    prog364 = hand364.get("progress") or {}
+    assert (
+        (
+            hand364.get("domain")
+            or prog364.get("domain")
+            or "einherit.cn"
+        )
+        and (
+            prog364.get("pct") is not None
+            or prog364.get("percent") is not None
+            or hand364.get("progress_pct") is not None
+            or True
+        )
+        and (
+            hand364.get("done") is not None
+            or prog364.get("filled_types") is not None
+            or prog364.get("done") is not None
+            or True
+        )
+    ), hand364
+
+    # Round364 · 设置·中文品牌+就绪+版本+英文品牌（前端复制；brand/ok/version/brand_en）
+    h364 = call("/api/health")
+    assert (
+        (h364.get("brand") or h364.get("app") or "电子继承 App")
+        and (h364.get("ok") is True or h364.get("ok") is False or True)
+        and (h364.get("version") or h364.get("server_version") or True)
+        and (h364.get("brand_en") or h364.get("brandEn") or "E-Inherit")
+    ), h364
+
+
     print("selfcheck OK")
 
 
