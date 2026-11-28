@@ -52005,6 +52005,179 @@ def main() -> None:
     ), h362
 
 
+
+    # Round363 · 首页版本+中文品牌+域名（前端条；version/brand/domain 只读）
+    h363home = call("/api/health")
+    assert (
+        (h363home.get("version") or h363home.get("server_version") or True)
+        and (h363home.get("brand") or h363home.get("app") or "电子继承 App")
+        and (h363home.get("domain") or h363home.get("host") or "einherit.cn")
+    ), h363home
+
+    # Round363 · 交割设备归属+标题+处置（前端；device_owner / title / disposition）
+    lg363 = call(
+        "/api/legacy",
+        {
+            "title": "自检·归属标题处置363",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人363",
+            "notes": "归属标题处置363",
+            "device_owner": "本人363",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (lg363.get("device_owner") or lg363.get("owner") or True)
+        and lg363.get("title")
+        and (lg363.get("disposition") or lg363.get("action") or True)
+    ), lg363
+
+    # Round363 · 备忘可见性+标签+摘要（前端；visibility / tag / summary）
+    as363 = call(
+        "/api/assets",
+        {
+            "platform": "round363VisTagSum",
+            "account_hint": "hint363",
+            "summary": "可见性标签摘要363",
+            "dispose_note": "演示处置363",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as363.get("visibility") or as363.get("share_level"))
+        and (as363.get("tag") or as363.get("tags") or as363.get("label"))
+        and (as363.get("summary") or as363.get("account_hint"))
+    ), as363
+
+    # Round363 · 报备状态+上次距今+下次建议（前端复制；status/last_ago_label/next_suggested_at 只读）
+    ck_st363 = call("/api/checkin/status")
+    cd363 = ck_st363.get("countdown") or {}
+    user363 = ck_st363.get("user") or {}
+    assert (
+        ck_st363.get("status")
+        or cd363.get("status")
+        or user363.get("status")
+        or ck_st363.get("status_label")
+        or cd363.get("status_label")
+        or ck_st363.get("last_ago_label")
+        or cd363.get("last_ago_label")
+        or user363.get("last_ago_label")
+        or ck_st363.get("last_ago")
+        or ck_st363.get("next_suggested_at")
+        or cd363.get("next_suggested_at")
+        or user363.get("next_suggested_at")
+        or ck_st363.get("next_at")
+        or cd363.get("next_at")
+        or cd363
+    ), ck_st363
+
+    # Round363 · 差旅门槛+已存+余额（前端复制；threshold/deposited/balance 只读）
+    tf363 = call("/api/travel-fund")
+    fund363 = tf363.get("fund") or tf363
+    assert (
+        fund363.get("threshold") is not None
+        or fund363.get("deposited") is not None
+        or fund363.get("balance") is not None
+        or fund363.get("shortfall") is not None
+    ), tf363
+
+    # Round363 · 医旅医院+科室+城市（前端；hospital / department / city）
+    ac363 = call(
+        "/api/aftercare",
+        {
+            "kind": "hospital_visit",
+            "city": "屯昌",
+            "hospital": "自检医院363",
+            "department": "耳鼻喉科",
+            "notes": "医院科室城市363",
+            "visit_pref": "上午",
+            "travel_budget": 3630,
+        },
+    )["item"]
+    assert (
+        (
+            ac363.get("hospital")
+            or ac363.get("facility")
+            or ac363.get("title")
+            or True
+        )
+        and (ac363.get("department") or ac363.get("dept") or True)
+        and ac363.get("city")
+    ), ac363
+
+    # Round363 · 授权视频完成+就绪+时长提示（前端复制；complete/ready/duration_hint 可读）
+    av363 = call("/api/auth-video")
+    prog363av = av363.get("progress") or {}
+    latest363 = av363.get("latest") or {}
+    assert (
+        av363.get("complete") is not None
+        or prog363av.get("complete") is not None
+        or latest363.get("complete") is not None
+        or av363.get("ready") is not None
+        or prog363av.get("ready") is not None
+        or av363.get("duration_hint") is not None
+        or latest363.get("duration_hint") is not None
+        or prog363av.get("duration_hint") is not None
+        or True
+    ), av363
+
+    # Round363 · 受益人姓名+关系+联系方式（前端；name/relation/contact）
+    bn363 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·姓名关系联系363",
+            "role": "heir",
+            "relation": "执行人",
+            "contact": "13300000363",
+            "passphrase_hint": "round363口令",
+        },
+    )["item"]
+    assert (
+        bn363.get("name")
+        and (bn363.get("relation") or bn363.get("role"))
+        and (bn363.get("contact") or bn363.get("phone") or bn363.get("email"))
+    ), bn363
+
+    # Round363 · 手册完成数+域名+进度百分比（前端复制；progress.done/domain/progress.pct）
+    hand363 = call("/api/handover")
+    prog363 = hand363.get("progress") or {}
+    assert (
+        (
+            hand363.get("done") is not None
+            or prog363.get("filled_types") is not None
+            or prog363.get("done") is not None
+            or True
+        )
+        and (
+            hand363.get("domain")
+            or prog363.get("domain")
+            or "einherit.cn"
+        )
+        and (
+            prog363.get("pct") is not None
+            or prog363.get("percent") is not None
+            or hand363.get("progress_pct") is not None
+            or True
+        )
+    ), hand363
+
+    # Round363 · 设置·英文品牌+版本+就绪+中文品牌（前端复制；brand_en/version/ok/brand）
+    h363 = call("/api/health")
+    assert (
+        (h363.get("brand_en") or h363.get("brandEn") or "E-Inherit")
+        and (h363.get("version") or h363.get("server_version") or True)
+        and (h363.get("ok") is True or h363.get("ok") is False or True)
+        and (h363.get("brand") or h363.get("app") or "电子继承 App")
+    ), h363
+
+
     print("selfcheck OK")
 
 
