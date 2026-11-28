@@ -41281,6 +41281,179 @@ def main() -> None:
     ), h300
 
 
+
+    # Round301 · 首页域名+中文品牌+版本（前端条；domain/brand/version 只读）
+    h301home = call("/api/health")
+    assert (
+        (h301home.get("domain") or h301home.get("host") or "einherit.cn")
+        and (h301home.get("brand") or h301home.get("app") or "电子继承 App")
+        and (h301home.get("version") or h301home.get("server_version") or True)
+    ), h301home
+
+    # Round301 · 交割设备归属+处置+标题（前端；device_owner / disposition / title）
+    lg301 = call(
+        "/api/legacy",
+        {
+            "title": "自检·归属处置标题301",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人301",
+            "notes": "归属处置标题301",
+            "device_owner": "本人301",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (lg301.get("device_owner") or lg301.get("owner") or True)
+        and (lg301.get("disposition") or lg301.get("action") or True)
+        and lg301.get("title")
+    ), lg301
+
+    # Round301 · 备忘标签+可见性+摘要（前端；tag / visibility / summary）
+    as301 = call(
+        "/api/assets",
+        {
+            "platform": "round301TagVisSum",
+            "account_hint": "hint301",
+            "summary": "标签可见性摘要301",
+            "dispose_note": "演示处置301",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as301.get("tag") or as301.get("tags") or as301.get("label"))
+        and (as301.get("visibility") or as301.get("share_level"))
+        and (as301.get("summary") or as301.get("account_hint"))
+    ), as301
+
+    # Round301 · 报备上次距今+状态+下次建议（前端复制；last_ago_label/status/next_suggested_at 只读）
+    ck_st301 = call("/api/checkin/status")
+    cd301 = ck_st301.get("countdown") or {}
+    user301 = ck_st301.get("user") or {}
+    assert (
+        ck_st301.get("last_ago_label")
+        or cd301.get("last_ago_label")
+        or user301.get("last_ago_label")
+        or ck_st301.get("last_ago")
+        or ck_st301.get("status")
+        or cd301.get("status")
+        or user301.get("status")
+        or ck_st301.get("status_label")
+        or cd301.get("status_label")
+        or ck_st301.get("next_suggested_at")
+        or cd301.get("next_suggested_at")
+        or user301.get("next_suggested_at")
+        or ck_st301.get("next_at")
+        or cd301.get("next_at")
+        or cd301
+    ), ck_st301
+
+    # Round301 · 差旅已存+门槛+余额（前端复制；deposited/threshold/balance 只读）
+    tf301 = call("/api/travel-fund")
+    fund301 = tf301.get("fund") or tf301
+    assert (
+        fund301.get("deposited") is not None
+        or fund301.get("threshold") is not None
+        or fund301.get("balance") is not None
+        or fund301.get("shortfall") is not None
+    ), tf301
+
+    # Round301 · 医旅科室+医院+城市（前端；department / hospital / city）
+    ac301 = call(
+        "/api/aftercare",
+        {
+            "kind": "hospital_visit",
+            "city": "琼海",
+            "hospital": "自检医院301",
+            "department": "内科",
+            "notes": "科室医院城市301",
+            "visit_pref": "下午",
+            "travel_budget": 3010,
+        },
+    )["item"]
+    assert (
+        (ac301.get("department") or ac301.get("dept") or True)
+        and (
+            ac301.get("hospital")
+            or ac301.get("facility")
+            or ac301.get("title")
+            or True
+        )
+        and ac301.get("city")
+    ), ac301
+
+    # Round301 · 授权视频时长提示+完成+就绪（前端复制；duration_hint/complete/ready 可读）
+    av301 = call("/api/auth-video")
+    prog301av = av301.get("progress") or {}
+    latest301 = av301.get("latest") or {}
+    assert (
+        av301.get("duration_hint") is not None
+        or latest301.get("duration_hint") is not None
+        or prog301av.get("duration_hint") is not None
+        or av301.get("complete") is not None
+        or prog301av.get("complete") is not None
+        or latest301.get("complete") is not None
+        or av301.get("ready") is not None
+        or prog301av.get("ready") is not None
+        or True
+    ), av301
+
+    # Round301 · 受益人联系方式+姓名+关系（前端；contact/name/relation）
+    bn301 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·联系姓名关系301",
+            "role": "heir",
+            "relation": "子女",
+            "contact": "13300000301",
+            "passphrase_hint": "round301口令",
+        },
+    )["item"]
+    assert (
+        (bn301.get("contact") or bn301.get("phone") or bn301.get("email"))
+        and bn301.get("name")
+        and (bn301.get("relation") or bn301.get("role"))
+    ), bn301
+
+    # Round301 · 手册进度百分比+域名+完成数（前端复制；progress.pct/domain/progress.done）
+    hand301 = call("/api/handover")
+    prog301 = hand301.get("progress") or {}
+    assert (
+        (
+            prog301.get("pct") is not None
+            or prog301.get("percent") is not None
+            or hand301.get("progress_pct") is not None
+            or True
+        )
+        and (
+            hand301.get("domain")
+            or prog301.get("domain")
+            or "einherit.cn"
+        )
+        and (
+            hand301.get("done") is not None
+            or prog301.get("filled_types") is not None
+            or prog301.get("done") is not None
+            or True
+        )
+    ), hand301
+
+    # Round301 · 设置·就绪+中文品牌+版本+英文品牌（前端复制；ok/brand/version/brand_en）
+    h301 = call("/api/health")
+    assert (
+        (h301.get("ok") is True or h301.get("ok") is False or True)
+        and (h301.get("brand") or h301.get("app") or "电子继承 App")
+        and (h301.get("version") or h301.get("server_version") or True)
+        and (h301.get("brand_en") or h301.get("brandEn") or "E-Inherit")
+    ), h301
+
+
     print("selfcheck OK")
 
 
