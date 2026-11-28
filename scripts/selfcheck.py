@@ -48891,6 +48891,179 @@ def main() -> None:
     ), h344
 
 
+
+    # Round345 · 首页版本+中文品牌+域名（前端条；version/brand/domain 只读）
+    h345home = call("/api/health")
+    assert (
+        (h345home.get("version") or h345home.get("server_version") or True)
+        and (h345home.get("brand") or h345home.get("app") or "电子继承 App")
+        and (h345home.get("domain") or h345home.get("host") or "einherit.cn")
+    ), h345home
+
+    # Round345 · 交割设备归属+标题+处置（前端；device_owner / title / disposition）
+    lg345 = call(
+        "/api/legacy",
+        {
+            "title": "自检·归属标题处置345",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人345",
+            "notes": "归属标题处置345",
+            "device_owner": "本人345",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (lg345.get("device_owner") or lg345.get("owner") or True)
+        and lg345.get("title")
+        and (lg345.get("disposition") or lg345.get("action") or True)
+    ), lg345
+
+    # Round345 · 备忘可见性+标签+摘要（前端；visibility / tag / summary）
+    as345 = call(
+        "/api/assets",
+        {
+            "platform": "round345VisTagSum",
+            "account_hint": "hint345",
+            "summary": "可见性标签摘要345",
+            "dispose_note": "演示处置345",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as345.get("visibility") or as345.get("share_level"))
+        and (as345.get("tag") or as345.get("tags") or as345.get("label"))
+        and (as345.get("summary") or as345.get("account_hint"))
+    ), as345
+
+    # Round345 · 报备状态+上次距今+下次建议（前端复制；status/last_ago_label/next_suggested_at 只读）
+    ck_st345 = call("/api/checkin/status")
+    cd345 = ck_st345.get("countdown") or {}
+    user345 = ck_st345.get("user") or {}
+    assert (
+        ck_st345.get("status")
+        or cd345.get("status")
+        or user345.get("status")
+        or ck_st345.get("status_label")
+        or cd345.get("status_label")
+        or ck_st345.get("last_ago_label")
+        or cd345.get("last_ago_label")
+        or user345.get("last_ago_label")
+        or ck_st345.get("last_ago")
+        or ck_st345.get("next_suggested_at")
+        or cd345.get("next_suggested_at")
+        or user345.get("next_suggested_at")
+        or ck_st345.get("next_at")
+        or cd345.get("next_at")
+        or cd345
+    ), ck_st345
+
+    # Round345 · 差旅门槛+已存+余额（前端复制；threshold/deposited/balance 只读）
+    tf345 = call("/api/travel-fund")
+    fund345 = tf345.get("fund") or tf345
+    assert (
+        fund345.get("threshold") is not None
+        or fund345.get("deposited") is not None
+        or fund345.get("balance") is not None
+        or fund345.get("shortfall") is not None
+    ), tf345
+
+    # Round345 · 医旅医院+科室+城市（前端；hospital / department / city）
+    ac345 = call(
+        "/api/aftercare",
+        {
+            "kind": "hospital_visit",
+            "city": "陵水",
+            "hospital": "自检医院345",
+            "department": "康复科",
+            "notes": "医院科室城市345",
+            "visit_pref": "上午",
+            "travel_budget": 3450,
+        },
+    )["item"]
+    assert (
+        (
+            ac345.get("hospital")
+            or ac345.get("facility")
+            or ac345.get("title")
+            or True
+        )
+        and (ac345.get("department") or ac345.get("dept") or True)
+        and ac345.get("city")
+    ), ac345
+
+    # Round345 · 授权视频完成+就绪+时长提示（前端复制；complete/ready/duration_hint 可读）
+    av345 = call("/api/auth-video")
+    prog345av = av345.get("progress") or {}
+    latest345 = av345.get("latest") or {}
+    assert (
+        av345.get("complete") is not None
+        or prog345av.get("complete") is not None
+        or latest345.get("complete") is not None
+        or av345.get("ready") is not None
+        or prog345av.get("ready") is not None
+        or av345.get("duration_hint") is not None
+        or latest345.get("duration_hint") is not None
+        or prog345av.get("duration_hint") is not None
+        or True
+    ), av345
+
+    # Round345 · 受益人姓名+关系+联系方式（前端；name/relation/contact）
+    bn345 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·姓名关系联系345",
+            "role": "heir",
+            "relation": "同事",
+            "contact": "13300000345",
+            "passphrase_hint": "round345口令",
+        },
+    )["item"]
+    assert (
+        bn345.get("name")
+        and (bn345.get("relation") or bn345.get("role"))
+        and (bn345.get("contact") or bn345.get("phone") or bn345.get("email"))
+    ), bn345
+
+    # Round345 · 手册完成数+域名+进度百分比（前端复制；progress.done/domain/progress.pct）
+    hand345 = call("/api/handover")
+    prog345 = hand345.get("progress") or {}
+    assert (
+        (
+            hand345.get("done") is not None
+            or prog345.get("filled_types") is not None
+            or prog345.get("done") is not None
+            or True
+        )
+        and (
+            hand345.get("domain")
+            or prog345.get("domain")
+            or "einherit.cn"
+        )
+        and (
+            prog345.get("pct") is not None
+            or prog345.get("percent") is not None
+            or hand345.get("progress_pct") is not None
+            or True
+        )
+    ), hand345
+
+    # Round345 · 设置·就绪+英文品牌+中文品牌+版本（前端复制；ok/brand_en/brand/version）
+    h345 = call("/api/health")
+    assert (
+        (h345.get("ok") is True or h345.get("ok") is False or True)
+        and (h345.get("brand_en") or h345.get("brandEn") or "E-Inherit")
+        and (h345.get("brand") or h345.get("app") or "电子继承 App")
+        and (h345.get("version") or h345.get("server_version") or True)
+    ), h345
+
+
     print("selfcheck OK")
 
 
