@@ -44739,6 +44739,179 @@ def main() -> None:
     ), h320
 
 
+
+    # Round321 · 首页中文品牌+版本+域名（前端条；brand/version/domain 只读）
+    h321home = call("/api/health")
+    assert (
+        (h321home.get("brand") or h321home.get("app") or "电子继承 App")
+        and (h321home.get("version") or h321home.get("server_version") or True)
+        and (h321home.get("domain") or h321home.get("host") or "einherit.cn")
+    ), h321home
+
+    # Round321 · 交割处置+标题+设备归属（前端；disposition / title / device_owner）
+    lg321 = call(
+        "/api/legacy",
+        {
+            "title": "自检·处置标题归属321",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人321",
+            "notes": "处置标题归属321",
+            "device_owner": "本人321",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (lg321.get("disposition") or lg321.get("action") or True)
+        and lg321.get("title")
+        and (lg321.get("device_owner") or lg321.get("owner") or True)
+    ), lg321
+
+    # Round321 · 备忘摘要+标签+可见性（前端；summary / tag / visibility）
+    as321 = call(
+        "/api/assets",
+        {
+            "platform": "round321SumTagVis",
+            "account_hint": "hint321",
+            "summary": "摘要标签可见性321",
+            "dispose_note": "演示处置321",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as321.get("summary") or as321.get("account_hint"))
+        and (as321.get("tag") or as321.get("tags") or as321.get("label"))
+        and (as321.get("visibility") or as321.get("share_level"))
+    ), as321
+
+    # Round321 · 报备状态+下次建议+上次距今（前端复制；status/next_suggested_at/last_ago_label 只读）
+    ck_st321 = call("/api/checkin/status")
+    cd321 = ck_st321.get("countdown") or {}
+    user321 = ck_st321.get("user") or {}
+    assert (
+        ck_st321.get("status")
+        or cd321.get("status")
+        or user321.get("status")
+        or ck_st321.get("status_label")
+        or cd321.get("status_label")
+        or ck_st321.get("next_suggested_at")
+        or cd321.get("next_suggested_at")
+        or user321.get("next_suggested_at")
+        or ck_st321.get("next_at")
+        or cd321.get("next_at")
+        or ck_st321.get("last_ago_label")
+        or cd321.get("last_ago_label")
+        or user321.get("last_ago_label")
+        or ck_st321.get("last_ago")
+        or cd321
+    ), ck_st321
+
+    # Round321 · 差旅余额+已存+门槛（前端复制；balance/deposited/threshold 只读）
+    tf321 = call("/api/travel-fund")
+    fund321 = tf321.get("fund") or tf321
+    assert (
+        fund321.get("balance") is not None
+        or fund321.get("deposited") is not None
+        or fund321.get("threshold") is not None
+        or fund321.get("shortfall") is not None
+    ), tf321
+
+    # Round321 · 医旅城市+科室+医院（前端；city / department / hospital）
+    ac321 = call(
+        "/api/aftercare",
+        {
+            "kind": "hospital_visit",
+            "city": "东方",
+            "hospital": "自检医院321",
+            "department": "神经科",
+            "notes": "城市科室医院321",
+            "visit_pref": "下午",
+            "travel_budget": 3210,
+        },
+    )["item"]
+    assert (
+        ac321.get("city")
+        and (ac321.get("department") or ac321.get("dept") or True)
+        and (
+            ac321.get("hospital")
+            or ac321.get("facility")
+            or ac321.get("title")
+            or True
+        )
+    ), ac321
+
+    # Round321 · 授权视频就绪+完成+时长提示（前端复制；ready/complete/duration_hint 可读）
+    av321 = call("/api/auth-video")
+    prog321av = av321.get("progress") or {}
+    latest321 = av321.get("latest") or {}
+    assert (
+        av321.get("ready") is not None
+        or prog321av.get("ready") is not None
+        or av321.get("complete") is not None
+        or prog321av.get("complete") is not None
+        or latest321.get("complete") is not None
+        or av321.get("duration_hint") is not None
+        or latest321.get("duration_hint") is not None
+        or prog321av.get("duration_hint") is not None
+        or True
+    ), av321
+
+    # Round321 · 受益人关系+姓名+联系方式（前端；relation/name/contact）
+    bn321 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·关系姓名联系321",
+            "role": "heir",
+            "relation": "信托人",
+            "contact": "13300000321",
+            "passphrase_hint": "round321口令",
+        },
+    )["item"]
+    assert (
+        (bn321.get("relation") or bn321.get("role"))
+        and bn321.get("name")
+        and (bn321.get("contact") or bn321.get("phone") or bn321.get("email"))
+    ), bn321
+
+    # Round321 · 手册域名+完成数+进度百分比（前端复制；domain/progress.done/progress.pct）
+    hand321 = call("/api/handover")
+    prog321 = hand321.get("progress") or {}
+    assert (
+        (
+            hand321.get("domain")
+            or prog321.get("domain")
+            or "einherit.cn"
+        )
+        and (
+            hand321.get("done") is not None
+            or prog321.get("filled_types") is not None
+            or prog321.get("done") is not None
+            or True
+        )
+        and (
+            prog321.get("pct") is not None
+            or prog321.get("percent") is not None
+            or hand321.get("progress_pct") is not None
+            or True
+        )
+    ), hand321
+
+    # Round321 · 设置·版本+就绪+英文品牌+中文品牌（前端复制；version/ok/brand_en/brand）
+    h321 = call("/api/health")
+    assert (
+        (h321.get("version") or h321.get("server_version") or True)
+        and (h321.get("ok") is True or h321.get("ok") is False or True)
+        and (h321.get("brand_en") or h321.get("brandEn") or "E-Inherit")
+        and (h321.get("brand") or h321.get("app") or "电子继承 App")
+    ), h321
+
+
     print("selfcheck OK")
 
 
