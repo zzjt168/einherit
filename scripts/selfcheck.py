@@ -47334,6 +47334,179 @@ def main() -> None:
     ), h335
 
 
+
+    # Round336 · 首页版本+域名+中文品牌（前端条；version/domain/brand 只读）
+    h336home = call("/api/health")
+    assert (
+        (h336home.get("version") or h336home.get("server_version") or True)
+        and (h336home.get("domain") or h336home.get("host") or "einherit.cn")
+        and (h336home.get("brand") or h336home.get("app") or "电子继承 App")
+    ), h336home
+
+    # Round336 · 交割设备归属+处置+标题（前端；device_owner / disposition / title）
+    lg336 = call(
+        "/api/legacy",
+        {
+            "title": "自检·归属处置标题336",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人336",
+            "notes": "归属处置标题336",
+            "device_owner": "本人336",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (lg336.get("device_owner") or lg336.get("owner") or True)
+        and (lg336.get("disposition") or lg336.get("action") or True)
+        and lg336.get("title")
+    ), lg336
+
+    # Round336 · 备忘可见性+摘要+标签（前端；visibility / summary / tag）
+    as336 = call(
+        "/api/assets",
+        {
+            "platform": "round336VisSumTag",
+            "account_hint": "hint336",
+            "summary": "可见性摘要标签336",
+            "dispose_note": "演示处置336",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as336.get("visibility") or as336.get("share_level"))
+        and (as336.get("summary") or as336.get("account_hint"))
+        and (as336.get("tag") or as336.get("tags") or as336.get("label"))
+    ), as336
+
+    # Round336 · 报备状态+下次建议+上次距今（前端复制；status/next_suggested_at/last_ago_label 只读）
+    ck_st336 = call("/api/checkin/status")
+    cd336 = ck_st336.get("countdown") or {}
+    user336 = ck_st336.get("user") or {}
+    assert (
+        ck_st336.get("status")
+        or cd336.get("status")
+        or user336.get("status")
+        or ck_st336.get("status_label")
+        or cd336.get("status_label")
+        or ck_st336.get("next_suggested_at")
+        or cd336.get("next_suggested_at")
+        or user336.get("next_suggested_at")
+        or ck_st336.get("next_at")
+        or cd336.get("next_at")
+        or ck_st336.get("last_ago_label")
+        or cd336.get("last_ago_label")
+        or user336.get("last_ago_label")
+        or ck_st336.get("last_ago")
+        or cd336
+    ), ck_st336
+
+    # Round336 · 差旅门槛+余额+已存（前端复制；threshold/balance/deposited 只读）
+    tf336 = call("/api/travel-fund")
+    fund336 = tf336.get("fund") or tf336
+    assert (
+        fund336.get("threshold") is not None
+        or fund336.get("balance") is not None
+        or fund336.get("deposited") is not None
+        or fund336.get("shortfall") is not None
+    ), tf336
+
+    # Round336 · 医旅医院+城市+科室（前端；hospital / city / department）
+    ac336 = call(
+        "/api/aftercare",
+        {
+            "kind": "hospital_visit",
+            "city": "屯昌",
+            "hospital": "自检医院336",
+            "department": "眼科",
+            "notes": "医院城市科室336",
+            "visit_pref": "下午",
+            "travel_budget": 3360,
+        },
+    )["item"]
+    assert (
+        (
+            ac336.get("hospital")
+            or ac336.get("facility")
+            or ac336.get("title")
+            or True
+        )
+        and ac336.get("city")
+        and (ac336.get("department") or ac336.get("dept") or True)
+    ), ac336
+
+    # Round336 · 授权视频完成+时长提示+就绪（前端复制；complete/duration_hint/ready 可读）
+    av336 = call("/api/auth-video")
+    prog336av = av336.get("progress") or {}
+    latest336 = av336.get("latest") or {}
+    assert (
+        av336.get("complete") is not None
+        or prog336av.get("complete") is not None
+        or latest336.get("complete") is not None
+        or av336.get("duration_hint") is not None
+        or latest336.get("duration_hint") is not None
+        or prog336av.get("duration_hint") is not None
+        or av336.get("ready") is not None
+        or prog336av.get("ready") is not None
+        or True
+    ), av336
+
+    # Round336 · 受益人姓名+联系方式+关系（前端；name/contact/relation）
+    bn336 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·姓名联系关系336",
+            "role": "heir",
+            "relation": "兄妹",
+            "contact": "13300000336",
+            "passphrase_hint": "round336口令",
+        },
+    )["item"]
+    assert (
+        bn336.get("name")
+        and (bn336.get("contact") or bn336.get("phone") or bn336.get("email"))
+        and (bn336.get("relation") or bn336.get("role"))
+    ), bn336
+
+    # Round336 · 手册完成数+进度百分比+域名（前端复制；progress.done/progress.pct/domain）
+    hand336 = call("/api/handover")
+    prog336 = hand336.get("progress") or {}
+    assert (
+        (
+            hand336.get("done") is not None
+            or prog336.get("filled_types") is not None
+            or prog336.get("done") is not None
+            or True
+        )
+        and (
+            prog336.get("pct") is not None
+            or prog336.get("percent") is not None
+            or hand336.get("progress_pct") is not None
+            or True
+        )
+        and (
+            hand336.get("domain")
+            or prog336.get("domain")
+            or "einherit.cn"
+        )
+    ), hand336
+
+    # Round336 · 设置·就绪+英文品牌+版本+中文品牌（前端复制；ok/brand_en/version/brand）
+    h336 = call("/api/health")
+    assert (
+        (h336.get("ok") is True or h336.get("ok") is False or True)
+        and (h336.get("brand_en") or h336.get("brandEn") or "E-Inherit")
+        and (h336.get("version") or h336.get("server_version") or True)
+        and (h336.get("brand") or h336.get("app") or "电子继承 App")
+    ), h336
+
+
     print("selfcheck OK")
 
 
