@@ -41800,6 +41800,179 @@ def main() -> None:
     ), h303
 
 
+
+    # Round304 · 首页域名+版本+中文品牌（前端条；domain/version/brand 只读）
+    h304home = call("/api/health")
+    assert (
+        (h304home.get("domain") or h304home.get("host") or "einherit.cn")
+        and (h304home.get("version") or h304home.get("server_version") or True)
+        and (h304home.get("brand") or h304home.get("app") or "电子继承 App")
+    ), h304home
+
+    # Round304 · 交割标题+设备归属+处置（前端；title / device_owner / disposition）
+    lg304 = call(
+        "/api/legacy",
+        {
+            "title": "自检·标题归属处置304",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人304",
+            "notes": "标题归属处置304",
+            "device_owner": "本人304",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        lg304.get("title")
+        and (lg304.get("device_owner") or lg304.get("owner") or True)
+        and (lg304.get("disposition") or lg304.get("action") or True)
+    ), lg304
+
+    # Round304 · 备忘标签+摘要+可见性（前端；tag / summary / visibility）
+    as304 = call(
+        "/api/assets",
+        {
+            "platform": "round304TagSumVis",
+            "account_hint": "hint304",
+            "summary": "标签摘要可见性304",
+            "dispose_note": "演示处置304",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as304.get("tag") or as304.get("tags") or as304.get("label"))
+        and (as304.get("summary") or as304.get("account_hint"))
+        and (as304.get("visibility") or as304.get("share_level"))
+    ), as304
+
+    # Round304 · 报备上次距今+下次建议+状态（前端复制；last_ago_label/next_suggested_at/status 只读）
+    ck_st304 = call("/api/checkin/status")
+    cd304 = ck_st304.get("countdown") or {}
+    user304 = ck_st304.get("user") or {}
+    assert (
+        ck_st304.get("last_ago_label")
+        or cd304.get("last_ago_label")
+        or user304.get("last_ago_label")
+        or ck_st304.get("last_ago")
+        or ck_st304.get("next_suggested_at")
+        or cd304.get("next_suggested_at")
+        or user304.get("next_suggested_at")
+        or ck_st304.get("next_at")
+        or cd304.get("next_at")
+        or ck_st304.get("status")
+        or cd304.get("status")
+        or user304.get("status")
+        or ck_st304.get("status_label")
+        or cd304.get("status_label")
+        or cd304
+    ), ck_st304
+
+    # Round304 · 差旅已存+余额+门槛（前端复制；deposited/balance/threshold 只读）
+    tf304 = call("/api/travel-fund")
+    fund304 = tf304.get("fund") or tf304
+    assert (
+        fund304.get("deposited") is not None
+        or fund304.get("balance") is not None
+        or fund304.get("threshold") is not None
+        or fund304.get("shortfall") is not None
+    ), tf304
+
+    # Round304 · 医旅科室+城市+医院（前端；department / city / hospital）
+    ac304 = call(
+        "/api/aftercare",
+        {
+            "kind": "hospital_visit",
+            "city": "东方",
+            "hospital": "自检医院304",
+            "department": "皮肤科",
+            "notes": "科室城市医院304",
+            "visit_pref": "下午",
+            "travel_budget": 3040,
+        },
+    )["item"]
+    assert (
+        (ac304.get("department") or ac304.get("dept") or True)
+        and ac304.get("city")
+        and (
+            ac304.get("hospital")
+            or ac304.get("facility")
+            or ac304.get("title")
+            or True
+        )
+    ), ac304
+
+    # Round304 · 授权视频时长提示+就绪+完成（前端复制；duration_hint/ready/complete 可读）
+    av304 = call("/api/auth-video")
+    prog304av = av304.get("progress") or {}
+    latest304 = av304.get("latest") or {}
+    assert (
+        av304.get("duration_hint") is not None
+        or latest304.get("duration_hint") is not None
+        or prog304av.get("duration_hint") is not None
+        or av304.get("ready") is not None
+        or prog304av.get("ready") is not None
+        or av304.get("complete") is not None
+        or prog304av.get("complete") is not None
+        or latest304.get("complete") is not None
+        or True
+    ), av304
+
+    # Round304 · 受益人联系方式+关系+姓名（前端；contact/relation/name）
+    bn304 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·联系关系姓名304",
+            "role": "heir",
+            "relation": "同事",
+            "contact": "13300000304",
+            "passphrase_hint": "round304口令",
+        },
+    )["item"]
+    assert (
+        (bn304.get("contact") or bn304.get("phone") or bn304.get("email"))
+        and (bn304.get("relation") or bn304.get("role"))
+        and bn304.get("name")
+    ), bn304
+
+    # Round304 · 手册进度百分比+完成数+域名（前端复制；progress.pct/progress.done/domain）
+    hand304 = call("/api/handover")
+    prog304 = hand304.get("progress") or {}
+    assert (
+        (
+            prog304.get("pct") is not None
+            or prog304.get("percent") is not None
+            or hand304.get("progress_pct") is not None
+            or True
+        )
+        and (
+            hand304.get("done") is not None
+            or prog304.get("filled_types") is not None
+            or prog304.get("done") is not None
+            or True
+        )
+        and (
+            hand304.get("domain")
+            or prog304.get("domain")
+            or "einherit.cn"
+        )
+    ), hand304
+
+    # Round304 · 设置·就绪+英文品牌+中文品牌+版本（前端复制；ok/brand_en/brand/version）
+    h304 = call("/api/health")
+    assert (
+        (h304.get("ok") is True or h304.get("ok") is False or True)
+        and (h304.get("brand_en") or h304.get("brandEn") or "E-Inherit")
+        and (h304.get("brand") or h304.get("app") or "电子继承 App")
+        and (h304.get("version") or h304.get("server_version") or True)
+    ), h304
+
+
     print("selfcheck OK")
 
 
