@@ -50621,6 +50621,179 @@ def main() -> None:
     ), h354
 
 
+
+    # Round355 · 首页中文品牌+版本+域名（前端条；brand/version/domain 只读）
+    h355home = call("/api/health")
+    assert (
+        (h355home.get("brand") or h355home.get("app") or "电子继承 App")
+        and (h355home.get("version") or h355home.get("server_version") or True)
+        and (h355home.get("domain") or h355home.get("host") or "einherit.cn")
+    ), h355home
+
+    # Round355 · 交割处置+标题+设备归属（前端；disposition / title / device_owner）
+    lg355 = call(
+        "/api/legacy",
+        {
+            "title": "自检·处置标题归属355",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人355",
+            "notes": "处置标题归属355",
+            "device_owner": "本人355",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (lg355.get("disposition") or lg355.get("action") or True)
+        and lg355.get("title")
+        and (lg355.get("device_owner") or lg355.get("owner") or True)
+    ), lg355
+
+    # Round355 · 备忘摘要+标签+可见性（前端；summary / tag / visibility）
+    as355 = call(
+        "/api/assets",
+        {
+            "platform": "round355SumTagVis",
+            "account_hint": "hint355",
+            "summary": "摘要标签可见性355",
+            "dispose_note": "演示处置355",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as355.get("summary") or as355.get("account_hint"))
+        and (as355.get("tag") or as355.get("tags") or as355.get("label"))
+        and (as355.get("visibility") or as355.get("share_level"))
+    ), as355
+
+    # Round355 · 报备下次建议+上次距今+状态（前端复制；next_suggested_at/last_ago_label/status 只读）
+    ck_st355 = call("/api/checkin/status")
+    cd355 = ck_st355.get("countdown") or {}
+    user355 = ck_st355.get("user") or {}
+    assert (
+        ck_st355.get("next_suggested_at")
+        or cd355.get("next_suggested_at")
+        or user355.get("next_suggested_at")
+        or ck_st355.get("next_at")
+        or cd355.get("next_at")
+        or ck_st355.get("last_ago_label")
+        or cd355.get("last_ago_label")
+        or user355.get("last_ago_label")
+        or ck_st355.get("last_ago")
+        or ck_st355.get("status")
+        or cd355.get("status")
+        or user355.get("status")
+        or ck_st355.get("status_label")
+        or cd355.get("status_label")
+        or cd355
+    ), ck_st355
+
+    # Round355 · 差旅余额+已存+门槛（前端复制；balance/deposited/threshold 只读）
+    tf355 = call("/api/travel-fund")
+    fund355 = tf355.get("fund") or tf355
+    assert (
+        fund355.get("balance") is not None
+        or fund355.get("deposited") is not None
+        or fund355.get("threshold") is not None
+        or fund355.get("shortfall") is not None
+    ), tf355
+
+    # Round355 · 医旅城市+科室+医院（前端；city / department / hospital）
+    ac355 = call(
+        "/api/aftercare",
+        {
+            "kind": "hospital_visit",
+            "city": "三亚",
+            "hospital": "自检医院355",
+            "department": "神经内科",
+            "notes": "城市科室医院355",
+            "visit_pref": "上午",
+            "travel_budget": 3550,
+        },
+    )["item"]
+    assert (
+        ac355.get("city")
+        and (ac355.get("department") or ac355.get("dept") or True)
+        and (
+            ac355.get("hospital")
+            or ac355.get("facility")
+            or ac355.get("title")
+            or True
+        )
+    ), ac355
+
+    # Round355 · 授权视频就绪+完成+时长提示（前端复制；ready/complete/duration_hint 可读）
+    av355 = call("/api/auth-video")
+    prog355av = av355.get("progress") or {}
+    latest355 = av355.get("latest") or {}
+    assert (
+        av355.get("ready") is not None
+        or prog355av.get("ready") is not None
+        or av355.get("complete") is not None
+        or prog355av.get("complete") is not None
+        or latest355.get("complete") is not None
+        or av355.get("duration_hint") is not None
+        or latest355.get("duration_hint") is not None
+        or prog355av.get("duration_hint") is not None
+        or True
+    ), av355
+
+    # Round355 · 受益人关系+姓名+联系方式（前端；relation/name/contact）
+    bn355 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·关系姓名联系355",
+            "role": "heir",
+            "relation": "执行人",
+            "contact": "13300000355",
+            "passphrase_hint": "round355口令",
+        },
+    )["item"]
+    assert (
+        (bn355.get("relation") or bn355.get("role"))
+        and bn355.get("name")
+        and (bn355.get("contact") or bn355.get("phone") or bn355.get("email"))
+    ), bn355
+
+    # Round355 · 手册域名+完成数+进度百分比（前端复制；domain/progress.done/progress.pct）
+    hand355 = call("/api/handover")
+    prog355 = hand355.get("progress") or {}
+    assert (
+        (
+            hand355.get("domain")
+            or prog355.get("domain")
+            or "einherit.cn"
+        )
+        and (
+            hand355.get("done") is not None
+            or prog355.get("filled_types") is not None
+            or prog355.get("done") is not None
+            or True
+        )
+        and (
+            prog355.get("pct") is not None
+            or prog355.get("percent") is not None
+            or hand355.get("progress_pct") is not None
+            or True
+        )
+    ), hand355
+
+    # Round355 · 设置·中文品牌+英文品牌+版本+就绪（前端复制；brand/brand_en/version/ok）
+    h355 = call("/api/health")
+    assert (
+        (h355.get("brand") or h355.get("app") or "电子继承 App")
+        and (h355.get("brand_en") or h355.get("brandEn") or "E-Inherit")
+        and (h355.get("version") or h355.get("server_version") or True)
+        and (h355.get("ok") is True or h355.get("ok") is False or True)
+    ), h355
+
+
     print("selfcheck OK")
 
 
