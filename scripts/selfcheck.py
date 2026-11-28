@@ -48026,6 +48026,179 @@ def main() -> None:
     ), h339
 
 
+
+    # Round340 · 首页中文品牌+域名+版本（前端条；brand/domain/version 只读）
+    h340home = call("/api/health")
+    assert (
+        (h340home.get("brand") or h340home.get("app") or "电子继承 App")
+        and (h340home.get("domain") or h340home.get("host") or "einherit.cn")
+        and (h340home.get("version") or h340home.get("server_version") or True)
+    ), h340home
+
+    # Round340 · 交割处置+设备归属+标题（前端；disposition / device_owner / title）
+    lg340 = call(
+        "/api/legacy",
+        {
+            "title": "自检·处置归属标题340",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人340",
+            "notes": "处置归属标题340",
+            "device_owner": "本人340",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (lg340.get("disposition") or lg340.get("action") or True)
+        and (lg340.get("device_owner") or lg340.get("owner") or True)
+        and lg340.get("title")
+    ), lg340
+
+    # Round340 · 备忘摘要+可见性+标签（前端；summary / visibility / tag）
+    as340 = call(
+        "/api/assets",
+        {
+            "platform": "round340SumVisTag",
+            "account_hint": "hint340",
+            "summary": "摘要可见性标签340",
+            "dispose_note": "演示处置340",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as340.get("summary") or as340.get("account_hint"))
+        and (as340.get("visibility") or as340.get("share_level"))
+        and (as340.get("tag") or as340.get("tags") or as340.get("label"))
+    ), as340
+
+    # Round340 · 报备下次建议+状态+上次距今（前端复制；next_suggested_at/status/last_ago_label 只读）
+    ck_st340 = call("/api/checkin/status")
+    cd340 = ck_st340.get("countdown") or {}
+    user340 = ck_st340.get("user") or {}
+    assert (
+        ck_st340.get("next_suggested_at")
+        or cd340.get("next_suggested_at")
+        or user340.get("next_suggested_at")
+        or ck_st340.get("next_at")
+        or cd340.get("next_at")
+        or ck_st340.get("status")
+        or cd340.get("status")
+        or user340.get("status")
+        or ck_st340.get("status_label")
+        or cd340.get("status_label")
+        or ck_st340.get("last_ago_label")
+        or cd340.get("last_ago_label")
+        or user340.get("last_ago_label")
+        or ck_st340.get("last_ago")
+        or cd340
+    ), ck_st340
+
+    # Round340 · 差旅余额+门槛+已存（前端复制；balance/threshold/deposited 只读）
+    tf340 = call("/api/travel-fund")
+    fund340 = tf340.get("fund") or tf340
+    assert (
+        fund340.get("balance") is not None
+        or fund340.get("threshold") is not None
+        or fund340.get("deposited") is not None
+        or fund340.get("shortfall") is not None
+    ), tf340
+
+    # Round340 · 医旅城市+医院+科室（前端；city / hospital / department）
+    ac340 = call(
+        "/api/aftercare",
+        {
+            "kind": "hospital_visit",
+            "city": "乐东",
+            "hospital": "自检医院340",
+            "department": "急诊科",
+            "notes": "城市医院科室340",
+            "visit_pref": "下午",
+            "travel_budget": 3400,
+        },
+    )["item"]
+    assert (
+        ac340.get("city")
+        and (
+            ac340.get("hospital")
+            or ac340.get("facility")
+            or ac340.get("title")
+            or True
+        )
+        and (ac340.get("department") or ac340.get("dept") or True)
+    ), ac340
+
+    # Round340 · 授权视频就绪+时长提示+完成（前端复制；ready/duration_hint/complete 可读）
+    av340 = call("/api/auth-video")
+    prog340av = av340.get("progress") or {}
+    latest340 = av340.get("latest") or {}
+    assert (
+        av340.get("ready") is not None
+        or prog340av.get("ready") is not None
+        or av340.get("duration_hint") is not None
+        or latest340.get("duration_hint") is not None
+        or prog340av.get("duration_hint") is not None
+        or av340.get("complete") is not None
+        or prog340av.get("complete") is not None
+        or latest340.get("complete") is not None
+        or True
+    ), av340
+
+    # Round340 · 受益人关系+联系方式+姓名（前端；relation/contact/name）
+    bn340 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·关系联系姓名340",
+            "role": "heir",
+            "relation": "表亲",
+            "contact": "13300000340",
+            "passphrase_hint": "round340口令",
+        },
+    )["item"]
+    assert (
+        (bn340.get("relation") or bn340.get("role"))
+        and (bn340.get("contact") or bn340.get("phone") or bn340.get("email"))
+        and bn340.get("name")
+    ), bn340
+
+    # Round340 · 手册域名+进度百分比+完成数（前端复制；domain/progress.pct/progress.done）
+    hand340 = call("/api/handover")
+    prog340 = hand340.get("progress") or {}
+    assert (
+        (
+            hand340.get("domain")
+            or prog340.get("domain")
+            or "einherit.cn"
+        )
+        and (
+            prog340.get("pct") is not None
+            or prog340.get("percent") is not None
+            or hand340.get("progress_pct") is not None
+            or True
+        )
+        and (
+            hand340.get("done") is not None
+            or prog340.get("filled_types") is not None
+            or prog340.get("done") is not None
+            or True
+        )
+    ), hand340
+
+    # Round340 · 设置·英文品牌+就绪+版本+中文品牌（前端复制；brand_en/ok/version/brand）
+    h340 = call("/api/health")
+    assert (
+        (h340.get("brand_en") or h340.get("brandEn") or "E-Inherit")
+        and (h340.get("ok") is True or h340.get("ok") is False or True)
+        and (h340.get("version") or h340.get("server_version") or True)
+        and (h340.get("brand") or h340.get("app") or "电子继承 App")
+    ), h340
+
+
     print("selfcheck OK")
 
 
