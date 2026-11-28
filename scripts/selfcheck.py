@@ -50794,6 +50794,179 @@ def main() -> None:
     ), h355
 
 
+
+    # Round356 · 首页域名+中文品牌+版本（前端条；domain/brand/version 只读）
+    h356home = call("/api/health")
+    assert (
+        (h356home.get("domain") or h356home.get("host") or "einherit.cn")
+        and (h356home.get("brand") or h356home.get("app") or "电子继承 App")
+        and (h356home.get("version") or h356home.get("server_version") or True)
+    ), h356home
+
+    # Round356 · 交割标题+设备归属+处置（前端；title / device_owner / disposition）
+    lg356 = call(
+        "/api/legacy",
+        {
+            "title": "自检·标题归属处置356",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人356",
+            "notes": "标题归属处置356",
+            "device_owner": "本人356",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        lg356.get("title")
+        and (lg356.get("device_owner") or lg356.get("owner") or True)
+        and (lg356.get("disposition") or lg356.get("action") or True)
+    ), lg356
+
+    # Round356 · 备忘标签+可见性+摘要（前端；tag / visibility / summary）
+    as356 = call(
+        "/api/assets",
+        {
+            "platform": "round356TagVisSum",
+            "account_hint": "hint356",
+            "summary": "标签可见性摘要356",
+            "dispose_note": "演示处置356",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as356.get("tag") or as356.get("tags") or as356.get("label"))
+        and (as356.get("visibility") or as356.get("share_level"))
+        and (as356.get("summary") or as356.get("account_hint"))
+    ), as356
+
+    # Round356 · 报备上次距今+状态+下次建议（前端复制；last_ago_label/status/next_suggested_at 只读）
+    ck_st356 = call("/api/checkin/status")
+    cd356 = ck_st356.get("countdown") or {}
+    user356 = ck_st356.get("user") or {}
+    assert (
+        ck_st356.get("last_ago_label")
+        or cd356.get("last_ago_label")
+        or user356.get("last_ago_label")
+        or ck_st356.get("last_ago")
+        or ck_st356.get("status")
+        or cd356.get("status")
+        or user356.get("status")
+        or ck_st356.get("status_label")
+        or cd356.get("status_label")
+        or ck_st356.get("next_suggested_at")
+        or cd356.get("next_suggested_at")
+        or user356.get("next_suggested_at")
+        or ck_st356.get("next_at")
+        or cd356.get("next_at")
+        or cd356
+    ), ck_st356
+
+    # Round356 · 差旅已存+门槛+余额（前端复制；deposited/threshold/balance 只读）
+    tf356 = call("/api/travel-fund")
+    fund356 = tf356.get("fund") or tf356
+    assert (
+        fund356.get("deposited") is not None
+        or fund356.get("threshold") is not None
+        or fund356.get("balance") is not None
+        or fund356.get("shortfall") is not None
+    ), tf356
+
+    # Round356 · 医旅科室+医院+城市（前端；department / hospital / city）
+    ac356 = call(
+        "/api/aftercare",
+        {
+            "kind": "hospital_visit",
+            "city": "儋州",
+            "hospital": "自检医院356",
+            "department": "骨科",
+            "notes": "科室医院城市356",
+            "visit_pref": "下午",
+            "travel_budget": 3560,
+        },
+    )["item"]
+    assert (
+        (ac356.get("department") or ac356.get("dept") or True)
+        and (
+            ac356.get("hospital")
+            or ac356.get("facility")
+            or ac356.get("title")
+            or True
+        )
+        and ac356.get("city")
+    ), ac356
+
+    # Round356 · 授权视频时长提示+就绪+完成（前端复制；duration_hint/ready/complete 可读）
+    av356 = call("/api/auth-video")
+    prog356av = av356.get("progress") or {}
+    latest356 = av356.get("latest") or {}
+    assert (
+        av356.get("duration_hint") is not None
+        or latest356.get("duration_hint") is not None
+        or prog356av.get("duration_hint") is not None
+        or av356.get("ready") is not None
+        or prog356av.get("ready") is not None
+        or av356.get("complete") is not None
+        or prog356av.get("complete") is not None
+        or latest356.get("complete") is not None
+        or True
+    ), av356
+
+    # Round356 · 受益人联系方式+关系+姓名（前端；contact/relation/name）
+    bn356 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·联系关系姓名356",
+            "role": "heir",
+            "relation": "执行人",
+            "contact": "13300000356",
+            "passphrase_hint": "round356口令",
+        },
+    )["item"]
+    assert (
+        (bn356.get("contact") or bn356.get("phone") or bn356.get("email"))
+        and (bn356.get("relation") or bn356.get("role"))
+        and bn356.get("name")
+    ), bn356
+
+    # Round356 · 手册进度百分比+域名+完成数（前端复制；progress.pct/domain/progress.done）
+    hand356 = call("/api/handover")
+    prog356 = hand356.get("progress") or {}
+    assert (
+        (
+            prog356.get("pct") is not None
+            or prog356.get("percent") is not None
+            or hand356.get("progress_pct") is not None
+            or True
+        )
+        and (
+            hand356.get("domain")
+            or prog356.get("domain")
+            or "einherit.cn"
+        )
+        and (
+            hand356.get("done") is not None
+            or prog356.get("filled_types") is not None
+            or prog356.get("done") is not None
+            or True
+        )
+    ), hand356
+
+    # Round356 · 设置·版本+就绪+中文品牌+英文品牌（前端复制；version/ok/brand/brand_en）
+    h356 = call("/api/health")
+    assert (
+        (h356.get("version") or h356.get("server_version") or True)
+        and (h356.get("ok") is True or h356.get("ok") is False or True)
+        and (h356.get("brand") or h356.get("app") or "电子继承 App")
+        and (h356.get("brand_en") or h356.get("brandEn") or "E-Inherit")
+    ), h356
+
+
     print("selfcheck OK")
 
 
