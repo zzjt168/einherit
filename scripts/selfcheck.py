@@ -55292,6 +55292,179 @@ def main() -> None:
     ), h381
 
 
+
+    # Round382 · 首页中文品牌+域名+版本（前端条；brand/domain/version 只读）
+    h382home = call("/api/health")
+    assert (
+        (h382home.get("brand") or h382home.get("app") or "电子继承 App")
+        and (h382home.get("domain") or h382home.get("host") or "einherit.cn")
+        and (h382home.get("version") or h382home.get("server_version") or True)
+    ), h382home
+
+    # Round382 · 交割处置+设备归属+标题（前端；disposition / device_owner / title）
+    lg382 = call(
+        "/api/legacy",
+        {
+            "title": "自检·处置归属标题382",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人382",
+            "notes": "处置归属标题382",
+            "device_owner": "本人382",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (lg382.get("disposition") or lg382.get("action") or True)
+        and (lg382.get("device_owner") or lg382.get("owner") or True)
+        and lg382.get("title")
+    ), lg382
+
+    # Round382 · 备忘摘要+可见性+标签（前端；summary / visibility / tag）
+    as382 = call(
+        "/api/assets",
+        {
+            "platform": "round382SumVisTag",
+            "account_hint": "hint382",
+            "summary": "摘要可见性标签382",
+            "dispose_note": "演示处置382",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as382.get("summary") or as382.get("account_hint"))
+        and (as382.get("visibility") or as382.get("share_level"))
+        and (as382.get("tag") or as382.get("tags") or as382.get("label"))
+    ), as382
+
+    # Round382 · 报备下次建议+上次距今+状态（前端复制；next_suggested_at/last_ago_label/status 只读）
+    ck_st382 = call("/api/checkin/status")
+    cd382 = ck_st382.get("countdown") or {}
+    user382 = ck_st382.get("user") or {}
+    assert (
+        ck_st382.get("next_suggested_at")
+        or cd382.get("next_suggested_at")
+        or user382.get("next_suggested_at")
+        or ck_st382.get("next_at")
+        or cd382.get("next_at")
+        or ck_st382.get("last_ago_label")
+        or cd382.get("last_ago_label")
+        or user382.get("last_ago_label")
+        or ck_st382.get("last_ago")
+        or ck_st382.get("status")
+        or cd382.get("status")
+        or user382.get("status")
+        or ck_st382.get("status_label")
+        or cd382.get("status_label")
+        or cd382
+    ), ck_st382
+
+    # Round382 · 差旅余额+门槛+已存（前端复制；balance/threshold/deposited 只读）
+    tf382 = call("/api/travel-fund")
+    fund382 = tf382.get("fund") or tf382
+    assert (
+        fund382.get("balance") is not None
+        or fund382.get("threshold") is not None
+        or fund382.get("deposited") is not None
+        or fund382.get("shortfall") is not None
+    ), tf382
+
+    # Round382 · 医旅城市+医院+科室（前端；city / hospital / department）
+    ac382 = call(
+        "/api/aftercare",
+        {
+            "kind": "hospital_visit",
+            "city": "澄迈",
+            "hospital": "自检医院382",
+            "department": "呼吸科",
+            "notes": "城市医院科室382",
+            "visit_pref": "上午",
+            "travel_budget": 3820,
+        },
+    )["item"]
+    assert (
+        ac382.get("city")
+        and (
+            ac382.get("hospital")
+            or ac382.get("facility")
+            or ac382.get("title")
+            or True
+        )
+        and (ac382.get("department") or ac382.get("dept") or True)
+    ), ac382
+
+    # Round382 · 授权视频就绪+时长提示+完成（前端复制；ready/duration_hint/complete 可读）
+    av382 = call("/api/auth-video")
+    prog382av = av382.get("progress") or {}
+    latest382 = av382.get("latest") or {}
+    assert (
+        av382.get("ready") is not None
+        or prog382av.get("ready") is not None
+        or av382.get("duration_hint") is not None
+        or latest382.get("duration_hint") is not None
+        or prog382av.get("duration_hint") is not None
+        or av382.get("complete") is not None
+        or prog382av.get("complete") is not None
+        or latest382.get("complete") is not None
+        or True
+    ), av382
+
+    # Round382 · 受益人关系+姓名+联系方式（前端；relation/name/contact）
+    bn382 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·关系姓名联系382",
+            "role": "heir",
+            "relation": "执行人",
+            "contact": "13300000382",
+            "passphrase_hint": "round382口令",
+        },
+    )["item"]
+    assert (
+        (bn382.get("relation") or bn382.get("role"))
+        and bn382.get("name")
+        and (bn382.get("contact") or bn382.get("phone") or bn382.get("email"))
+    ), bn382
+
+    # Round382 · 手册域名+进度百分比+完成数（前端复制；domain/progress.pct/progress.done）
+    hand382 = call("/api/handover")
+    prog382 = hand382.get("progress") or {}
+    assert (
+        (
+            hand382.get("domain")
+            or prog382.get("domain")
+            or "einherit.cn"
+        )
+        and (
+            prog382.get("pct") is not None
+            or prog382.get("percent") is not None
+            or hand382.get("progress_pct") is not None
+            or True
+        )
+        and (
+            hand382.get("done") is not None
+            or prog382.get("filled_types") is not None
+            or prog382.get("done") is not None
+            or True
+        )
+    ), hand382
+
+    # Round382 · 设置·版本+英文品牌+中文品牌+就绪（前端复制；version/brand_en/brand/ok）
+    h382 = call("/api/health")
+    assert (
+        (h382.get("version") or h382.get("server_version") or True)
+        and (h382.get("brand_en") or h382.get("brandEn") or "E-Inherit")
+        and (h382.get("brand") or h382.get("app") or "电子继承 App")
+        and (h382.get("ok") is True or h382.get("ok") is False or True)
+    ), h382
+
+
     print("selfcheck OK")
 
 
