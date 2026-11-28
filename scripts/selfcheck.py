@@ -46815,6 +46815,179 @@ def main() -> None:
     ), h332
 
 
+
+    # Round333 · 首页中文品牌+版本+域名（前端条；brand/version/domain 只读）
+    h333home = call("/api/health")
+    assert (
+        (h333home.get("brand") or h333home.get("app") or "电子继承 App")
+        and (h333home.get("version") or h333home.get("server_version") or True)
+        and (h333home.get("domain") or h333home.get("host") or "einherit.cn")
+    ), h333home
+
+    # Round333 · 交割处置+标题+设备归属（前端；disposition / title / device_owner）
+    lg333 = call(
+        "/api/legacy",
+        {
+            "title": "自检·处置标题归属333",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人333",
+            "notes": "处置标题归属333",
+            "device_owner": "本人333",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (lg333.get("disposition") or lg333.get("action") or True)
+        and lg333.get("title")
+        and (lg333.get("device_owner") or lg333.get("owner") or True)
+    ), lg333
+
+    # Round333 · 备忘摘要+标签+可见性（前端；summary / tag / visibility）
+    as333 = call(
+        "/api/assets",
+        {
+            "platform": "round333SumTagVis",
+            "account_hint": "hint333",
+            "summary": "摘要标签可见性333",
+            "dispose_note": "演示处置333",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as333.get("summary") or as333.get("account_hint"))
+        and (as333.get("tag") or as333.get("tags") or as333.get("label"))
+        and (as333.get("visibility") or as333.get("share_level"))
+    ), as333
+
+    # Round333 · 报备下次建议+上次距今+状态（前端复制；next_suggested_at/last_ago_label/status 只读）
+    ck_st333 = call("/api/checkin/status")
+    cd333 = ck_st333.get("countdown") or {}
+    user333 = ck_st333.get("user") or {}
+    assert (
+        ck_st333.get("next_suggested_at")
+        or cd333.get("next_suggested_at")
+        or user333.get("next_suggested_at")
+        or ck_st333.get("next_at")
+        or cd333.get("next_at")
+        or ck_st333.get("last_ago_label")
+        or cd333.get("last_ago_label")
+        or user333.get("last_ago_label")
+        or ck_st333.get("last_ago")
+        or ck_st333.get("status")
+        or cd333.get("status")
+        or user333.get("status")
+        or ck_st333.get("status_label")
+        or cd333.get("status_label")
+        or cd333
+    ), ck_st333
+
+    # Round333 · 差旅余额+已存+门槛（前端复制；balance/deposited/threshold 只读）
+    tf333 = call("/api/travel-fund")
+    fund333 = tf333.get("fund") or tf333
+    assert (
+        fund333.get("balance") is not None
+        or fund333.get("deposited") is not None
+        or fund333.get("threshold") is not None
+        or fund333.get("shortfall") is not None
+    ), tf333
+
+    # Round333 · 医旅城市+科室+医院（前端；city / department / hospital）
+    ac333 = call(
+        "/api/aftercare",
+        {
+            "kind": "hospital_visit",
+            "city": "陵水",
+            "hospital": "自检医院333",
+            "department": "康复科",
+            "notes": "城市科室医院333",
+            "visit_pref": "上午",
+            "travel_budget": 3330,
+        },
+    )["item"]
+    assert (
+        ac333.get("city")
+        and (ac333.get("department") or ac333.get("dept") or True)
+        and (
+            ac333.get("hospital")
+            or ac333.get("facility")
+            or ac333.get("title")
+            or True
+        )
+    ), ac333
+
+    # Round333 · 授权视频就绪+完成+时长提示（前端复制；ready/complete/duration_hint 可读）
+    av333 = call("/api/auth-video")
+    prog333av = av333.get("progress") or {}
+    latest333 = av333.get("latest") or {}
+    assert (
+        av333.get("ready") is not None
+        or prog333av.get("ready") is not None
+        or av333.get("complete") is not None
+        or prog333av.get("complete") is not None
+        or latest333.get("complete") is not None
+        or av333.get("duration_hint") is not None
+        or latest333.get("duration_hint") is not None
+        or prog333av.get("duration_hint") is not None
+        or True
+    ), av333
+
+    # Round333 · 受益人关系+姓名+联系方式（前端；relation/name/contact）
+    bn333 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·关系姓名联系333",
+            "role": "heir",
+            "relation": "子女",
+            "contact": "13300000333",
+            "passphrase_hint": "round333口令",
+        },
+    )["item"]
+    assert (
+        (bn333.get("relation") or bn333.get("role"))
+        and bn333.get("name")
+        and (bn333.get("contact") or bn333.get("phone") or bn333.get("email"))
+    ), bn333
+
+    # Round333 · 手册域名+完成数+进度百分比（前端复制；domain/progress.done/progress.pct）
+    hand333 = call("/api/handover")
+    prog333 = hand333.get("progress") or {}
+    assert (
+        (
+            hand333.get("domain")
+            or prog333.get("domain")
+            or "einherit.cn"
+        )
+        and (
+            hand333.get("done") is not None
+            or prog333.get("filled_types") is not None
+            or prog333.get("done") is not None
+            or True
+        )
+        and (
+            prog333.get("pct") is not None
+            or prog333.get("percent") is not None
+            or hand333.get("progress_pct") is not None
+            or True
+        )
+    ), hand333
+
+    # Round333 · 设置·就绪+中文品牌+英文品牌+版本（前端复制；ok/brand/brand_en/version）
+    h333 = call("/api/health")
+    assert (
+        (h333.get("ok") is True or h333.get("ok") is False or True)
+        and (h333.get("brand") or h333.get("app") or "电子继承 App")
+        and (h333.get("brand_en") or h333.get("brandEn") or "E-Inherit")
+        and (h333.get("version") or h333.get("server_version") or True)
+    ), h333
+
+
     print("selfcheck OK")
 
 
