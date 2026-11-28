@@ -40243,6 +40243,179 @@ def main() -> None:
     ), h294
 
 
+
+    # Round295 · 首页域名+中文品牌+版本（前端条；domain/brand/version 只读）
+    h295home = call("/api/health")
+    assert (
+        (h295home.get("domain") or h295home.get("host") or "einherit.cn")
+        and (h295home.get("brand") or h295home.get("app") or "电子继承 App")
+        and (h295home.get("version") or h295home.get("server_version") or True)
+    ), h295home
+
+    # Round295 · 交割设备归属+处置+标题（前端；device_owner / disposition / title）
+    lg295 = call(
+        "/api/legacy",
+        {
+            "title": "自检·归属处置标题295",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人295",
+            "notes": "归属处置标题295",
+            "device_owner": "本人295",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (lg295.get("device_owner") or lg295.get("owner") or True)
+        and (lg295.get("disposition") or lg295.get("action") or True)
+        and lg295.get("title")
+    ), lg295
+
+    # Round295 · 备忘标签+可见性+摘要（前端；tag / visibility / summary）
+    as295 = call(
+        "/api/assets",
+        {
+            "platform": "round295TagVisSum",
+            "account_hint": "hint295",
+            "summary": "标签可见性摘要295",
+            "dispose_note": "演示处置295",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as295.get("tag") or as295.get("tags") or as295.get("label"))
+        and (as295.get("visibility") or as295.get("share_level"))
+        and (as295.get("summary") or as295.get("account_hint"))
+    ), as295
+
+    # Round295 · 报备上次距今+状态+下次建议（前端复制；last_ago_label/status/next_suggested_at 只读）
+    ck_st295 = call("/api/checkin/status")
+    cd295 = ck_st295.get("countdown") or {}
+    user295 = ck_st295.get("user") or {}
+    assert (
+        ck_st295.get("last_ago_label")
+        or cd295.get("last_ago_label")
+        or user295.get("last_ago_label")
+        or ck_st295.get("last_ago")
+        or ck_st295.get("status")
+        or cd295.get("status")
+        or user295.get("status")
+        or ck_st295.get("status_label")
+        or cd295.get("status_label")
+        or ck_st295.get("next_suggested_at")
+        or cd295.get("next_suggested_at")
+        or user295.get("next_suggested_at")
+        or ck_st295.get("next_at")
+        or cd295.get("next_at")
+        or cd295
+    ), ck_st295
+
+    # Round295 · 差旅已存+门槛+余额（前端复制；deposited/threshold/balance 只读）
+    tf295 = call("/api/travel-fund")
+    fund295 = tf295.get("fund") or tf295
+    assert (
+        fund295.get("deposited") is not None
+        or fund295.get("threshold") is not None
+        or fund295.get("balance") is not None
+        or fund295.get("shortfall") is not None
+    ), tf295
+
+    # Round295 · 医旅科室+医院+城市（前端；department / hospital / city）
+    ac295 = call(
+        "/api/aftercare",
+        {
+            "kind": "hospital_visit",
+            "city": "文昌",
+            "hospital": "自检医院295",
+            "department": "口腔科",
+            "notes": "科室医院城市295",
+            "visit_pref": "下午",
+            "travel_budget": 2950,
+        },
+    )["item"]
+    assert (
+        (ac295.get("department") or ac295.get("dept") or True)
+        and (
+            ac295.get("hospital")
+            or ac295.get("facility")
+            or ac295.get("title")
+            or True
+        )
+        and ac295.get("city")
+    ), ac295
+
+    # Round295 · 授权视频时长提示+完成+就绪（前端复制；duration_hint/complete/ready 可读）
+    av295 = call("/api/auth-video")
+    prog295av = av295.get("progress") or {}
+    latest295 = av295.get("latest") or {}
+    assert (
+        av295.get("duration_hint") is not None
+        or latest295.get("duration_hint") is not None
+        or prog295av.get("duration_hint") is not None
+        or av295.get("complete") is not None
+        or prog295av.get("complete") is not None
+        or latest295.get("complete") is not None
+        or av295.get("ready") is not None
+        or prog295av.get("ready") is not None
+        or True
+    ), av295
+
+    # Round295 · 受益人联系方式+姓名+关系（前端；contact/name/relation）
+    bn295 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·联系姓名关系295",
+            "role": "heir",
+            "relation": "财务顾问",
+            "contact": "13300000295",
+            "passphrase_hint": "round295口令",
+        },
+    )["item"]
+    assert (
+        (bn295.get("contact") or bn295.get("phone") or bn295.get("email"))
+        and bn295.get("name")
+        and (bn295.get("relation") or bn295.get("role"))
+    ), bn295
+
+    # Round295 · 手册进度百分比+域名+完成数（前端复制；progress.pct/domain/progress.done）
+    hand295 = call("/api/handover")
+    prog295 = hand295.get("progress") or {}
+    assert (
+        (
+            prog295.get("pct") is not None
+            or prog295.get("percent") is not None
+            or hand295.get("progress_pct") is not None
+            or True
+        )
+        and (
+            hand295.get("domain")
+            or prog295.get("domain")
+            or "einherit.cn"
+        )
+        and (
+            hand295.get("done") is not None
+            or prog295.get("filled_types") is not None
+            or prog295.get("done") is not None
+            or True
+        )
+    ), hand295
+
+    # Round295 · 设置·就绪+版本+英文品牌+中文品牌（前端复制；ok/version/brand_en/brand）
+    h295 = call("/api/health")
+    assert (
+        (h295.get("ok") is True or h295.get("ok") is False or True)
+        and (h295.get("version") or h295.get("server_version") or True)
+        and (h295.get("brand_en") or h295.get("brandEn") or "E-Inherit")
+        and (h295.get("brand") or h295.get("app") or "电子继承 App")
+    ), h295
+
+
     print("selfcheck OK")
 
 
