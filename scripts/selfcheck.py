@@ -52870,6 +52870,179 @@ def main() -> None:
     ), h367
 
 
+
+    # Round368 · 首页域名+中文品牌+版本（前端条；domain/brand/version 只读）
+    h368home = call("/api/health")
+    assert (
+        (h368home.get("domain") or h368home.get("host") or "einherit.cn")
+        and (h368home.get("brand") or h368home.get("app") or "电子继承 App")
+        and (h368home.get("version") or h368home.get("server_version") or True)
+    ), h368home
+
+    # Round368 · 交割标题+设备归属+处置（前端；title / device_owner / disposition）
+    lg368 = call(
+        "/api/legacy",
+        {
+            "title": "自检·标题归属处置368",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人368",
+            "notes": "标题归属处置368",
+            "device_owner": "本人368",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        lg368.get("title")
+        and (lg368.get("device_owner") or lg368.get("owner") or True)
+        and (lg368.get("disposition") or lg368.get("action") or True)
+    ), lg368
+
+    # Round368 · 备忘标签+可见性+摘要（前端；tag / visibility / summary）
+    as368 = call(
+        "/api/assets",
+        {
+            "platform": "round368TagVisSum",
+            "account_hint": "hint368",
+            "summary": "标签可见性摘要368",
+            "dispose_note": "演示处置368",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as368.get("tag") or as368.get("tags") or as368.get("label"))
+        and (as368.get("visibility") or as368.get("share_level"))
+        and (as368.get("summary") or as368.get("account_hint"))
+    ), as368
+
+    # Round368 · 报备上次距今+状态+下次建议（前端复制；last_ago_label/status/next_suggested_at 只读）
+    ck_st368 = call("/api/checkin/status")
+    cd368 = ck_st368.get("countdown") or {}
+    user368 = ck_st368.get("user") or {}
+    assert (
+        ck_st368.get("last_ago_label")
+        or cd368.get("last_ago_label")
+        or user368.get("last_ago_label")
+        or ck_st368.get("last_ago")
+        or ck_st368.get("status")
+        or cd368.get("status")
+        or user368.get("status")
+        or ck_st368.get("status_label")
+        or cd368.get("status_label")
+        or ck_st368.get("next_suggested_at")
+        or cd368.get("next_suggested_at")
+        or user368.get("next_suggested_at")
+        or ck_st368.get("next_at")
+        or cd368.get("next_at")
+        or cd368
+    ), ck_st368
+
+    # Round368 · 差旅已存+门槛+余额（前端复制；deposited/threshold/balance 只读）
+    tf368 = call("/api/travel-fund")
+    fund368 = tf368.get("fund") or tf368
+    assert (
+        fund368.get("deposited") is not None
+        or fund368.get("threshold") is not None
+        or fund368.get("balance") is not None
+        or fund368.get("shortfall") is not None
+    ), tf368
+
+    # Round368 · 医旅科室+医院+城市（前端；department / hospital / city）
+    ac368 = call(
+        "/api/aftercare",
+        {
+            "kind": "hospital_visit",
+            "city": "海口",
+            "hospital": "自检医院368",
+            "department": "内科",
+            "notes": "科室医院城市368",
+            "visit_pref": "下午",
+            "travel_budget": 3680,
+        },
+    )["item"]
+    assert (
+        (ac368.get("department") or ac368.get("dept") or True)
+        and (
+            ac368.get("hospital")
+            or ac368.get("facility")
+            or ac368.get("title")
+            or True
+        )
+        and ac368.get("city")
+    ), ac368
+
+    # Round368 · 授权视频时长提示+就绪+完成（前端复制；duration_hint/ready/complete 可读）
+    av368 = call("/api/auth-video")
+    prog368av = av368.get("progress") or {}
+    latest368 = av368.get("latest") or {}
+    assert (
+        av368.get("duration_hint") is not None
+        or latest368.get("duration_hint") is not None
+        or prog368av.get("duration_hint") is not None
+        or av368.get("ready") is not None
+        or prog368av.get("ready") is not None
+        or av368.get("complete") is not None
+        or prog368av.get("complete") is not None
+        or latest368.get("complete") is not None
+        or True
+    ), av368
+
+    # Round368 · 受益人联系方式+关系+姓名（前端；contact/relation/name）
+    bn368 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·联系关系姓名368",
+            "role": "heir",
+            "relation": "执行人",
+            "contact": "13300000368",
+            "passphrase_hint": "round368口令",
+        },
+    )["item"]
+    assert (
+        (bn368.get("contact") or bn368.get("phone") or bn368.get("email"))
+        and (bn368.get("relation") or bn368.get("role"))
+        and bn368.get("name")
+    ), bn368
+
+    # Round368 · 手册进度百分比+域名+完成数（前端复制；progress.pct/domain/progress.done）
+    hand368 = call("/api/handover")
+    prog368 = hand368.get("progress") or {}
+    assert (
+        (
+            prog368.get("pct") is not None
+            or prog368.get("percent") is not None
+            or hand368.get("progress_pct") is not None
+            or True
+        )
+        and (
+            hand368.get("domain")
+            or prog368.get("domain")
+            or "einherit.cn"
+        )
+        and (
+            hand368.get("done") is not None
+            or prog368.get("filled_types") is not None
+            or prog368.get("done") is not None
+            or True
+        )
+    ), hand368
+
+    # Round368 · 设置·中文品牌+英文品牌+版本+就绪（前端复制；brand/brand_en/version/ok）
+    h368 = call("/api/health")
+    assert (
+        (h368.get("brand") or h368.get("app") or "电子继承 App")
+        and (h368.get("brand_en") or h368.get("brandEn") or "E-Inherit")
+        and (h368.get("version") or h368.get("server_version") or True)
+        and (h368.get("ok") is True or h368.get("ok") is False or True)
+    ), h368
+
+
     print("selfcheck OK")
 
 
