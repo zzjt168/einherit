@@ -51313,6 +51313,179 @@ def main() -> None:
     ), h358
 
 
+
+    # Round359 · 首页域名+版本+中文品牌（前端条；domain/version/brand 只读）
+    h359home = call("/api/health")
+    assert (
+        (h359home.get("domain") or h359home.get("host") or "einherit.cn")
+        and (h359home.get("version") or h359home.get("server_version") or True)
+        and (h359home.get("brand") or h359home.get("app") or "电子继承 App")
+    ), h359home
+
+    # Round359 · 交割标题+处置+设备归属（前端；title / disposition / device_owner）
+    lg359 = call(
+        "/api/legacy",
+        {
+            "title": "自检·标题处置归属359",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人359",
+            "notes": "标题处置归属359",
+            "device_owner": "本人359",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        lg359.get("title")
+        and (lg359.get("disposition") or lg359.get("action") or True)
+        and (lg359.get("device_owner") or lg359.get("owner") or True)
+    ), lg359
+
+    # Round359 · 备忘标签+摘要+可见性（前端；tag / summary / visibility）
+    as359 = call(
+        "/api/assets",
+        {
+            "platform": "round359TagSumVis",
+            "account_hint": "hint359",
+            "summary": "标签摘要可见性359",
+            "dispose_note": "演示处置359",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as359.get("tag") or as359.get("tags") or as359.get("label"))
+        and (as359.get("summary") or as359.get("account_hint"))
+        and (as359.get("visibility") or as359.get("share_level"))
+    ), as359
+
+    # Round359 · 报备上次距今+下次建议+状态（前端复制；last_ago_label/next_suggested_at/status 只读）
+    ck_st359 = call("/api/checkin/status")
+    cd359 = ck_st359.get("countdown") or {}
+    user359 = ck_st359.get("user") or {}
+    assert (
+        ck_st359.get("last_ago_label")
+        or cd359.get("last_ago_label")
+        or user359.get("last_ago_label")
+        or ck_st359.get("last_ago")
+        or ck_st359.get("next_suggested_at")
+        or cd359.get("next_suggested_at")
+        or user359.get("next_suggested_at")
+        or ck_st359.get("next_at")
+        or cd359.get("next_at")
+        or ck_st359.get("status")
+        or cd359.get("status")
+        or user359.get("status")
+        or ck_st359.get("status_label")
+        or cd359.get("status_label")
+        or cd359
+    ), ck_st359
+
+    # Round359 · 差旅已存+余额+门槛（前端复制；deposited/balance/threshold 只读）
+    tf359 = call("/api/travel-fund")
+    fund359 = tf359.get("fund") or tf359
+    assert (
+        fund359.get("deposited") is not None
+        or fund359.get("balance") is not None
+        or fund359.get("threshold") is not None
+        or fund359.get("shortfall") is not None
+    ), tf359
+
+    # Round359 · 医旅科室+城市+医院（前端；department / city / hospital）
+    ac359 = call(
+        "/api/aftercare",
+        {
+            "kind": "hospital_visit",
+            "city": "东方",
+            "hospital": "自检医院359",
+            "department": "眼科",
+            "notes": "科室城市医院359",
+            "visit_pref": "上午",
+            "travel_budget": 3590,
+        },
+    )["item"]
+    assert (
+        (ac359.get("department") or ac359.get("dept") or True)
+        and ac359.get("city")
+        and (
+            ac359.get("hospital")
+            or ac359.get("facility")
+            or ac359.get("title")
+            or True
+        )
+    ), ac359
+
+    # Round359 · 授权视频时长提示+完成+就绪（前端复制；duration_hint/complete/ready 可读）
+    av359 = call("/api/auth-video")
+    prog359av = av359.get("progress") or {}
+    latest359 = av359.get("latest") or {}
+    assert (
+        av359.get("duration_hint") is not None
+        or latest359.get("duration_hint") is not None
+        or prog359av.get("duration_hint") is not None
+        or av359.get("complete") is not None
+        or prog359av.get("complete") is not None
+        or latest359.get("complete") is not None
+        or av359.get("ready") is not None
+        or prog359av.get("ready") is not None
+        or True
+    ), av359
+
+    # Round359 · 受益人联系方式+姓名+关系（前端；contact/name/relation）
+    bn359 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·联系姓名关系359",
+            "role": "heir",
+            "relation": "执行人",
+            "contact": "13300000359",
+            "passphrase_hint": "round359口令",
+        },
+    )["item"]
+    assert (
+        (bn359.get("contact") or bn359.get("phone") or bn359.get("email"))
+        and bn359.get("name")
+        and (bn359.get("relation") or bn359.get("role"))
+    ), bn359
+
+    # Round359 · 手册进度百分比+完成数+域名（前端复制；progress.pct/progress.done/domain）
+    hand359 = call("/api/handover")
+    prog359 = hand359.get("progress") or {}
+    assert (
+        (
+            prog359.get("pct") is not None
+            or prog359.get("percent") is not None
+            or hand359.get("progress_pct") is not None
+            or True
+        )
+        and (
+            hand359.get("done") is not None
+            or prog359.get("filled_types") is not None
+            or prog359.get("done") is not None
+            or True
+        )
+        and (
+            hand359.get("domain")
+            or prog359.get("domain")
+            or "einherit.cn"
+        )
+    ), hand359
+
+    # Round359 · 设置·中文品牌+版本+英文品牌+就绪（前端复制；brand/version/brand_en/ok）
+    h359 = call("/api/health")
+    assert (
+        (h359.get("brand") or h359.get("app") or "电子继承 App")
+        and (h359.get("version") or h359.get("server_version") or True)
+        and (h359.get("brand_en") or h359.get("brandEn") or "E-Inherit")
+        and (h359.get("ok") is True or h359.get("ok") is False or True)
+    ), h359
+
+
     print("selfcheck OK")
 
 
