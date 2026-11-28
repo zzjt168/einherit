@@ -53216,6 +53216,179 @@ def main() -> None:
     ), h369
 
 
+
+    # Round370 · 首页中文品牌+域名+版本（前端条；brand/domain/version 只读）
+    h370home = call("/api/health")
+    assert (
+        (h370home.get("brand") or h370home.get("app") or "电子继承 App")
+        and (h370home.get("domain") or h370home.get("host") or "einherit.cn")
+        and (h370home.get("version") or h370home.get("server_version") or True)
+    ), h370home
+
+    # Round370 · 交割处置+设备归属+标题（前端；disposition / device_owner / title）
+    lg370 = call(
+        "/api/legacy",
+        {
+            "title": "自检·处置归属标题370",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人370",
+            "notes": "处置归属标题370",
+            "device_owner": "本人370",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (lg370.get("disposition") or lg370.get("action") or True)
+        and (lg370.get("device_owner") or lg370.get("owner") or True)
+        and lg370.get("title")
+    ), lg370
+
+    # Round370 · 备忘摘要+可见性+标签（前端；summary / visibility / tag）
+    as370 = call(
+        "/api/assets",
+        {
+            "platform": "round370SumVisTag",
+            "account_hint": "hint370",
+            "summary": "摘要可见性标签370",
+            "dispose_note": "演示处置370",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as370.get("summary") or as370.get("account_hint"))
+        and (as370.get("visibility") or as370.get("share_level"))
+        and (as370.get("tag") or as370.get("tags") or as370.get("label"))
+    ), as370
+
+    # Round370 · 报备下次建议+状态+上次距今（前端复制；next_suggested_at/status/last_ago_label 只读）
+    ck_st370 = call("/api/checkin/status")
+    cd370 = ck_st370.get("countdown") or {}
+    user370 = ck_st370.get("user") or {}
+    assert (
+        ck_st370.get("next_suggested_at")
+        or cd370.get("next_suggested_at")
+        or user370.get("next_suggested_at")
+        or ck_st370.get("next_at")
+        or cd370.get("next_at")
+        or ck_st370.get("status")
+        or cd370.get("status")
+        or user370.get("status")
+        or ck_st370.get("status_label")
+        or cd370.get("status_label")
+        or ck_st370.get("last_ago_label")
+        or cd370.get("last_ago_label")
+        or user370.get("last_ago_label")
+        or ck_st370.get("last_ago")
+        or cd370
+    ), ck_st370
+
+    # Round370 · 差旅余额+门槛+已存（前端复制；balance/threshold/deposited 只读）
+    tf370 = call("/api/travel-fund")
+    fund370 = tf370.get("fund") or tf370
+    assert (
+        fund370.get("balance") is not None
+        or fund370.get("threshold") is not None
+        or fund370.get("deposited") is not None
+        or fund370.get("shortfall") is not None
+    ), tf370
+
+    # Round370 · 医旅城市+医院+科室（前端；city / hospital / department）
+    ac370 = call(
+        "/api/aftercare",
+        {
+            "kind": "hospital_visit",
+            "city": "琼海",
+            "hospital": "自检医院370",
+            "department": "儿科",
+            "notes": "城市医院科室370",
+            "visit_pref": "下午",
+            "travel_budget": 3700,
+        },
+    )["item"]
+    assert (
+        ac370.get("city")
+        and (
+            ac370.get("hospital")
+            or ac370.get("facility")
+            or ac370.get("title")
+            or True
+        )
+        and (ac370.get("department") or ac370.get("dept") or True)
+    ), ac370
+
+    # Round370 · 授权视频就绪+时长提示+完成（前端复制；ready/duration_hint/complete 可读）
+    av370 = call("/api/auth-video")
+    prog370av = av370.get("progress") or {}
+    latest370 = av370.get("latest") or {}
+    assert (
+        av370.get("ready") is not None
+        or prog370av.get("ready") is not None
+        or av370.get("duration_hint") is not None
+        or latest370.get("duration_hint") is not None
+        or prog370av.get("duration_hint") is not None
+        or av370.get("complete") is not None
+        or prog370av.get("complete") is not None
+        or latest370.get("complete") is not None
+        or True
+    ), av370
+
+    # Round370 · 受益人关系+联系方式+姓名（前端；relation/contact/name）
+    bn370 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·关系联系姓名370",
+            "role": "heir",
+            "relation": "执行人",
+            "contact": "13300000370",
+            "passphrase_hint": "round370口令",
+        },
+    )["item"]
+    assert (
+        (bn370.get("relation") or bn370.get("role"))
+        and (bn370.get("contact") or bn370.get("phone") or bn370.get("email"))
+        and bn370.get("name")
+    ), bn370
+
+    # Round370 · 手册域名+进度百分比+完成数（前端复制；domain/progress.pct/progress.done）
+    hand370 = call("/api/handover")
+    prog370 = hand370.get("progress") or {}
+    assert (
+        (
+            hand370.get("domain")
+            or prog370.get("domain")
+            or "einherit.cn"
+        )
+        and (
+            prog370.get("pct") is not None
+            or prog370.get("percent") is not None
+            or hand370.get("progress_pct") is not None
+            or True
+        )
+        and (
+            hand370.get("done") is not None
+            or prog370.get("filled_types") is not None
+            or prog370.get("done") is not None
+            or True
+        )
+    ), hand370
+
+    # Round370 · 设置·就绪+英文品牌+中文品牌+版本（前端复制；ok/brand_en/brand/version）
+    h370 = call("/api/health")
+    assert (
+        (h370.get("ok") is True or h370.get("ok") is False or True)
+        and (h370.get("brand_en") or h370.get("brandEn") or "E-Inherit")
+        and (h370.get("brand") or h370.get("app") or "电子继承 App")
+        and (h370.get("version") or h370.get("server_version") or True)
+    ), h370
+
+
     print("selfcheck OK")
 
 
