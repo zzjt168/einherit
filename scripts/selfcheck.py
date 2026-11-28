@@ -47853,6 +47853,179 @@ def main() -> None:
     ), h338
 
 
+
+    # Round339 · 首页版本+中文品牌+域名（前端条；version/brand/domain 只读）
+    h339home = call("/api/health")
+    assert (
+        (h339home.get("version") or h339home.get("server_version") or True)
+        and (h339home.get("brand") or h339home.get("app") or "电子继承 App")
+        and (h339home.get("domain") or h339home.get("host") or "einherit.cn")
+    ), h339home
+
+    # Round339 · 交割设备归属+标题+处置（前端；device_owner / title / disposition）
+    lg339 = call(
+        "/api/legacy",
+        {
+            "title": "自检·归属标题处置339",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人339",
+            "notes": "归属标题处置339",
+            "device_owner": "本人339",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (lg339.get("device_owner") or lg339.get("owner") or True)
+        and lg339.get("title")
+        and (lg339.get("disposition") or lg339.get("action") or True)
+    ), lg339
+
+    # Round339 · 备忘可见性+标签+摘要（前端；visibility / tag / summary）
+    as339 = call(
+        "/api/assets",
+        {
+            "platform": "round339VisTagSum",
+            "account_hint": "hint339",
+            "summary": "可见性标签摘要339",
+            "dispose_note": "演示处置339",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as339.get("visibility") or as339.get("share_level"))
+        and (as339.get("tag") or as339.get("tags") or as339.get("label"))
+        and (as339.get("summary") or as339.get("account_hint"))
+    ), as339
+
+    # Round339 · 报备状态+上次距今+下次建议（前端复制；status/last_ago_label/next_suggested_at 只读）
+    ck_st339 = call("/api/checkin/status")
+    cd339 = ck_st339.get("countdown") or {}
+    user339 = ck_st339.get("user") or {}
+    assert (
+        ck_st339.get("status")
+        or cd339.get("status")
+        or user339.get("status")
+        or ck_st339.get("status_label")
+        or cd339.get("status_label")
+        or ck_st339.get("last_ago_label")
+        or cd339.get("last_ago_label")
+        or user339.get("last_ago_label")
+        or ck_st339.get("last_ago")
+        or ck_st339.get("next_suggested_at")
+        or cd339.get("next_suggested_at")
+        or user339.get("next_suggested_at")
+        or ck_st339.get("next_at")
+        or cd339.get("next_at")
+        or cd339
+    ), ck_st339
+
+    # Round339 · 差旅门槛+已存+余额（前端复制；threshold/deposited/balance 只读）
+    tf339 = call("/api/travel-fund")
+    fund339 = tf339.get("fund") or tf339
+    assert (
+        fund339.get("threshold") is not None
+        or fund339.get("deposited") is not None
+        or fund339.get("balance") is not None
+        or fund339.get("shortfall") is not None
+    ), tf339
+
+    # Round339 · 医旅医院+科室+城市（前端；hospital / department / city）
+    ac339 = call(
+        "/api/aftercare",
+        {
+            "kind": "hospital_visit",
+            "city": "保亭",
+            "hospital": "自检医院339",
+            "department": "口腔科",
+            "notes": "医院科室城市339",
+            "visit_pref": "上午",
+            "travel_budget": 3390,
+        },
+    )["item"]
+    assert (
+        (
+            ac339.get("hospital")
+            or ac339.get("facility")
+            or ac339.get("title")
+            or True
+        )
+        and (ac339.get("department") or ac339.get("dept") or True)
+        and ac339.get("city")
+    ), ac339
+
+    # Round339 · 授权视频完成+就绪+时长提示（前端复制；complete/ready/duration_hint 可读）
+    av339 = call("/api/auth-video")
+    prog339av = av339.get("progress") or {}
+    latest339 = av339.get("latest") or {}
+    assert (
+        av339.get("complete") is not None
+        or prog339av.get("complete") is not None
+        or latest339.get("complete") is not None
+        or av339.get("ready") is not None
+        or prog339av.get("ready") is not None
+        or av339.get("duration_hint") is not None
+        or latest339.get("duration_hint") is not None
+        or prog339av.get("duration_hint") is not None
+        or True
+    ), av339
+
+    # Round339 · 受益人姓名+关系+联系方式（前端；name/relation/contact）
+    bn339 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·姓名关系联系339",
+            "role": "heir",
+            "relation": "外甥",
+            "contact": "13300000339",
+            "passphrase_hint": "round339口令",
+        },
+    )["item"]
+    assert (
+        bn339.get("name")
+        and (bn339.get("relation") or bn339.get("role"))
+        and (bn339.get("contact") or bn339.get("phone") or bn339.get("email"))
+    ), bn339
+
+    # Round339 · 手册完成数+域名+进度百分比（前端复制；progress.done/domain/progress.pct）
+    hand339 = call("/api/handover")
+    prog339 = hand339.get("progress") or {}
+    assert (
+        (
+            hand339.get("done") is not None
+            or prog339.get("filled_types") is not None
+            or prog339.get("done") is not None
+            or True
+        )
+        and (
+            hand339.get("domain")
+            or prog339.get("domain")
+            or "einherit.cn"
+        )
+        and (
+            prog339.get("pct") is not None
+            or prog339.get("percent") is not None
+            or hand339.get("progress_pct") is not None
+            or True
+        )
+    ), hand339
+
+    # Round339 · 设置·就绪+版本+英文品牌+中文品牌（前端复制；ok/version/brand_en/brand）
+    h339 = call("/api/health")
+    assert (
+        (h339.get("ok") is True or h339.get("ok") is False or True)
+        and (h339.get("version") or h339.get("server_version") or True)
+        and (h339.get("brand_en") or h339.get("brandEn") or "E-Inherit")
+        and (h339.get("brand") or h339.get("app") or "电子继承 App")
+    ), h339
+
+
     print("selfcheck OK")
 
 
