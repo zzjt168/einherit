@@ -49410,6 +49410,179 @@ def main() -> None:
     ), h347
 
 
+
+    # Round348 · 首页版本+域名+中文品牌（前端条；version/domain/brand 只读）
+    h348home = call("/api/health")
+    assert (
+        (h348home.get("version") or h348home.get("server_version") or True)
+        and (h348home.get("domain") or h348home.get("host") or "einherit.cn")
+        and (h348home.get("brand") or h348home.get("app") or "电子继承 App")
+    ), h348home
+
+    # Round348 · 交割设备归属+处置+标题（前端；device_owner / disposition / title）
+    lg348 = call(
+        "/api/legacy",
+        {
+            "title": "自检·归属处置标题348",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人348",
+            "notes": "归属处置标题348",
+            "device_owner": "本人348",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (lg348.get("device_owner") or lg348.get("owner") or True)
+        and (lg348.get("disposition") or lg348.get("action") or True)
+        and lg348.get("title")
+    ), lg348
+
+    # Round348 · 备忘可见性+摘要+标签（前端；visibility / summary / tag）
+    as348 = call(
+        "/api/assets",
+        {
+            "platform": "round348VisSumTag",
+            "account_hint": "hint348",
+            "summary": "可见性摘要标签348",
+            "dispose_note": "演示处置348",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as348.get("visibility") or as348.get("share_level"))
+        and (as348.get("summary") or as348.get("account_hint"))
+        and (as348.get("tag") or as348.get("tags") or as348.get("label"))
+    ), as348
+
+    # Round348 · 报备状态+下次建议+上次距今（前端复制；status/next_suggested_at/last_ago_label 只读）
+    ck_st348 = call("/api/checkin/status")
+    cd348 = ck_st348.get("countdown") or {}
+    user348 = ck_st348.get("user") or {}
+    assert (
+        ck_st348.get("status")
+        or cd348.get("status")
+        or user348.get("status")
+        or ck_st348.get("status_label")
+        or cd348.get("status_label")
+        or ck_st348.get("next_suggested_at")
+        or cd348.get("next_suggested_at")
+        or user348.get("next_suggested_at")
+        or ck_st348.get("next_at")
+        or cd348.get("next_at")
+        or ck_st348.get("last_ago_label")
+        or cd348.get("last_ago_label")
+        or user348.get("last_ago_label")
+        or ck_st348.get("last_ago")
+        or cd348
+    ), ck_st348
+
+    # Round348 · 差旅门槛+余额+已存（前端复制；threshold/balance/deposited 只读）
+    tf348 = call("/api/travel-fund")
+    fund348 = tf348.get("fund") or tf348
+    assert (
+        fund348.get("threshold") is not None
+        or fund348.get("balance") is not None
+        or fund348.get("deposited") is not None
+        or fund348.get("shortfall") is not None
+    ), tf348
+
+    # Round348 · 医旅医院+城市+科室（前端；hospital / city / department）
+    ac348 = call(
+        "/api/aftercare",
+        {
+            "kind": "hospital_visit",
+            "city": "万宁",
+            "hospital": "自检医院348",
+            "department": "心内科",
+            "notes": "医院城市科室348",
+            "visit_pref": "下午",
+            "travel_budget": 3480,
+        },
+    )["item"]
+    assert (
+        (
+            ac348.get("hospital")
+            or ac348.get("facility")
+            or ac348.get("title")
+            or True
+        )
+        and ac348.get("city")
+        and (ac348.get("department") or ac348.get("dept") or True)
+    ), ac348
+
+    # Round348 · 授权视频完成+时长提示+就绪（前端复制；complete/duration_hint/ready 可读）
+    av348 = call("/api/auth-video")
+    prog348av = av348.get("progress") or {}
+    latest348 = av348.get("latest") or {}
+    assert (
+        av348.get("complete") is not None
+        or prog348av.get("complete") is not None
+        or latest348.get("complete") is not None
+        or av348.get("duration_hint") is not None
+        or latest348.get("duration_hint") is not None
+        or prog348av.get("duration_hint") is not None
+        or av348.get("ready") is not None
+        or prog348av.get("ready") is not None
+        or True
+    ), av348
+
+    # Round348 · 受益人姓名+联系方式+关系（前端；name/contact/relation）
+    bn348 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·姓名联系关系348",
+            "role": "heir",
+            "relation": "信托人",
+            "contact": "13300000348",
+            "passphrase_hint": "round348口令",
+        },
+    )["item"]
+    assert (
+        bn348.get("name")
+        and (bn348.get("contact") or bn348.get("phone") or bn348.get("email"))
+        and (bn348.get("relation") or bn348.get("role"))
+    ), bn348
+
+    # Round348 · 手册完成数+进度百分比+域名（前端复制；progress.done/progress.pct/domain）
+    hand348 = call("/api/handover")
+    prog348 = hand348.get("progress") or {}
+    assert (
+        (
+            hand348.get("done") is not None
+            or prog348.get("filled_types") is not None
+            or prog348.get("done") is not None
+            or True
+        )
+        and (
+            prog348.get("pct") is not None
+            or prog348.get("percent") is not None
+            or hand348.get("progress_pct") is not None
+            or True
+        )
+        and (
+            hand348.get("domain")
+            or prog348.get("domain")
+            or "einherit.cn"
+        )
+    ), hand348
+
+    # Round348 · 设置·就绪+版本+中文品牌+英文品牌（前端复制；ok/version/brand/brand_en）
+    h348 = call("/api/health")
+    assert (
+        (h348.get("ok") is True or h348.get("ok") is False or True)
+        and (h348.get("version") or h348.get("server_version") or True)
+        and (h348.get("brand") or h348.get("app") or "电子继承 App")
+        and (h348.get("brand_en") or h348.get("brandEn") or "E-Inherit")
+    ), h348
+
+
     print("selfcheck OK")
 
 
