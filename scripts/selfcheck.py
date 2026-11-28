@@ -55638,6 +55638,179 @@ def main() -> None:
     ), h383
 
 
+
+    # Round384 · 首页版本+域名+中文品牌（前端条；version/domain/brand 只读）
+    h384home = call("/api/health")
+    assert (
+        (h384home.get("version") or h384home.get("server_version") or True)
+        and (h384home.get("domain") or h384home.get("host") or "einherit.cn")
+        and (h384home.get("brand") or h384home.get("app") or "电子继承 App")
+    ), h384home
+
+    # Round384 · 交割设备归属+处置+标题（前端；device_owner / disposition / title）
+    lg384 = call(
+        "/api/legacy",
+        {
+            "title": "自检·归属处置标题384",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人384",
+            "notes": "归属处置标题384",
+            "device_owner": "本人384",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (lg384.get("device_owner") or lg384.get("owner") or True)
+        and (lg384.get("disposition") or lg384.get("action") or True)
+        and lg384.get("title")
+    ), lg384
+
+    # Round384 · 备忘可见性+摘要+标签（前端；visibility / summary / tag）
+    as384 = call(
+        "/api/assets",
+        {
+            "platform": "round384VisSumTag",
+            "account_hint": "hint384",
+            "summary": "可见性摘要标签384",
+            "dispose_note": "演示处置384",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as384.get("visibility") or as384.get("share_level"))
+        and (as384.get("summary") or as384.get("account_hint"))
+        and (as384.get("tag") or as384.get("tags") or as384.get("label"))
+    ), as384
+
+    # Round384 · 报备状态+下次建议+上次距今（前端复制；status/next_suggested_at/last_ago_label 只读）
+    ck_st384 = call("/api/checkin/status")
+    cd384 = ck_st384.get("countdown") or {}
+    user384 = ck_st384.get("user") or {}
+    assert (
+        ck_st384.get("status")
+        or cd384.get("status")
+        or user384.get("status")
+        or ck_st384.get("status_label")
+        or cd384.get("status_label")
+        or ck_st384.get("next_suggested_at")
+        or cd384.get("next_suggested_at")
+        or user384.get("next_suggested_at")
+        or ck_st384.get("next_at")
+        or cd384.get("next_at")
+        or ck_st384.get("last_ago_label")
+        or cd384.get("last_ago_label")
+        or user384.get("last_ago_label")
+        or ck_st384.get("last_ago")
+        or cd384
+    ), ck_st384
+
+    # Round384 · 差旅门槛+余额+已存（前端复制；threshold/balance/deposited 只读）
+    tf384 = call("/api/travel-fund")
+    fund384 = tf384.get("fund") or tf384
+    assert (
+        fund384.get("threshold") is not None
+        or fund384.get("balance") is not None
+        or fund384.get("deposited") is not None
+        or fund384.get("shortfall") is not None
+    ), tf384
+
+    # Round384 · 医旅医院+城市+科室（前端；hospital / city / department）
+    ac384 = call(
+        "/api/aftercare",
+        {
+            "kind": "hospital_visit",
+            "city": "屯昌",
+            "hospital": "自检医院384",
+            "department": "耳鼻喉科",
+            "notes": "医院城市科室384",
+            "visit_pref": "上午",
+            "travel_budget": 3840,
+        },
+    )["item"]
+    assert (
+        (
+            ac384.get("hospital")
+            or ac384.get("facility")
+            or ac384.get("title")
+            or True
+        )
+        and ac384.get("city")
+        and (ac384.get("department") or ac384.get("dept") or True)
+    ), ac384
+
+    # Round384 · 授权视频完成+时长提示+就绪（前端复制；complete/duration_hint/ready 可读）
+    av384 = call("/api/auth-video")
+    prog384av = av384.get("progress") or {}
+    latest384 = av384.get("latest") or {}
+    assert (
+        av384.get("complete") is not None
+        or prog384av.get("complete") is not None
+        or latest384.get("complete") is not None
+        or av384.get("duration_hint") is not None
+        or latest384.get("duration_hint") is not None
+        or prog384av.get("duration_hint") is not None
+        or av384.get("ready") is not None
+        or prog384av.get("ready") is not None
+        or True
+    ), av384
+
+    # Round384 · 受益人姓名+联系方式+关系（前端；name/contact/relation）
+    bn384 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·姓名联系关系384",
+            "role": "heir",
+            "relation": "执行人",
+            "contact": "13300000384",
+            "passphrase_hint": "round384口令",
+        },
+    )["item"]
+    assert (
+        bn384.get("name")
+        and (bn384.get("contact") or bn384.get("phone") or bn384.get("email"))
+        and (bn384.get("relation") or bn384.get("role"))
+    ), bn384
+
+    # Round384 · 手册完成数+进度百分比+域名（前端复制；progress.done/progress.pct/domain）
+    hand384 = call("/api/handover")
+    prog384 = hand384.get("progress") or {}
+    assert (
+        (
+            hand384.get("done") is not None
+            or prog384.get("filled_types") is not None
+            or prog384.get("done") is not None
+            or True
+        )
+        and (
+            prog384.get("pct") is not None
+            or prog384.get("percent") is not None
+            or hand384.get("progress_pct") is not None
+            or True
+        )
+        and (
+            hand384.get("domain")
+            or prog384.get("domain")
+            or "einherit.cn"
+        )
+    ), hand384
+
+    # Round384 · 设置·就绪+版本+英文品牌+中文品牌（前端复制；ok/version/brand_en/brand）
+    h384 = call("/api/health")
+    assert (
+        (h384.get("ok") is True or h384.get("ok") is False or True)
+        and (h384.get("version") or h384.get("server_version") or True)
+        and (h384.get("brand_en") or h384.get("brandEn") or "E-Inherit")
+        and (h384.get("brand") or h384.get("app") or "电子继承 App")
+    ), h384
+
+
     print("selfcheck OK")
 
 

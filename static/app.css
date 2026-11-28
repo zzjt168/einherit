@@ -16906,3 +16906,38 @@ body.privacy-mode .privacy-hint { opacity: 0.85; }
   margin: 8px 0 10px; padding: 8px 10px; border-radius: 8px; background: #f5f8f6;
   word-break: break-word; font-weight: 600; color: var(--sage-deep, #2f5d45);
 }
+
+/* Round384 · 温和增量 */
+.home-version-domain-brand-calm-r384 {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px;
+  margin: 8px 0 12px; padding: 10px 12px; border-radius: 10px;
+  background: linear-gradient(160deg, #eef5f3 0%, #fff 75%);
+  border: 1px solid var(--line, #e2e8e4);
+}
+.home-version-domain-brand-calm-r384[hidden] { display: none; }
+.home-version-domain-brand-calm-r384-mark { font-weight: 600; color: var(--sage-deep, #2f5d45); font-size: 13px; }
+.home-version-domain-brand-calm-r384-sub { flex: 1; min-width: 8em; font-size: 12px; }
+.lg-copy-device-owner-disposition-title-r384 { margin-top: 8px; margin-left: 6px; }
+.as-copy-visibility-summary-tag-r384 { margin-top: 8px; margin-left: 6px; }
+.checkin-status-next-suggested-last-ago-plain-r384-copy {
+  margin-top: 10px; padding: 10px 12px; border-radius: 10px; background: #f5f8f6;
+}
+.checkin-status-next-suggested-last-ago-plain-r384-copy-line { margin: 0 0 8px; }
+.travel-threshold-balance-deposited-plain-r384-copy {
+  margin: 8px 0 10px; padding: 10px 12px; border-radius: 10px; background: #f5f8f6;
+}
+.travel-threshold-balance-deposited-plain-r384-copy-line { margin: 0 0 8px; }
+.ac-copy-hospital-city-department-r384 { margin-top: 8px; margin-left: 6px; }
+.av-complete-duration-hint-ready-copy-r384 {
+  margin: 8px 0 10px; padding: 10px 12px; border-radius: 10px; background: #f5f8f6;
+}
+.av-complete-duration-hint-ready-copy-r384-line { margin: 0 0 8px; }
+.bn-copy-name-contact-relation-r384 { margin-top: 8px; margin-left: 6px; }
+.hand-done-progress-pct-domain-copy-r384 {
+  margin: 8px 0 12px; padding: 10px 12px; border-radius: 10px; background: #f5f8f6;
+}
+.hand-done-progress-pct-domain-copy-r384-line { margin: 0 0 8px; }
+.settings-ok-version-brand-en-brand-r384-copy-card .settings-ok-version-brand-en-brand-r384-copy-preview {
+  margin: 8px 0 10px; padding: 8px 10px; border-radius: 8px; background: #f5f8f6;
+  word-break: break-word; font-weight: 600; color: var(--sage-deep, #2f5d45);
+}
