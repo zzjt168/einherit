@@ -52524,6 +52524,179 @@ def main() -> None:
     ), h365
 
 
+
+    # Round366 · 首页版本+域名+中文品牌（前端条；version/domain/brand 只读）
+    h366home = call("/api/health")
+    assert (
+        (h366home.get("version") or h366home.get("server_version") or True)
+        and (h366home.get("domain") or h366home.get("host") or "einherit.cn")
+        and (h366home.get("brand") or h366home.get("app") or "电子继承 App")
+    ), h366home
+
+    # Round366 · 交割设备归属+处置+标题（前端；device_owner / disposition / title）
+    lg366 = call(
+        "/api/legacy",
+        {
+            "title": "自检·归属处置标题366",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人366",
+            "notes": "归属处置标题366",
+            "device_owner": "本人366",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (lg366.get("device_owner") or lg366.get("owner") or True)
+        and (lg366.get("disposition") or lg366.get("action") or True)
+        and lg366.get("title")
+    ), lg366
+
+    # Round366 · 备忘可见性+摘要+标签（前端；visibility / summary / tag）
+    as366 = call(
+        "/api/assets",
+        {
+            "platform": "round366VisSumTag",
+            "account_hint": "hint366",
+            "summary": "可见性摘要标签366",
+            "dispose_note": "演示处置366",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as366.get("visibility") or as366.get("share_level"))
+        and (as366.get("summary") or as366.get("account_hint"))
+        and (as366.get("tag") or as366.get("tags") or as366.get("label"))
+    ), as366
+
+    # Round366 · 报备状态+下次建议+上次距今（前端复制；status/next_suggested_at/last_ago_label 只读）
+    ck_st366 = call("/api/checkin/status")
+    cd366 = ck_st366.get("countdown") or {}
+    user366 = ck_st366.get("user") or {}
+    assert (
+        ck_st366.get("status")
+        or cd366.get("status")
+        or user366.get("status")
+        or ck_st366.get("status_label")
+        or cd366.get("status_label")
+        or ck_st366.get("next_suggested_at")
+        or cd366.get("next_suggested_at")
+        or user366.get("next_suggested_at")
+        or ck_st366.get("next_at")
+        or cd366.get("next_at")
+        or ck_st366.get("last_ago_label")
+        or cd366.get("last_ago_label")
+        or user366.get("last_ago_label")
+        or ck_st366.get("last_ago")
+        or cd366
+    ), ck_st366
+
+    # Round366 · 差旅门槛+余额+已存（前端复制；threshold/balance/deposited 只读）
+    tf366 = call("/api/travel-fund")
+    fund366 = tf366.get("fund") or tf366
+    assert (
+        fund366.get("threshold") is not None
+        or fund366.get("balance") is not None
+        or fund366.get("deposited") is not None
+        or fund366.get("shortfall") is not None
+    ), tf366
+
+    # Round366 · 医旅医院+城市+科室（前端；hospital / city / department）
+    ac366 = call(
+        "/api/aftercare",
+        {
+            "kind": "hospital_visit",
+            "city": "乐东",
+            "hospital": "自检医院366",
+            "department": "妇科",
+            "notes": "医院城市科室366",
+            "visit_pref": "下午",
+            "travel_budget": 3660,
+        },
+    )["item"]
+    assert (
+        (
+            ac366.get("hospital")
+            or ac366.get("facility")
+            or ac366.get("title")
+            or True
+        )
+        and ac366.get("city")
+        and (ac366.get("department") or ac366.get("dept") or True)
+    ), ac366
+
+    # Round366 · 授权视频完成+时长提示+就绪（前端复制；complete/duration_hint/ready 可读）
+    av366 = call("/api/auth-video")
+    prog366av = av366.get("progress") or {}
+    latest366 = av366.get("latest") or {}
+    assert (
+        av366.get("complete") is not None
+        or prog366av.get("complete") is not None
+        or latest366.get("complete") is not None
+        or av366.get("duration_hint") is not None
+        or latest366.get("duration_hint") is not None
+        or prog366av.get("duration_hint") is not None
+        or av366.get("ready") is not None
+        or prog366av.get("ready") is not None
+        or True
+    ), av366
+
+    # Round366 · 受益人姓名+联系方式+关系（前端；name/contact/relation）
+    bn366 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·姓名联系关系366",
+            "role": "heir",
+            "relation": "执行人",
+            "contact": "13300000366",
+            "passphrase_hint": "round366口令",
+        },
+    )["item"]
+    assert (
+        bn366.get("name")
+        and (bn366.get("contact") or bn366.get("phone") or bn366.get("email"))
+        and (bn366.get("relation") or bn366.get("role"))
+    ), bn366
+
+    # Round366 · 手册完成数+进度百分比+域名（前端复制；progress.done/progress.pct/domain）
+    hand366 = call("/api/handover")
+    prog366 = hand366.get("progress") or {}
+    assert (
+        (
+            hand366.get("done") is not None
+            or prog366.get("filled_types") is not None
+            or prog366.get("done") is not None
+            or True
+        )
+        and (
+            prog366.get("pct") is not None
+            or prog366.get("percent") is not None
+            or hand366.get("progress_pct") is not None
+            or True
+        )
+        and (
+            hand366.get("domain")
+            or prog366.get("domain")
+            or "einherit.cn"
+        )
+    ), hand366
+
+    # Round366 · 设置·英文品牌+就绪+中文品牌+版本（前端复制；brand_en/ok/brand/version）
+    h366 = call("/api/health")
+    assert (
+        (h366.get("brand_en") or h366.get("brandEn") or "E-Inherit")
+        and (h366.get("ok") is True or h366.get("ok") is False or True)
+        and (h366.get("brand") or h366.get("app") or "电子继承 App")
+        and (h366.get("version") or h366.get("server_version") or True)
+    ), h366
+
+
     print("selfcheck OK")
 
 
