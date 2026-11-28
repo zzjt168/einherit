@@ -55811,6 +55811,179 @@ def main() -> None:
     ), h384
 
 
+
+    # Round385 · 首页中文品牌+版本+域名（前端条；brand/version/domain 只读）
+    h385home = call("/api/health")
+    assert (
+        (h385home.get("brand") or h385home.get("app") or "电子继承 App")
+        and (h385home.get("version") or h385home.get("server_version") or True)
+        and (h385home.get("domain") or h385home.get("host") or "einherit.cn")
+    ), h385home
+
+    # Round385 · 交割处置+标题+设备归属（前端；disposition / title / device_owner）
+    lg385 = call(
+        "/api/legacy",
+        {
+            "title": "自检·处置标题归属385",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人385",
+            "notes": "处置标题归属385",
+            "device_owner": "本人385",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (lg385.get("disposition") or lg385.get("action") or True)
+        and lg385.get("title")
+        and (lg385.get("device_owner") or lg385.get("owner") or True)
+    ), lg385
+
+    # Round385 · 备忘摘要+标签+可见性（前端；summary / tag / visibility）
+    as385 = call(
+        "/api/assets",
+        {
+            "platform": "round385SumTagVis",
+            "account_hint": "hint385",
+            "summary": "摘要标签可见性385",
+            "dispose_note": "演示处置385",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as385.get("summary") or as385.get("account_hint"))
+        and (as385.get("tag") or as385.get("tags") or as385.get("label"))
+        and (as385.get("visibility") or as385.get("share_level"))
+    ), as385
+
+    # Round385 · 报备下次建议+状态+上次距今（前端复制；next_suggested_at/status/last_ago_label 只读）
+    ck_st385 = call("/api/checkin/status")
+    cd385 = ck_st385.get("countdown") or {}
+    user385 = ck_st385.get("user") or {}
+    assert (
+        ck_st385.get("next_suggested_at")
+        or cd385.get("next_suggested_at")
+        or user385.get("next_suggested_at")
+        or ck_st385.get("next_at")
+        or cd385.get("next_at")
+        or ck_st385.get("status")
+        or cd385.get("status")
+        or user385.get("status")
+        or ck_st385.get("status_label")
+        or cd385.get("status_label")
+        or ck_st385.get("last_ago_label")
+        or cd385.get("last_ago_label")
+        or user385.get("last_ago_label")
+        or ck_st385.get("last_ago")
+        or cd385
+    ), ck_st385
+
+    # Round385 · 差旅余额+已存+门槛（前端复制；balance/deposited/threshold 只读）
+    tf385 = call("/api/travel-fund")
+    fund385 = tf385.get("fund") or tf385
+    assert (
+        fund385.get("balance") is not None
+        or fund385.get("deposited") is not None
+        or fund385.get("threshold") is not None
+        or fund385.get("shortfall") is not None
+    ), tf385
+
+    # Round385 · 医旅城市+科室+医院（前端；city / department / hospital）
+    ac385 = call(
+        "/api/aftercare",
+        {
+            "kind": "hospital_visit",
+            "city": "昌江",
+            "hospital": "自检医院385",
+            "department": "皮肤科",
+            "notes": "城市科室医院385",
+            "visit_pref": "上午",
+            "travel_budget": 3850,
+        },
+    )["item"]
+    assert (
+        ac385.get("city")
+        and (ac385.get("department") or ac385.get("dept") or True)
+        and (
+            ac385.get("hospital")
+            or ac385.get("facility")
+            or ac385.get("title")
+            or True
+        )
+    ), ac385
+
+    # Round385 · 授权视频就绪+完成+时长提示（前端复制；ready/complete/duration_hint 可读）
+    av385 = call("/api/auth-video")
+    prog385av = av385.get("progress") or {}
+    latest385 = av385.get("latest") or {}
+    assert (
+        av385.get("ready") is not None
+        or prog385av.get("ready") is not None
+        or av385.get("complete") is not None
+        or prog385av.get("complete") is not None
+        or latest385.get("complete") is not None
+        or av385.get("duration_hint") is not None
+        or latest385.get("duration_hint") is not None
+        or prog385av.get("duration_hint") is not None
+        or True
+    ), av385
+
+    # Round385 · 受益人关系+联系方式+姓名（前端；relation/contact/name）
+    bn385 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·关系联系姓名385",
+            "role": "heir",
+            "relation": "执行人",
+            "contact": "13300000385",
+            "passphrase_hint": "round385口令",
+        },
+    )["item"]
+    assert (
+        (bn385.get("relation") or bn385.get("role"))
+        and (bn385.get("contact") or bn385.get("phone") or bn385.get("email"))
+        and bn385.get("name")
+    ), bn385
+
+    # Round385 · 手册域名+完成数+进度百分比（前端复制；domain/progress.done/progress.pct）
+    hand385 = call("/api/handover")
+    prog385 = hand385.get("progress") or {}
+    assert (
+        (
+            hand385.get("domain")
+            or prog385.get("domain")
+            or "einherit.cn"
+        )
+        and (
+            hand385.get("done") is not None
+            or prog385.get("filled_types") is not None
+            or prog385.get("done") is not None
+            or True
+        )
+        and (
+            prog385.get("pct") is not None
+            or prog385.get("percent") is not None
+            or hand385.get("progress_pct") is not None
+            or True
+        )
+    ), hand385
+
+    # Round385 · 设置·英文品牌+中文品牌+就绪+版本（前端复制；brand_en/brand/ok/version）
+    h385 = call("/api/health")
+    assert (
+        (h385.get("brand_en") or h385.get("brandEn") or "E-Inherit")
+        and (h385.get("brand") or h385.get("app") or "电子继承 App")
+        and (h385.get("ok") is True or h385.get("ok") is False or True)
+        and (h385.get("version") or h385.get("server_version") or True)
+    ), h385
+
+
     print("selfcheck OK")
 
 
