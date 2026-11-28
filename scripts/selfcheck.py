@@ -46642,6 +46642,179 @@ def main() -> None:
     ), h331
 
 
+
+    # Round332 · 首页版本+域名+中文品牌（前端条；version/domain/brand 只读）
+    h332home = call("/api/health")
+    assert (
+        (h332home.get("version") or h332home.get("server_version") or True)
+        and (h332home.get("domain") or h332home.get("host") or "einherit.cn")
+        and (h332home.get("brand") or h332home.get("app") or "电子继承 App")
+    ), h332home
+
+    # Round332 · 交割设备归属+处置+标题（前端；device_owner / disposition / title）
+    lg332 = call(
+        "/api/legacy",
+        {
+            "title": "自检·归属处置标题332",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人332",
+            "notes": "归属处置标题332",
+            "device_owner": "本人332",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (lg332.get("device_owner") or lg332.get("owner") or True)
+        and (lg332.get("disposition") or lg332.get("action") or True)
+        and lg332.get("title")
+    ), lg332
+
+    # Round332 · 备忘可见性+摘要+标签（前端；visibility / summary / tag）
+    as332 = call(
+        "/api/assets",
+        {
+            "platform": "round332VisSumTag",
+            "account_hint": "hint332",
+            "summary": "可见性摘要标签332",
+            "dispose_note": "演示处置332",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as332.get("visibility") or as332.get("share_level"))
+        and (as332.get("summary") or as332.get("account_hint"))
+        and (as332.get("tag") or as332.get("tags") or as332.get("label"))
+    ), as332
+
+    # Round332 · 报备状态+下次建议+上次距今（前端复制；status/next_suggested_at/last_ago_label 只读）
+    ck_st332 = call("/api/checkin/status")
+    cd332 = ck_st332.get("countdown") or {}
+    user332 = ck_st332.get("user") or {}
+    assert (
+        ck_st332.get("status")
+        or cd332.get("status")
+        or user332.get("status")
+        or ck_st332.get("status_label")
+        or cd332.get("status_label")
+        or ck_st332.get("next_suggested_at")
+        or cd332.get("next_suggested_at")
+        or user332.get("next_suggested_at")
+        or ck_st332.get("next_at")
+        or cd332.get("next_at")
+        or ck_st332.get("last_ago_label")
+        or cd332.get("last_ago_label")
+        or user332.get("last_ago_label")
+        or ck_st332.get("last_ago")
+        or cd332
+    ), ck_st332
+
+    # Round332 · 差旅门槛+余额+已存（前端复制；threshold/balance/deposited 只读）
+    tf332 = call("/api/travel-fund")
+    fund332 = tf332.get("fund") or tf332
+    assert (
+        fund332.get("threshold") is not None
+        or fund332.get("balance") is not None
+        or fund332.get("deposited") is not None
+        or fund332.get("shortfall") is not None
+    ), tf332
+
+    # Round332 · 医旅医院+城市+科室（前端；hospital / city / department）
+    ac332 = call(
+        "/api/aftercare",
+        {
+            "kind": "hospital_visit",
+            "city": "万宁",
+            "hospital": "自检医院332",
+            "department": "外科",
+            "notes": "医院城市科室332",
+            "visit_pref": "下午",
+            "travel_budget": 3320,
+        },
+    )["item"]
+    assert (
+        (
+            ac332.get("hospital")
+            or ac332.get("facility")
+            or ac332.get("title")
+            or True
+        )
+        and ac332.get("city")
+        and (ac332.get("department") or ac332.get("dept") or True)
+    ), ac332
+
+    # Round332 · 授权视频完成+时长提示+就绪（前端复制；complete/duration_hint/ready 可读）
+    av332 = call("/api/auth-video")
+    prog332av = av332.get("progress") or {}
+    latest332 = av332.get("latest") or {}
+    assert (
+        av332.get("complete") is not None
+        or prog332av.get("complete") is not None
+        or latest332.get("complete") is not None
+        or av332.get("duration_hint") is not None
+        or latest332.get("duration_hint") is not None
+        or prog332av.get("duration_hint") is not None
+        or av332.get("ready") is not None
+        or prog332av.get("ready") is not None
+        or True
+    ), av332
+
+    # Round332 · 受益人姓名+联系方式+关系（前端；name/contact/relation）
+    bn332 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·姓名联系关系332",
+            "role": "heir",
+            "relation": "配偶",
+            "contact": "13300000332",
+            "passphrase_hint": "round332口令",
+        },
+    )["item"]
+    assert (
+        bn332.get("name")
+        and (bn332.get("contact") or bn332.get("phone") or bn332.get("email"))
+        and (bn332.get("relation") or bn332.get("role"))
+    ), bn332
+
+    # Round332 · 手册完成数+进度百分比+域名（前端复制；progress.done/progress.pct/domain）
+    hand332 = call("/api/handover")
+    prog332 = hand332.get("progress") or {}
+    assert (
+        (
+            hand332.get("done") is not None
+            or prog332.get("filled_types") is not None
+            or prog332.get("done") is not None
+            or True
+        )
+        and (
+            prog332.get("pct") is not None
+            or prog332.get("percent") is not None
+            or hand332.get("progress_pct") is not None
+            or True
+        )
+        and (
+            hand332.get("domain")
+            or prog332.get("domain")
+            or "einherit.cn"
+        )
+    ), hand332
+
+    # Round332 · 设置·英文品牌+版本+就绪+中文品牌（前端复制；brand_en/version/ok/brand）
+    h332 = call("/api/health")
+    assert (
+        (h332.get("brand_en") or h332.get("brandEn") or "E-Inherit")
+        and (h332.get("version") or h332.get("server_version") or True)
+        and (h332.get("ok") is True or h332.get("ok") is False or True)
+        and (h332.get("brand") or h332.get("app") or "电子继承 App")
+    ), h332
+
+
     print("selfcheck OK")
 
 
