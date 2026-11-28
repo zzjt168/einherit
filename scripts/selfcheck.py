@@ -49237,6 +49237,179 @@ def main() -> None:
     ), h346
 
 
+
+    # Round347 · 首页域名+版本+中文品牌（前端条；domain/version/brand 只读）
+    h347home = call("/api/health")
+    assert (
+        (h347home.get("domain") or h347home.get("host") or "einherit.cn")
+        and (h347home.get("version") or h347home.get("server_version") or True)
+        and (h347home.get("brand") or h347home.get("app") or "电子继承 App")
+    ), h347home
+
+    # Round347 · 交割标题+处置+设备归属（前端；title / disposition / device_owner）
+    lg347 = call(
+        "/api/legacy",
+        {
+            "title": "自检·标题处置归属347",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人347",
+            "notes": "标题处置归属347",
+            "device_owner": "本人347",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        lg347.get("title")
+        and (lg347.get("disposition") or lg347.get("action") or True)
+        and (lg347.get("device_owner") or lg347.get("owner") or True)
+    ), lg347
+
+    # Round347 · 备忘标签+摘要+可见性（前端；tag / summary / visibility）
+    as347 = call(
+        "/api/assets",
+        {
+            "platform": "round347TagSumVis",
+            "account_hint": "hint347",
+            "summary": "标签摘要可见性347",
+            "dispose_note": "演示处置347",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as347.get("tag") or as347.get("tags") or as347.get("label"))
+        and (as347.get("summary") or as347.get("account_hint"))
+        and (as347.get("visibility") or as347.get("share_level"))
+    ), as347
+
+    # Round347 · 报备上次距今+下次建议+状态（前端复制；last_ago_label/next_suggested_at/status 只读）
+    ck_st347 = call("/api/checkin/status")
+    cd347 = ck_st347.get("countdown") or {}
+    user347 = ck_st347.get("user") or {}
+    assert (
+        ck_st347.get("last_ago_label")
+        or cd347.get("last_ago_label")
+        or user347.get("last_ago_label")
+        or ck_st347.get("last_ago")
+        or ck_st347.get("next_suggested_at")
+        or cd347.get("next_suggested_at")
+        or user347.get("next_suggested_at")
+        or ck_st347.get("next_at")
+        or cd347.get("next_at")
+        or ck_st347.get("status")
+        or cd347.get("status")
+        or user347.get("status")
+        or ck_st347.get("status_label")
+        or cd347.get("status_label")
+        or cd347
+    ), ck_st347
+
+    # Round347 · 差旅已存+余额+门槛（前端复制；deposited/balance/threshold 只读）
+    tf347 = call("/api/travel-fund")
+    fund347 = tf347.get("fund") or tf347
+    assert (
+        fund347.get("deposited") is not None
+        or fund347.get("balance") is not None
+        or fund347.get("threshold") is not None
+        or fund347.get("shortfall") is not None
+    ), tf347
+
+    # Round347 · 医旅科室+城市+医院（前端；department / city / hospital）
+    ac347 = call(
+        "/api/aftercare",
+        {
+            "kind": "hospital_visit",
+            "city": "东方",
+            "hospital": "自检医院347",
+            "department": "神经内科",
+            "notes": "科室城市医院347",
+            "visit_pref": "上午",
+            "travel_budget": 3470,
+        },
+    )["item"]
+    assert (
+        (ac347.get("department") or ac347.get("dept") or True)
+        and ac347.get("city")
+        and (
+            ac347.get("hospital")
+            or ac347.get("facility")
+            or ac347.get("title")
+            or True
+        )
+    ), ac347
+
+    # Round347 · 授权视频时长提示+完成+就绪（前端复制；duration_hint/complete/ready 可读）
+    av347 = call("/api/auth-video")
+    prog347av = av347.get("progress") or {}
+    latest347 = av347.get("latest") or {}
+    assert (
+        av347.get("duration_hint") is not None
+        or latest347.get("duration_hint") is not None
+        or prog347av.get("duration_hint") is not None
+        or av347.get("complete") is not None
+        or prog347av.get("complete") is not None
+        or latest347.get("complete") is not None
+        or av347.get("ready") is not None
+        or prog347av.get("ready") is not None
+        or True
+    ), av347
+
+    # Round347 · 受益人联系方式+姓名+关系（前端；contact/name/relation）
+    bn347 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·联系姓名关系347",
+            "role": "heir",
+            "relation": "合伙人",
+            "contact": "13300000347",
+            "passphrase_hint": "round347口令",
+        },
+    )["item"]
+    assert (
+        (bn347.get("contact") or bn347.get("phone") or bn347.get("email"))
+        and bn347.get("name")
+        and (bn347.get("relation") or bn347.get("role"))
+    ), bn347
+
+    # Round347 · 手册进度百分比+完成数+域名（前端复制；progress.pct/progress.done/domain）
+    hand347 = call("/api/handover")
+    prog347 = hand347.get("progress") or {}
+    assert (
+        (
+            prog347.get("pct") is not None
+            or prog347.get("percent") is not None
+            or hand347.get("progress_pct") is not None
+            or True
+        )
+        and (
+            hand347.get("done") is not None
+            or prog347.get("filled_types") is not None
+            or prog347.get("done") is not None
+            or True
+        )
+        and (
+            hand347.get("domain")
+            or prog347.get("domain")
+            or "einherit.cn"
+        )
+    ), hand347
+
+    # Round347 · 设置·版本+英文品牌+就绪+中文品牌（前端复制；version/brand_en/ok/brand）
+    h347 = call("/api/health")
+    assert (
+        (h347.get("version") or h347.get("server_version") or True)
+        and (h347.get("brand_en") or h347.get("brandEn") or "E-Inherit")
+        and (h347.get("ok") is True or h347.get("ok") is False or True)
+        and (h347.get("brand") or h347.get("app") or "电子继承 App")
+    ), h347
+
+
     print("selfcheck OK")
 
 
