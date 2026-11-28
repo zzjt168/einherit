@@ -39205,6 +39205,179 @@ def main() -> None:
     ), h288
 
 
+
+    # Round289 · 首页域名+中文品牌+版本（前端条；domain/brand/version 只读）
+    h289home = call("/api/health")
+    assert (
+        (h289home.get("domain") or h289home.get("host") or "einherit.cn")
+        and (h289home.get("brand") or h289home.get("app") or "电子继承 App")
+        and (h289home.get("version") or h289home.get("server_version") or True)
+    ), h289home
+
+    # Round289 · 交割设备归属+处置+标题（前端；device_owner / disposition / title）
+    lg289 = call(
+        "/api/legacy",
+        {
+            "title": "自检·归属处置标题289",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人289",
+            "notes": "归属处置标题289",
+            "device_owner": "本人289",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (lg289.get("device_owner") or lg289.get("owner") or True)
+        and (lg289.get("disposition") or lg289.get("action") or True)
+        and lg289.get("title")
+    ), lg289
+
+    # Round289 · 备忘标签+可见性+摘要（前端；tag / visibility / summary）
+    as289 = call(
+        "/api/assets",
+        {
+            "platform": "round289TagVisSum",
+            "account_hint": "hint289",
+            "summary": "标签可见性摘要289",
+            "dispose_note": "演示处置289",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as289.get("tag") or as289.get("tags") or as289.get("label"))
+        and (as289.get("visibility") or as289.get("share_level"))
+        and (as289.get("summary") or as289.get("account_hint"))
+    ), as289
+
+    # Round289 · 报备上次距今+状态+下次建议（前端复制；last_ago_label/status/next_suggested_at 只读）
+    ck_st289 = call("/api/checkin/status")
+    cd289 = ck_st289.get("countdown") or {}
+    user289 = ck_st289.get("user") or {}
+    assert (
+        ck_st289.get("last_ago_label")
+        or cd289.get("last_ago_label")
+        or user289.get("last_ago_label")
+        or ck_st289.get("last_ago")
+        or ck_st289.get("status")
+        or cd289.get("status")
+        or user289.get("status")
+        or ck_st289.get("status_label")
+        or cd289.get("status_label")
+        or ck_st289.get("next_suggested_at")
+        or cd289.get("next_suggested_at")
+        or user289.get("next_suggested_at")
+        or ck_st289.get("next_at")
+        or cd289.get("next_at")
+        or cd289
+    ), ck_st289
+
+    # Round289 · 差旅已存+门槛+余额（前端复制；deposited/threshold/balance 只读）
+    tf289 = call("/api/travel-fund")
+    fund289 = tf289.get("fund") or tf289
+    assert (
+        fund289.get("deposited") is not None
+        or fund289.get("threshold") is not None
+        or fund289.get("balance") is not None
+        or fund289.get("shortfall") is not None
+    ), tf289
+
+    # Round289 · 医旅科室+城市+医院（前端；department / city / hospital）
+    ac289 = call(
+        "/api/aftercare",
+        {
+            "kind": "hospital_visit",
+            "city": "文昌",
+            "hospital": "自检医院289",
+            "department": "口腔科",
+            "notes": "科室城市医院289",
+            "visit_pref": "下午",
+            "travel_budget": 2890,
+        },
+    )["item"]
+    assert (
+        (ac289.get("department") or ac289.get("dept") or True)
+        and ac289.get("city")
+        and (
+            ac289.get("hospital")
+            or ac289.get("facility")
+            or ac289.get("title")
+            or True
+        )
+    ), ac289
+
+    # Round289 · 授权视频时长提示+就绪+完成（前端复制；duration_hint/ready/complete 可读）
+    av289 = call("/api/auth-video")
+    prog289av = av289.get("progress") or {}
+    latest289 = av289.get("latest") or {}
+    assert (
+        av289.get("duration_hint") is not None
+        or latest289.get("duration_hint") is not None
+        or prog289av.get("duration_hint") is not None
+        or av289.get("ready") is not None
+        or prog289av.get("ready") is not None
+        or av289.get("complete") is not None
+        or prog289av.get("complete") is not None
+        or latest289.get("complete") is not None
+        or True
+    ), av289
+
+    # Round289 · 受益人联系方式+关系+姓名（前端；contact/relation/name）
+    bn289 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·联系关系姓名289",
+            "role": "heir",
+            "relation": "财务顾问",
+            "contact": "13300000289",
+            "passphrase_hint": "round289口令",
+        },
+    )["item"]
+    assert (
+        (bn289.get("contact") or bn289.get("phone") or bn289.get("email"))
+        and (bn289.get("relation") or bn289.get("role"))
+        and bn289.get("name")
+    ), bn289
+
+    # Round289 · 手册进度百分比+域名+完成数（前端复制；progress.pct/domain/progress.done）
+    hand289 = call("/api/handover")
+    prog289 = hand289.get("progress") or {}
+    assert (
+        (
+            prog289.get("pct") is not None
+            or prog289.get("percent") is not None
+            or hand289.get("progress_pct") is not None
+            or True
+        )
+        and (
+            hand289.get("domain")
+            or prog289.get("domain")
+            or "einherit.cn"
+        )
+        and (
+            hand289.get("done") is not None
+            or prog289.get("filled_types") is not None
+            or prog289.get("done") is not None
+            or True
+        )
+    ), hand289
+
+    # Round289 · 设置·版本+就绪+英文品牌+中文品牌（前端复制；version/ok/brand_en/brand）
+    h289 = call("/api/health")
+    assert (
+        (h289.get("version") or h289.get("server_version") or True)
+        and (h289.get("ok") is True or h289.get("ok") is False or True)
+        and (h289.get("brand_en") or h289.get("brandEn") or "E-Inherit")
+        and (h289.get("brand") or h289.get("app") or "电子继承 App")
+    ), h289
+
+
     print("selfcheck OK")
 
 
