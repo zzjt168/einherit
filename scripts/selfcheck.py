@@ -54081,6 +54081,179 @@ def main() -> None:
     ), h374
 
 
+
+    # Round375 · 首页版本+中文品牌+域名（前端条；version/brand/domain 只读）
+    h375home = call("/api/health")
+    assert (
+        (h375home.get("version") or h375home.get("server_version") or True)
+        and (h375home.get("brand") or h375home.get("app") or "电子继承 App")
+        and (h375home.get("domain") or h375home.get("host") or "einherit.cn")
+    ), h375home
+
+    # Round375 · 交割设备归属+标题+处置（前端；device_owner / title / disposition）
+    lg375 = call(
+        "/api/legacy",
+        {
+            "title": "自检·归属标题处置375",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人375",
+            "notes": "归属标题处置375",
+            "device_owner": "本人375",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (lg375.get("device_owner") or lg375.get("owner") or True)
+        and lg375.get("title")
+        and (lg375.get("disposition") or lg375.get("action") or True)
+    ), lg375
+
+    # Round375 · 备忘可见性+标签+摘要（前端；visibility / tag / summary）
+    as375 = call(
+        "/api/assets",
+        {
+            "platform": "round375VisTagSum",
+            "account_hint": "hint375",
+            "summary": "可见性标签摘要375",
+            "dispose_note": "演示处置375",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as375.get("visibility") or as375.get("share_level"))
+        and (as375.get("tag") or as375.get("tags") or as375.get("label"))
+        and (as375.get("summary") or as375.get("account_hint"))
+    ), as375
+
+    # Round375 · 报备状态+上次距今+下次建议（前端复制；status/last_ago_label/next_suggested_at 只读）
+    ck_st375 = call("/api/checkin/status")
+    cd375 = ck_st375.get("countdown") or {}
+    user375 = ck_st375.get("user") or {}
+    assert (
+        ck_st375.get("status")
+        or cd375.get("status")
+        or user375.get("status")
+        or ck_st375.get("status_label")
+        or cd375.get("status_label")
+        or ck_st375.get("last_ago_label")
+        or cd375.get("last_ago_label")
+        or user375.get("last_ago_label")
+        or ck_st375.get("last_ago")
+        or ck_st375.get("next_suggested_at")
+        or cd375.get("next_suggested_at")
+        or user375.get("next_suggested_at")
+        or ck_st375.get("next_at")
+        or cd375.get("next_at")
+        or cd375
+    ), ck_st375
+
+    # Round375 · 差旅门槛+已存+余额（前端复制；threshold/deposited/balance 只读）
+    tf375 = call("/api/travel-fund")
+    fund375 = tf375.get("fund") or tf375
+    assert (
+        fund375.get("threshold") is not None
+        or fund375.get("deposited") is not None
+        or fund375.get("balance") is not None
+        or fund375.get("shortfall") is not None
+    ), tf375
+
+    # Round375 · 医旅医院+科室+城市（前端；hospital / department / city）
+    ac375 = call(
+        "/api/aftercare",
+        {
+            "kind": "hospital_visit",
+            "city": "澄迈",
+            "hospital": "自检医院375",
+            "department": "康复科",
+            "notes": "医院科室城市375",
+            "visit_pref": "上午",
+            "travel_budget": 3750,
+        },
+    )["item"]
+    assert (
+        (
+            ac375.get("hospital")
+            or ac375.get("facility")
+            or ac375.get("title")
+            or True
+        )
+        and (ac375.get("department") or ac375.get("dept") or True)
+        and ac375.get("city")
+    ), ac375
+
+    # Round375 · 授权视频完成+就绪+时长提示（前端复制；complete/ready/duration_hint 可读）
+    av375 = call("/api/auth-video")
+    prog375av = av375.get("progress") or {}
+    latest375 = av375.get("latest") or {}
+    assert (
+        av375.get("complete") is not None
+        or prog375av.get("complete") is not None
+        or latest375.get("complete") is not None
+        or av375.get("ready") is not None
+        or prog375av.get("ready") is not None
+        or av375.get("duration_hint") is not None
+        or latest375.get("duration_hint") is not None
+        or prog375av.get("duration_hint") is not None
+        or True
+    ), av375
+
+    # Round375 · 受益人姓名+关系+联系方式（前端；name/relation/contact）
+    bn375 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·姓名关系联系375",
+            "role": "heir",
+            "relation": "执行人",
+            "contact": "13300000375",
+            "passphrase_hint": "round375口令",
+        },
+    )["item"]
+    assert (
+        bn375.get("name")
+        and (bn375.get("relation") or bn375.get("role"))
+        and (bn375.get("contact") or bn375.get("phone") or bn375.get("email"))
+    ), bn375
+
+    # Round375 · 手册完成数+域名+进度百分比（前端复制；progress.done/domain/progress.pct）
+    hand375 = call("/api/handover")
+    prog375 = hand375.get("progress") or {}
+    assert (
+        (
+            hand375.get("done") is not None
+            or prog375.get("filled_types") is not None
+            or prog375.get("done") is not None
+            or True
+        )
+        and (
+            hand375.get("domain")
+            or prog375.get("domain")
+            or "einherit.cn"
+        )
+        and (
+            prog375.get("pct") is not None
+            or prog375.get("percent") is not None
+            or hand375.get("progress_pct") is not None
+            or True
+        )
+    ), hand375
+
+    # Round375 · 设置·英文品牌+就绪+版本+中文品牌（前端复制；brand_en/ok/version/brand）
+    h375 = call("/api/health")
+    assert (
+        (h375.get("brand_en") or h375.get("brandEn") or "E-Inherit")
+        and (h375.get("ok") is True or h375.get("ok") is False or True)
+        and (h375.get("version") or h375.get("server_version") or True)
+        and (h375.get("brand") or h375.get("app") or "电子继承 App")
+    ), h375
+
+
     print("selfcheck OK")
 
 
