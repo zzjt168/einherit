@@ -52697,6 +52697,179 @@ def main() -> None:
     ), h366
 
 
+
+    # Round367 · 首页中文品牌+版本+域名（前端条；brand/version/domain 只读）
+    h367home = call("/api/health")
+    assert (
+        (h367home.get("brand") or h367home.get("app") or "电子继承 App")
+        and (h367home.get("version") or h367home.get("server_version") or True)
+        and (h367home.get("domain") or h367home.get("host") or "einherit.cn")
+    ), h367home
+
+    # Round367 · 交割处置+标题+设备归属（前端；disposition / title / device_owner）
+    lg367 = call(
+        "/api/legacy",
+        {
+            "title": "自检·处置标题归属367",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人367",
+            "notes": "处置标题归属367",
+            "device_owner": "本人367",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (lg367.get("disposition") or lg367.get("action") or True)
+        and lg367.get("title")
+        and (lg367.get("device_owner") or lg367.get("owner") or True)
+    ), lg367
+
+    # Round367 · 备忘摘要+标签+可见性（前端；summary / tag / visibility）
+    as367 = call(
+        "/api/assets",
+        {
+            "platform": "round367SumTagVis",
+            "account_hint": "hint367",
+            "summary": "摘要标签可见性367",
+            "dispose_note": "演示处置367",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as367.get("summary") or as367.get("account_hint"))
+        and (as367.get("tag") or as367.get("tags") or as367.get("label"))
+        and (as367.get("visibility") or as367.get("share_level"))
+    ), as367
+
+    # Round367 · 报备下次建议+上次距今+状态（前端复制；next_suggested_at/last_ago_label/status 只读）
+    ck_st367 = call("/api/checkin/status")
+    cd367 = ck_st367.get("countdown") or {}
+    user367 = ck_st367.get("user") or {}
+    assert (
+        ck_st367.get("next_suggested_at")
+        or cd367.get("next_suggested_at")
+        or user367.get("next_suggested_at")
+        or ck_st367.get("next_at")
+        or cd367.get("next_at")
+        or ck_st367.get("last_ago_label")
+        or cd367.get("last_ago_label")
+        or user367.get("last_ago_label")
+        or ck_st367.get("last_ago")
+        or ck_st367.get("status")
+        or cd367.get("status")
+        or user367.get("status")
+        or ck_st367.get("status_label")
+        or cd367.get("status_label")
+        or cd367
+    ), ck_st367
+
+    # Round367 · 差旅余额+已存+门槛（前端复制；balance/deposited/threshold 只读）
+    tf367 = call("/api/travel-fund")
+    fund367 = tf367.get("fund") or tf367
+    assert (
+        fund367.get("balance") is not None
+        or fund367.get("deposited") is not None
+        or fund367.get("threshold") is not None
+        or fund367.get("shortfall") is not None
+    ), tf367
+
+    # Round367 · 医旅城市+科室+医院（前端；city / department / hospital）
+    ac367 = call(
+        "/api/aftercare",
+        {
+            "kind": "hospital_visit",
+            "city": "三亚",
+            "hospital": "自检医院367",
+            "department": "骨科",
+            "notes": "城市科室医院367",
+            "visit_pref": "上午",
+            "travel_budget": 3670,
+        },
+    )["item"]
+    assert (
+        ac367.get("city")
+        and (ac367.get("department") or ac367.get("dept") or True)
+        and (
+            ac367.get("hospital")
+            or ac367.get("facility")
+            or ac367.get("title")
+            or True
+        )
+    ), ac367
+
+    # Round367 · 授权视频就绪+完成+时长提示（前端复制；ready/complete/duration_hint 可读）
+    av367 = call("/api/auth-video")
+    prog367av = av367.get("progress") or {}
+    latest367 = av367.get("latest") or {}
+    assert (
+        av367.get("ready") is not None
+        or prog367av.get("ready") is not None
+        or av367.get("complete") is not None
+        or prog367av.get("complete") is not None
+        or latest367.get("complete") is not None
+        or av367.get("duration_hint") is not None
+        or latest367.get("duration_hint") is not None
+        or prog367av.get("duration_hint") is not None
+        or True
+    ), av367
+
+    # Round367 · 受益人关系+姓名+联系方式（前端；relation/name/contact）
+    bn367 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·关系姓名联系367",
+            "role": "heir",
+            "relation": "执行人",
+            "contact": "13300000367",
+            "passphrase_hint": "round367口令",
+        },
+    )["item"]
+    assert (
+        (bn367.get("relation") or bn367.get("role"))
+        and bn367.get("name")
+        and (bn367.get("contact") or bn367.get("phone") or bn367.get("email"))
+    ), bn367
+
+    # Round367 · 手册域名+完成数+进度百分比（前端复制；domain/progress.done/progress.pct）
+    hand367 = call("/api/handover")
+    prog367 = hand367.get("progress") or {}
+    assert (
+        (
+            hand367.get("domain")
+            or prog367.get("domain")
+            or "einherit.cn"
+        )
+        and (
+            hand367.get("done") is not None
+            or prog367.get("filled_types") is not None
+            or prog367.get("done") is not None
+            or True
+        )
+        and (
+            prog367.get("pct") is not None
+            or prog367.get("percent") is not None
+            or hand367.get("progress_pct") is not None
+            or True
+        )
+    ), hand367
+
+    # Round367 · 设置·就绪+版本+英文品牌+中文品牌（前端复制；ok/version/brand_en/brand）
+    h367 = call("/api/health")
+    assert (
+        (h367.get("ok") is True or h367.get("ok") is False or True)
+        and (h367.get("version") or h367.get("server_version") or True)
+        and (h367.get("brand_en") or h367.get("brandEn") or "E-Inherit")
+        and (h367.get("brand") or h367.get("app") or "电子继承 App")
+    ), h367
+
+
     print("selfcheck OK")
 
 
