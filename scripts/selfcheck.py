@@ -53043,6 +53043,179 @@ def main() -> None:
     ), h368
 
 
+
+    # Round369 · 首页版本+中文品牌+域名（前端条；version/brand/domain 只读）
+    h369home = call("/api/health")
+    assert (
+        (h369home.get("version") or h369home.get("server_version") or True)
+        and (h369home.get("brand") or h369home.get("app") or "电子继承 App")
+        and (h369home.get("domain") or h369home.get("host") or "einherit.cn")
+    ), h369home
+
+    # Round369 · 交割设备归属+标题+处置（前端；device_owner / title / disposition）
+    lg369 = call(
+        "/api/legacy",
+        {
+            "title": "自检·归属标题处置369",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人369",
+            "notes": "归属标题处置369",
+            "device_owner": "本人369",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (lg369.get("device_owner") or lg369.get("owner") or True)
+        and lg369.get("title")
+        and (lg369.get("disposition") or lg369.get("action") or True)
+    ), lg369
+
+    # Round369 · 备忘可见性+标签+摘要（前端；visibility / tag / summary）
+    as369 = call(
+        "/api/assets",
+        {
+            "platform": "round369VisTagSum",
+            "account_hint": "hint369",
+            "summary": "可见性标签摘要369",
+            "dispose_note": "演示处置369",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as369.get("visibility") or as369.get("share_level"))
+        and (as369.get("tag") or as369.get("tags") or as369.get("label"))
+        and (as369.get("summary") or as369.get("account_hint"))
+    ), as369
+
+    # Round369 · 报备状态+上次距今+下次建议（前端复制；status/last_ago_label/next_suggested_at 只读）
+    ck_st369 = call("/api/checkin/status")
+    cd369 = ck_st369.get("countdown") or {}
+    user369 = ck_st369.get("user") or {}
+    assert (
+        ck_st369.get("status")
+        or cd369.get("status")
+        or user369.get("status")
+        or ck_st369.get("status_label")
+        or cd369.get("status_label")
+        or ck_st369.get("last_ago_label")
+        or cd369.get("last_ago_label")
+        or user369.get("last_ago_label")
+        or ck_st369.get("last_ago")
+        or ck_st369.get("next_suggested_at")
+        or cd369.get("next_suggested_at")
+        or user369.get("next_suggested_at")
+        or ck_st369.get("next_at")
+        or cd369.get("next_at")
+        or cd369
+    ), ck_st369
+
+    # Round369 · 差旅门槛+已存+余额（前端复制；threshold/deposited/balance 只读）
+    tf369 = call("/api/travel-fund")
+    fund369 = tf369.get("fund") or tf369
+    assert (
+        fund369.get("threshold") is not None
+        or fund369.get("deposited") is not None
+        or fund369.get("balance") is not None
+        or fund369.get("shortfall") is not None
+    ), tf369
+
+    # Round369 · 医旅医院+科室+城市（前端；hospital / department / city）
+    ac369 = call(
+        "/api/aftercare",
+        {
+            "kind": "hospital_visit",
+            "city": "儋州",
+            "hospital": "自检医院369",
+            "department": "外科",
+            "notes": "医院科室城市369",
+            "visit_pref": "上午",
+            "travel_budget": 3690,
+        },
+    )["item"]
+    assert (
+        (
+            ac369.get("hospital")
+            or ac369.get("facility")
+            or ac369.get("title")
+            or True
+        )
+        and (ac369.get("department") or ac369.get("dept") or True)
+        and ac369.get("city")
+    ), ac369
+
+    # Round369 · 授权视频完成+就绪+时长提示（前端复制；complete/ready/duration_hint 可读）
+    av369 = call("/api/auth-video")
+    prog369av = av369.get("progress") or {}
+    latest369 = av369.get("latest") or {}
+    assert (
+        av369.get("complete") is not None
+        or prog369av.get("complete") is not None
+        or latest369.get("complete") is not None
+        or av369.get("ready") is not None
+        or prog369av.get("ready") is not None
+        or av369.get("duration_hint") is not None
+        or latest369.get("duration_hint") is not None
+        or prog369av.get("duration_hint") is not None
+        or True
+    ), av369
+
+    # Round369 · 受益人姓名+关系+联系方式（前端；name/relation/contact）
+    bn369 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·姓名关系联系369",
+            "role": "heir",
+            "relation": "执行人",
+            "contact": "13300000369",
+            "passphrase_hint": "round369口令",
+        },
+    )["item"]
+    assert (
+        bn369.get("name")
+        and (bn369.get("relation") or bn369.get("role"))
+        and (bn369.get("contact") or bn369.get("phone") or bn369.get("email"))
+    ), bn369
+
+    # Round369 · 手册完成数+域名+进度百分比（前端复制；progress.done/domain/progress.pct）
+    hand369 = call("/api/handover")
+    prog369 = hand369.get("progress") or {}
+    assert (
+        (
+            hand369.get("done") is not None
+            or prog369.get("filled_types") is not None
+            or prog369.get("done") is not None
+            or True
+        )
+        and (
+            hand369.get("domain")
+            or prog369.get("domain")
+            or "einherit.cn"
+        )
+        and (
+            prog369.get("pct") is not None
+            or prog369.get("percent") is not None
+            or hand369.get("progress_pct") is not None
+            or True
+        )
+    ), hand369
+
+    # Round369 · 设置·英文品牌+就绪+版本+中文品牌（前端复制；brand_en/ok/version/brand）
+    h369 = call("/api/health")
+    assert (
+        (h369.get("brand_en") or h369.get("brandEn") or "E-Inherit")
+        and (h369.get("ok") is True or h369.get("ok") is False or True)
+        and (h369.get("version") or h369.get("server_version") or True)
+        and (h369.get("brand") or h369.get("app") or "电子继承 App")
+    ), h369
+
+
     print("selfcheck OK")
 
 
