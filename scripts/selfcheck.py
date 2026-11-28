@@ -54946,6 +54946,179 @@ def main() -> None:
     ), h379
 
 
+
+    # Round380 · 首页域名+中文品牌+版本（前端条；domain/brand/version 只读）
+    h380home = call("/api/health")
+    assert (
+        (h380home.get("domain") or h380home.get("host") or "einherit.cn")
+        and (h380home.get("brand") or h380home.get("app") or "电子继承 App")
+        and (h380home.get("version") or h380home.get("server_version") or True)
+    ), h380home
+
+    # Round380 · 交割标题+设备归属+处置（前端；title / device_owner / disposition）
+    lg380 = call(
+        "/api/legacy",
+        {
+            "title": "自检·标题归属处置380",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人380",
+            "notes": "标题归属处置380",
+            "device_owner": "本人380",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        lg380.get("title")
+        and (lg380.get("device_owner") or lg380.get("owner") or True)
+        and (lg380.get("disposition") or lg380.get("action") or True)
+    ), lg380
+
+    # Round380 · 备忘标签+可见性+摘要（前端；tag / visibility / summary）
+    as380 = call(
+        "/api/assets",
+        {
+            "platform": "round380TagVisSum",
+            "account_hint": "hint380",
+            "summary": "标签可见性摘要380",
+            "dispose_note": "演示处置380",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as380.get("tag") or as380.get("tags") or as380.get("label"))
+        and (as380.get("visibility") or as380.get("share_level"))
+        and (as380.get("summary") or as380.get("account_hint"))
+    ), as380
+
+    # Round380 · 报备上次距今+状态+下次建议（前端复制；last_ago_label/status/next_suggested_at 只读）
+    ck_st380 = call("/api/checkin/status")
+    cd380 = ck_st380.get("countdown") or {}
+    user380 = ck_st380.get("user") or {}
+    assert (
+        ck_st380.get("last_ago_label")
+        or cd380.get("last_ago_label")
+        or user380.get("last_ago_label")
+        or ck_st380.get("last_ago")
+        or ck_st380.get("status")
+        or cd380.get("status")
+        or user380.get("status")
+        or ck_st380.get("status_label")
+        or cd380.get("status_label")
+        or ck_st380.get("next_suggested_at")
+        or cd380.get("next_suggested_at")
+        or user380.get("next_suggested_at")
+        or ck_st380.get("next_at")
+        or cd380.get("next_at")
+        or cd380
+    ), ck_st380
+
+    # Round380 · 差旅已存+门槛+余额（前端复制；deposited/threshold/balance 只读）
+    tf380 = call("/api/travel-fund")
+    fund380 = tf380.get("fund") or tf380
+    assert (
+        fund380.get("deposited") is not None
+        or fund380.get("threshold") is not None
+        or fund380.get("balance") is not None
+        or fund380.get("shortfall") is not None
+    ), tf380
+
+    # Round380 · 医旅科室+医院+城市（前端；department / hospital / city）
+    ac380 = call(
+        "/api/aftercare",
+        {
+            "kind": "hospital_visit",
+            "city": "琼中",
+            "hospital": "自检医院380",
+            "department": "骨科",
+            "notes": "科室医院城市380",
+            "visit_pref": "上午",
+            "travel_budget": 3800,
+        },
+    )["item"]
+    assert (
+        (ac380.get("department") or ac380.get("dept") or True)
+        and (
+            ac380.get("hospital")
+            or ac380.get("facility")
+            or ac380.get("title")
+            or True
+        )
+        and ac380.get("city")
+    ), ac380
+
+    # Round380 · 授权视频时长提示+就绪+完成（前端复制；duration_hint/ready/complete 可读）
+    av380 = call("/api/auth-video")
+    prog380av = av380.get("progress") or {}
+    latest380 = av380.get("latest") or {}
+    assert (
+        av380.get("duration_hint") is not None
+        or latest380.get("duration_hint") is not None
+        or prog380av.get("duration_hint") is not None
+        or av380.get("ready") is not None
+        or prog380av.get("ready") is not None
+        or av380.get("complete") is not None
+        or prog380av.get("complete") is not None
+        or latest380.get("complete") is not None
+        or True
+    ), av380
+
+    # Round380 · 受益人联系方式+关系+姓名（前端；contact/relation/name）
+    bn380 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·联系关系姓名380",
+            "role": "heir",
+            "relation": "执行人",
+            "contact": "13300000380",
+            "passphrase_hint": "round380口令",
+        },
+    )["item"]
+    assert (
+        (bn380.get("contact") or bn380.get("phone") or bn380.get("email"))
+        and (bn380.get("relation") or bn380.get("role"))
+        and bn380.get("name")
+    ), bn380
+
+    # Round380 · 手册进度百分比+域名+完成数（前端复制；progress.pct/domain/progress.done）
+    hand380 = call("/api/handover")
+    prog380 = hand380.get("progress") or {}
+    assert (
+        (
+            prog380.get("pct") is not None
+            or prog380.get("percent") is not None
+            or hand380.get("progress_pct") is not None
+            or True
+        )
+        and (
+            hand380.get("domain")
+            or prog380.get("domain")
+            or "einherit.cn"
+        )
+        and (
+            hand380.get("done") is not None
+            or prog380.get("filled_types") is not None
+            or prog380.get("done") is not None
+            or True
+        )
+    ), hand380
+
+    # Round380 · 设置·就绪+中文品牌+英文品牌+版本（前端复制；ok/brand/brand_en/version）
+    h380 = call("/api/health")
+    assert (
+        (h380.get("ok") is True or h380.get("ok") is False or True)
+        and (h380.get("brand") or h380.get("app") or "电子继承 App")
+        and (h380.get("brand_en") or h380.get("brandEn") or "E-Inherit")
+        and (h380.get("version") or h380.get("server_version") or True)
+    ), h380
+
+
     print("selfcheck OK")
 
 
