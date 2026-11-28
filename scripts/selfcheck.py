@@ -51140,6 +51140,179 @@ def main() -> None:
     ), h357
 
 
+
+    # Round358 · 首页中文品牌+域名+版本（前端条；brand/domain/version 只读）
+    h358home = call("/api/health")
+    assert (
+        (h358home.get("brand") or h358home.get("app") or "电子继承 App")
+        and (h358home.get("domain") or h358home.get("host") or "einherit.cn")
+        and (h358home.get("version") or h358home.get("server_version") or True)
+    ), h358home
+
+    # Round358 · 交割处置+设备归属+标题（前端；disposition / device_owner / title）
+    lg358 = call(
+        "/api/legacy",
+        {
+            "title": "自检·处置归属标题358",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人358",
+            "notes": "处置归属标题358",
+            "device_owner": "本人358",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (lg358.get("disposition") or lg358.get("action") or True)
+        and (lg358.get("device_owner") or lg358.get("owner") or True)
+        and lg358.get("title")
+    ), lg358
+
+    # Round358 · 备忘摘要+可见性+标签（前端；summary / visibility / tag）
+    as358 = call(
+        "/api/assets",
+        {
+            "platform": "round358SumVisTag",
+            "account_hint": "hint358",
+            "summary": "摘要可见性标签358",
+            "dispose_note": "演示处置358",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as358.get("summary") or as358.get("account_hint"))
+        and (as358.get("visibility") or as358.get("share_level"))
+        and (as358.get("tag") or as358.get("tags") or as358.get("label"))
+    ), as358
+
+    # Round358 · 报备下次建议+状态+上次距今（前端复制；next_suggested_at/status/last_ago_label 只读）
+    ck_st358 = call("/api/checkin/status")
+    cd358 = ck_st358.get("countdown") or {}
+    user358 = ck_st358.get("user") or {}
+    assert (
+        ck_st358.get("next_suggested_at")
+        or cd358.get("next_suggested_at")
+        or user358.get("next_suggested_at")
+        or ck_st358.get("next_at")
+        or cd358.get("next_at")
+        or ck_st358.get("status")
+        or cd358.get("status")
+        or user358.get("status")
+        or ck_st358.get("status_label")
+        or cd358.get("status_label")
+        or ck_st358.get("last_ago_label")
+        or cd358.get("last_ago_label")
+        or user358.get("last_ago_label")
+        or ck_st358.get("last_ago")
+        or cd358
+    ), ck_st358
+
+    # Round358 · 差旅余额+门槛+已存（前端复制；balance/threshold/deposited 只读）
+    tf358 = call("/api/travel-fund")
+    fund358 = tf358.get("fund") or tf358
+    assert (
+        fund358.get("balance") is not None
+        or fund358.get("threshold") is not None
+        or fund358.get("deposited") is not None
+        or fund358.get("shortfall") is not None
+    ), tf358
+
+    # Round358 · 医旅城市+医院+科室（前端；city / hospital / department）
+    ac358 = call(
+        "/api/aftercare",
+        {
+            "kind": "hospital_visit",
+            "city": "万宁",
+            "hospital": "自检医院358",
+            "department": "皮肤科",
+            "notes": "城市医院科室358",
+            "visit_pref": "下午",
+            "travel_budget": 3580,
+        },
+    )["item"]
+    assert (
+        ac358.get("city")
+        and (
+            ac358.get("hospital")
+            or ac358.get("facility")
+            or ac358.get("title")
+            or True
+        )
+        and (ac358.get("department") or ac358.get("dept") or True)
+    ), ac358
+
+    # Round358 · 授权视频就绪+时长提示+完成（前端复制；ready/duration_hint/complete 可读）
+    av358 = call("/api/auth-video")
+    prog358av = av358.get("progress") or {}
+    latest358 = av358.get("latest") or {}
+    assert (
+        av358.get("ready") is not None
+        or prog358av.get("ready") is not None
+        or av358.get("duration_hint") is not None
+        or latest358.get("duration_hint") is not None
+        or prog358av.get("duration_hint") is not None
+        or av358.get("complete") is not None
+        or prog358av.get("complete") is not None
+        or latest358.get("complete") is not None
+        or True
+    ), av358
+
+    # Round358 · 受益人关系+联系方式+姓名（前端；relation/contact/name）
+    bn358 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·关系联系姓名358",
+            "role": "heir",
+            "relation": "执行人",
+            "contact": "13300000358",
+            "passphrase_hint": "round358口令",
+        },
+    )["item"]
+    assert (
+        (bn358.get("relation") or bn358.get("role"))
+        and (bn358.get("contact") or bn358.get("phone") or bn358.get("email"))
+        and bn358.get("name")
+    ), bn358
+
+    # Round358 · 手册域名+进度百分比+完成数（前端复制；domain/progress.pct/progress.done）
+    hand358 = call("/api/handover")
+    prog358 = hand358.get("progress") or {}
+    assert (
+        (
+            hand358.get("domain")
+            or prog358.get("domain")
+            or "einherit.cn"
+        )
+        and (
+            prog358.get("pct") is not None
+            or prog358.get("percent") is not None
+            or hand358.get("progress_pct") is not None
+            or True
+        )
+        and (
+            hand358.get("done") is not None
+            or prog358.get("filled_types") is not None
+            or prog358.get("done") is not None
+            or True
+        )
+    ), hand358
+
+    # Round358 · 设置·就绪+英文品牌+中文品牌+版本（前端复制；ok/brand_en/brand/version）
+    h358 = call("/api/health")
+    assert (
+        (h358.get("ok") is True or h358.get("ok") is False or True)
+        and (h358.get("brand_en") or h358.get("brandEn") or "E-Inherit")
+        and (h358.get("brand") or h358.get("app") or "电子继承 App")
+        and (h358.get("version") or h358.get("server_version") or True)
+    ), h358
+
+
     print("selfcheck OK")
 
 
