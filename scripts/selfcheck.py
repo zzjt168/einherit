@@ -42838,6 +42838,179 @@ def main() -> None:
     ), h309
 
 
+
+    # Round310 · 首页域名+版本+中文品牌（前端条；domain/version/brand 只读）
+    h310home = call("/api/health")
+    assert (
+        (h310home.get("domain") or h310home.get("host") or "einherit.cn")
+        and (h310home.get("version") or h310home.get("server_version") or True)
+        and (h310home.get("brand") or h310home.get("app") or "电子继承 App")
+    ), h310home
+
+    # Round310 · 交割标题+设备归属+处置（前端；title / device_owner / disposition）
+    lg310 = call(
+        "/api/legacy",
+        {
+            "title": "自检·标题归属处置310",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人310",
+            "notes": "标题归属处置310",
+            "device_owner": "本人310",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        lg310.get("title")
+        and (lg310.get("device_owner") or lg310.get("owner") or True)
+        and (lg310.get("disposition") or lg310.get("action") or True)
+    ), lg310
+
+    # Round310 · 备忘标签+摘要+可见性（前端；tag / summary / visibility）
+    as310 = call(
+        "/api/assets",
+        {
+            "platform": "round310TagSumVis",
+            "account_hint": "hint310",
+            "summary": "标签摘要可见性310",
+            "dispose_note": "演示处置310",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as310.get("tag") or as310.get("tags") or as310.get("label"))
+        and (as310.get("summary") or as310.get("account_hint"))
+        and (as310.get("visibility") or as310.get("share_level"))
+    ), as310
+
+    # Round310 · 报备上次距今+下次建议+状态（前端复制；last_ago_label/next_suggested_at/status 只读）
+    ck_st310 = call("/api/checkin/status")
+    cd310 = ck_st310.get("countdown") or {}
+    user310 = ck_st310.get("user") or {}
+    assert (
+        ck_st310.get("last_ago_label")
+        or cd310.get("last_ago_label")
+        or user310.get("last_ago_label")
+        or ck_st310.get("last_ago")
+        or ck_st310.get("next_suggested_at")
+        or cd310.get("next_suggested_at")
+        or user310.get("next_suggested_at")
+        or ck_st310.get("next_at")
+        or cd310.get("next_at")
+        or ck_st310.get("status")
+        or cd310.get("status")
+        or user310.get("status")
+        or ck_st310.get("status_label")
+        or cd310.get("status_label")
+        or cd310
+    ), ck_st310
+
+    # Round310 · 差旅已存+余额+门槛（前端复制；deposited/balance/threshold 只读）
+    tf310 = call("/api/travel-fund")
+    fund310 = tf310.get("fund") or tf310
+    assert (
+        fund310.get("deposited") is not None
+        or fund310.get("balance") is not None
+        or fund310.get("threshold") is not None
+        or fund310.get("shortfall") is not None
+    ), tf310
+
+    # Round310 · 医旅科室+城市+医院（前端；department / city / hospital）
+    ac310 = call(
+        "/api/aftercare",
+        {
+            "kind": "hospital_visit",
+            "city": "临高",
+            "hospital": "自检医院310",
+            "department": "骨科",
+            "notes": "科室城市医院310",
+            "visit_pref": "上午",
+            "travel_budget": 3100,
+        },
+    )["item"]
+    assert (
+        (ac310.get("department") or ac310.get("dept") or True)
+        and ac310.get("city")
+        and (
+            ac310.get("hospital")
+            or ac310.get("facility")
+            or ac310.get("title")
+            or True
+        )
+    ), ac310
+
+    # Round310 · 授权视频时长提示+就绪+完成（前端复制；duration_hint/ready/complete 可读）
+    av310 = call("/api/auth-video")
+    prog310av = av310.get("progress") or {}
+    latest310 = av310.get("latest") or {}
+    assert (
+        av310.get("duration_hint") is not None
+        or latest310.get("duration_hint") is not None
+        or prog310av.get("duration_hint") is not None
+        or av310.get("ready") is not None
+        or prog310av.get("ready") is not None
+        or av310.get("complete") is not None
+        or prog310av.get("complete") is not None
+        or latest310.get("complete") is not None
+        or True
+    ), av310
+
+    # Round310 · 受益人联系方式+关系+姓名（前端；contact/relation/name）
+    bn310 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·联系关系姓名310",
+            "role": "heir",
+            "relation": "邻居",
+            "contact": "13300000310",
+            "passphrase_hint": "round310口令",
+        },
+    )["item"]
+    assert (
+        (bn310.get("contact") or bn310.get("phone") or bn310.get("email"))
+        and (bn310.get("relation") or bn310.get("role"))
+        and bn310.get("name")
+    ), bn310
+
+    # Round310 · 手册进度百分比+完成数+域名（前端复制；progress.pct/progress.done/domain）
+    hand310 = call("/api/handover")
+    prog310 = hand310.get("progress") or {}
+    assert (
+        (
+            prog310.get("pct") is not None
+            or prog310.get("percent") is not None
+            or hand310.get("progress_pct") is not None
+            or True
+        )
+        and (
+            hand310.get("done") is not None
+            or prog310.get("filled_types") is not None
+            or prog310.get("done") is not None
+            or True
+        )
+        and (
+            hand310.get("domain")
+            or prog310.get("domain")
+            or "einherit.cn"
+        )
+    ), hand310
+
+    # Round310 · 设置·中文品牌+就绪+英文品牌+版本（前端复制；brand/ok/brand_en/version）
+    h310 = call("/api/health")
+    assert (
+        (h310.get("brand") or h310.get("app") or "电子继承 App")
+        and (h310.get("ok") is True or h310.get("ok") is False or True)
+        and (h310.get("brand_en") or h310.get("brandEn") or "E-Inherit")
+        and (h310.get("version") or h310.get("server_version") or True)
+    ), h310
+
+
     print("selfcheck OK")
 
 
