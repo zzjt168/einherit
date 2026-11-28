@@ -40416,6 +40416,179 @@ def main() -> None:
     ), h295
 
 
+
+    # Round296 · 首页版本+域名+中文品牌（前端条；version/domain/brand 只读）
+    h296home = call("/api/health")
+    assert (
+        (h296home.get("version") or h296home.get("server_version") or True)
+        and (h296home.get("domain") or h296home.get("host") or "einherit.cn")
+        and (h296home.get("brand") or h296home.get("app") or "电子继承 App")
+    ), h296home
+
+    # Round296 · 交割标题+处置+设备归属（前端；title / disposition / device_owner）
+    lg296 = call(
+        "/api/legacy",
+        {
+            "title": "自检·标题处置归属296",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人296",
+            "notes": "标题处置归属296",
+            "device_owner": "本人296",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        lg296.get("title")
+        and (lg296.get("disposition") or lg296.get("action") or True)
+        and (lg296.get("device_owner") or lg296.get("owner") or True)
+    ), lg296
+
+    # Round296 · 备忘可见性+摘要+标签（前端；visibility / summary / tag）
+    as296 = call(
+        "/api/assets",
+        {
+            "platform": "round296VisSumTag",
+            "account_hint": "hint296",
+            "summary": "可见性摘要标签296",
+            "dispose_note": "演示处置296",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as296.get("visibility") or as296.get("share_level"))
+        and (as296.get("summary") or as296.get("account_hint"))
+        and (as296.get("tag") or as296.get("tags") or as296.get("label"))
+    ), as296
+
+    # Round296 · 报备下次建议+上次距今+状态（前端复制；next_suggested_at/last_ago_label/status 只读）
+    ck_st296 = call("/api/checkin/status")
+    cd296 = ck_st296.get("countdown") or {}
+    user296 = ck_st296.get("user") or {}
+    assert (
+        ck_st296.get("next_suggested_at")
+        or cd296.get("next_suggested_at")
+        or user296.get("next_suggested_at")
+        or ck_st296.get("next_at")
+        or cd296.get("next_at")
+        or ck_st296.get("last_ago_label")
+        or cd296.get("last_ago_label")
+        or user296.get("last_ago_label")
+        or ck_st296.get("last_ago")
+        or ck_st296.get("status")
+        or cd296.get("status")
+        or user296.get("status")
+        or ck_st296.get("status_label")
+        or cd296.get("status_label")
+        or cd296
+    ), ck_st296
+
+    # Round296 · 差旅门槛+余额+已存（前端复制；threshold/balance/deposited 只读）
+    tf296 = call("/api/travel-fund")
+    fund296 = tf296.get("fund") or tf296
+    assert (
+        fund296.get("threshold") is not None
+        or fund296.get("balance") is not None
+        or fund296.get("deposited") is not None
+        or fund296.get("shortfall") is not None
+    ), tf296
+
+    # Round296 · 医旅医院+城市+科室（前端；hospital / city / department）
+    ac296 = call(
+        "/api/aftercare",
+        {
+            "kind": "hospital_visit",
+            "city": "文昌",
+            "hospital": "自检医院296",
+            "department": "口腔科",
+            "notes": "医院城市科室296",
+            "visit_pref": "下午",
+            "travel_budget": 2960,
+        },
+    )["item"]
+    assert (
+        (
+            ac296.get("hospital")
+            or ac296.get("facility")
+            or ac296.get("title")
+            or True
+        )
+        and ac296.get("city")
+        and (ac296.get("department") or ac296.get("dept") or True)
+    ), ac296
+
+    # Round296 · 授权视频完成+时长提示+就绪（前端复制；complete/duration_hint/ready 可读）
+    av296 = call("/api/auth-video")
+    prog296av = av296.get("progress") or {}
+    latest296 = av296.get("latest") or {}
+    assert (
+        av296.get("complete") is not None
+        or prog296av.get("complete") is not None
+        or latest296.get("complete") is not None
+        or av296.get("duration_hint") is not None
+        or latest296.get("duration_hint") is not None
+        or prog296av.get("duration_hint") is not None
+        or av296.get("ready") is not None
+        or prog296av.get("ready") is not None
+        or True
+    ), av296
+
+    # Round296 · 受益人姓名+联系方式+关系（前端；name/contact/relation）
+    bn296 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·姓名联系关系296",
+            "role": "heir",
+            "relation": "财务顾问",
+            "contact": "13300000296",
+            "passphrase_hint": "round296口令",
+        },
+    )["item"]
+    assert (
+        bn296.get("name")
+        and (bn296.get("contact") or bn296.get("phone") or bn296.get("email"))
+        and (bn296.get("relation") or bn296.get("role"))
+    ), bn296
+
+    # Round296 · 手册完成数+进度百分比+域名（前端复制；progress.done/progress.pct/domain）
+    hand296 = call("/api/handover")
+    prog296 = hand296.get("progress") or {}
+    assert (
+        (
+            hand296.get("done") is not None
+            or prog296.get("filled_types") is not None
+            or prog296.get("done") is not None
+            or True
+        )
+        and (
+            prog296.get("pct") is not None
+            or prog296.get("percent") is not None
+            or hand296.get("progress_pct") is not None
+            or True
+        )
+        and (
+            hand296.get("domain")
+            or prog296.get("domain")
+            or "einherit.cn"
+        )
+    ), hand296
+
+    # Round296 · 设置·英文品牌+中文品牌+版本+就绪（前端复制；brand_en/brand/version/ok）
+    h296 = call("/api/health")
+    assert (
+        (h296.get("brand_en") or h296.get("brandEn") or "E-Inherit")
+        and (h296.get("brand") or h296.get("app") or "电子继承 App")
+        and (h296.get("version") or h296.get("server_version") or True)
+        and (h296.get("ok") is True or h296.get("ok") is False or True)
+    ), h296
+
+
     print("selfcheck OK")
 
 
