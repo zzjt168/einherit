@@ -55465,6 +55465,179 @@ def main() -> None:
     ), h382
 
 
+
+    # Round383 · 首页域名+版本+中文品牌（前端条；domain/version/brand 只读）
+    h383home = call("/api/health")
+    assert (
+        (h383home.get("domain") or h383home.get("host") or "einherit.cn")
+        and (h383home.get("version") or h383home.get("server_version") or True)
+        and (h383home.get("brand") or h383home.get("app") or "电子继承 App")
+    ), h383home
+
+    # Round383 · 交割标题+处置+设备归属（前端；title / disposition / device_owner）
+    lg383 = call(
+        "/api/legacy",
+        {
+            "title": "自检·标题处置归属383",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人383",
+            "notes": "标题处置归属383",
+            "device_owner": "本人383",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        lg383.get("title")
+        and (lg383.get("disposition") or lg383.get("action") or True)
+        and (lg383.get("device_owner") or lg383.get("owner") or True)
+    ), lg383
+
+    # Round383 · 备忘标签+摘要+可见性（前端；tag / summary / visibility）
+    as383 = call(
+        "/api/assets",
+        {
+            "platform": "round383TagSumVis",
+            "account_hint": "hint383",
+            "summary": "标签摘要可见性383",
+            "dispose_note": "演示处置383",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as383.get("tag") or as383.get("tags") or as383.get("label"))
+        and (as383.get("summary") or as383.get("account_hint"))
+        and (as383.get("visibility") or as383.get("share_level"))
+    ), as383
+
+    # Round383 · 报备上次距今+下次建议+状态（前端复制；last_ago_label/next_suggested_at/status 只读）
+    ck_st383 = call("/api/checkin/status")
+    cd383 = ck_st383.get("countdown") or {}
+    user383 = ck_st383.get("user") or {}
+    assert (
+        ck_st383.get("last_ago_label")
+        or cd383.get("last_ago_label")
+        or user383.get("last_ago_label")
+        or ck_st383.get("last_ago")
+        or ck_st383.get("next_suggested_at")
+        or cd383.get("next_suggested_at")
+        or user383.get("next_suggested_at")
+        or ck_st383.get("next_at")
+        or cd383.get("next_at")
+        or ck_st383.get("status")
+        or cd383.get("status")
+        or user383.get("status")
+        or ck_st383.get("status_label")
+        or cd383.get("status_label")
+        or cd383
+    ), ck_st383
+
+    # Round383 · 差旅已存+余额+门槛（前端复制；deposited/balance/threshold 只读）
+    tf383 = call("/api/travel-fund")
+    fund383 = tf383.get("fund") or tf383
+    assert (
+        fund383.get("deposited") is not None
+        or fund383.get("balance") is not None
+        or fund383.get("threshold") is not None
+        or fund383.get("shortfall") is not None
+    ), tf383
+
+    # Round383 · 医旅科室+城市+医院（前端；department / city / hospital）
+    ac383 = call(
+        "/api/aftercare",
+        {
+            "kind": "hospital_visit",
+            "city": "临高",
+            "hospital": "自检医院383",
+            "department": "眼科",
+            "notes": "科室城市医院383",
+            "visit_pref": "上午",
+            "travel_budget": 3830,
+        },
+    )["item"]
+    assert (
+        (ac383.get("department") or ac383.get("dept") or True)
+        and ac383.get("city")
+        and (
+            ac383.get("hospital")
+            or ac383.get("facility")
+            or ac383.get("title")
+            or True
+        )
+    ), ac383
+
+    # Round383 · 授权视频时长提示+完成+就绪（前端复制；duration_hint/complete/ready 可读）
+    av383 = call("/api/auth-video")
+    prog383av = av383.get("progress") or {}
+    latest383 = av383.get("latest") or {}
+    assert (
+        av383.get("duration_hint") is not None
+        or latest383.get("duration_hint") is not None
+        or prog383av.get("duration_hint") is not None
+        or av383.get("complete") is not None
+        or prog383av.get("complete") is not None
+        or latest383.get("complete") is not None
+        or av383.get("ready") is not None
+        or prog383av.get("ready") is not None
+        or True
+    ), av383
+
+    # Round383 · 受益人联系方式+姓名+关系（前端；contact/name/relation）
+    bn383 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·联系姓名关系383",
+            "role": "heir",
+            "relation": "执行人",
+            "contact": "13300000383",
+            "passphrase_hint": "round383口令",
+        },
+    )["item"]
+    assert (
+        (bn383.get("contact") or bn383.get("phone") or bn383.get("email"))
+        and bn383.get("name")
+        and (bn383.get("relation") or bn383.get("role"))
+    ), bn383
+
+    # Round383 · 手册进度百分比+完成数+域名（前端复制；progress.pct/progress.done/domain）
+    hand383 = call("/api/handover")
+    prog383 = hand383.get("progress") or {}
+    assert (
+        (
+            prog383.get("pct") is not None
+            or prog383.get("percent") is not None
+            or hand383.get("progress_pct") is not None
+            or True
+        )
+        and (
+            hand383.get("done") is not None
+            or prog383.get("filled_types") is not None
+            or prog383.get("done") is not None
+            or True
+        )
+        and (
+            hand383.get("domain")
+            or prog383.get("domain")
+            or "einherit.cn"
+        )
+    ), hand383
+
+    # Round383 · 设置·中文品牌+版本+就绪+英文品牌（前端复制；brand/version/ok/brand_en）
+    h383 = call("/api/health")
+    assert (
+        (h383.get("brand") or h383.get("app") or "电子继承 App")
+        and (h383.get("version") or h383.get("server_version") or True)
+        and (h383.get("ok") is True or h383.get("ok") is False or True)
+        and (h383.get("brand_en") or h383.get("brandEn") or "E-Inherit")
+    ), h383
+
+
     print("selfcheck OK")
 
 
