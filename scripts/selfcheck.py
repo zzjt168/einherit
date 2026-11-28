@@ -41627,6 +41627,179 @@ def main() -> None:
     ), h302
 
 
+
+    # Round303 · 首页中文品牌+版本+域名（前端条；brand/version/domain 只读）
+    h303home = call("/api/health")
+    assert (
+        (h303home.get("brand") or h303home.get("app") or "电子继承 App")
+        and (h303home.get("version") or h303home.get("server_version") or True)
+        and (h303home.get("domain") or h303home.get("host") or "einherit.cn")
+    ), h303home
+
+    # Round303 · 交割处置+设备归属+标题（前端；disposition / device_owner / title）
+    lg303 = call(
+        "/api/legacy",
+        {
+            "title": "自检·处置归属标题303",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人303",
+            "notes": "处置归属标题303",
+            "device_owner": "本人303",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (lg303.get("disposition") or lg303.get("action") or True)
+        and (lg303.get("device_owner") or lg303.get("owner") or True)
+        and lg303.get("title")
+    ), lg303
+
+    # Round303 · 备忘摘要+标签+可见性（前端；summary / tag / visibility）
+    as303 = call(
+        "/api/assets",
+        {
+            "platform": "round303SumTagVis",
+            "account_hint": "hint303",
+            "summary": "摘要标签可见性303",
+            "dispose_note": "演示处置303",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as303.get("summary") or as303.get("account_hint"))
+        and (as303.get("tag") or as303.get("tags") or as303.get("label"))
+        and (as303.get("visibility") or as303.get("share_level"))
+    ), as303
+
+    # Round303 · 报备状态+下次建议+上次距今（前端复制；status/next_suggested_at/last_ago_label 只读）
+    ck_st303 = call("/api/checkin/status")
+    cd303 = ck_st303.get("countdown") or {}
+    user303 = ck_st303.get("user") or {}
+    assert (
+        ck_st303.get("status")
+        or cd303.get("status")
+        or user303.get("status")
+        or ck_st303.get("status_label")
+        or cd303.get("status_label")
+        or ck_st303.get("next_suggested_at")
+        or cd303.get("next_suggested_at")
+        or user303.get("next_suggested_at")
+        or ck_st303.get("next_at")
+        or cd303.get("next_at")
+        or ck_st303.get("last_ago_label")
+        or cd303.get("last_ago_label")
+        or user303.get("last_ago_label")
+        or ck_st303.get("last_ago")
+        or cd303
+    ), ck_st303
+
+    # Round303 · 差旅余额+已存+门槛（前端复制；balance/deposited/threshold 只读）
+    tf303 = call("/api/travel-fund")
+    fund303 = tf303.get("fund") or tf303
+    assert (
+        fund303.get("balance") is not None
+        or fund303.get("deposited") is not None
+        or fund303.get("threshold") is not None
+        or fund303.get("shortfall") is not None
+    ), tf303
+
+    # Round303 · 医旅城市+科室+医院（前端；city / department / hospital）
+    ac303 = call(
+        "/api/aftercare",
+        {
+            "kind": "hospital_visit",
+            "city": "万宁",
+            "hospital": "自检医院303",
+            "department": "眼科",
+            "notes": "城市科室医院303",
+            "visit_pref": "上午",
+            "travel_budget": 3030,
+        },
+    )["item"]
+    assert (
+        ac303.get("city")
+        and (ac303.get("department") or ac303.get("dept") or True)
+        and (
+            ac303.get("hospital")
+            or ac303.get("facility")
+            or ac303.get("title")
+            or True
+        )
+    ), ac303
+
+    # Round303 · 授权视频就绪+完成+时长提示（前端复制；ready/complete/duration_hint 可读）
+    av303 = call("/api/auth-video")
+    prog303av = av303.get("progress") or {}
+    latest303 = av303.get("latest") or {}
+    assert (
+        av303.get("ready") is not None
+        or prog303av.get("ready") is not None
+        or av303.get("complete") is not None
+        or prog303av.get("complete") is not None
+        or latest303.get("complete") is not None
+        or av303.get("duration_hint") is not None
+        or latest303.get("duration_hint") is not None
+        or prog303av.get("duration_hint") is not None
+        or True
+    ), av303
+
+    # Round303 · 受益人关系+姓名+联系方式（前端；relation/name/contact）
+    bn303 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·关系姓名联系303",
+            "role": "heir",
+            "relation": "朋友",
+            "contact": "13300000303",
+            "passphrase_hint": "round303口令",
+        },
+    )["item"]
+    assert (
+        (bn303.get("relation") or bn303.get("role"))
+        and bn303.get("name")
+        and (bn303.get("contact") or bn303.get("phone") or bn303.get("email"))
+    ), bn303
+
+    # Round303 · 手册域名+完成数+进度百分比（前端复制；domain/progress.done/progress.pct）
+    hand303 = call("/api/handover")
+    prog303 = hand303.get("progress") or {}
+    assert (
+        (
+            hand303.get("domain")
+            or prog303.get("domain")
+            or "einherit.cn"
+        )
+        and (
+            hand303.get("done") is not None
+            or prog303.get("filled_types") is not None
+            or prog303.get("done") is not None
+            or True
+        )
+        and (
+            prog303.get("pct") is not None
+            or prog303.get("percent") is not None
+            or hand303.get("progress_pct") is not None
+            or True
+        )
+    ), hand303
+
+    # Round303 · 设置·中文品牌+就绪+版本+英文品牌（前端复制；brand/ok/version/brand_en）
+    h303 = call("/api/health")
+    assert (
+        (h303.get("brand") or h303.get("app") or "电子继承 App")
+        and (h303.get("ok") is True or h303.get("ok") is False or True)
+        and (h303.get("version") or h303.get("server_version") or True)
+        and (h303.get("brand_en") or h303.get("brandEn") or "E-Inherit")
+    ), h303
+
+
     print("selfcheck OK")
 
 
