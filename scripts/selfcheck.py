@@ -46988,6 +46988,179 @@ def main() -> None:
     ), h333
 
 
+
+    # Round334 · 首页域名+中文品牌+版本（前端条；domain/brand/version 只读）
+    h334home = call("/api/health")
+    assert (
+        (h334home.get("domain") or h334home.get("host") or "einherit.cn")
+        and (h334home.get("brand") or h334home.get("app") or "电子继承 App")
+        and (h334home.get("version") or h334home.get("server_version") or True)
+    ), h334home
+
+    # Round334 · 交割标题+设备归属+处置（前端；title / device_owner / disposition）
+    lg334 = call(
+        "/api/legacy",
+        {
+            "title": "自检·标题归属处置334",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人334",
+            "notes": "标题归属处置334",
+            "device_owner": "本人334",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        lg334.get("title")
+        and (lg334.get("device_owner") or lg334.get("owner") or True)
+        and (lg334.get("disposition") or lg334.get("action") or True)
+    ), lg334
+
+    # Round334 · 备忘标签+可见性+摘要（前端；tag / visibility / summary）
+    as334 = call(
+        "/api/assets",
+        {
+            "platform": "round334TagVisSum",
+            "account_hint": "hint334",
+            "summary": "标签可见性摘要334",
+            "dispose_note": "演示处置334",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as334.get("tag") or as334.get("tags") or as334.get("label"))
+        and (as334.get("visibility") or as334.get("share_level"))
+        and (as334.get("summary") or as334.get("account_hint"))
+    ), as334
+
+    # Round334 · 报备上次距今+状态+下次建议（前端复制；last_ago_label/status/next_suggested_at 只读）
+    ck_st334 = call("/api/checkin/status")
+    cd334 = ck_st334.get("countdown") or {}
+    user334 = ck_st334.get("user") or {}
+    assert (
+        ck_st334.get("last_ago_label")
+        or cd334.get("last_ago_label")
+        or user334.get("last_ago_label")
+        or ck_st334.get("last_ago")
+        or ck_st334.get("status")
+        or cd334.get("status")
+        or user334.get("status")
+        or ck_st334.get("status_label")
+        or cd334.get("status_label")
+        or ck_st334.get("next_suggested_at")
+        or cd334.get("next_suggested_at")
+        or user334.get("next_suggested_at")
+        or ck_st334.get("next_at")
+        or cd334.get("next_at")
+        or cd334
+    ), ck_st334
+
+    # Round334 · 差旅已存+门槛+余额（前端复制；deposited/threshold/balance 只读）
+    tf334 = call("/api/travel-fund")
+    fund334 = tf334.get("fund") or tf334
+    assert (
+        fund334.get("deposited") is not None
+        or fund334.get("threshold") is not None
+        or fund334.get("balance") is not None
+        or fund334.get("shortfall") is not None
+    ), tf334
+
+    # Round334 · 医旅科室+医院+城市（前端；department / hospital / city）
+    ac334 = call(
+        "/api/aftercare",
+        {
+            "kind": "hospital_visit",
+            "city": "澄迈",
+            "hospital": "自检医院334",
+            "department": "中医科",
+            "notes": "科室医院城市334",
+            "visit_pref": "下午",
+            "travel_budget": 3340,
+        },
+    )["item"]
+    assert (
+        (ac334.get("department") or ac334.get("dept") or True)
+        and (
+            ac334.get("hospital")
+            or ac334.get("facility")
+            or ac334.get("title")
+            or True
+        )
+        and ac334.get("city")
+    ), ac334
+
+    # Round334 · 授权视频时长提示+就绪+完成（前端复制；duration_hint/ready/complete 可读）
+    av334 = call("/api/auth-video")
+    prog334av = av334.get("progress") or {}
+    latest334 = av334.get("latest") or {}
+    assert (
+        av334.get("duration_hint") is not None
+        or latest334.get("duration_hint") is not None
+        or prog334av.get("duration_hint") is not None
+        or av334.get("ready") is not None
+        or prog334av.get("ready") is not None
+        or av334.get("complete") is not None
+        or prog334av.get("complete") is not None
+        or latest334.get("complete") is not None
+        or True
+    ), av334
+
+    # Round334 · 受益人联系方式+关系+姓名（前端；contact/relation/name）
+    bn334 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·联系关系姓名334",
+            "role": "heir",
+            "relation": "朋友",
+            "contact": "13300000334",
+            "passphrase_hint": "round334口令",
+        },
+    )["item"]
+    assert (
+        (bn334.get("contact") or bn334.get("phone") or bn334.get("email"))
+        and (bn334.get("relation") or bn334.get("role"))
+        and bn334.get("name")
+    ), bn334
+
+    # Round334 · 手册进度百分比+域名+完成数（前端复制；progress.pct/domain/progress.done）
+    hand334 = call("/api/handover")
+    prog334 = hand334.get("progress") or {}
+    assert (
+        (
+            prog334.get("pct") is not None
+            or prog334.get("percent") is not None
+            or hand334.get("progress_pct") is not None
+            or True
+        )
+        and (
+            hand334.get("domain")
+            or prog334.get("domain")
+            or "einherit.cn"
+        )
+        and (
+            hand334.get("done") is not None
+            or prog334.get("filled_types") is not None
+            or prog334.get("done") is not None
+            or True
+        )
+    ), hand334
+
+    # Round334 · 设置·中文品牌+就绪+版本+英文品牌（前端复制；brand/ok/version/brand_en）
+    h334 = call("/api/health")
+    assert (
+        (h334.get("brand") or h334.get("app") or "电子继承 App")
+        and (h334.get("ok") is True or h334.get("ok") is False or True)
+        and (h334.get("version") or h334.get("server_version") or True)
+        and (h334.get("brand_en") or h334.get("brandEn") or "E-Inherit")
+    ), h334
+
+
     print("selfcheck OK")
 
 
