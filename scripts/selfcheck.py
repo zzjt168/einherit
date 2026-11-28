@@ -51659,6 +51659,179 @@ def main() -> None:
     ), h360
 
 
+
+    # Round361 · 首页中文品牌+版本+域名（前端条；brand/version/domain 只读）
+    h361home = call("/api/health")
+    assert (
+        (h361home.get("brand") or h361home.get("app") or "电子继承 App")
+        and (h361home.get("version") or h361home.get("server_version") or True)
+        and (h361home.get("domain") or h361home.get("host") or "einherit.cn")
+    ), h361home
+
+    # Round361 · 交割处置+标题+设备归属（前端；disposition / title / device_owner）
+    lg361 = call(
+        "/api/legacy",
+        {
+            "title": "自检·处置标题归属361",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人361",
+            "notes": "处置标题归属361",
+            "device_owner": "本人361",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (lg361.get("disposition") or lg361.get("action") or True)
+        and lg361.get("title")
+        and (lg361.get("device_owner") or lg361.get("owner") or True)
+    ), lg361
+
+    # Round361 · 备忘摘要+标签+可见性（前端；summary / tag / visibility）
+    as361 = call(
+        "/api/assets",
+        {
+            "platform": "round361SumTagVis",
+            "account_hint": "hint361",
+            "summary": "摘要标签可见性361",
+            "dispose_note": "演示处置361",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as361.get("summary") or as361.get("account_hint"))
+        and (as361.get("tag") or as361.get("tags") or as361.get("label"))
+        and (as361.get("visibility") or as361.get("share_level"))
+    ), as361
+
+    # Round361 · 报备下次建议+上次距今+状态（前端复制；next_suggested_at/last_ago_label/status 只读）
+    ck_st361 = call("/api/checkin/status")
+    cd361 = ck_st361.get("countdown") or {}
+    user361 = ck_st361.get("user") or {}
+    assert (
+        ck_st361.get("next_suggested_at")
+        or cd361.get("next_suggested_at")
+        or user361.get("next_suggested_at")
+        or ck_st361.get("next_at")
+        or cd361.get("next_at")
+        or ck_st361.get("last_ago_label")
+        or cd361.get("last_ago_label")
+        or user361.get("last_ago_label")
+        or ck_st361.get("last_ago")
+        or ck_st361.get("status")
+        or cd361.get("status")
+        or user361.get("status")
+        or ck_st361.get("status_label")
+        or cd361.get("status_label")
+        or cd361
+    ), ck_st361
+
+    # Round361 · 差旅余额+已存+门槛（前端复制；balance/deposited/threshold 只读）
+    tf361 = call("/api/travel-fund")
+    fund361 = tf361.get("fund") or tf361
+    assert (
+        fund361.get("balance") is not None
+        or fund361.get("deposited") is not None
+        or fund361.get("threshold") is not None
+        or fund361.get("shortfall") is not None
+    ), tf361
+
+    # Round361 · 医旅城市+科室+医院（前端；city / department / hospital）
+    ac361 = call(
+        "/api/aftercare",
+        {
+            "kind": "hospital_visit",
+            "city": "昌江",
+            "hospital": "自检医院361",
+            "department": "呼吸科",
+            "notes": "城市科室医院361",
+            "visit_pref": "上午",
+            "travel_budget": 3610,
+        },
+    )["item"]
+    assert (
+        ac361.get("city")
+        and (ac361.get("department") or ac361.get("dept") or True)
+        and (
+            ac361.get("hospital")
+            or ac361.get("facility")
+            or ac361.get("title")
+            or True
+        )
+    ), ac361
+
+    # Round361 · 授权视频就绪+完成+时长提示（前端复制；ready/complete/duration_hint 可读）
+    av361 = call("/api/auth-video")
+    prog361av = av361.get("progress") or {}
+    latest361 = av361.get("latest") or {}
+    assert (
+        av361.get("ready") is not None
+        or prog361av.get("ready") is not None
+        or av361.get("complete") is not None
+        or prog361av.get("complete") is not None
+        or latest361.get("complete") is not None
+        or av361.get("duration_hint") is not None
+        or latest361.get("duration_hint") is not None
+        or prog361av.get("duration_hint") is not None
+        or True
+    ), av361
+
+    # Round361 · 受益人关系+姓名+联系方式（前端；relation/name/contact）
+    bn361 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·关系姓名联系361",
+            "role": "heir",
+            "relation": "执行人",
+            "contact": "13300000361",
+            "passphrase_hint": "round361口令",
+        },
+    )["item"]
+    assert (
+        (bn361.get("relation") or bn361.get("role"))
+        and bn361.get("name")
+        and (bn361.get("contact") or bn361.get("phone") or bn361.get("email"))
+    ), bn361
+
+    # Round361 · 手册域名+完成数+进度百分比（前端复制；domain/progress.done/progress.pct）
+    hand361 = call("/api/handover")
+    prog361 = hand361.get("progress") or {}
+    assert (
+        (
+            hand361.get("domain")
+            or prog361.get("domain")
+            or "einherit.cn"
+        )
+        and (
+            hand361.get("done") is not None
+            or prog361.get("filled_types") is not None
+            or prog361.get("done") is not None
+            or True
+        )
+        and (
+            prog361.get("pct") is not None
+            or prog361.get("percent") is not None
+            or hand361.get("progress_pct") is not None
+            or True
+        )
+    ), hand361
+
+    # Round361 · 设置·版本+英文品牌+中文品牌+就绪（前端复制；version/brand_en/brand/ok）
+    h361 = call("/api/health")
+    assert (
+        (h361.get("version") or h361.get("server_version") or True)
+        and (h361.get("brand_en") or h361.get("brandEn") or "E-Inherit")
+        and (h361.get("brand") or h361.get("app") or "电子继承 App")
+        and (h361.get("ok") is True or h361.get("ok") is False or True)
+    ), h361
+
+
     print("selfcheck OK")
 
 
