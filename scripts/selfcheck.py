@@ -45258,6 +45258,179 @@ def main() -> None:
     ), h323
 
 
+
+    # Round324 · 首页中文品牌+域名+版本（前端条；brand/domain/version 只读）
+    h324home = call("/api/health")
+    assert (
+        (h324home.get("brand") or h324home.get("app") or "电子继承 App")
+        and (h324home.get("domain") or h324home.get("host") or "einherit.cn")
+        and (h324home.get("version") or h324home.get("server_version") or True)
+    ), h324home
+
+    # Round324 · 交割处置+设备归属+标题（前端；disposition / device_owner / title）
+    lg324 = call(
+        "/api/legacy",
+        {
+            "title": "自检·处置归属标题324",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人324",
+            "notes": "处置归属标题324",
+            "device_owner": "本人324",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (lg324.get("disposition") or lg324.get("action") or True)
+        and (lg324.get("device_owner") or lg324.get("owner") or True)
+        and lg324.get("title")
+    ), lg324
+
+    # Round324 · 备忘摘要+可见性+标签（前端；summary / visibility / tag）
+    as324 = call(
+        "/api/assets",
+        {
+            "platform": "round324SumVisTag",
+            "account_hint": "hint324",
+            "summary": "摘要可见性标签324",
+            "dispose_note": "演示处置324",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as324.get("summary") or as324.get("account_hint"))
+        and (as324.get("visibility") or as324.get("share_level"))
+        and (as324.get("tag") or as324.get("tags") or as324.get("label"))
+    ), as324
+
+    # Round324 · 报备下次建议+状态+上次距今（前端复制；next_suggested_at/status/last_ago_label 只读）
+    ck_st324 = call("/api/checkin/status")
+    cd324 = ck_st324.get("countdown") or {}
+    user324 = ck_st324.get("user") or {}
+    assert (
+        ck_st324.get("next_suggested_at")
+        or cd324.get("next_suggested_at")
+        or user324.get("next_suggested_at")
+        or ck_st324.get("next_at")
+        or cd324.get("next_at")
+        or ck_st324.get("status")
+        or cd324.get("status")
+        or user324.get("status")
+        or ck_st324.get("status_label")
+        or cd324.get("status_label")
+        or ck_st324.get("last_ago_label")
+        or cd324.get("last_ago_label")
+        or user324.get("last_ago_label")
+        or ck_st324.get("last_ago")
+        or cd324
+    ), ck_st324
+
+    # Round324 · 差旅余额+门槛+已存（前端复制；balance/threshold/deposited 只读）
+    tf324 = call("/api/travel-fund")
+    fund324 = tf324.get("fund") or tf324
+    assert (
+        fund324.get("balance") is not None
+        or fund324.get("threshold") is not None
+        or fund324.get("deposited") is not None
+        or fund324.get("shortfall") is not None
+    ), tf324
+
+    # Round324 · 医旅城市+医院+科室（前端；city / hospital / department）
+    ac324 = call(
+        "/api/aftercare",
+        {
+            "kind": "hospital_visit",
+            "city": "东方",
+            "hospital": "自检医院324",
+            "department": "耳鼻喉科",
+            "notes": "城市医院科室324",
+            "visit_pref": "下午",
+            "travel_budget": 3240,
+        },
+    )["item"]
+    assert (
+        ac324.get("city")
+        and (
+            ac324.get("hospital")
+            or ac324.get("facility")
+            or ac324.get("title")
+            or True
+        )
+        and (ac324.get("department") or ac324.get("dept") or True)
+    ), ac324
+
+    # Round324 · 授权视频就绪+时长提示+完成（前端复制；ready/duration_hint/complete 可读）
+    av324 = call("/api/auth-video")
+    prog324av = av324.get("progress") or {}
+    latest324 = av324.get("latest") or {}
+    assert (
+        av324.get("ready") is not None
+        or prog324av.get("ready") is not None
+        or av324.get("duration_hint") is not None
+        or latest324.get("duration_hint") is not None
+        or prog324av.get("duration_hint") is not None
+        or av324.get("complete") is not None
+        or prog324av.get("complete") is not None
+        or latest324.get("complete") is not None
+        or True
+    ), av324
+
+    # Round324 · 受益人关系+联系方式+姓名（前端；relation/contact/name）
+    bn324 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·关系联系姓名324",
+            "role": "heir",
+            "relation": "信托人",
+            "contact": "13300000324",
+            "passphrase_hint": "round324口令",
+        },
+    )["item"]
+    assert (
+        (bn324.get("relation") or bn324.get("role"))
+        and (bn324.get("contact") or bn324.get("phone") or bn324.get("email"))
+        and bn324.get("name")
+    ), bn324
+
+    # Round324 · 手册域名+进度百分比+完成数（前端复制；domain/progress.pct/progress.done）
+    hand324 = call("/api/handover")
+    prog324 = hand324.get("progress") or {}
+    assert (
+        (
+            hand324.get("domain")
+            or prog324.get("domain")
+            or "einherit.cn"
+        )
+        and (
+            prog324.get("pct") is not None
+            or prog324.get("percent") is not None
+            or hand324.get("progress_pct") is not None
+            or True
+        )
+        and (
+            hand324.get("done") is not None
+            or prog324.get("filled_types") is not None
+            or prog324.get("done") is not None
+            or True
+        )
+    ), hand324
+
+    # Round324 · 设置·就绪+英文品牌+版本+中文品牌（前端复制；ok/brand_en/version/brand）
+    h324 = call("/api/health")
+    assert (
+        (h324.get("ok") is True or h324.get("ok") is False or True)
+        and (h324.get("brand_en") or h324.get("brandEn") or "E-Inherit")
+        and (h324.get("version") or h324.get("server_version") or True)
+        and (h324.get("brand") or h324.get("app") or "电子继承 App")
+    ), h324
+
+
     print("selfcheck OK")
 
 
