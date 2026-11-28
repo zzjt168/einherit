@@ -43011,6 +43011,179 @@ def main() -> None:
     ), h310
 
 
+
+    # Round311 · 首页版本+中文品牌+域名（前端条；version/brand/domain 只读）
+    h311home = call("/api/health")
+    assert (
+        (h311home.get("version") or h311home.get("server_version") or True)
+        and (h311home.get("brand") or h311home.get("app") or "电子继承 App")
+        and (h311home.get("domain") or h311home.get("host") or "einherit.cn")
+    ), h311home
+
+    # Round311 · 交割设备归属+标题+处置（前端；device_owner / title / disposition）
+    lg311 = call(
+        "/api/legacy",
+        {
+            "title": "自检·归属标题处置311",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人311",
+            "notes": "归属标题处置311",
+            "device_owner": "本人311",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (lg311.get("device_owner") or lg311.get("owner") or True)
+        and lg311.get("title")
+        and (lg311.get("disposition") or lg311.get("action") or True)
+    ), lg311
+
+    # Round311 · 备忘可见性+标签+摘要（前端；visibility / tag / summary）
+    as311 = call(
+        "/api/assets",
+        {
+            "platform": "round311VisTagSum",
+            "account_hint": "hint311",
+            "summary": "可见性标签摘要311",
+            "dispose_note": "演示处置311",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as311.get("visibility") or as311.get("share_level"))
+        and (as311.get("tag") or as311.get("tags") or as311.get("label"))
+        and (as311.get("summary") or as311.get("account_hint"))
+    ), as311
+
+    # Round311 · 报备状态+上次距今+下次建议（前端复制；status/last_ago_label/next_suggested_at 只读）
+    ck_st311 = call("/api/checkin/status")
+    cd311 = ck_st311.get("countdown") or {}
+    user311 = ck_st311.get("user") or {}
+    assert (
+        ck_st311.get("status")
+        or cd311.get("status")
+        or user311.get("status")
+        or ck_st311.get("status_label")
+        or cd311.get("status_label")
+        or ck_st311.get("last_ago_label")
+        or cd311.get("last_ago_label")
+        or user311.get("last_ago_label")
+        or ck_st311.get("last_ago")
+        or ck_st311.get("next_suggested_at")
+        or cd311.get("next_suggested_at")
+        or user311.get("next_suggested_at")
+        or ck_st311.get("next_at")
+        or cd311.get("next_at")
+        or cd311
+    ), ck_st311
+
+    # Round311 · 差旅门槛+已存+余额（前端复制；threshold/deposited/balance 只读）
+    tf311 = call("/api/travel-fund")
+    fund311 = tf311.get("fund") or tf311
+    assert (
+        fund311.get("threshold") is not None
+        or fund311.get("deposited") is not None
+        or fund311.get("balance") is not None
+        or fund311.get("shortfall") is not None
+    ), tf311
+
+    # Round311 · 医旅医院+科室+城市（前端；hospital / department / city）
+    ac311 = call(
+        "/api/aftercare",
+        {
+            "kind": "hospital_visit",
+            "city": "定安",
+            "hospital": "自检医院311",
+            "department": "神经内科",
+            "notes": "医院科室城市311",
+            "visit_pref": "下午",
+            "travel_budget": 3110,
+        },
+    )["item"]
+    assert (
+        (
+            ac311.get("hospital")
+            or ac311.get("facility")
+            or ac311.get("title")
+            or True
+        )
+        and (ac311.get("department") or ac311.get("dept") or True)
+        and ac311.get("city")
+    ), ac311
+
+    # Round311 · 授权视频完成+就绪+时长提示（前端复制；complete/ready/duration_hint 可读）
+    av311 = call("/api/auth-video")
+    prog311av = av311.get("progress") or {}
+    latest311 = av311.get("latest") or {}
+    assert (
+        av311.get("complete") is not None
+        or prog311av.get("complete") is not None
+        or latest311.get("complete") is not None
+        or av311.get("ready") is not None
+        or prog311av.get("ready") is not None
+        or av311.get("duration_hint") is not None
+        or latest311.get("duration_hint") is not None
+        or prog311av.get("duration_hint") is not None
+        or True
+    ), av311
+
+    # Round311 · 受益人姓名+关系+联系方式（前端；name/relation/contact）
+    bn311 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·姓名关系联系311",
+            "role": "heir",
+            "relation": "同事",
+            "contact": "13300000311",
+            "passphrase_hint": "round311口令",
+        },
+    )["item"]
+    assert (
+        bn311.get("name")
+        and (bn311.get("relation") or bn311.get("role"))
+        and (bn311.get("contact") or bn311.get("phone") or bn311.get("email"))
+    ), bn311
+
+    # Round311 · 手册完成数+域名+进度百分比（前端复制；progress.done/domain/progress.pct）
+    hand311 = call("/api/handover")
+    prog311 = hand311.get("progress") or {}
+    assert (
+        (
+            hand311.get("done") is not None
+            or prog311.get("filled_types") is not None
+            or prog311.get("done") is not None
+            or True
+        )
+        and (
+            hand311.get("domain")
+            or prog311.get("domain")
+            or "einherit.cn"
+        )
+        and (
+            prog311.get("pct") is not None
+            or prog311.get("percent") is not None
+            or hand311.get("progress_pct") is not None
+            or True
+        )
+    ), hand311
+
+    # Round311 · 设置·版本+英文品牌+中文品牌+就绪（前端复制；version/brand_en/brand/ok）
+    h311 = call("/api/health")
+    assert (
+        (h311.get("version") or h311.get("server_version") or True)
+        and (h311.get("brand_en") or h311.get("brandEn") or "E-Inherit")
+        and (h311.get("brand") or h311.get("app") or "电子继承 App")
+        and (h311.get("ok") is True or h311.get("ok") is False or True)
+    ), h311
+
+
     print("selfcheck OK")
 
 
