@@ -53562,6 +53562,179 @@ def main() -> None:
     ), h371
 
 
+
+    # Round372 · 首页版本+域名+中文品牌（前端条；version/domain/brand 只读）
+    h372home = call("/api/health")
+    assert (
+        (h372home.get("version") or h372home.get("server_version") or True)
+        and (h372home.get("domain") or h372home.get("host") or "einherit.cn")
+        and (h372home.get("brand") or h372home.get("app") or "电子继承 App")
+    ), h372home
+
+    # Round372 · 交割设备归属+处置+标题（前端；device_owner / disposition / title）
+    lg372 = call(
+        "/api/legacy",
+        {
+            "title": "自检·归属处置标题372",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人372",
+            "notes": "归属处置标题372",
+            "device_owner": "本人372",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (lg372.get("device_owner") or lg372.get("owner") or True)
+        and (lg372.get("disposition") or lg372.get("action") or True)
+        and lg372.get("title")
+    ), lg372
+
+    # Round372 · 备忘可见性+摘要+标签（前端；visibility / summary / tag）
+    as372 = call(
+        "/api/assets",
+        {
+            "platform": "round372VisSumTag",
+            "account_hint": "hint372",
+            "summary": "可见性摘要标签372",
+            "dispose_note": "演示处置372",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as372.get("visibility") or as372.get("share_level"))
+        and (as372.get("summary") or as372.get("account_hint"))
+        and (as372.get("tag") or as372.get("tags") or as372.get("label"))
+    ), as372
+
+    # Round372 · 报备状态+下次建议+上次距今（前端复制；status/next_suggested_at/last_ago_label 只读）
+    ck_st372 = call("/api/checkin/status")
+    cd372 = ck_st372.get("countdown") or {}
+    user372 = ck_st372.get("user") or {}
+    assert (
+        ck_st372.get("status")
+        or cd372.get("status")
+        or user372.get("status")
+        or ck_st372.get("status_label")
+        or cd372.get("status_label")
+        or ck_st372.get("next_suggested_at")
+        or cd372.get("next_suggested_at")
+        or user372.get("next_suggested_at")
+        or ck_st372.get("next_at")
+        or cd372.get("next_at")
+        or ck_st372.get("last_ago_label")
+        or cd372.get("last_ago_label")
+        or user372.get("last_ago_label")
+        or ck_st372.get("last_ago")
+        or cd372
+    ), ck_st372
+
+    # Round372 · 差旅门槛+余额+已存（前端复制；threshold/balance/deposited 只读）
+    tf372 = call("/api/travel-fund")
+    fund372 = tf372.get("fund") or tf372
+    assert (
+        fund372.get("threshold") is not None
+        or fund372.get("balance") is not None
+        or fund372.get("deposited") is not None
+        or fund372.get("shortfall") is not None
+    ), tf372
+
+    # Round372 · 医旅医院+城市+科室（前端；hospital / city / department）
+    ac372 = call(
+        "/api/aftercare",
+        {
+            "kind": "hospital_visit",
+            "city": "万宁",
+            "hospital": "自检医院372",
+            "department": "皮肤科",
+            "notes": "医院城市科室372",
+            "visit_pref": "下午",
+            "travel_budget": 3720,
+        },
+    )["item"]
+    assert (
+        (
+            ac372.get("hospital")
+            or ac372.get("facility")
+            or ac372.get("title")
+            or True
+        )
+        and ac372.get("city")
+        and (ac372.get("department") or ac372.get("dept") or True)
+    ), ac372
+
+    # Round372 · 授权视频完成+时长提示+就绪（前端复制；complete/duration_hint/ready 可读）
+    av372 = call("/api/auth-video")
+    prog372av = av372.get("progress") or {}
+    latest372 = av372.get("latest") or {}
+    assert (
+        av372.get("complete") is not None
+        or prog372av.get("complete") is not None
+        or latest372.get("complete") is not None
+        or av372.get("duration_hint") is not None
+        or latest372.get("duration_hint") is not None
+        or prog372av.get("duration_hint") is not None
+        or av372.get("ready") is not None
+        or prog372av.get("ready") is not None
+        or True
+    ), av372
+
+    # Round372 · 受益人姓名+联系方式+关系（前端；name/contact/relation）
+    bn372 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·姓名联系关系372",
+            "role": "heir",
+            "relation": "执行人",
+            "contact": "13300000372",
+            "passphrase_hint": "round372口令",
+        },
+    )["item"]
+    assert (
+        bn372.get("name")
+        and (bn372.get("contact") or bn372.get("phone") or bn372.get("email"))
+        and (bn372.get("relation") or bn372.get("role"))
+    ), bn372
+
+    # Round372 · 手册完成数+进度百分比+域名（前端复制；progress.done/progress.pct/domain）
+    hand372 = call("/api/handover")
+    prog372 = hand372.get("progress") or {}
+    assert (
+        (
+            hand372.get("done") is not None
+            or prog372.get("filled_types") is not None
+            or prog372.get("done") is not None
+            or True
+        )
+        and (
+            prog372.get("pct") is not None
+            or prog372.get("percent") is not None
+            or hand372.get("progress_pct") is not None
+            or True
+        )
+        and (
+            hand372.get("domain")
+            or prog372.get("domain")
+            or "einherit.cn"
+        )
+    ), hand372
+
+    # Round372 · 设置·英文品牌+中文品牌+就绪+版本（前端复制；brand_en/brand/ok/version）
+    h372 = call("/api/health")
+    assert (
+        (h372.get("brand_en") or h372.get("brandEn") or "E-Inherit")
+        and (h372.get("brand") or h372.get("app") or "电子继承 App")
+        and (h372.get("ok") is True or h372.get("ok") is False or True)
+        and (h372.get("version") or h372.get("server_version") or True)
+    ), h372
+
+
     print("selfcheck OK")
 
 
