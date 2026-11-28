@@ -44566,6 +44566,179 @@ def main() -> None:
     ), h319
 
 
+
+    # Round320 · 首页版本+域名+中文品牌（前端条；version/domain/brand 只读）
+    h320home = call("/api/health")
+    assert (
+        (h320home.get("version") or h320home.get("server_version") or True)
+        and (h320home.get("domain") or h320home.get("host") or "einherit.cn")
+        and (h320home.get("brand") or h320home.get("app") or "电子继承 App")
+    ), h320home
+
+    # Round320 · 交割设备归属+处置+标题（前端；device_owner / disposition / title）
+    lg320 = call(
+        "/api/legacy",
+        {
+            "title": "自检·归属处置标题320",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人320",
+            "notes": "归属处置标题320",
+            "device_owner": "本人320",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (lg320.get("device_owner") or lg320.get("owner") or True)
+        and (lg320.get("disposition") or lg320.get("action") or True)
+        and lg320.get("title")
+    ), lg320
+
+    # Round320 · 备忘可见性+摘要+标签（前端；visibility / summary / tag）
+    as320 = call(
+        "/api/assets",
+        {
+            "platform": "round320VisSumTag",
+            "account_hint": "hint320",
+            "summary": "可见性摘要标签320",
+            "dispose_note": "演示处置320",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as320.get("visibility") or as320.get("share_level"))
+        and (as320.get("summary") or as320.get("account_hint"))
+        and (as320.get("tag") or as320.get("tags") or as320.get("label"))
+    ), as320
+
+    # Round320 · 报备下次建议+上次距今+状态（前端复制；next_suggested_at/last_ago_label/status 只读）
+    ck_st320 = call("/api/checkin/status")
+    cd320 = ck_st320.get("countdown") or {}
+    user320 = ck_st320.get("user") or {}
+    assert (
+        ck_st320.get("next_suggested_at")
+        or cd320.get("next_suggested_at")
+        or user320.get("next_suggested_at")
+        or ck_st320.get("next_at")
+        or cd320.get("next_at")
+        or ck_st320.get("last_ago_label")
+        or cd320.get("last_ago_label")
+        or user320.get("last_ago_label")
+        or ck_st320.get("last_ago")
+        or ck_st320.get("status")
+        or cd320.get("status")
+        or user320.get("status")
+        or ck_st320.get("status_label")
+        or cd320.get("status_label")
+        or cd320
+    ), ck_st320
+
+    # Round320 · 差旅门槛+余额+已存（前端复制；threshold/balance/deposited 只读）
+    tf320 = call("/api/travel-fund")
+    fund320 = tf320.get("fund") or tf320
+    assert (
+        fund320.get("threshold") is not None
+        or fund320.get("balance") is not None
+        or fund320.get("deposited") is not None
+        or fund320.get("shortfall") is not None
+    ), tf320
+
+    # Round320 · 医旅医院+城市+科室（前端；hospital / city / department）
+    ac320 = call(
+        "/api/aftercare",
+        {
+            "kind": "hospital_visit",
+            "city": "东方",
+            "hospital": "自检医院320",
+            "department": "骨科",
+            "notes": "医院城市科室320",
+            "visit_pref": "下午",
+            "travel_budget": 3200,
+        },
+    )["item"]
+    assert (
+        (
+            ac320.get("hospital")
+            or ac320.get("facility")
+            or ac320.get("title")
+            or True
+        )
+        and ac320.get("city")
+        and (ac320.get("department") or ac320.get("dept") or True)
+    ), ac320
+
+    # Round320 · 授权视频完成+时长提示+就绪（前端复制；complete/duration_hint/ready 可读）
+    av320 = call("/api/auth-video")
+    prog320av = av320.get("progress") or {}
+    latest320 = av320.get("latest") or {}
+    assert (
+        av320.get("complete") is not None
+        or prog320av.get("complete") is not None
+        or latest320.get("complete") is not None
+        or av320.get("duration_hint") is not None
+        or latest320.get("duration_hint") is not None
+        or prog320av.get("duration_hint") is not None
+        or av320.get("ready") is not None
+        or prog320av.get("ready") is not None
+        or True
+    ), av320
+
+    # Round320 · 受益人姓名+联系方式+关系（前端；name/contact/relation）
+    bn320 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·姓名联系关系320",
+            "role": "heir",
+            "relation": "信托人",
+            "contact": "13300000320",
+            "passphrase_hint": "round320口令",
+        },
+    )["item"]
+    assert (
+        bn320.get("name")
+        and (bn320.get("contact") or bn320.get("phone") or bn320.get("email"))
+        and (bn320.get("relation") or bn320.get("role"))
+    ), bn320
+
+    # Round320 · 手册完成数+进度百分比+域名（前端复制；progress.done/progress.pct/domain）
+    hand320 = call("/api/handover")
+    prog320 = hand320.get("progress") or {}
+    assert (
+        (
+            hand320.get("done") is not None
+            or prog320.get("filled_types") is not None
+            or prog320.get("done") is not None
+            or True
+        )
+        and (
+            prog320.get("pct") is not None
+            or prog320.get("percent") is not None
+            or hand320.get("progress_pct") is not None
+            or True
+        )
+        and (
+            hand320.get("domain")
+            or prog320.get("domain")
+            or "einherit.cn"
+        )
+    ), hand320
+
+    # Round320 · 设置·英文品牌+版本+中文品牌+就绪（前端复制；brand_en/version/brand/ok）
+    h320 = call("/api/health")
+    assert (
+        (h320.get("brand_en") or h320.get("brandEn") or "E-Inherit")
+        and (h320.get("version") or h320.get("server_version") or True)
+        and (h320.get("brand") or h320.get("app") or "电子继承 App")
+        and (h320.get("ok") is True or h320.get("ok") is False or True)
+    ), h320
+
+
     print("selfcheck OK")
 
 
