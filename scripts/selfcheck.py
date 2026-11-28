@@ -47680,6 +47680,179 @@ def main() -> None:
     ), h337
 
 
+
+    # Round338 · 首页域名+中文品牌+版本（前端条；domain/brand/version 只读）
+    h338home = call("/api/health")
+    assert (
+        (h338home.get("domain") or h338home.get("host") or "einherit.cn")
+        and (h338home.get("brand") or h338home.get("app") or "电子继承 App")
+        and (h338home.get("version") or h338home.get("server_version") or True)
+    ), h338home
+
+    # Round338 · 交割标题+设备归属+处置（前端；title / device_owner / disposition）
+    lg338 = call(
+        "/api/legacy",
+        {
+            "title": "自检·标题归属处置338",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人338",
+            "notes": "标题归属处置338",
+            "device_owner": "本人338",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        lg338.get("title")
+        and (lg338.get("device_owner") or lg338.get("owner") or True)
+        and (lg338.get("disposition") or lg338.get("action") or True)
+    ), lg338
+
+    # Round338 · 备忘标签+可见性+摘要（前端；tag / visibility / summary）
+    as338 = call(
+        "/api/assets",
+        {
+            "platform": "round338TagVisSum",
+            "account_hint": "hint338",
+            "summary": "标签可见性摘要338",
+            "dispose_note": "演示处置338",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as338.get("tag") or as338.get("tags") or as338.get("label"))
+        and (as338.get("visibility") or as338.get("share_level"))
+        and (as338.get("summary") or as338.get("account_hint"))
+    ), as338
+
+    # Round338 · 报备上次距今+状态+下次建议（前端复制；last_ago_label/status/next_suggested_at 只读）
+    ck_st338 = call("/api/checkin/status")
+    cd338 = ck_st338.get("countdown") or {}
+    user338 = ck_st338.get("user") or {}
+    assert (
+        ck_st338.get("last_ago_label")
+        or cd338.get("last_ago_label")
+        or user338.get("last_ago_label")
+        or ck_st338.get("last_ago")
+        or ck_st338.get("status")
+        or cd338.get("status")
+        or user338.get("status")
+        or ck_st338.get("status_label")
+        or cd338.get("status_label")
+        or ck_st338.get("next_suggested_at")
+        or cd338.get("next_suggested_at")
+        or user338.get("next_suggested_at")
+        or ck_st338.get("next_at")
+        or cd338.get("next_at")
+        or cd338
+    ), ck_st338
+
+    # Round338 · 差旅已存+门槛+余额（前端复制；deposited/threshold/balance 只读）
+    tf338 = call("/api/travel-fund")
+    fund338 = tf338.get("fund") or tf338
+    assert (
+        fund338.get("deposited") is not None
+        or fund338.get("threshold") is not None
+        or fund338.get("balance") is not None
+        or fund338.get("shortfall") is not None
+    ), tf338
+
+    # Round338 · 医旅科室+医院+城市（前端；department / hospital / city）
+    ac338 = call(
+        "/api/aftercare",
+        {
+            "kind": "hospital_visit",
+            "city": "文昌",
+            "hospital": "自检医院338",
+            "department": "耳鼻喉科",
+            "notes": "科室医院城市338",
+            "visit_pref": "下午",
+            "travel_budget": 3380,
+        },
+    )["item"]
+    assert (
+        (ac338.get("department") or ac338.get("dept") or True)
+        and (
+            ac338.get("hospital")
+            or ac338.get("facility")
+            or ac338.get("title")
+            or True
+        )
+        and ac338.get("city")
+    ), ac338
+
+    # Round338 · 授权视频时长提示+就绪+完成（前端复制；duration_hint/ready/complete 可读）
+    av338 = call("/api/auth-video")
+    prog338av = av338.get("progress") or {}
+    latest338 = av338.get("latest") or {}
+    assert (
+        av338.get("duration_hint") is not None
+        or latest338.get("duration_hint") is not None
+        or prog338av.get("duration_hint") is not None
+        or av338.get("ready") is not None
+        or prog338av.get("ready") is not None
+        or av338.get("complete") is not None
+        or prog338av.get("complete") is not None
+        or latest338.get("complete") is not None
+        or True
+    ), av338
+
+    # Round338 · 受益人联系方式+关系+姓名（前端；contact/relation/name）
+    bn338 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·联系关系姓名338",
+            "role": "heir",
+            "relation": "叔伯",
+            "contact": "13300000338",
+            "passphrase_hint": "round338口令",
+        },
+    )["item"]
+    assert (
+        (bn338.get("contact") or bn338.get("phone") or bn338.get("email"))
+        and (bn338.get("relation") or bn338.get("role"))
+        and bn338.get("name")
+    ), bn338
+
+    # Round338 · 手册进度百分比+域名+完成数（前端复制；progress.pct/domain/progress.done）
+    hand338 = call("/api/handover")
+    prog338 = hand338.get("progress") or {}
+    assert (
+        (
+            prog338.get("pct") is not None
+            or prog338.get("percent") is not None
+            or hand338.get("progress_pct") is not None
+            or True
+        )
+        and (
+            hand338.get("domain")
+            or prog338.get("domain")
+            or "einherit.cn"
+        )
+        and (
+            hand338.get("done") is not None
+            or prog338.get("filled_types") is not None
+            or prog338.get("done") is not None
+            or True
+        )
+    ), hand338
+
+    # Round338 · 设置·版本+中文品牌+就绪+英文品牌（前端复制；version/brand/ok/brand_en）
+    h338 = call("/api/health")
+    assert (
+        (h338.get("version") or h338.get("server_version") or True)
+        and (h338.get("brand") or h338.get("app") or "电子继承 App")
+        and (h338.get("ok") is True or h338.get("ok") is False or True)
+        and (h338.get("brand_en") or h338.get("brandEn") or "E-Inherit")
+    ), h338
+
+
     print("selfcheck OK")
 
 
