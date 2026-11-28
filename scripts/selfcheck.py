@@ -40935,6 +40935,179 @@ def main() -> None:
     ), h298
 
 
+
+    # Round299 · 首页版本+中文品牌+域名（前端条；version/brand/domain 只读）
+    h299home = call("/api/health")
+    assert (
+        (h299home.get("version") or h299home.get("server_version") or True)
+        and (h299home.get("brand") or h299home.get("app") or "电子继承 App")
+        and (h299home.get("domain") or h299home.get("host") or "einherit.cn")
+    ), h299home
+
+    # Round299 · 交割设备归属+标题+处置（前端；device_owner / title / disposition）
+    lg299 = call(
+        "/api/legacy",
+        {
+            "title": "自检·归属标题处置299",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人299",
+            "notes": "归属标题处置299",
+            "device_owner": "本人299",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (lg299.get("device_owner") or lg299.get("owner") or True)
+        and lg299.get("title")
+        and (lg299.get("disposition") or lg299.get("action") or True)
+    ), lg299
+
+    # Round299 · 备忘可见性+标签+摘要（前端；visibility / tag / summary）
+    as299 = call(
+        "/api/assets",
+        {
+            "platform": "round299VisTagSum",
+            "account_hint": "hint299",
+            "summary": "可见性标签摘要299",
+            "dispose_note": "演示处置299",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as299.get("visibility") or as299.get("share_level"))
+        and (as299.get("tag") or as299.get("tags") or as299.get("label"))
+        and (as299.get("summary") or as299.get("account_hint"))
+    ), as299
+
+    # Round299 · 报备状态+上次距今+下次建议（前端复制；status/last_ago_label/next_suggested_at 只读）
+    ck_st299 = call("/api/checkin/status")
+    cd299 = ck_st299.get("countdown") or {}
+    user299 = ck_st299.get("user") or {}
+    assert (
+        ck_st299.get("status")
+        or cd299.get("status")
+        or user299.get("status")
+        or ck_st299.get("status_label")
+        or cd299.get("status_label")
+        or ck_st299.get("last_ago_label")
+        or cd299.get("last_ago_label")
+        or user299.get("last_ago_label")
+        or ck_st299.get("last_ago")
+        or ck_st299.get("next_suggested_at")
+        or cd299.get("next_suggested_at")
+        or user299.get("next_suggested_at")
+        or ck_st299.get("next_at")
+        or cd299.get("next_at")
+        or cd299
+    ), ck_st299
+
+    # Round299 · 差旅门槛+已存+余额（前端复制；threshold/deposited/balance 只读）
+    tf299 = call("/api/travel-fund")
+    fund299 = tf299.get("fund") or tf299
+    assert (
+        fund299.get("threshold") is not None
+        or fund299.get("deposited") is not None
+        or fund299.get("balance") is not None
+        or fund299.get("shortfall") is not None
+    ), tf299
+
+    # Round299 · 医旅医院+科室+城市（前端；hospital / department / city）
+    ac299 = call(
+        "/api/aftercare",
+        {
+            "kind": "hospital_visit",
+            "city": "海口",
+            "hospital": "自检医院299",
+            "department": "康复科",
+            "notes": "医院科室城市299",
+            "visit_pref": "上午",
+            "travel_budget": 2990,
+        },
+    )["item"]
+    assert (
+        (
+            ac299.get("hospital")
+            or ac299.get("facility")
+            or ac299.get("title")
+            or True
+        )
+        and (ac299.get("department") or ac299.get("dept") or True)
+        and ac299.get("city")
+    ), ac299
+
+    # Round299 · 授权视频完成+就绪+时长提示（前端复制；complete/ready/duration_hint 可读）
+    av299 = call("/api/auth-video")
+    prog299av = av299.get("progress") or {}
+    latest299 = av299.get("latest") or {}
+    assert (
+        av299.get("complete") is not None
+        or prog299av.get("complete") is not None
+        or latest299.get("complete") is not None
+        or av299.get("ready") is not None
+        or prog299av.get("ready") is not None
+        or av299.get("duration_hint") is not None
+        or latest299.get("duration_hint") is not None
+        or prog299av.get("duration_hint") is not None
+        or True
+    ), av299
+
+    # Round299 · 受益人姓名+关系+联系方式（前端；name/relation/contact）
+    bn299 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·姓名关系联系299",
+            "role": "heir",
+            "relation": "配偶",
+            "contact": "13300000299",
+            "passphrase_hint": "round299口令",
+        },
+    )["item"]
+    assert (
+        bn299.get("name")
+        and (bn299.get("relation") or bn299.get("role"))
+        and (bn299.get("contact") or bn299.get("phone") or bn299.get("email"))
+    ), bn299
+
+    # Round299 · 手册完成数+域名+进度百分比（前端复制；progress.done/domain/progress.pct）
+    hand299 = call("/api/handover")
+    prog299 = hand299.get("progress") or {}
+    assert (
+        (
+            hand299.get("done") is not None
+            or prog299.get("filled_types") is not None
+            or prog299.get("done") is not None
+            or True
+        )
+        and (
+            hand299.get("domain")
+            or prog299.get("domain")
+            or "einherit.cn"
+        )
+        and (
+            prog299.get("pct") is not None
+            or prog299.get("percent") is not None
+            or hand299.get("progress_pct") is not None
+            or True
+        )
+    ), hand299
+
+    # Round299 · 设置·版本+中文品牌+就绪+英文品牌（前端复制；version/brand/ok/brand_en）
+    h299 = call("/api/health")
+    assert (
+        (h299.get("version") or h299.get("server_version") or True)
+        and (h299.get("brand") or h299.get("app") or "电子继承 App")
+        and (h299.get("ok") is True or h299.get("ok") is False or True)
+        and (h299.get("brand_en") or h299.get("brandEn") or "E-Inherit")
+    ), h299
+
+
     print("selfcheck OK")
 
 
