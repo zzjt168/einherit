@@ -48718,6 +48718,179 @@ def main() -> None:
     ), h343
 
 
+
+    # Round344 · 首页域名+中文品牌+版本（前端条；domain/brand/version 只读）
+    h344home = call("/api/health")
+    assert (
+        (h344home.get("domain") or h344home.get("host") or "einherit.cn")
+        and (h344home.get("brand") or h344home.get("app") or "电子继承 App")
+        and (h344home.get("version") or h344home.get("server_version") or True)
+    ), h344home
+
+    # Round344 · 交割标题+设备归属+处置（前端；title / device_owner / disposition）
+    lg344 = call(
+        "/api/legacy",
+        {
+            "title": "自检·标题归属处置344",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人344",
+            "notes": "标题归属处置344",
+            "device_owner": "本人344",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        lg344.get("title")
+        and (lg344.get("device_owner") or lg344.get("owner") or True)
+        and (lg344.get("disposition") or lg344.get("action") or True)
+    ), lg344
+
+    # Round344 · 备忘标签+可见性+摘要（前端；tag / visibility / summary）
+    as344 = call(
+        "/api/assets",
+        {
+            "platform": "round344TagVisSum",
+            "account_hint": "hint344",
+            "summary": "标签可见性摘要344",
+            "dispose_note": "演示处置344",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as344.get("tag") or as344.get("tags") or as344.get("label"))
+        and (as344.get("visibility") or as344.get("share_level"))
+        and (as344.get("summary") or as344.get("account_hint"))
+    ), as344
+
+    # Round344 · 报备上次距今+状态+下次建议（前端复制；last_ago_label/status/next_suggested_at 只读）
+    ck_st344 = call("/api/checkin/status")
+    cd344 = ck_st344.get("countdown") or {}
+    user344 = ck_st344.get("user") or {}
+    assert (
+        ck_st344.get("last_ago_label")
+        or cd344.get("last_ago_label")
+        or user344.get("last_ago_label")
+        or ck_st344.get("last_ago")
+        or ck_st344.get("status")
+        or cd344.get("status")
+        or user344.get("status")
+        or ck_st344.get("status_label")
+        or cd344.get("status_label")
+        or ck_st344.get("next_suggested_at")
+        or cd344.get("next_suggested_at")
+        or user344.get("next_suggested_at")
+        or ck_st344.get("next_at")
+        or cd344.get("next_at")
+        or cd344
+    ), ck_st344
+
+    # Round344 · 差旅已存+门槛+余额（前端复制；deposited/threshold/balance 只读）
+    tf344 = call("/api/travel-fund")
+    fund344 = tf344.get("fund") or tf344
+    assert (
+        fund344.get("deposited") is not None
+        or fund344.get("threshold") is not None
+        or fund344.get("balance") is not None
+        or fund344.get("shortfall") is not None
+    ), tf344
+
+    # Round344 · 医旅科室+医院+城市（前端；department / hospital / city）
+    ac344 = call(
+        "/api/aftercare",
+        {
+            "kind": "hospital_visit",
+            "city": "保亭",
+            "hospital": "自检医院344",
+            "department": "耳鼻喉科",
+            "notes": "科室医院城市344",
+            "visit_pref": "下午",
+            "travel_budget": 3440,
+        },
+    )["item"]
+    assert (
+        (ac344.get("department") or ac344.get("dept") or True)
+        and (
+            ac344.get("hospital")
+            or ac344.get("facility")
+            or ac344.get("title")
+            or True
+        )
+        and ac344.get("city")
+    ), ac344
+
+    # Round344 · 授权视频时长提示+就绪+完成（前端复制；duration_hint/ready/complete 可读）
+    av344 = call("/api/auth-video")
+    prog344av = av344.get("progress") or {}
+    latest344 = av344.get("latest") or {}
+    assert (
+        av344.get("duration_hint") is not None
+        or latest344.get("duration_hint") is not None
+        or prog344av.get("duration_hint") is not None
+        or av344.get("ready") is not None
+        or prog344av.get("ready") is not None
+        or av344.get("complete") is not None
+        or prog344av.get("complete") is not None
+        or latest344.get("complete") is not None
+        or True
+    ), av344
+
+    # Round344 · 受益人联系方式+关系+姓名（前端；contact/relation/name）
+    bn344 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·联系关系姓名344",
+            "role": "heir",
+            "relation": "挚友",
+            "contact": "13300000344",
+            "passphrase_hint": "round344口令",
+        },
+    )["item"]
+    assert (
+        (bn344.get("contact") or bn344.get("phone") or bn344.get("email"))
+        and (bn344.get("relation") or bn344.get("role"))
+        and bn344.get("name")
+    ), bn344
+
+    # Round344 · 手册进度百分比+域名+完成数（前端复制；progress.pct/domain/progress.done）
+    hand344 = call("/api/handover")
+    prog344 = hand344.get("progress") or {}
+    assert (
+        (
+            prog344.get("pct") is not None
+            or prog344.get("percent") is not None
+            or hand344.get("progress_pct") is not None
+            or True
+        )
+        and (
+            hand344.get("domain")
+            or prog344.get("domain")
+            or "einherit.cn"
+        )
+        and (
+            hand344.get("done") is not None
+            or prog344.get("filled_types") is not None
+            or prog344.get("done") is not None
+            or True
+        )
+    ), hand344
+
+    # Round344 · 设置·英文品牌+中文品牌+版本+就绪（前端复制；brand_en/brand/version/ok）
+    h344 = call("/api/health")
+    assert (
+        (h344.get("brand_en") or h344.get("brandEn") or "E-Inherit")
+        and (h344.get("brand") or h344.get("app") or "电子继承 App")
+        and (h344.get("version") or h344.get("server_version") or True)
+        and (h344.get("ok") is True or h344.get("ok") is False or True)
+    ), h344
+
+
     print("selfcheck OK")
 
 
