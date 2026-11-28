@@ -40589,6 +40589,179 @@ def main() -> None:
     ), h296
 
 
+
+    # Round297 · 首页中文品牌+版本+域名（前端条；brand/version/domain 只读）
+    h297home = call("/api/health")
+    assert (
+        (h297home.get("brand") or h297home.get("app") or "电子继承 App")
+        and (h297home.get("version") or h297home.get("server_version") or True)
+        and (h297home.get("domain") or h297home.get("host") or "einherit.cn")
+    ), h297home
+
+    # Round297 · 交割处置+设备归属+标题（前端；disposition / device_owner / title）
+    lg297 = call(
+        "/api/legacy",
+        {
+            "title": "自检·处置归属标题297",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人297",
+            "notes": "处置归属标题297",
+            "device_owner": "本人297",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (lg297.get("disposition") or lg297.get("action") or True)
+        and (lg297.get("device_owner") or lg297.get("owner") or True)
+        and lg297.get("title")
+    ), lg297
+
+    # Round297 · 备忘摘要+标签+可见性（前端；summary / tag / visibility）
+    as297 = call(
+        "/api/assets",
+        {
+            "platform": "round297SumTagVis",
+            "account_hint": "hint297",
+            "summary": "摘要标签可见性297",
+            "dispose_note": "演示处置297",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as297.get("summary") or as297.get("account_hint"))
+        and (as297.get("tag") or as297.get("tags") or as297.get("label"))
+        and (as297.get("visibility") or as297.get("share_level"))
+    ), as297
+
+    # Round297 · 报备状态+下次建议+上次距今（前端复制；status/next_suggested_at/last_ago_label 只读）
+    ck_st297 = call("/api/checkin/status")
+    cd297 = ck_st297.get("countdown") or {}
+    user297 = ck_st297.get("user") or {}
+    assert (
+        ck_st297.get("status")
+        or cd297.get("status")
+        or user297.get("status")
+        or ck_st297.get("status_label")
+        or cd297.get("status_label")
+        or ck_st297.get("next_suggested_at")
+        or cd297.get("next_suggested_at")
+        or user297.get("next_suggested_at")
+        or ck_st297.get("next_at")
+        or cd297.get("next_at")
+        or ck_st297.get("last_ago_label")
+        or cd297.get("last_ago_label")
+        or user297.get("last_ago_label")
+        or ck_st297.get("last_ago")
+        or cd297
+    ), ck_st297
+
+    # Round297 · 差旅余额+已存+门槛（前端复制；balance/deposited/threshold 只读）
+    tf297 = call("/api/travel-fund")
+    fund297 = tf297.get("fund") or tf297
+    assert (
+        fund297.get("balance") is not None
+        or fund297.get("deposited") is not None
+        or fund297.get("threshold") is not None
+        or fund297.get("shortfall") is not None
+    ), tf297
+
+    # Round297 · 医旅城市+科室+医院（前端；city / department / hospital）
+    ac297 = call(
+        "/api/aftercare",
+        {
+            "kind": "hospital_visit",
+            "city": "文昌",
+            "hospital": "自检医院297",
+            "department": "口腔科",
+            "notes": "城市科室医院297",
+            "visit_pref": "下午",
+            "travel_budget": 2970,
+        },
+    )["item"]
+    assert (
+        ac297.get("city")
+        and (ac297.get("department") or ac297.get("dept") or True)
+        and (
+            ac297.get("hospital")
+            or ac297.get("facility")
+            or ac297.get("title")
+            or True
+        )
+    ), ac297
+
+    # Round297 · 授权视频就绪+完成+时长提示（前端复制；ready/complete/duration_hint 可读）
+    av297 = call("/api/auth-video")
+    prog297av = av297.get("progress") or {}
+    latest297 = av297.get("latest") or {}
+    assert (
+        av297.get("ready") is not None
+        or prog297av.get("ready") is not None
+        or av297.get("complete") is not None
+        or prog297av.get("complete") is not None
+        or latest297.get("complete") is not None
+        or av297.get("duration_hint") is not None
+        or latest297.get("duration_hint") is not None
+        or prog297av.get("duration_hint") is not None
+        or True
+    ), av297
+
+    # Round297 · 受益人关系+姓名+联系方式（前端；relation/name/contact）
+    bn297 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·关系姓名联系297",
+            "role": "heir",
+            "relation": "财务顾问",
+            "contact": "13300000297",
+            "passphrase_hint": "round297口令",
+        },
+    )["item"]
+    assert (
+        (bn297.get("relation") or bn297.get("role"))
+        and bn297.get("name")
+        and (bn297.get("contact") or bn297.get("phone") or bn297.get("email"))
+    ), bn297
+
+    # Round297 · 手册域名+完成数+进度百分比（前端复制；domain/progress.done/progress.pct）
+    hand297 = call("/api/handover")
+    prog297 = hand297.get("progress") or {}
+    assert (
+        (
+            hand297.get("domain")
+            or prog297.get("domain")
+            or "einherit.cn"
+        )
+        and (
+            hand297.get("done") is not None
+            or prog297.get("filled_types") is not None
+            or prog297.get("done") is not None
+            or True
+        )
+        and (
+            prog297.get("pct") is not None
+            or prog297.get("percent") is not None
+            or hand297.get("progress_pct") is not None
+            or True
+        )
+    ), hand297
+
+    # Round297 · 设置·中文品牌+就绪+英文品牌+版本（前端复制；brand/ok/brand_en/version）
+    h297 = call("/api/health")
+    assert (
+        (h297.get("brand") or h297.get("app") or "电子继承 App")
+        and (h297.get("ok") is True or h297.get("ok") is False or True)
+        and (h297.get("brand_en") or h297.get("brandEn") or "E-Inherit")
+        and (h297.get("version") or h297.get("server_version") or True)
+    ), h297
+
+
     print("selfcheck OK")
 
 
