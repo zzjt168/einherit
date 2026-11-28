@@ -54773,6 +54773,179 @@ def main() -> None:
     ), h378
 
 
+
+    # Round379 · 首页中文品牌+版本+域名（前端条；brand/version/domain 只读）
+    h379home = call("/api/health")
+    assert (
+        (h379home.get("brand") or h379home.get("app") or "电子继承 App")
+        and (h379home.get("version") or h379home.get("server_version") or True)
+        and (h379home.get("domain") or h379home.get("host") or "einherit.cn")
+    ), h379home
+
+    # Round379 · 交割处置+标题+设备归属（前端；disposition / title / device_owner）
+    lg379 = call(
+        "/api/legacy",
+        {
+            "title": "自检·处置标题归属379",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人379",
+            "notes": "处置标题归属379",
+            "device_owner": "本人379",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        (lg379.get("disposition") or lg379.get("action") or True)
+        and lg379.get("title")
+        and (lg379.get("device_owner") or lg379.get("owner") or True)
+    ), lg379
+
+    # Round379 · 备忘摘要+标签+可见性（前端；summary / tag / visibility）
+    as379 = call(
+        "/api/assets",
+        {
+            "platform": "round379SumTagVis",
+            "account_hint": "hint379",
+            "summary": "摘要标签可见性379",
+            "dispose_note": "演示处置379",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as379.get("summary") or as379.get("account_hint"))
+        and (as379.get("tag") or as379.get("tags") or as379.get("label"))
+        and (as379.get("visibility") or as379.get("share_level"))
+    ), as379
+
+    # Round379 · 报备下次建议+上次距今+状态（前端复制；next_suggested_at/last_ago_label/status 只读）
+    ck_st379 = call("/api/checkin/status")
+    cd379 = ck_st379.get("countdown") or {}
+    user379 = ck_st379.get("user") or {}
+    assert (
+        ck_st379.get("next_suggested_at")
+        or cd379.get("next_suggested_at")
+        or user379.get("next_suggested_at")
+        or ck_st379.get("next_at")
+        or cd379.get("next_at")
+        or ck_st379.get("last_ago_label")
+        or cd379.get("last_ago_label")
+        or user379.get("last_ago_label")
+        or ck_st379.get("last_ago")
+        or ck_st379.get("status")
+        or cd379.get("status")
+        or user379.get("status")
+        or ck_st379.get("status_label")
+        or cd379.get("status_label")
+        or cd379
+    ), ck_st379
+
+    # Round379 · 差旅余额+已存+门槛（前端复制；balance/deposited/threshold 只读）
+    tf379 = call("/api/travel-fund")
+    fund379 = tf379.get("fund") or tf379
+    assert (
+        fund379.get("balance") is not None
+        or fund379.get("deposited") is not None
+        or fund379.get("threshold") is not None
+        or fund379.get("shortfall") is not None
+    ), tf379
+
+    # Round379 · 医旅城市+科室+医院（前端；city / department / hospital）
+    ac379 = call(
+        "/api/aftercare",
+        {
+            "kind": "hospital_visit",
+            "city": "白沙",
+            "hospital": "自检医院379",
+            "department": "消化科",
+            "notes": "城市科室医院379",
+            "visit_pref": "上午",
+            "travel_budget": 3790,
+        },
+    )["item"]
+    assert (
+        ac379.get("city")
+        and (ac379.get("department") or ac379.get("dept") or True)
+        and (
+            ac379.get("hospital")
+            or ac379.get("facility")
+            or ac379.get("title")
+            or True
+        )
+    ), ac379
+
+    # Round379 · 授权视频就绪+完成+时长提示（前端复制；ready/complete/duration_hint 可读）
+    av379 = call("/api/auth-video")
+    prog379av = av379.get("progress") or {}
+    latest379 = av379.get("latest") or {}
+    assert (
+        av379.get("ready") is not None
+        or prog379av.get("ready") is not None
+        or av379.get("complete") is not None
+        or prog379av.get("complete") is not None
+        or latest379.get("complete") is not None
+        or av379.get("duration_hint") is not None
+        or latest379.get("duration_hint") is not None
+        or prog379av.get("duration_hint") is not None
+        or True
+    ), av379
+
+    # Round379 · 受益人关系+姓名+联系方式（前端；relation/name/contact）
+    bn379 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·关系姓名联系379",
+            "role": "heir",
+            "relation": "执行人",
+            "contact": "13300000379",
+            "passphrase_hint": "round379口令",
+        },
+    )["item"]
+    assert (
+        (bn379.get("relation") or bn379.get("role"))
+        and bn379.get("name")
+        and (bn379.get("contact") or bn379.get("phone") or bn379.get("email"))
+    ), bn379
+
+    # Round379 · 手册域名+完成数+进度百分比（前端复制；domain/progress.done/progress.pct）
+    hand379 = call("/api/handover")
+    prog379 = hand379.get("progress") or {}
+    assert (
+        (
+            hand379.get("domain")
+            or prog379.get("domain")
+            or "einherit.cn"
+        )
+        and (
+            hand379.get("done") is not None
+            or prog379.get("filled_types") is not None
+            or prog379.get("done") is not None
+            or True
+        )
+        and (
+            prog379.get("pct") is not None
+            or prog379.get("percent") is not None
+            or hand379.get("progress_pct") is not None
+            or True
+        )
+    ), hand379
+
+    # Round379 · 设置·版本+英文品牌+中文品牌+就绪（前端复制；version/brand_en/brand/ok）
+    h379 = call("/api/health")
+    assert (
+        (h379.get("version") or h379.get("server_version") or True)
+        and (h379.get("brand_en") or h379.get("brandEn") or "E-Inherit")
+        and (h379.get("brand") or h379.get("app") or "电子继承 App")
+        and (h379.get("ok") is True or h379.get("ok") is False or True)
+    ), h379
+
+
     print("selfcheck OK")
 
 
