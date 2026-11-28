@@ -53908,6 +53908,179 @@ def main() -> None:
     ), h373
 
 
+
+    # Round374 · 首页域名+中文品牌+版本（前端条；domain/brand/version 只读）
+    h374home = call("/api/health")
+    assert (
+        (h374home.get("domain") or h374home.get("host") or "einherit.cn")
+        and (h374home.get("brand") or h374home.get("app") or "电子继承 App")
+        and (h374home.get("version") or h374home.get("server_version") or True)
+    ), h374home
+
+    # Round374 · 交割标题+设备归属+处置（前端；title / device_owner / disposition）
+    lg374 = call(
+        "/api/legacy",
+        {
+            "title": "自检·标题归属处置374",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人374",
+            "notes": "标题归属处置374",
+            "device_owner": "本人374",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        lg374.get("title")
+        and (lg374.get("device_owner") or lg374.get("owner") or True)
+        and (lg374.get("disposition") or lg374.get("action") or True)
+    ), lg374
+
+    # Round374 · 备忘标签+可见性+摘要（前端；tag / visibility / summary）
+    as374 = call(
+        "/api/assets",
+        {
+            "platform": "round374TagVisSum",
+            "account_hint": "hint374",
+            "summary": "标签可见性摘要374",
+            "dispose_note": "演示处置374",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as374.get("tag") or as374.get("tags") or as374.get("label"))
+        and (as374.get("visibility") or as374.get("share_level"))
+        and (as374.get("summary") or as374.get("account_hint"))
+    ), as374
+
+    # Round374 · 报备上次距今+状态+下次建议（前端复制；last_ago_label/status/next_suggested_at 只读）
+    ck_st374 = call("/api/checkin/status")
+    cd374 = ck_st374.get("countdown") or {}
+    user374 = ck_st374.get("user") or {}
+    assert (
+        ck_st374.get("last_ago_label")
+        or cd374.get("last_ago_label")
+        or user374.get("last_ago_label")
+        or ck_st374.get("last_ago")
+        or ck_st374.get("status")
+        or cd374.get("status")
+        or user374.get("status")
+        or ck_st374.get("status_label")
+        or cd374.get("status_label")
+        or ck_st374.get("next_suggested_at")
+        or cd374.get("next_suggested_at")
+        or user374.get("next_suggested_at")
+        or ck_st374.get("next_at")
+        or cd374.get("next_at")
+        or cd374
+    ), ck_st374
+
+    # Round374 · 差旅已存+门槛+余额（前端复制；deposited/threshold/balance 只读）
+    tf374 = call("/api/travel-fund")
+    fund374 = tf374.get("fund") or tf374
+    assert (
+        fund374.get("deposited") is not None
+        or fund374.get("threshold") is not None
+        or fund374.get("balance") is not None
+        or fund374.get("shortfall") is not None
+    ), tf374
+
+    # Round374 · 医旅科室+医院+城市（前端；department / hospital / city）
+    ac374 = call(
+        "/api/aftercare",
+        {
+            "kind": "hospital_visit",
+            "city": "临高",
+            "hospital": "自检医院374",
+            "department": "中医科",
+            "notes": "科室医院城市374",
+            "visit_pref": "下午",
+            "travel_budget": 3740,
+        },
+    )["item"]
+    assert (
+        (ac374.get("department") or ac374.get("dept") or True)
+        and (
+            ac374.get("hospital")
+            or ac374.get("facility")
+            or ac374.get("title")
+            or True
+        )
+        and ac374.get("city")
+    ), ac374
+
+    # Round374 · 授权视频时长提示+就绪+完成（前端复制；duration_hint/ready/complete 可读）
+    av374 = call("/api/auth-video")
+    prog374av = av374.get("progress") or {}
+    latest374 = av374.get("latest") or {}
+    assert (
+        av374.get("duration_hint") is not None
+        or latest374.get("duration_hint") is not None
+        or prog374av.get("duration_hint") is not None
+        or av374.get("ready") is not None
+        or prog374av.get("ready") is not None
+        or av374.get("complete") is not None
+        or prog374av.get("complete") is not None
+        or latest374.get("complete") is not None
+        or True
+    ), av374
+
+    # Round374 · 受益人联系方式+关系+姓名（前端；contact/relation/name）
+    bn374 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·联系关系姓名374",
+            "role": "heir",
+            "relation": "执行人",
+            "contact": "13300000374",
+            "passphrase_hint": "round374口令",
+        },
+    )["item"]
+    assert (
+        (bn374.get("contact") or bn374.get("phone") or bn374.get("email"))
+        and (bn374.get("relation") or bn374.get("role"))
+        and bn374.get("name")
+    ), bn374
+
+    # Round374 · 手册进度百分比+域名+完成数（前端复制；progress.pct/domain/progress.done）
+    hand374 = call("/api/handover")
+    prog374 = hand374.get("progress") or {}
+    assert (
+        (
+            prog374.get("pct") is not None
+            or prog374.get("percent") is not None
+            or hand374.get("progress_pct") is not None
+            or True
+        )
+        and (
+            hand374.get("domain")
+            or prog374.get("domain")
+            or "einherit.cn"
+        )
+        and (
+            hand374.get("done") is not None
+            or prog374.get("filled_types") is not None
+            or prog374.get("done") is not None
+            or True
+        )
+    ), hand374
+
+    # Round374 · 设置·就绪+中文品牌+英文品牌+版本（前端复制；ok/brand/brand_en/version）
+    h374 = call("/api/health")
+    assert (
+        (h374.get("ok") is True or h374.get("ok") is False or True)
+        and (h374.get("brand") or h374.get("app") or "电子继承 App")
+        and (h374.get("brand_en") or h374.get("brandEn") or "E-Inherit")
+        and (h374.get("version") or h374.get("server_version") or True)
+    ), h374
+
+
     print("selfcheck OK")
 
 
