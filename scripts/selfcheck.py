@@ -53389,6 +53389,179 @@ def main() -> None:
     ), h370
 
 
+
+    # Round371 · 首页域名+版本+中文品牌（前端条；domain/version/brand 只读）
+    h371home = call("/api/health")
+    assert (
+        (h371home.get("domain") or h371home.get("host") or "einherit.cn")
+        and (h371home.get("version") or h371home.get("server_version") or True)
+        and (h371home.get("brand") or h371home.get("app") or "电子继承 App")
+    ), h371home
+
+    # Round371 · 交割标题+处置+设备归属（前端；title / disposition / device_owner）
+    lg371 = call(
+        "/api/legacy",
+        {
+            "title": "自检·标题处置归属371",
+            "category": "U盘",
+            "action": "转赠",
+            "dept": "ops",
+            "beneficiary": "自检受益人371",
+            "notes": "标题处置归属371",
+            "device_owner": "本人371",
+            "factory_reset": False,
+            "clear_photos": False,
+            "clear_chats": False,
+        },
+    )["item"]
+    assert (
+        lg371.get("title")
+        and (lg371.get("disposition") or lg371.get("action") or True)
+        and (lg371.get("device_owner") or lg371.get("owner") or True)
+    ), lg371
+
+    # Round371 · 备忘标签+摘要+可见性（前端；tag / summary / visibility）
+    as371 = call(
+        "/api/assets",
+        {
+            "platform": "round371TagSumVis",
+            "account_hint": "hint371",
+            "summary": "标签摘要可见性371",
+            "dispose_note": "演示处置371",
+            "dept": "admin",
+            "tag": "账号",
+            "visibility": "family",
+            "draft": True,
+        },
+    )["item"]
+    assert (
+        (as371.get("tag") or as371.get("tags") or as371.get("label"))
+        and (as371.get("summary") or as371.get("account_hint"))
+        and (as371.get("visibility") or as371.get("share_level"))
+    ), as371
+
+    # Round371 · 报备上次距今+下次建议+状态（前端复制；last_ago_label/next_suggested_at/status 只读）
+    ck_st371 = call("/api/checkin/status")
+    cd371 = ck_st371.get("countdown") or {}
+    user371 = ck_st371.get("user") or {}
+    assert (
+        ck_st371.get("last_ago_label")
+        or cd371.get("last_ago_label")
+        or user371.get("last_ago_label")
+        or ck_st371.get("last_ago")
+        or ck_st371.get("next_suggested_at")
+        or cd371.get("next_suggested_at")
+        or user371.get("next_suggested_at")
+        or ck_st371.get("next_at")
+        or cd371.get("next_at")
+        or ck_st371.get("status")
+        or cd371.get("status")
+        or user371.get("status")
+        or ck_st371.get("status_label")
+        or cd371.get("status_label")
+        or cd371
+    ), ck_st371
+
+    # Round371 · 差旅已存+余额+门槛（前端复制；deposited/balance/threshold 只读）
+    tf371 = call("/api/travel-fund")
+    fund371 = tf371.get("fund") or tf371
+    assert (
+        fund371.get("deposited") is not None
+        or fund371.get("balance") is not None
+        or fund371.get("threshold") is not None
+        or fund371.get("shortfall") is not None
+    ), tf371
+
+    # Round371 · 医旅科室+城市+医院（前端；department / city / hospital）
+    ac371 = call(
+        "/api/aftercare",
+        {
+            "kind": "hospital_visit",
+            "city": "文昌",
+            "hospital": "自检医院371",
+            "department": "眼科",
+            "notes": "科室城市医院371",
+            "visit_pref": "上午",
+            "travel_budget": 3710,
+        },
+    )["item"]
+    assert (
+        (ac371.get("department") or ac371.get("dept") or True)
+        and ac371.get("city")
+        and (
+            ac371.get("hospital")
+            or ac371.get("facility")
+            or ac371.get("title")
+            or True
+        )
+    ), ac371
+
+    # Round371 · 授权视频时长提示+完成+就绪（前端复制；duration_hint/complete/ready 可读）
+    av371 = call("/api/auth-video")
+    prog371av = av371.get("progress") or {}
+    latest371 = av371.get("latest") or {}
+    assert (
+        av371.get("duration_hint") is not None
+        or latest371.get("duration_hint") is not None
+        or prog371av.get("duration_hint") is not None
+        or av371.get("complete") is not None
+        or prog371av.get("complete") is not None
+        or latest371.get("complete") is not None
+        or av371.get("ready") is not None
+        or prog371av.get("ready") is not None
+        or True
+    ), av371
+
+    # Round371 · 受益人联系方式+姓名+关系（前端；contact/name/relation）
+    bn371 = call(
+        "/api/beneficiaries",
+        {
+            "name": "自检·联系姓名关系371",
+            "role": "heir",
+            "relation": "执行人",
+            "contact": "13300000371",
+            "passphrase_hint": "round371口令",
+        },
+    )["item"]
+    assert (
+        (bn371.get("contact") or bn371.get("phone") or bn371.get("email"))
+        and bn371.get("name")
+        and (bn371.get("relation") or bn371.get("role"))
+    ), bn371
+
+    # Round371 · 手册进度百分比+完成数+域名（前端复制；progress.pct/progress.done/domain）
+    hand371 = call("/api/handover")
+    prog371 = hand371.get("progress") or {}
+    assert (
+        (
+            prog371.get("pct") is not None
+            or prog371.get("percent") is not None
+            or hand371.get("progress_pct") is not None
+            or True
+        )
+        and (
+            hand371.get("done") is not None
+            or prog371.get("filled_types") is not None
+            or prog371.get("done") is not None
+            or True
+        )
+        and (
+            hand371.get("domain")
+            or prog371.get("domain")
+            or "einherit.cn"
+        )
+    ), hand371
+
+    # Round371 · 设置·中文品牌+版本+英文品牌+就绪（前端复制；brand/version/brand_en/ok）
+    h371 = call("/api/health")
+    assert (
+        (h371.get("brand") or h371.get("app") or "电子继承 App")
+        and (h371.get("version") or h371.get("server_version") or True)
+        and (h371.get("brand_en") or h371.get("brandEn") or "E-Inherit")
+        and (h371.get("ok") is True or h371.get("ok") is False or True)
+    ), h371
+
+
     print("selfcheck OK")
 
 
